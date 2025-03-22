@@ -35,5 +35,7 @@
   "reload": "Reload",
   "api": "Secured API",
   "api-answer": "Secured API answer",
-  "log-out-someone": "Log out {{name}}"
+  "log-out-someone": "Log out {{name}}",
+  "brand": "SCTG",
+  "Feedback Flow": "Feedback Flow"
 }

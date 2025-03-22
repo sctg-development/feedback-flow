@@ -35,5 +35,7 @@
   "reload": "Recharger",
   "api": "API sécurisée",
   "api-answer": "Réponse API sécurisée",
-  "log-out-someone": "Se déconnecter {{name}}"
+  "log-out-someone": "Se déconnecter {{name}}",
+  "brand": "SCTG",
+  "Feedback Flow": "Feedback Flow"
 }

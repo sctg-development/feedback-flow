@@ -35,5 +35,7 @@
   "reload": "إعادة تحميل",
   "api": "API المضمون",
   "api-answer": "API API المضمون",
-  "log-out-someone": "تسجيل الخروج {{name}}"
+  "log-out-someone": "تسجيل الخروج {{name}}",
+  "brand": "SCTG",
+  "Feedback Flow": "Feedback Flow"
 }

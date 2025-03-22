@@ -35,5 +35,7 @@
   "reload": "לִטעוֹן מִחָדָשׁ",
   "api": "API מאובטח",
   "api-answer": "תשובת API מאובטחת",
-  "log-out-someone": "התנתק {{name}}"
+  "log-out-someone": "התנתק {{name}}",
+  "brand": "SCTG",
+  "Feedback Flow": "Feedback Flow"
 }
