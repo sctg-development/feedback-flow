@@ -11,14 +11,20 @@ import {
 } from "@heroui/navbar";
 import { link as linkStyles } from "@heroui/theme";
 import { clsx } from "@heroui/shared-utils";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@heroui/dropdown";
 
 import { I18nIcon, LanguageSwitch } from "./language-switch";
 import { LoginLogoutButton, LoginLogoutLink } from "./auth0";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { GithubIcon, HeartFilledIcon } from "@/components/icons";
+import { ChevronDown, GithubIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
 
@@ -54,6 +60,30 @@ export const Navbar = () => {
             </NavbarItem>
           ))}
         </div>
+        <NavbarItem>
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                className={clsx(
+                  linkStyles({ color: "foreground" }),
+                  "data-[active=true]:text-primary data-[active=true]:font-medium",
+                )}
+                variant="light"
+              >
+                {t("Administration")} <ChevronDown />
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu>
+              {siteConfig().apiMenuItems.map((item) => (
+                <DropdownItem key={item.href} textValue={item.label}>
+                  <Link color="foreground" href="/add-user">
+                    {item.label}
+                  </Link>
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        </NavbarItem>
       </NavbarContent>
 
       <NavbarContent
@@ -70,18 +100,6 @@ export const Navbar = () => {
             icon={I18nIcon}
           />
           <LoginLogoutButton />
-        </NavbarItem>
-        <NavbarItem className="hidden md:flex">
-          <Button
-            isExternal
-            as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig().links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
-            variant="flat"
-          >
-            <Trans i18nKey="sponsor" />
-          </Button>
         </NavbarItem>
       </NavbarContent>
 

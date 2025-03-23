@@ -7,6 +7,8 @@ import { SiteLoading } from "./components/site-loading";
 import DefaultLayout from "./layouts/default";
 import { title } from "./components/primitives";
 import { AuthenticationGuard, LogoutButton } from "./components/auth0";
+import { siteConfig } from "./config/site";
+import AddNewUser from "./pages/add-new-user";
 
 import IndexPage from "@/pages/index";
 import ApiPage from "@/pages/api";
@@ -60,6 +62,13 @@ function App() {
           path="/blog"
         />
         <Route element={<AboutPage />} path="/about" />
+        {siteConfig().apiMenuItems.map((item) => (
+          <Route
+            key={item.href}
+            element={<AuthenticationGuard component={AddNewUser} />}
+            path={item.href}
+          />
+        ))}
       </Routes>
     </Suspense>
   );

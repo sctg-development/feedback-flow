@@ -37,5 +37,11 @@
   "api-answer": "Réponse API sécurisée",
   "log-out-someone": "Se déconnecter {{name}}",
   "brand": "SCTG",
-  "Feedback Flow": "Feedback Flow"
+  "Feedback Flow": "Feedback Flow",
+  "Administration": "Administration",
+  "add-a-new-user": "Ajouter un nouvel utilisateur",
+  "please-enter-a-name": "Veuillez saisir un nom",
+  "enter-the-user-name": "Entrez le nom d'utilisateur",
+  "submit": "Soumettre",
+  "name": "Nom"
 }

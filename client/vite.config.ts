@@ -78,6 +78,15 @@ export default defineConfig({
     ),
     "import.meta.env.AUTH0_SCOPE": JSON.stringify(process.env.AUTH0_SCOPE),
     "import.meta.env.API_BASE_URL": JSON.stringify(process.env.API_BASE_URL),
+    "import.meta.env.READ_PERMISSION": JSON.stringify(
+      process.env.READ_PERMISSION,
+    ),
+    "import.meta.env.WRITE_PERMISSION": JSON.stringify(
+      process.env.WRITE_PERMISSION,
+    ),
+    "import.meta.env.ADMIN_PERMISSION": JSON.stringify(
+      process.env.ADMIN_PERMISSION,
+    ),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss()],
   build: {

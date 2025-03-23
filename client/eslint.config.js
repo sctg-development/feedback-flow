@@ -25,6 +25,9 @@ export default [
         URL: 'readonly',
         console: 'readonly',
         fetch: 'readonly',
+        HTMLFormElement: 'readonly',
+        FormData: 'readonly',
+        FormDataEntryValue: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: {
@@ -34,8 +37,8 @@ export default [
     },
     settings: {
       react: {
-        version: 'detect'
-      }
+        version: '19'
+      },
     },
     plugins: {
       react: reactPlugin,

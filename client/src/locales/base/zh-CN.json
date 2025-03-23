@@ -37,5 +37,11 @@
   "api-answer": "安全的API答案",
   "log-out-someone": "注销{{name}}",
   "brand": "SCTG",
-  "Feedback Flow": "Feedback Flow"
+  "Feedback Flow": "Feedback Flow",
+  "Administration": "行政",
+  "add-a-new-user": "添加新用户",
+  "please-enter-a-name": "请输入名称",
+  "enter-the-user-name": "输入用户名",
+  "submit": "提交",
+  "name": "姓名"
 }

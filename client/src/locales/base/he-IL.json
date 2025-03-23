@@ -37,5 +37,11 @@
   "api-answer": "תשובת API מאובטחת",
   "log-out-someone": "התנתק {{name}}",
   "brand": "SCTG",
-  "Feedback Flow": "Feedback Flow"
+  "Feedback Flow": "Feedback Flow",
+  "Administration": "מִנהָל",
+  "add-a-new-user": "הוסף משתמש חדש",
+  "please-enter-a-name": "אנא הזן שם",
+  "enter-the-user-name": "הזן את שם המשתמש",
+  "submit": "לְהַגִישׁ",
+  "name": "שֵׁם"
 }

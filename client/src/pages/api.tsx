@@ -9,7 +9,7 @@ import { getJsonFromSecuredApi } from "@/components/auth0";
 
 export default function ApiPage() {
   const { t } = useTranslation();
-  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [apiResponse, setApiResponse] = useState("");
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function ApiPage() {
       if (isAuthenticated) {
         try {
           const response = await getJsonFromSecuredApi(
-            `${import.meta.env.API_BASE_URL}/get/${user?.sub}`,
+            `${import.meta.env.API_BASE_URL}/purchases/refunded`,
             getAccessTokenSilently,
           );
 

@@ -38,7 +38,7 @@
       }
     },
     "terminal.integrated.env.linux": {
-      "PROJECT_ROOT": "${workspaceFolder}"
+      "PROJECT_ROOT": "${workspaceFolder}/../"
     },
     "terminal.integrated.env.osx": {
       "PROJECT_ROOT": "${workspaceFolder}/../"

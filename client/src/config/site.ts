@@ -53,6 +53,12 @@ export const siteConfig = () => {
         href: "/about",
       },
     ],
+    apiMenuItems: [
+      {
+        label: i18next.t("add-a-new-user"),
+        href: "/add-user",
+      },
+    ],
     links: {
       github: "https://github.com/sctg-development/feedback-flow",
       sctg: "https://sctg.eu.org",

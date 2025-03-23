@@ -10,6 +10,7 @@
 		"lint": "eslint --fix",
 		"start": "wrangler dev",
 		"test": "vitest",
+		"test:debug": "vitest --inspect-brk --no-file-parallelism",
 		"test:api": "node --experimental-vm-modules ./node_modules/.bin/jest",
 		"cf-typegen": "wrangler types"
 	},
@@ -22,6 +23,7 @@
 		"@typescript-eslint/eslint-plugin": "^8.27.0",
 		"@typescript-eslint/parser": "^8.27.0",
 		"axios": "^1.8.4",
+		"dotenv": "^16.4.7",
 		"eslint": "^9.22.0",
 		"eslint-config-prettier": "^10.1.1",
 		"eslint-plugin-import": "^2.31.0",
