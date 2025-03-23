@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import * as jose from 'jose';
+import * as jose from "jose";
 
 /**
  * Verify a JWT token against the Auth0 JWKS
@@ -29,15 +29,26 @@ import * as jose from 'jose';
  * @param env the environment variables
  * @returns a promise that resolves to the payload of the JWT token
  */
-export const verifyToken = async (token: string, env: Env): Promise<jose.JWTPayload> => {
-	const JWKS = jose.createRemoteJWKSet(new URL(`https://${env.AUTH0_DOMAIN}/.well-known/jwks.json`));
+export const verifyToken = async (
+	token: string,
+	env: Env,
+): Promise<jose.JWTPayload> => {
+	const JWKS = jose.createRemoteJWKSet(
+		new URL(`https://${env.AUTH0_DOMAIN}/.well-known/jwks.json`),
+	);
 
-	const { payload } = await jose.jwtVerify(token, JWKS, {
-		issuer: `https://${env.AUTH0_DOMAIN}/`,
-		audience: env.AUTH0_AUDIENCE,
-	});
+	try {
+		const joseResult = await jose.jwtVerify(token, JWKS, {
+			issuer: `https://${env.AUTH0_DOMAIN}/`,
+			audience: env.AUTH0_AUDIENCE,
+		});
 
-	return payload;
+		const payload = joseResult.payload as jose.JWTPayload;
+
+		return payload;
+	} catch (error) {
+		throw new Error(`Invalid token: ${(error as Error).message}`);
+	}
 };
 
 /**
@@ -51,15 +62,34 @@ export const checkPermissions = async (
 	token: string,
 	permission: string | string[],
 	env: Env,
-): Promise<{ access: boolean; payload: jose.JWTPayload }> => {
+): Promise<{
+	access: boolean;
+	payload: jose.JWTPayload;
+	permissions: string[];
+}> => {
 	const payload = await verifyToken(token, env);
 	let access = false;
+	let permissions: string[] = [];
 
-	if (typeof permission === 'string') {
+	if (typeof permission === "string") {
 		access = (payload.permissions as string[]).includes(permission);
+		if (
+			payload.permissions instanceof Array &&
+			payload.permissions.every((item) => typeof item === "string")
+		) {
+			permissions = payload.permissions;
+		}
 	} else {
-		access = permission.some((p) => (payload.permissions as string[]).includes(p));
+		access = permission.some((p) =>
+			(payload.permissions as string[]).includes(p),
+		);
+		if (
+			payload.permissions instanceof Array &&
+			payload.permissions.every((item) => typeof item === "string")
+		) {
+			permissions = payload.permissions;
+		}
 	}
 
-	return { access, payload };
+	return { access, payload, permissions };
 };

@@ -80,57 +80,60 @@ Authentication is handled by Auth0. The system is provided by the template. It i
 
 ## REST API
 
-The REST API uses the base path `/api` and exchanges all objects in JSON. The API provides the following endpoints:
+The REST API exchanges all objects in JSON format. The API provides the following endpoints:
 
 ### Tester Management
 
-- **POST `/api/tester`** - Add a tester to the database (their ID is automatically generated with a UUID)
-  - Request: `{nom /* tester's name */: string}`
+- **POST `/api/tester`** - Add a tester to the database (their ID is automatically generated with a UUID) - needs admin:api permission
+  - Request: `{name /* tester's name */: string}`
   - Response: `{success: boolean, uuid /* tester's account UUID */: string}`
 
-- **POST `/api/tester/:uuid/ids`** - Add an ID to an existing tester
-  - Request: `{id /* sub from JWT */: string}`
-  - Response: `{success: boolean, uuid: string, ids: [string]}`
+- **POST `/api/tester/ids`** - Add an ID to the authenticated tester - needs admin:api permission
+  - Request: `{name /* tester's name */: string, id /* additional identifier */: string}`
+  - Response: `{success: boolean, name: string, ids: [string]}`
 
-- **GET `/api/tester/:uuid`** - Get information about a specific tester
+- **GET `/api/tester`** - Get information about the authenticated tester - needs admin:api permission
   - Response: `{success: boolean, data: {uuid: string, nom: string, ids: [string]}}`
 
 ### Purchase Management
 
-- **POST `/api/purchase`** - Add a purchase
-  - Request: `{date /* purchase date in YYYY-MM-DD format */: string, order /* order number */: string, description /* description of the item */: string, amount /* purchase amount */: number, screenshot /* jpeg image with the largest side < 1024px, base64 encoded, max 1MB */: string}`
+- **POST `/api/purchase`** - Add a purchase to the database - needs write:api permission
+  - Request: `{date /* purchase date in YYYY-MM-DD format */: string, order /* order number */: string, description /* description of the item */: string, amount /* purchase amount */: number, screenshot /* webp image with the largest side < 1024px, base64 encoded, max 1MB */: string}`
   - Response: `{success: boolean, id /* purchase UUID */: string}`
 
-- **GET `/api/purchase/:id`** - Get information about a specific purchase
+- **GET `/api/purchase/:id`** - Get information about a specific purchase - needs read:api permission
   - Response: `{success: boolean, data: {id: string, date: string, order: string, description: string, amount: number, screenshot: string}}`
 
-- **GET `/api/purchase`** - Get a list of the logged-in tester's non-refunded purchases
+- **GET `/api/purchase`** - Get a list of the authenticated tester's purchases - needs read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
   - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
 
-- **GET `/api/purchase/refunded`** - Get a list of the logged-in tester's refunded purchases
+- **GET `/api/purchases/not-refunded`** - Get a list of the authenticated tester's not-refunded purchases - needs read:api permission
+  - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
+  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
+  
+- **GET `/api/purchases/refunded`** - Get a list of the authenticated tester's refunded purchases - needs read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
   - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
 
 ### Feedback Management
 
-- **POST `/api/feedback`** - Add feedback
+- **POST `/api/feedback`** - Add feedback to the database - needs write:api permission
   - Request: `{date /* format YYYY-MM-DD */: string, purchase /* purchase UUID */: string, feedback /* optional feedback left */: string}`
   - Response: `{success: boolean, id: string}`
 
-- **POST `/api/publish`** - Record the publication of feedback
-  - Request: `{date /* format YYYY-MM-DD */: string, purchase /* purchase UUID */: string, screenshot /* jpeg image with the largest side < 1024px, base64 encoded, max 1MB */: string}`
+- **POST `/api/publish`** - Record the publication of feedback - needs write:api permission
+  - Request: `{date /* format YYYY-MM-DD */: string, purchase /* purchase UUID */: string, screenshot /* webp image with the largest side < 1024px, base64 encoded, max 1MB */: string}`
   - Response: `{success: boolean, id: string}`
 
-- **GET `/api/publish/:id`** - Get information about a specific publication
-  - Response: `{success: boolean, data: {id: string, date: string, purchase: string, screenshot: string}}`
+- **GET `/api/publish/:id`** - Get information about a specific publication - needs read:api permission
+  - Response: `{success: boolean, data: {date: string, purchase: string, screenshot: string}}`
 
 ### Refund Management
 
-- **POST `/api/refund`** - Record a refund
-
+- **POST `/api/refund`** - Record a refund - needs write:api permission
   - Request: `{date /* recording date in YYYY-MM-DD format */: string, purchase /* purchase UUID */: string, refunddate /* refund date in YYYY-MM-DD format */: string, amount /* refunded amount */: number}`
   - Response: `{success: boolean, id: string}`
 
-- **GET `/api/refund/:id`** - Get information about a specific refund
-  - Response: `{success: boolean, data: {id: string, date: string, purchase: string, refunddate: string, amount: number}}`
+- **GET `/api/refund/:id`** - Get information about a specific refund - needs read:api permission
+  - Response: `{success: boolean, data: {date: string, purchase: string, refunddate: string, amount: number}}`

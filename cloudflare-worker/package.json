@@ -7,27 +7,36 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"dev:env": "cp ../.env .dev.vars && wrangler dev",
+		"lint": "eslint --fix",
 		"start": "wrangler dev",
 		"test": "vitest",
+		"test:api": "node --experimental-vm-modules ./node_modules/.bin/jest",
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.3",
 		"@cloudflare/workers-types": "^4.20250320.0",
+		"@jest/globals": "^29.7.0",
+		"@types/jest": "^29.5.14",
 		"@types/node": "^22.13.11",
 		"@typescript-eslint/eslint-plugin": "^8.27.0",
 		"@typescript-eslint/parser": "^8.27.0",
+		"axios": "^1.8.4",
 		"eslint": "^9.22.0",
 		"eslint-config-prettier": "^10.1.1",
 		"eslint-plugin-import": "^2.31.0",
 		"eslint-plugin-node": "^11.1.0",
 		"eslint-plugin-prettier": "^5.2.3",
 		"eslint-plugin-unused-imports": "^4.1.4",
+		"jest": "^29.7.0",
+		"ts-jest": "^29.2.6",
+		"ts-node": "^10.9.2",
 		"typescript": "^5.8.2",
 		"vitest": "~3.0.9",
 		"wrangler": "^4.3.0"
 	},
 	"dependencies": {
-		"jose": "^6.0.10"
+		"jose": "^6.0.10",
+		"uuid": "^11.1.0"
 	}
 }

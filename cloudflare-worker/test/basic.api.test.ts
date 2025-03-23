@@ -1,0 +1,207 @@
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+import * as jose from 'jose';
+import { describe, test, expect, beforeAll, afterAll } from '@jest/globals';
+
+// Types
+interface Tester {
+  uuid: string;
+  name: string;
+  ids: string[];
+}
+
+interface Purchase {
+  id?: string;
+  testerId?: string;
+  date: string;
+  order: string;
+  description: string;
+  amount: number;
+  screenshot: string;
+  refunded?: boolean;
+}
+
+// Test configuration
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8787';
+const AUTH0_TOKEN = process.env.AUTH0_TOKEN || '';
+
+if (!AUTH0_TOKEN) {
+  throw new Error('AUTH0_TOKEN environment variable is required');
+}
+
+// Test state
+let testerId: string;
+let testerUuid: string;
+let purchaseId: string;
+
+// HTTP client with authorization
+const api = {
+  post: async (path: string, data: any) => {
+    return axios.post(`${API_BASE_URL}${path}`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AUTH0_TOKEN}`
+      }
+    });
+  },
+  get: async (path: string) => {
+    return axios.get(`${API_BASE_URL}${path}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AUTH0_TOKEN}`
+      }
+    });
+  },
+}
+
+// Small base64 encoded WebP image for testing
+const testImageBase64 = "UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==";
+
+describe('Feedback Flow API', () => {
+  beforeAll(async () => {
+    // Extract the user ID (sub) from the JWT token
+    const decodedToken = jose.decodeJwt(AUTH0_TOKEN);
+    testerId = decodedToken.sub as string;
+
+    console.log(`Using Auth0 user ID: ${testerId}`);
+  });
+  afterAll(() => {
+    // Stop the Wrangler dev server
+  });
+
+  test('01. Should create a new tester', async () => {
+    expect(testerId).toBeDefined();
+    expect(testerId).toMatch(/^[a-zA-Z0-9|]{8,30}$/);
+    const response = await api.post('/tester', {
+      name: 'TESTER'
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.uuid).toBeDefined();
+
+    testerUuid = response.data.uuid;
+    console.log(`Created tester with UUID: ${testerUuid}`);
+  });
+
+  test('02. Should add the OAuth ID to the tester', async () => {
+    const response = await api.post('/tester/ids', {
+      name: 'TESTER',
+      id: testerId
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.name).toBe('TESTER');
+    expect(response.data.ids).toContain(testerId);
+  });
+
+  test('03. Should not add duplicate OAuth ID to the tester', async () => {
+    const response = await api.post('/tester/ids', {
+      name: 'TESTER',
+      id: testerId
+    });
+    expect(response.status).toBe(209);
+    expect(response.data.success).toBe(false);
+    expect(response.data.message).toBe('ID already exists for this tester');
+  }
+  );
+
+  test('04. Should create a purchase', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
+      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      description: 'Test product purchase',
+      amount: 29.99,
+      screenshot: testImageBase64
+    };
+
+    const response = await api.post('/purchase', purchase);
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBeDefined();
+
+    purchaseId = response.data.id;
+    console.log(`Created purchase with ID: ${purchaseId}`);
+  });
+
+  test('05. Should add feedback for the purchase', async () => {
+    const response = await api.post('/feedback', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: purchaseId,
+      feedback: 'This is a fantastic product! Works exactly as described.'
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBe(purchaseId);
+  });
+
+  test('06. Should record publication of feedback', async () => {
+    const response = await api.post('/publish', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: purchaseId,
+      screenshot: testImageBase64
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBe(purchaseId);
+  });
+
+  test('07. Should verify the purchase is now in the not refunded list', async () => {
+    // Get the list of not refunded purchases
+    const response = await api.get('/purchases/not-refunded');
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    const notRefundedPurchase = response.data.data.find((p: any) => p.id === purchaseId);
+    expect(notRefundedPurchase).toBeDefined();
+    // Check if the not refunded list contains exactly 1 line (only our purchase)
+    console.log(`Not refunded purchase: ${JSON.stringify(notRefundedPurchase)}`);
+    expect(response.data.data.length).toBe(1);
+  });
+
+  test('08. Should record refund for the purchase', async () => {
+    const today = new Date().toISOString().split('T')[0];
+
+    const response = await api.post('/refund', {
+      date: today,
+      purchase: purchaseId,
+      refunddate: today, // Same day refund for testing
+      amount: 29.99
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBe(purchaseId);
+  });
+
+  test('09. Should verify the purchase is now not in the not refunded list', async () => {
+    // Get the list of refunded purchases
+    const response = await api.get('/purchases/not-refunded');
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+
+    // Check if our purchase is not the refunded list
+    const refundedPurchase = response.data.data.find((p: any) => p.id === purchaseId);
+    expect(refundedPurchase).toBeUndefined();
+  });
+
+  test('10. Should verify the purchase is now in the refunded list', async () => {
+    // Get the list of refunded purchases
+    const response = await api.get('/purchases/refunded');
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+
+    // Check if our purchase is in the refunded list
+    const refundedPurchase = response.data.data.find((p: any) => p.id === purchaseId);
+    expect(refundedPurchase).toBeDefined();
+    console.log(`Refunded purchase: ${JSON.stringify(response.data.data)}`);
+    // Check if the refund list contails exactly 1 line (only our purchase)
+    expect(response.data.data.length).toBe(1);
+  }
+  );
+});
