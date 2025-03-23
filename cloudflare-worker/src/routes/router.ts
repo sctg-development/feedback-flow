@@ -25,11 +25,26 @@ import { JWTPayload } from "jose";
 
 import { checkPermissions } from "../auth0";
 
+/**
+ * Represents a route handler function
+ *
+ * @param request - The incoming HTTP request with added params and optional user data
+ * @param env - Environment variables and bindings for the Cloudflare Worker
+ * @returns A Promise resolving to an HTTP Response
+ */
 type RouteHandler = (
 	request: Request & { params: Record<string, string>; user?: any },
 	env: Env,
 ) => Promise<Response>;
 
+/**
+ * Represents a registered route
+ *
+ * @property path - URL path pattern
+ * @property method - HTTP method (GET, POST, PUT, DELETE)
+ * @property handler - Function to handle matching requests
+ * @property permission - Optional permission required to access this route
+ */
 interface Route {
 	path: string;
 	method: string;
@@ -37,12 +52,46 @@ interface Route {
 	permission?: string;
 }
 
+/**
+ * A routing implementation for Cloudflare Workers that handles HTTP requests with path matching and permission controls.
+ *
+ * @remarks
+ * This router provides methods to register route handlers for different HTTP methods (GET, POST, PUT, DELETE) and
+ * supports route parameters and permission-based access control using Auth0 JWT validation.
+ *
+ * @example
+ * ```typescript
+ * const router = new Router(env);
+ * router.get('/api/items', handleGetItems);
+ * router.post('/api/items', handleCreateItem, 'create:items');
+ * ```
+ */
 export class Router {
+	/**
+	 * JWT payload from the authenticated user's token
+	 */
 	jwtPayload: JWTPayload = {};
+
+	/**
+	 * List of permissions assigned to the authenticated user
+	 */
 	userPermissions: string[] = [];
+
+	/**
+	 * Collection of registered routes
+	 */
 	routes: Route[] = [];
+
+	/**
+	 * CORS headers to be included in responses
+	 */
 	corsHeaders: Record<string, string>;
 
+	/**
+	 * Creates a new Router instance
+	 *
+	 * @param env - Environment variables and bindings for the Cloudflare Worker
+	 */
 	constructor(env: Env) {
 		this.corsHeaders = {
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -52,22 +101,55 @@ export class Router {
 		};
 	}
 
+	/**
+	 * Registers a GET route handler
+	 *
+	 * @param path - URL path pattern (can include parameters like ":id")
+	 * @param handler - Function to handle matching requests
+	 * @param permission - Optional permission required to access this route
+	 */
 	get(path: string, handler: RouteHandler, permission?: string) {
 		this.routes.push({ path, method: "GET", handler, permission });
 	}
 
+	/**
+	 * Registers a POST route handler
+	 *
+	 * @param path - URL path pattern (can include parameters like ":id")
+	 * @param handler - Function to handle matching requests
+	 * @param permission - Optional permission required to access this route
+	 */
 	post(path: string, handler: RouteHandler, permission?: string) {
 		this.routes.push({ path, method: "POST", handler, permission });
 	}
 
+	/**
+	 * Registers a PUT route handler
+	 *
+	 * @param path - URL path pattern (can include parameters like ":id")
+	 * @param handler - Function to handle matching requests
+	 * @param permission - Optional permission required to access this route
+	 */
 	put(path: string, handler: RouteHandler, permission?: string) {
 		this.routes.push({ path, method: "PUT", handler, permission });
 	}
 
+	/**
+	 * Registers a DELETE route handler
+	 *
+	 * @param path - URL path pattern (can include parameters like ":id")
+	 * @param handler - Function to handle matching requests
+	 * @param permission - Optional permission required to access this route
+	 */
 	delete(path: string, handler: RouteHandler, permission?: string) {
 		this.routes.push({ path, method: "DELETE", handler, permission });
 	}
 
+	/**
+	 * Creates a response for unauthorized requests
+	 *
+	 * @returns A 403 Forbidden response
+	 */
 	async handleUnauthorizedRequest(): Promise<Response> {
 		return new Response(
 			JSON.stringify({ success: false, error: "Unauthorized" }),
@@ -78,6 +160,22 @@ export class Router {
 		);
 	}
 
+	/**
+	 * Main request handler that matches incoming requests to registered routes
+	 *
+	 * @param request - The incoming HTTP request
+	 * @param env - Environment variables and bindings for the Cloudflare Worker
+	 * @returns The response from the matching route handler or an error response
+	 *
+	 * @remarks
+	 * This method:
+	 * 1. Handles CORS preflight requests
+	 * 2. Applies rate limiting
+	 * 3. Matches requests to registered routes
+	 * 4. Verifies permissions if required
+	 * 5. Executes the matching route handler
+	 * 6. Handles errors and returns appropriate responses
+	 */
 	async handleRequest(request: Request, env: Env): Promise<Response> {
 		// Handle OPTIONS request for CORS
 		if (request.method === "OPTIONS") {

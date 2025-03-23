@@ -35,10 +35,11 @@ import {
 } from "../types/data";
 
 import { Router } from "./router";
-import { db } from "./db";
+// Use the mock database
+import { mockDb as db } from "./mockDb";
 
 // Tester Management
-const testerRoutes = (router: Router) => {
+const testerRoutes = (router: Router, env: Env) => {
 	// Add a tester
 	router.post(
 		"/api/tester",
@@ -90,7 +91,7 @@ const testerRoutes = (router: Router) => {
 				);
 			}
 		},
-		"admin:api",
+		env.ADMIN_PERMISSION,
 	);
 
 	// Add ID to tester
@@ -171,7 +172,7 @@ const testerRoutes = (router: Router) => {
 				);
 			}
 		},
-		"admin:api",
+		env.ADMIN_PERMISSION,
 	);
 
 	// Get tester info by one of their IDs
@@ -218,12 +219,12 @@ const testerRoutes = (router: Router) => {
 				},
 			);
 		},
-		"admin:api",
+		env.ADMIN_PERMISSION,
 	);
 };
 
 // Purchase Management
-const purchaseRoutes = (router: Router) => {
+const purchaseRoutes = (router: Router, env: Env) => {
 	// Add a purchase
 	router.post(
 		"/api/purchase",
@@ -286,7 +287,7 @@ const purchaseRoutes = (router: Router) => {
 				);
 			}
 		},
-		"write:api",
+		env.WRITE_PERMISSION,
 	);
 
 	// Get purchase by ID
@@ -326,7 +327,7 @@ const purchaseRoutes = (router: Router) => {
 				},
 			);
 		},
-		"read:api",
+		env.READ_PERMISSION,
 	);
 
 	// Get non-refunded purchases (with pagination)
@@ -407,7 +408,7 @@ const purchaseRoutes = (router: Router) => {
 				},
 			);
 		},
-		"read:api",
+		env.READ_PERMISSION,
 	);
 
 	// Get refunded purchases (with pagination)
@@ -488,12 +489,12 @@ const purchaseRoutes = (router: Router) => {
 				},
 			);
 		},
-		"read:api",
+		env.READ_PERMISSION,
 	);
 };
 
 // Feedback Management
-const feedbackRoutes = (router: Router) => {
+const feedbackRoutes = (router: Router, env: Env) => {
 	// Add feedback
 	router.post(
 		"/api/feedback",
@@ -537,7 +538,7 @@ const feedbackRoutes = (router: Router) => {
 				);
 			}
 		},
-		"write:api",
+		env.WRITE_PERMISSION,
 	);
 
 	// Record publication of feedback
@@ -586,7 +587,7 @@ const feedbackRoutes = (router: Router) => {
 				);
 			}
 		},
-		"write:api",
+		env.WRITE_PERMISSION,
 	);
 
 	// Get publication info
@@ -623,12 +624,12 @@ const feedbackRoutes = (router: Router) => {
 				},
 			);
 		},
-		"read:api",
+		env.READ_PERMISSION,
 	);
 };
 
 // Refund Management
-const refundRoutes = (router: Router) => {
+const refundRoutes = (router: Router, env: Env) => {
 	// Record refund
 	router.post(
 		"/api/refund",
@@ -680,7 +681,7 @@ const refundRoutes = (router: Router) => {
 				);
 			}
 		},
-		"write:api",
+		env.WRITE_PERMISSION,
 	);
 
 	// Get refund info
@@ -718,13 +719,18 @@ const refundRoutes = (router: Router) => {
 				},
 			);
 		},
-		"read:api",
+		env.READ_PERMISSION,
 	);
 };
 
-export const setupRoutes = (router: Router) => {
-	testerRoutes(router);
-	purchaseRoutes(router);
-	feedbackRoutes(router);
-	refundRoutes(router);
+/**
+ * Setup routes
+ * @param router The router
+ * @param env The environment variables
+ */
+export const setupRoutes = (router: Router, env: Env) => {
+	testerRoutes(router, env);
+	purchaseRoutes(router, env);
+	feedbackRoutes(router, env);
+	refundRoutes(router, env);
 };

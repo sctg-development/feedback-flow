@@ -28,7 +28,7 @@ export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const router = new Router(env);
 
-		setupRoutes(router);
+		setupRoutes(router, env);
 
 		return router.handleRequest(request, env);
 	},

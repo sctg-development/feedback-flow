@@ -123,11 +123,32 @@ const refundsData: Refund[] = [
 
 /**
  * In-memory database for testing purposes
+ * Provides CRUD-like operations for all data types
  */
-export const db = {
+export const mockDb = {
+	/**
+	 * Tester-related database operations
+	 */
 	testers: {
+		/**
+		 * Find a tester that matches the provided condition
+		 * @param {function} fn - Predicate function to filter testers
+		 * @returns {Tester|undefined} The first matching tester or undefined if not found
+		 */
 		find: (fn: (tester: Tester) => boolean) => testersData.find(fn),
+
+		/**
+		 * Filter testers based on the provided condition
+		 * @param {function} fn - Predicate function to filter testers
+		 * @returns {Tester[]} Array of testers matching the condition
+		 */
 		filter: (fn: (tester: Tester) => boolean) => testersData.filter(fn),
+
+		/**
+		 * Add or update a tester in the database
+		 * @param {Tester} newTester - The tester object to add or update
+		 * @returns {string[]} The IDs associated with the tester
+		 */
 		put: (newTester: Tester) => {
 			const index = testersData.findIndex(
 				(tester) => tester.uuid === newTester.uuid,
@@ -148,16 +169,54 @@ export const db = {
 				return newTester.ids;
 			}
 		},
+
+		/**
+		 * Get all testers from the database
+		 * @returns {Tester[]} A copy of all testers
+		 */
 		getAll: () => [...testersData],
+
+		/**
+		 * Find a tester by their authentication ID
+		 * @param {string} id - Authentication ID to search for
+		 * @returns {Tester|undefined} The matching tester or undefined if not found
+		 */
 		getTesterWithId: (id: string) =>
 			testersData.find((tester) => tester.ids.includes(id)),
+
+		/**
+		 * Find a tester by their UUID
+		 * @param {string} uuid - UUID to search for
+		 * @returns {Tester|undefined} The matching tester or undefined if not found
+		 */
 		getTesterWithUuid: (uuid: string) =>
 			testersData.find((tester) => tester.uuid === uuid),
 	},
 
+	/**
+	 * Purchase-related database operations
+	 */
 	purchases: {
+		/**
+		 * Find a purchase that matches the provided condition
+		 * @param {function} fn - Predicate function to filter purchases
+		 * @returns {Purchase|undefined} The first matching purchase or undefined if not found
+		 */
 		find: (fn: (purchase: Purchase) => boolean) => purchasesData.find(fn),
+
+		/**
+		 * Filter purchases based on the provided condition
+		 * @param {function} fn - Predicate function to filter purchases
+		 * @returns {Purchase[]} Array of purchases matching the condition
+		 */
 		filter: (fn: (purchase: Purchase) => boolean) => purchasesData.filter(fn),
+
+		/**
+		 * Add a new purchase to the database
+		 * @param {string} testerUuid - UUID of the tester making the purchase
+		 * @param {Purchase} newPurchase - The purchase object to add
+		 * @returns {string} The ID of the newly added purchase
+		 */
 		put: (testerUuid: string, newPurchase: Purchase) => {
 			if (!newPurchase.id) {
 				newPurchase.id = uuidv4();
@@ -167,6 +226,13 @@ export const db = {
 
 			return newPurchase.id;
 		},
+
+		/**
+		 * Update an existing purchase in the database
+		 * @param {string} id - ID of the purchase to update
+		 * @param {Partial<Purchase>} updates - Fields to update
+		 * @returns {boolean} True if update was successful, false otherwise
+		 */
 		update: (id: string, updates: Partial<Purchase>) => {
 			const index = purchasesData.findIndex((purchase) => purchase.id === id);
 
@@ -178,36 +244,114 @@ export const db = {
 
 			return false;
 		},
+
+		/**
+		 * Get all purchases from the database
+		 * @returns {Purchase[]} A copy of all purchases
+		 */
 		getAll: () => [...purchasesData],
 	},
 
+	/**
+	 * Feedback-related database operations
+	 */
 	feedbacks: {
+		/**
+		 * Find feedback that matches the provided condition
+		 * @param {function} fn - Predicate function to filter feedback
+		 * @returns {Feedback|undefined} The first matching feedback or undefined if not found
+		 */
 		find: (fn: (feedback: Feedback) => boolean) => feedbacksData.find(fn),
+
+		/**
+		 * Filter feedback based on the provided condition
+		 * @param {function} fn - Predicate function to filter feedback
+		 * @returns {Feedback[]} Array of feedback matching the condition
+		 */
 		filter: (fn: (feedback: Feedback) => boolean) => feedbacksData.filter(fn),
+
+		/**
+		 * Add new feedback to the database
+		 * @param {string} testerId - ID of the tester providing the feedback
+		 * @param {Feedback} newFeedback - The feedback object to add
+		 * @returns {string} The purchase ID associated with the feedback
+		 */
 		put: (testerId: string, newFeedback: Feedback) => {
 			feedbacksData.push(newFeedback);
 
 			return newFeedback.purchase;
 		},
+
+		/**
+		 * Get all feedback from the database
+		 * @returns {Feedback[]} A copy of all feedback
+		 */
 		getAll: () => [...feedbacksData],
 	},
 
+	/**
+	 * Publication-related database operations
+	 */
 	publications: {
+		/**
+		 * Find a publication that matches the provided condition
+		 * @param {function} fn - Predicate function to filter publications
+		 * @returns {Publication|undefined} The first matching publication or undefined if not found
+		 */
 		find: (fn: (publication: Publication) => boolean) =>
 			publicationsData.find(fn),
+
+		/**
+		 * Filter publications based on the provided condition
+		 * @param {function} fn - Predicate function to filter publications
+		 * @returns {Publication[]} Array of publications matching the condition
+		 */
 		filter: (fn: (publication: Publication) => boolean) =>
 			publicationsData.filter(fn),
+
+		/**
+		 * Add a new publication to the database
+		 * @param {string} testerId - ID of the tester creating the publication
+		 * @param {Publication} newPublication - The publication object to add
+		 * @returns {string} The purchase ID associated with the publication
+		 */
 		put: (testerId: string, newPublication: Publication) => {
 			publicationsData.push(newPublication);
 
 			return newPublication.purchase;
 		},
+
+		/**
+		 * Get all publications from the database
+		 * @returns {Publication[]} A copy of all publications
+		 */
 		getAll: () => [...publicationsData],
 	},
 
+	/**
+	 * Refund-related database operations
+	 */
 	refunds: {
+		/**
+		 * Find a refund that matches the provided condition
+		 * @param {function} fn - Predicate function to filter refunds
+		 * @returns {Refund|undefined} The first matching refund or undefined if not found
+		 */
 		find: (fn: (refund: Refund) => boolean) => refundsData.find(fn),
+
+		/**
+		 * Filter refunds based on the provided condition
+		 * @param {function} fn - Predicate function to filter refunds
+		 * @returns {Refund[]} Array of refunds matching the condition
+		 */
 		filter: (fn: (refund: Refund) => boolean) => refundsData.filter(fn),
+
+		/**
+		 * Add a new refund to the database and mark the associated purchase as refunded
+		 * @param {string} testerId - ID of the tester receiving the refund
+		 * @param {Refund} newRefund - The refund object to add
+		 * @returns {string} The purchase ID associated with the refund
+		 */
 		put: (testerId: string, newRefund: Refund) => {
 			refundsData.push(newRefund);
 
@@ -222,6 +366,11 @@ export const db = {
 
 			return newRefund.purchase;
 		},
+
+		/**
+		 * Get all refunds from the database
+		 * @returns {Refund[]} A copy of all refunds
+		 */
 		getAll: () => [...refundsData],
 	},
 };
