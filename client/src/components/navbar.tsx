@@ -27,9 +27,11 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { ChevronDown, GithubIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export const Navbar = () => {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth0();
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
@@ -45,7 +47,7 @@ export const Navbar = () => {
           </Link>
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig().navItems.map((item) => (
+          {isAuthenticated ? siteConfig().navItems.map((item) => (
             <NavbarItem key={item.href}>
               <Link
                 className={clsx(
@@ -58,7 +60,7 @@ export const Navbar = () => {
                 {item.label}
               </Link>
             </NavbarItem>
-          ))}
+          )):(<></>)}
         </div>
         <NavbarItem>
           <Dropdown>
