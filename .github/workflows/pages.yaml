@@ -49,6 +49,8 @@ jobs:
           export API_BASE_URL="${{ secrets.API_BASE_URL }}"
           export CORS_ORIGIN="${{ secrets.CORS_ORIGIN }}"
           export READ_PERMISSION="${{ secrets.READ_PERMISSION }}"
+          export WRITE_PERMISSION="${{ secrets.WRITE_PERMISSION }}"
+          export ADMIN_PERMISSION="${{ secrets.ADMIN_PERMISSION }}"
           npx vite build --base=/${{ github.event.repository.name }}
 
       - name: Upload pages artifact
