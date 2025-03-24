@@ -34,7 +34,6 @@ import {
 	Refund,
 	Tester,
 } from "../types/data";
-import { mockData } from "../test/mock-data";
 
 export interface DB {
 	ids: IdMapping[];
