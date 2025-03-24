@@ -137,12 +137,16 @@ export interface ErrorResponse {
 	error: string;
 }
 
-// Define valid sort keys and default to 'date' if invalid
-export const validSortKeys = [
+// Define valid sort keys for purchases
+export const purchaseAllowedSortKeys = [
 	"id",
 	"date",
 	"order",
 	"description",
 	"amount",
 ] as const;
-export type SortKey = (typeof validSortKeys)[number];
+export type PurchaseSortCriteria = (typeof purchaseAllowedSortKeys)[number];
+
+// Define valid sort keys for testers
+export const testerAllowedSortKeys = ["uuid", "name"] as const;
+export type TesterSortCriteria = (typeof testerAllowedSortKeys)[number];

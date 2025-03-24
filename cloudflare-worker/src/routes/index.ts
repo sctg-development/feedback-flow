@@ -28,10 +28,12 @@ import {
 	PublishCreateRequest,
 	PurchaseCreateRequest,
 	RefundCreateRequest,
-	SortKey,
 	TesterCreateRequest,
 	TesterIdAddRequest,
-	validSortKeys,
+	purchaseAllowedSortKeys,
+	testerAllowedSortKeys,
+	TesterSortCriteria,
+	PurchaseSortCriteria,
 } from "../types/data";
 
 import { Router } from "./router";
@@ -40,6 +42,58 @@ import { mockDb as db } from "./mockDb";
 
 // Tester Management
 const testerRoutes = (router: Router, env: Env) => {
+	// Get all testers with pagination and sort, requires admin permission
+	router.get(
+		"/api/testers",
+		async (request) => {
+			const url = new URL(request.url);
+			const page = parseInt(url.searchParams.get("page") || "1");
+			const limit = parseInt(url.searchParams.get("limit") || "10");
+			const sort = url.searchParams.get("sort") || "name";
+			const order = url.searchParams.get("order") || "asc";
+
+			// Get all testers
+			const testers = db.testers.getAll();
+
+			// Ensure sort is a valid key
+			const sortKey = testerAllowedSortKeys.includes(sort as TesterSortCriteria)
+				? (sort as TesterSortCriteria)
+				: "name";
+
+			// Apply sorting
+			const sortedTesters = [...testers].sort((a, b) => {
+				if (order === "asc") {
+					return a[sortKey] > b[sortKey] ? 1 : -1;
+				} else {
+					return a[sortKey] < b[sortKey] ? 1 : -1;
+				}
+			});
+
+			// Apply pagination
+			const start = (page - 1) * limit;
+			const end = start + limit;
+			const paginatedTesters = sortedTesters.slice(start, end);
+
+			return new Response(
+				JSON.stringify({
+					success: true,
+					data: paginatedTesters,
+					total: testers.length,
+					page,
+					limit,
+				}),
+				{
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				},
+			);
+		},
+		env.ADMIN_PERMISSION,
+	);
+
 	// Add a tester
 	router.post(
 		"/api/tester",
@@ -428,8 +482,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			);
 
 			// Ensure sort is a valid key
-			const sortKey = validSortKeys.includes(sort as SortKey)
-				? (sort as SortKey)
+			const sortKey = purchaseAllowedSortKeys.includes(
+				sort as PurchaseSortCriteria,
+			)
+				? (sort as PurchaseSortCriteria)
 				: "date";
 
 			// Apply sorting
@@ -515,8 +571,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			);
 
 			// Ensure sort is a valid key
-			const sortKey = validSortKeys.includes(sort as SortKey)
-				? (sort as SortKey)
+			const sortKey = purchaseAllowedSortKeys.includes(
+				sort as PurchaseSortCriteria,
+			)
+				? (sort as PurchaseSortCriteria)
 				: "date";
 
 			// Apply sorting
