@@ -43,5 +43,8 @@
   "please-enter-a-name": "אנא הזן שם",
   "enter-the-user-name": "הזן את שם המשתמש",
   "submit": "לְהַגִישׁ",
-  "name": "שֵׁם"
+  "name": "שֵׁם",
+  "please-enter-a-oauth-id": "אנא הזן מזהה OAuth 2.0 (sub)",
+  "oauth-id": "OAuth 2.0 ID (sub)",
+  "enter-the-oauth-id": "הזן את מזהה OAuth 2.0 (Sub)"
 }

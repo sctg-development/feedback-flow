@@ -67,6 +67,15 @@ export default function AddNewUser() {
               placeholder={t('enter-the-user-name')}
               type="text"
             />
+            <Input
+              isRequired
+              errorMessage={t('please-enter-a-oauth-id')}
+              label={t('oauth-id')}
+              labelPlacement="outside"
+              name="oauthId"
+              placeholder={t('enter-the-oauth-id')}
+              type="text"
+            />
             <Button type="submit" variant="bordered">
               {t('submit')}
             </Button>

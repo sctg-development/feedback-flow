@@ -43,5 +43,8 @@
   "please-enter-a-name": "Veuillez saisir un nom",
   "enter-the-user-name": "Entrez le nom d'utilisateur",
   "submit": "Soumettre",
-  "name": "Nom"
+  "name": "Nom",
+  "please-enter-a-oauth-id": "Veuillez saisir un ID OAuth 2.0 (sub)",
+  "oauth-id": "OAuth 2.0 ID (sub)",
+  "enter-the-oauth-id": "Entrez l'id OAuth 2.0 (sub)"
 }

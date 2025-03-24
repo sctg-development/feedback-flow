@@ -43,5 +43,8 @@
   "enter-the-user-name": "أدخل اسم المستخدم",
   "please-enter-a-name": "الرجاء إدخال اسم",
   "submit": "يُقدِّم",
-  "name": "اسم"
+  "name": "اسم",
+  "please-enter-a-oauth-id": "الرجاء إدخال معرف Oauth 2.0 (sub)",
+  "oauth-id": "OAuth 2.0 ID (sub)",
+  "enter-the-oauth-id": "أدخل معرف Oauth 2.0 (sub)"
 }

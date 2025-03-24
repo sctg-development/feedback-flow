@@ -43,5 +43,8 @@
   "please-enter-a-name": "请输入名称",
   "enter-the-user-name": "输入用户名",
   "submit": "提交",
-  "name": "姓名"
+  "name": "姓名",
+  "please-enter-a-oauth-id": "请输入OAuth 2.0 ID（sub）",
+  "oauth-id": "OAuth 2.0 ID（sub）",
+  "enter-the-oauth-id": "输入OAuth 2.0 ID（sub）"
 }
