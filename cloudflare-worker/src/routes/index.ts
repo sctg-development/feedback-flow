@@ -923,6 +923,38 @@ const refundRoutes = (router: Router, env: Env) => {
 		},
 		env.READ_PERMISSION,
 	);
+
+	// Only allow backup route for in-memory database
+	if (db instanceof InMemoryDB) {
+		router.get(
+			"/api/backup/json",
+			async () => {
+				const json = db.backupToJson();
+
+				return new Response(json, {
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				});
+			},
+			env.ADMIN_PERMISSION,
+		);
+		router.post("/api/backup/json", async (request) => {
+			const json = await request.text();
+
+			db.restoreFromJson(json);
+
+			return new Response(JSON.stringify({ success: true }), {
+				status: 200,
+				headers: {
+					...router.corsHeaders,
+					"Content-Type": "application/json",
+				},
+			});
+		});
+	}
 };
 
 /**

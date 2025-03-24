@@ -477,4 +477,18 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 */
 		getAll: () => [...this.data.refunds],
 	};
+	/**
+	 * backup the database
+	 * @returns the database as a JSON string
+	 */
+	backupToJson(): string {
+		return JSON.stringify(this.data);
+	}
+	/**
+	 * restore the database from a JSON string
+	 * @param backup the backup JSON string
+	 */
+	restoreFromJson(backup: string) {
+		this.data = JSON.parse(backup);
+	}
 }

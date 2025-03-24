@@ -238,8 +238,25 @@ describe('Feedback Flow API', () => {
     // Check if our purchase is in the refunded list
     const refundedPurchase = response.data.data.find((p: any) => p.id === purchaseId);
     expect(refundedPurchase).toBeDefined();
-    console.log(`Refunded purchase: ${JSON.stringify(response.data.data)}`);
     // Check if the refund list contails exactly 1 line (only our purchase)
     expect(response.data.data.length).toBe(1);
+  });
+
+  test('120. Should check if in memory database can be backed up', async () => {
+    const response = await api.get('/backup/json');
+    expect(response.status).toBe(200);
+    expect(response.data).toBeDefined();
+    expect(response.data.testers).toBeDefined();
+    expect(response.data.purchases).toBeDefined();
+    expect(response.data.refunds).toBeDefined();
+    expect(response.data.feedbacks).toBeDefined();
+    expect(response.data.publications).toBeDefined();
+    expect(response.data.testers.length).toBe(3);
+    expect(response.data.purchases.length).toBe(4);
+    expect(response.data.refunds.length).toBe(3);
+    expect(response.data.feedbacks.length).toBe(3);
+    expect(response.data.publications.length).toBe(3);
+    expect(response.data.ids).toBeDefined();
+    expect(response.data.ids.length).toBe(4);
   });
 });
