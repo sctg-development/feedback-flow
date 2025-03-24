@@ -77,7 +77,14 @@ export interface MockDatabase {
 
 // API request/response types
 export interface TesterCreateRequest {
+	/**
+	 * Tester name
+	 */
 	name: string;
+	/**
+	 * Tester ID (e.g., OAuth ID) as string or array of strings
+	 */
+	ids: string | string[];
 }
 
 export interface TesterIdAddRequest {

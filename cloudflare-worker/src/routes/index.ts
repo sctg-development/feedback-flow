@@ -45,21 +45,35 @@ const testerRoutes = (router: Router, env: Env) => {
 		"/api/tester",
 		async (request) => {
 			try {
-				const { name } = (await request.json()) as TesterCreateRequest;
+				const { name, ids: _ids } =
+					(await request.json()) as TesterCreateRequest;
 
-				if (!name) {
+				if (!name || !_ids) {
 					return new Response(
-						JSON.stringify({ success: false, error: "Name is required" }),
+						JSON.stringify({
+							success: false,
+							error: "Name and at least one is are required",
+						}),
 						{
 							status: 400,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				}
 
 				const uuid = uuidv4();
+				let ids: string[] = [];
+
+				if (typeof _ids === "string") {
+					ids = [_ids];
+				} else {
+					ids = _ids;
+				}
 				// Add to the database
-				const dbInsert = db.testers.put({ uuid, name, ids: [] });
+				const dbInsert = db.testers.put({ uuid, name, ids });
 
 				if (!dbInsert) {
 					return new Response(
@@ -69,13 +83,19 @@ const testerRoutes = (router: Router, env: Env) => {
 						}),
 						{
 							status: 500,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				} else {
 					return new Response(JSON.stringify({ success: true, uuid }), {
 						status: 201,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					});
 				}
 			} catch (error) {
@@ -86,7 +106,10 @@ const testerRoutes = (router: Router, env: Env) => {
 					}),
 					{
 						status: 400,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -112,7 +135,10 @@ const testerRoutes = (router: Router, env: Env) => {
 						JSON.stringify({ success: false, error: "name is required" }),
 						{
 							status: 400,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				}
@@ -125,7 +151,10 @@ const testerRoutes = (router: Router, env: Env) => {
 						JSON.stringify({ success: false, error: "Tester not found" }),
 						{
 							status: 404,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				}
@@ -141,7 +170,10 @@ const testerRoutes = (router: Router, env: Env) => {
 						}),
 						{
 							status: 209,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				}
@@ -156,7 +188,10 @@ const testerRoutes = (router: Router, env: Env) => {
 					JSON.stringify({ success: true, name: tester.name, ids }),
 					{
 						status: 200,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			} catch (error) {
@@ -167,7 +202,10 @@ const testerRoutes = (router: Router, env: Env) => {
 					}),
 					{
 						status: 400,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -187,7 +225,10 @@ const testerRoutes = (router: Router, env: Env) => {
 					JSON.stringify({ success: false, error: "Unauthorized" }),
 					{
 						status: 403,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -199,7 +240,10 @@ const testerRoutes = (router: Router, env: Env) => {
 					JSON.stringify({ success: false, error: "Tester not found" }),
 					{
 						status: 404,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -215,7 +259,10 @@ const testerRoutes = (router: Router, env: Env) => {
 				}),
 				{
 					status: 200,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				},
 			);
 		},
@@ -248,7 +295,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 						}),
 						{
 							status: 400,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				}
@@ -276,7 +326,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 
 				return new Response(JSON.stringify({ success: dbInsert, id }), {
 					status: 201,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				});
 			} catch (error) {
 				return new Response(
@@ -304,7 +357,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 					JSON.stringify({ success: false, error: "Purchase not found" }),
 					{
 						status: 404,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -323,7 +379,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				}),
 				{
 					status: 200,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				},
 			);
 		},
@@ -355,7 +414,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 					JSON.stringify({ success: false, error: "Unauthorized" }),
 					{
 						status: 403,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -404,7 +466,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				}),
 				{
 					status: 200,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				},
 			);
 		},
@@ -436,7 +501,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 					JSON.stringify({ success: false, error: "Unauthorized" }),
 					{
 						status: 403,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -485,7 +553,10 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				}),
 				{
 					status: 200,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				},
 			);
 		},
@@ -511,7 +582,10 @@ const feedbackRoutes = (router: Router, env: Env) => {
 						}),
 						{
 							status: 400,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				}
@@ -527,7 +601,10 @@ const feedbackRoutes = (router: Router, env: Env) => {
 				// TODO: check id for error handling
 				return new Response(JSON.stringify({ success: true, id }), {
 					status: 201,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				});
 			} catch (error) {
 				return new Response(
@@ -557,7 +634,10 @@ const feedbackRoutes = (router: Router, env: Env) => {
 						}),
 						{
 							status: 400,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				}
@@ -576,7 +656,10 @@ const feedbackRoutes = (router: Router, env: Env) => {
 
 				return new Response(JSON.stringify({ success: true, id }), {
 					status: 201,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				});
 			} catch (error) {
 				return new Response(
@@ -604,7 +687,10 @@ const feedbackRoutes = (router: Router, env: Env) => {
 					JSON.stringify({ success: false, error: "Publication not found" }),
 					{
 						status: 404,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -620,7 +706,10 @@ const feedbackRoutes = (router: Router, env: Env) => {
 				}),
 				{
 					status: 200,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				},
 			);
 		},
@@ -646,7 +735,10 @@ const refundRoutes = (router: Router, env: Env) => {
 						}),
 						{
 							status: 400,
-							headers: { "Content-Type": "application/json" },
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
 						},
 					);
 				}
@@ -666,7 +758,10 @@ const refundRoutes = (router: Router, env: Env) => {
 
 				return new Response(JSON.stringify({ success: true, id }), {
 					status: 201,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				});
 			} catch (error) {
 				return new Response(
@@ -676,7 +771,10 @@ const refundRoutes = (router: Router, env: Env) => {
 					}),
 					{
 						status: 400,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -698,7 +796,10 @@ const refundRoutes = (router: Router, env: Env) => {
 					JSON.stringify({ success: false, error: "Refund not found" }),
 					{
 						status: 404,
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
 					},
 				);
 			}
@@ -715,7 +816,10 @@ const refundRoutes = (router: Router, env: Env) => {
 				}),
 				{
 					status: 200,
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
 				},
 			);
 		},

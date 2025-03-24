@@ -47,6 +47,7 @@ export const verifyToken = async (
 
 		return payload;
 	} catch (error) {
+		console.error(`Invalid token: ${(error as Error).message}`);
 		throw new Error(`Invalid token: ${(error as Error).message}`);
 	}
 };

@@ -73,7 +73,9 @@ describe('Feedback Flow API', () => {
     expect(testerId).toBeDefined();
     expect(testerId).toMatch(/^[a-zA-Z0-9|]{8,30}$/);
     const response = await api.post('/tester', {
-      name: 'TESTER'
+      name: 'TESTER',
+      ids:
+        ["auth0|60f7b3b7b1b3d2006a7b3b7b"]
     });
 
     expect(response.status).toBe(201);
