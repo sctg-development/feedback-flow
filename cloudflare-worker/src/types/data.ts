@@ -87,6 +87,73 @@ export interface TesterCreateRequest {
 	ids: string | string[];
 }
 
+/**
+ * Response type for the GET /api/testers endpoint
+ */
+export interface GetTestersResponse {
+	/**
+	 * Indicates if the request was successful
+	 */
+	success: boolean;
+
+	/**
+	 * Array of testers with pagination applied
+	 */
+	data: Array<Tester>;
+
+	/**
+	 * Total number of testers (before pagination)
+	 */
+	total: number;
+
+	/**
+	 * Current page number
+	 */
+	page: number;
+
+	/**
+	 * Number of items per page
+	 */
+	limit: number;
+}
+
+/**
+ * Request type for the POST /api/tester endpoint
+ */
+export interface TesterCreateRequest {
+	/**
+	 * Name of the tester
+	 */
+	name: string;
+
+	/**
+	 * OAuth identifiers associated with the tester
+	 * Can be a single string or an array of strings
+	 */
+	ids: string[] | string;
+}
+
+/**
+ * Response type for the POST /api/tester endpoint
+ */
+export interface TesterCreateResponse {
+	/**
+	 * Indicates if the request was successful
+	 */
+	success: boolean;
+
+	/**
+	 * The UUID assigned to the newly created tester
+	 * Only present when success is true
+	 */
+	uuid?: string;
+
+	/**
+	 * Error message
+	 * Only present when success is false
+	 */
+	error?: string;
+}
 export interface TesterIdAddRequest {
 	name: string;
 	id: string;
@@ -136,6 +203,8 @@ export interface ErrorResponse {
 	success: boolean;
 	error: string;
 }
+
+export type OrderCriteria = "asc" | "desc";
 
 // Define valid sort keys for purchases
 export const purchaseAllowedSortKeys = [

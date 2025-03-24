@@ -1,1 +1,1 @@
-src/types/data.ts
+../../../cloudflare-worker/src/types/data.ts
