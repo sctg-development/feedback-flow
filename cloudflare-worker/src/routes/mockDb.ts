@@ -26,128 +26,32 @@
 
 import { v4 as uuidv4 } from "uuid";
 
-import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
+import {
+	Feedback,
+	IdMapping,
+	Publication,
+	Purchase,
+	Refund,
+	Tester,
+} from "../types/data";
+import { mockData } from "../test/mockData";
 
-/**
- * Interface for the OAuth ID to tester UUID mapping
- */
-interface IdMapping {
-	id: string; // OAuth ID (primary key)
-	testerUuid: string; // Reference to tester UUID
+export interface DB {
+	ids: IdMapping[];
+	testers: Tester[];
+	purchases: Purchase[];
+	feedbacks: Feedback[];
+	publications: Publication[];
+	refunds: Refund[];
 }
 
-// Sample data collections
-const testersData: Tester[] = [
-	{
-		uuid: "45f9830a-309b-4cda-95ec-71e000b78f7d",
-		name: "John Doe",
-		ids: ["auth0|1234567890"],
-	},
-	{
-		uuid: "cc97a5cc-c4ba-4804-98b5-90532f09bd83",
-		name: "Jane Doe",
-		ids: ["auth0|0987654321"],
-	},
-];
-
-/**
- * ID mappings table - simulates a separate table for ID lookups
- */
-const idMappingsData: IdMapping[] = [
-	{
-		id: "auth0|1234567890",
-		testerUuid: "45f9830a-309b-4cda-95ec-71e000b78f7d",
-	},
-	{
-		id: "auth0|0987654321",
-		testerUuid: "cc97a5cc-c4ba-4804-98b5-90532f09bd83",
-	},
-];
-
-const purchasesData: Purchase[] = [
-	{
-		id: "d5726cf2-36f6-41d8-bd37-f349314561b4",
-		testerUuid: "45f9830a-309b-4cda-95ec-71e000b78f7d",
-		date: "2025-03-23",
-		order: "123",
-		description: "Test order",
-		amount: 10.99,
-		screenshot:
-			"UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==",
-		refunded: false,
-	},
-	{
-		id: "aa92494a-a036-4a4e-9c6a-c3821a8cb6a4",
-		testerUuid: "cc97a5cc-c4ba-4804-98b5-90532f09bd83",
-		date: "2021-02-01",
-		order: "456",
-		description: "Test order 2",
-		amount: 20.99,
-		screenshot:
-			"UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==",
-		refunded: true,
-	},
-	{
-		id: "b5e8c21d-7f4e-4a6b-9c3d-9e7a1f2b3c4d",
-		testerUuid: "45f9830a-309b-4cda-95ec-71e000b78f7d",
-		date: "2025-02-15",
-		order: "789",
-		description: "Premium product test",
-		amount: 59.99,
-		screenshot:
-			"UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==",
-		refunded: false,
-	},
-];
-
-const feedbacksData: Feedback[] = [
-	{
-		date: "2025-03-23",
-		purchase: "d5726cf2-36f6-41d8-bd37-f349314561b4",
-		feedback: "Great product, fast delivery and exactly as described!",
-	},
-	{
-		date: "2021-02-05",
-		purchase: "aa92494a-a036-4a4e-9c6a-c3821a8cb6a4",
-		feedback: "Product was good but shipping took longer than expected.",
-	},
-];
-
-const publicationsData: Publication[] = [
-	{
-		date: "2025-03-23",
-		purchase: "d5726cf2-36f6-41d8-bd37-f349314561b4",
-		screenshot:
-			"UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==",
-	},
-	{
-		date: "2021-02-10",
-		purchase: "aa92494a-a036-4a4e-9c6a-c3821a8cb6a4",
-		screenshot:
-			"UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==",
-	},
-];
-
-const refundsData: Refund[] = [
-	{
-		date: "2025-03-25",
-		purchase: "d5726cf2-36f6-41d8-bd37-f349314561b4",
-		refunddate: "2025-03-28",
-		amount: 10.99,
-	},
-	{
-		date: "2021-02-15",
-		purchase: "aa92494a-a036-4a4e-9c6a-c3821a8cb6a4",
-		refunddate: "2021-02-20",
-		amount: 20.99,
-	},
-];
+const inMemoryData: DB = mockData;
 
 /**
  * In-memory database for testing purposes
  * Provides CRUD-like operations for all data types
  */
-export const mockDb = {
+export const inMemoryDB = {
 	/**
 	 * ID mappings operations
 	 */
@@ -158,7 +62,7 @@ export const mockDb = {
 		 * @returns {boolean} True if the ID exists, false otherwise
 		 */
 		exists: (id: string): boolean => {
-			return idMappingsData.some((mapping) => mapping.id === id);
+			return inMemoryData.ids.some((mapping) => mapping.id === id);
 		},
 
 		/**
@@ -167,7 +71,7 @@ export const mockDb = {
 		 * @returns {string|undefined} The associated tester UUID if found
 		 */
 		getTesterUuid: (id: string): string | undefined => {
-			const mapping = idMappingsData.find((mapping) => mapping.id === id);
+			const mapping = inMemoryData.ids.find((mapping) => mapping.id === id);
 
 			return mapping?.testerUuid;
 		},
@@ -179,11 +83,11 @@ export const mockDb = {
 		 * @returns {boolean} True if successful, false if ID already exists
 		 */
 		put: (id: string, testerUuid: string): boolean => {
-			if (idMappingsData.some((mapping) => mapping.id === id)) {
+			if (inMemoryData.ids.some((mapping) => mapping.id === id)) {
 				return false; // ID already exists
 			}
 
-			idMappingsData.push({ id, testerUuid });
+			inMemoryData.ids.push({ id, testerUuid });
 
 			return true;
 		},
@@ -198,8 +102,8 @@ export const mockDb = {
 			const addedIds: string[] = [];
 
 			for (const id of ids) {
-				if (!idMappingsData.some((mapping) => mapping.id === id)) {
-					idMappingsData.push({ id, testerUuid });
+				if (!inMemoryData.ids.some((mapping) => mapping.id === id)) {
+					inMemoryData.ids.push({ id, testerUuid });
 					addedIds.push(id);
 				}
 			}
@@ -213,10 +117,10 @@ export const mockDb = {
 		 * @returns {boolean} True if successful, false if ID not found
 		 */
 		delete: (id: string): boolean => {
-			const index = idMappingsData.findIndex((mapping) => mapping.id === id);
+			const index = inMemoryData.ids.findIndex((mapping) => mapping.id === id);
 
 			if (index >= 0) {
-				idMappingsData.splice(index, 1);
+				inMemoryData.ids.splice(index, 1);
 
 				return true;
 			}
@@ -228,7 +132,7 @@ export const mockDb = {
 		 * Get all ID mappings
 		 * @returns {IdMapping[]} Copy of all ID mappings
 		 */
-		getAll: () => [...idMappingsData],
+		getAll: () => [...inMemoryData.ids],
 	},
 
 	/**
@@ -240,14 +144,15 @@ export const mockDb = {
 		 * @param {function} fn - Predicate function to filter testers
 		 * @returns {Tester|undefined} The first matching tester or undefined if not found
 		 */
-		find: (fn: (tester: Tester) => boolean) => testersData.find(fn),
+		find: (fn: (tester: Tester) => boolean) => inMemoryData.testers.find(fn),
 
 		/**
 		 * Filter testers based on the provided condition
 		 * @param {function} fn - Predicate function to filter testers
 		 * @returns {Tester[]} Array of testers matching the condition
 		 */
-		filter: (fn: (tester: Tester) => boolean) => testersData.filter(fn),
+		filter: (fn: (tester: Tester) => boolean) =>
+			inMemoryData.testers.filter(fn),
 
 		/**
 		 * Add or update a tester in the database
@@ -255,31 +160,31 @@ export const mockDb = {
 		 * @returns {string[]} The IDs associated with the tester
 		 */
 		put: (newTester: Tester) => {
-			const index = testersData.findIndex(
+			const index = inMemoryData.testers.findIndex(
 				(tester) => tester.uuid === newTester.uuid,
 			);
 
 			if (index >= 0) {
 				// Update existing tester
-				const oldIds = testersData[index].ids;
+				const oldIds = inMemoryData.testers[index].ids;
 				const newIds = newTester.ids;
 
 				// Remove old ID mappings that are no longer in the tester's ID list
 				for (const oldId of oldIds) {
 					if (!newIds.includes(oldId)) {
-						mockDb.idMappings.delete(oldId);
+						inMemoryDB.idMappings.delete(oldId);
 					}
 				}
 
 				// Add new ID mappings
 				for (const newId of newIds) {
 					if (!oldIds.includes(newId)) {
-						mockDb.idMappings.put(newId, newTester.uuid);
+						inMemoryDB.idMappings.put(newId, newTester.uuid);
 					}
 				}
 
 				// Update the tester
-				testersData[index] = newTester;
+				inMemoryData.testers[index] = newTester;
 
 				return newTester.ids;
 			} else {
@@ -289,10 +194,10 @@ export const mockDb = {
 				}
 
 				// Add ID mappings for all IDs in the new tester
-				mockDb.idMappings.putMultiple(newTester.ids, newTester.uuid);
+				inMemoryDB.idMappings.putMultiple(newTester.ids, newTester.uuid);
 
 				// Add the tester
-				testersData.push(newTester);
+				inMemoryData.testers.push(newTester);
 
 				return newTester.ids;
 			}
@@ -302,7 +207,7 @@ export const mockDb = {
 		 * Get all testers from the database
 		 * @returns {Tester[]} A copy of all testers
 		 */
-		getAll: () => [...testersData],
+		getAll: () => [...inMemoryData.testers],
 
 		/**
 		 * Find a tester by their authentication ID (efficient lookup using ID mappings)
@@ -310,11 +215,11 @@ export const mockDb = {
 		 * @returns {Tester|undefined} The matching tester or undefined if not found
 		 */
 		getTesterWithId: (id: string) => {
-			const testerUuid = mockDb.idMappings.getTesterUuid(id);
+			const testerUuid = inMemoryDB.idMappings.getTesterUuid(id);
 
 			if (!testerUuid) return undefined;
 
-			return testersData.find((tester) => tester.uuid === testerUuid);
+			return inMemoryData.testers.find((tester) => tester.uuid === testerUuid);
 		},
 
 		/**
@@ -323,7 +228,7 @@ export const mockDb = {
 		 * @returns {Tester|undefined} The matching tester or undefined if not found
 		 */
 		getTesterWithUuid: (uuid: string) =>
-			testersData.find((tester) => tester.uuid === uuid),
+			inMemoryData.testers.find((tester) => tester.uuid === uuid),
 
 		/**
 		 * Add IDs to an existing tester
@@ -332,22 +237,24 @@ export const mockDb = {
 		 * @returns {string[]|undefined} Updated list of IDs if successful, undefined if tester not found
 		 */
 		addIds: (uuid: string, ids: string[]): string[] | undefined => {
-			const index = testersData.findIndex((tester) => tester.uuid === uuid);
+			const index = inMemoryData.testers.findIndex(
+				(tester) => tester.uuid === uuid,
+			);
 
 			if (index < 0) return undefined;
 
 			// Get existing IDs
-			const existingIds = testersData[index].ids;
+			const existingIds = inMemoryData.testers[index].ids;
 			// Check which IDs don't already exist in the mappings table
-			const newIds = ids.filter((id) => !mockDb.idMappings.exists(id));
+			const newIds = ids.filter((id) => !inMemoryDB.idMappings.exists(id));
 
 			// Add new ID mappings
-			mockDb.idMappings.putMultiple(newIds, uuid);
+			inMemoryDB.idMappings.putMultiple(newIds, uuid);
 
 			// Update tester with all IDs (existing + new)
 			const allIds = [...existingIds, ...newIds];
 
-			testersData[index].ids = allIds;
+			inMemoryData.testers[index].ids = allIds;
 
 			return allIds;
 		},
@@ -362,14 +269,16 @@ export const mockDb = {
 		 * @param {function} fn - Predicate function to filter purchases
 		 * @returns {Purchase|undefined} The first matching purchase or undefined if not found
 		 */
-		find: (fn: (purchase: Purchase) => boolean) => purchasesData.find(fn),
+		find: (fn: (purchase: Purchase) => boolean) =>
+			inMemoryData.purchases.find(fn),
 
 		/**
 		 * Filter purchases based on the provided condition
 		 * @param {function} fn - Predicate function to filter purchases
 		 * @returns {Purchase[]} Array of purchases matching the condition
 		 */
-		filter: (fn: (purchase: Purchase) => boolean) => purchasesData.filter(fn),
+		filter: (fn: (purchase: Purchase) => boolean) =>
+			inMemoryData.purchases.filter(fn),
 
 		/**
 		 * Add a new purchase to the database
@@ -382,7 +291,7 @@ export const mockDb = {
 				newPurchase.id = uuidv4();
 			}
 			newPurchase.testerUuid = testerUuid;
-			purchasesData.push(newPurchase);
+			inMemoryData.purchases.push(newPurchase);
 
 			return newPurchase.id;
 		},
@@ -394,10 +303,15 @@ export const mockDb = {
 		 * @returns {boolean} True if update was successful, false otherwise
 		 */
 		update: (id: string, updates: Partial<Purchase>) => {
-			const index = purchasesData.findIndex((purchase) => purchase.id === id);
+			const index = inMemoryData.purchases.findIndex(
+				(purchase) => purchase.id === id,
+			);
 
 			if (index >= 0) {
-				purchasesData[index] = { ...purchasesData[index], ...updates };
+				inMemoryData.purchases[index] = {
+					...inMemoryData.purchases[index],
+					...updates,
+				};
 
 				return true;
 			}
@@ -409,7 +323,7 @@ export const mockDb = {
 		 * Get all purchases from the database
 		 * @returns {Purchase[]} A copy of all purchases
 		 */
-		getAll: () => [...purchasesData],
+		getAll: () => [...inMemoryData.purchases],
 	},
 
 	/**
@@ -421,14 +335,16 @@ export const mockDb = {
 		 * @param {function} fn - Predicate function to filter feedback
 		 * @returns {Feedback|undefined} The first matching feedback or undefined if not found
 		 */
-		find: (fn: (feedback: Feedback) => boolean) => feedbacksData.find(fn),
+		find: (fn: (feedback: Feedback) => boolean) =>
+			inMemoryData.feedbacks.find(fn),
 
 		/**
 		 * Filter feedback based on the provided condition
 		 * @param {function} fn - Predicate function to filter feedback
 		 * @returns {Feedback[]} Array of feedback matching the condition
 		 */
-		filter: (fn: (feedback: Feedback) => boolean) => feedbacksData.filter(fn),
+		filter: (fn: (feedback: Feedback) => boolean) =>
+			inMemoryData.feedbacks.filter(fn),
 
 		/**
 		 * Add new feedback to the database
@@ -437,7 +353,7 @@ export const mockDb = {
 		 * @returns {string} The purchase ID associated with the feedback
 		 */
 		put: (testerId: string, newFeedback: Feedback) => {
-			feedbacksData.push(newFeedback);
+			inMemoryData.feedbacks.push(newFeedback);
 
 			return newFeedback.purchase;
 		},
@@ -446,7 +362,7 @@ export const mockDb = {
 		 * Get all feedback from the database
 		 * @returns {Feedback[]} A copy of all feedback
 		 */
-		getAll: () => [...feedbacksData],
+		getAll: () => [...inMemoryData.feedbacks],
 	},
 
 	/**
@@ -459,7 +375,7 @@ export const mockDb = {
 		 * @returns {Publication|undefined} The first matching publication or undefined if not found
 		 */
 		find: (fn: (publication: Publication) => boolean) =>
-			publicationsData.find(fn),
+			inMemoryData.publications.find(fn),
 
 		/**
 		 * Filter publications based on the provided condition
@@ -467,7 +383,7 @@ export const mockDb = {
 		 * @returns {Publication[]} Array of publications matching the condition
 		 */
 		filter: (fn: (publication: Publication) => boolean) =>
-			publicationsData.filter(fn),
+			inMemoryData.publications.filter(fn),
 
 		/**
 		 * Add a new publication to the database
@@ -476,7 +392,7 @@ export const mockDb = {
 		 * @returns {string} The purchase ID associated with the publication
 		 */
 		put: (testerId: string, newPublication: Publication) => {
-			publicationsData.push(newPublication);
+			inMemoryData.publications.push(newPublication);
 
 			return newPublication.purchase;
 		},
@@ -485,7 +401,7 @@ export const mockDb = {
 		 * Get all publications from the database
 		 * @returns {Publication[]} A copy of all publications
 		 */
-		getAll: () => [...publicationsData],
+		getAll: () => [...inMemoryData.publications],
 	},
 
 	/**
@@ -497,14 +413,15 @@ export const mockDb = {
 		 * @param {function} fn - Predicate function to filter refunds
 		 * @returns {Refund|undefined} The first matching refund or undefined if not found
 		 */
-		find: (fn: (refund: Refund) => boolean) => refundsData.find(fn),
+		find: (fn: (refund: Refund) => boolean) => inMemoryData.refunds.find(fn),
 
 		/**
 		 * Filter refunds based on the provided condition
 		 * @param {function} fn - Predicate function to filter refunds
 		 * @returns {Refund[]} Array of refunds matching the condition
 		 */
-		filter: (fn: (refund: Refund) => boolean) => refundsData.filter(fn),
+		filter: (fn: (refund: Refund) => boolean) =>
+			inMemoryData.refunds.filter(fn),
 
 		/**
 		 * Add a new refund to the database and mark the associated purchase as refunded
@@ -513,15 +430,15 @@ export const mockDb = {
 		 * @returns {string} The purchase ID associated with the refund
 		 */
 		put: (testerId: string, newRefund: Refund) => {
-			refundsData.push(newRefund);
+			inMemoryData.refunds.push(newRefund);
 
 			// Mark the purchase as refunded
-			const purchaseIndex = purchasesData.findIndex(
+			const purchaseIndex = inMemoryData.purchases.findIndex(
 				(p) => p.id === newRefund.purchase,
 			);
 
 			if (purchaseIndex >= 0) {
-				purchasesData[purchaseIndex].refunded = true;
+				inMemoryData.purchases[purchaseIndex].refunded = true;
 			}
 
 			return newRefund.purchase;
@@ -531,6 +448,6 @@ export const mockDb = {
 		 * Get all refunds from the database
 		 * @returns {Refund[]} A copy of all refunds
 		 */
-		getAll: () => [...refundsData],
+		getAll: () => [...inMemoryData.refunds],
 	},
 };

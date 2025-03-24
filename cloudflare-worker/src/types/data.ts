@@ -32,6 +32,14 @@ export interface Tester {
 	ids: string[];
 }
 
+/**
+ * Interface for the OAuth ID to tester UUID mapping
+ */
+export interface IdMapping {
+	id: string; // OAuth ID (primary key)
+	testerUuid: string; // Reference to tester UUID
+}
+
 // Purchase information
 export interface Purchase {
 	id: string;

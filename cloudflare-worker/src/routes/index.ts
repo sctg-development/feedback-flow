@@ -38,7 +38,7 @@ import {
 
 import { Router } from "./router";
 // Use the mock database
-import { mockDb as db } from "./mockDb";
+import { inMemoryDB as db } from "./mockDb";
 
 // Tester Management
 const testerRoutes = (router: Router, env: Env) => {
