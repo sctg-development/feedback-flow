@@ -46,5 +46,6 @@
   "name": "اسم",
   "please-enter-a-oauth-id": "الرجاء إدخال معرف Oauth 2.0 (sub)",
   "oauth-id": "OAuth 2.0 ID (sub)",
-  "enter-the-oauth-id": "أدخل معرف Oauth 2.0 (sub)"
+  "enter-the-oauth-id": "أدخل معرف Oauth 2.0 (sub)",
+  "api-response": "استجابة API"
 }

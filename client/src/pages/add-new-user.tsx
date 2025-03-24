@@ -7,25 +7,33 @@ import { Input } from "@heroui/input";
 
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
-import { userHasPermission } from "@/components/auth0";
+import { postJsonToSecuredApi, userHasPermission } from "@/components/auth0";
 
 export default function AddNewUser() {
   const { t } = useTranslation();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
   const [hasPermission, setHasPermission] = useState(false);
-  const [submitted, setSubmitted] = useState(
+  const [apiResponse, setApiResponse] = useState(
     null as {
       [k: string]: FormDataEntryValue;
     } | null,
   );
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const data = Object.fromEntries(new FormData(e.currentTarget));
+    const ids = [data["oauthId"] as string];
+    const name = data["name"] as string;
 
-    setSubmitted(data);
+    const apiResponse = await postJsonToSecuredApi(
+      `${import.meta.env.API_BASE_URL}/tester`,
+      { name, ids },
+      getAccessTokenSilently,
+    );
+
+    setApiResponse(apiResponse);
   };
 
   useEffect(() => {
@@ -38,7 +46,9 @@ export default function AddNewUser() {
               getAccessTokenSilently,
             ),
           );
-          console.log("You have permission to add a new user.");
+          console.log(
+            `You have ${hasPermission ? "" : "not "}permission to add a new user.`,
+          );
         } catch (error) {
           console.log(error as Error);
         }
@@ -60,28 +70,29 @@ export default function AddNewUser() {
           <Form className="w-full max-w-xs" onSubmit={onSubmit}>
             <Input
               isRequired
-              errorMessage={t('please-enter-a-name')}
-              label={t('name')}
+              errorMessage={t("please-enter-a-name")}
+              label={t("name")}
               labelPlacement="outside"
               name="name"
-              placeholder={t('enter-the-user-name')}
+              placeholder={t("enter-the-user-name")}
               type="text"
             />
             <Input
               isRequired
-              errorMessage={t('please-enter-a-oauth-id')}
-              label={t('oauth-id')}
+              errorMessage={t("please-enter-a-oauth-id")}
+              label={t("oauth-id")}
               labelPlacement="outside"
               name="oauthId"
-              placeholder={t('enter-the-oauth-id')}
+              pattern="^[a-zA-Z0-9]{4,30}\|[a-zA-Z0-9]{4,30}$"
+              placeholder={t("enter-the-oauth-id")}
               type="text"
             />
             <Button type="submit" variant="bordered">
-              {t('submit')}
+              {t("submit")}
             </Button>
-            {submitted && (
+            {apiResponse && (
               <div className="text-small text-default-500">
-                You submitted: <code>{JSON.stringify(submitted)}</code>
+                {t('api-response')}: <code>{JSON.stringify(apiResponse)}</code>
               </div>
             )}
           </Form>

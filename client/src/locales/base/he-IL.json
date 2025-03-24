@@ -46,5 +46,6 @@
   "name": "שֵׁם",
   "please-enter-a-oauth-id": "אנא הזן מזהה OAuth 2.0 (sub)",
   "oauth-id": "OAuth 2.0 ID (sub)",
-  "enter-the-oauth-id": "הזן את מזהה OAuth 2.0 (Sub)"
+  "enter-the-oauth-id": "הזן את מזהה OAuth 2.0 (Sub)",
+  "api-response": "תגובת API"
 }

@@ -46,5 +46,6 @@
   "name": "Name",
   "please-enter-a-oauth-id": "Please enter an OAuth 2.0 id (sub)",
   "oauth-id": "OAuth 2.0 id (sub)",
-  "enter-the-oauth-id": "Enter the OAuth 2.0 id (sub)"
+  "enter-the-oauth-id": "Enter the OAuth 2.0 id (sub)",
+  "api-response": "API Response"
 }

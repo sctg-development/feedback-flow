@@ -46,5 +46,6 @@
   "name": "姓名",
   "please-enter-a-oauth-id": "请输入OAuth 2.0 ID（sub）",
   "oauth-id": "OAuth 2.0 ID（sub）",
-  "enter-the-oauth-id": "输入OAuth 2.0 ID（sub）"
+  "enter-the-oauth-id": "输入OAuth 2.0 ID（sub）",
+  "api-response": "API响应"
 }
