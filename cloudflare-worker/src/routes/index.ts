@@ -118,6 +118,28 @@ const testerRoutes = (router: Router, env: Env) => {
 					);
 				}
 
+				// Check ID must be unique for the whole database
+				// TODO: might be very resource intensive with a large database
+				for (const _id of _ids) {
+					const inDbId = db.testers.find((t) => t.ids.includes(_id));
+
+					if (inDbId) {
+						return new Response(
+							JSON.stringify({
+								success: false,
+								error: "ID already exists for another tester",
+							}),
+							{
+								status: 409,
+								headers: {
+									...router.corsHeaders,
+									"Content-Type": "application/json",
+								},
+							},
+						);
+					}
+				}
+
 				const uuid = uuidv4();
 				let ids: string[] = [];
 
@@ -189,6 +211,26 @@ const testerRoutes = (router: Router, env: Env) => {
 						JSON.stringify({ success: false, error: "name is required" }),
 						{
 							status: 400,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
+
+				// Check ID must be unique for the whole database
+				// TODO: might be very resource intensive with a large database
+				const inDbId = db.testers.find((t) => t.ids.includes(testerId));
+
+				if (inDbId) {
+					return new Response(
+						JSON.stringify({
+							success: false,
+							error: "ID already exists for another tester",
+						}),
+						{
+							status: 409,
 							headers: {
 								...router.corsHeaders,
 								"Content-Type": "application/json",
