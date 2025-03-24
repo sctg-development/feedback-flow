@@ -36,9 +36,9 @@ import {
 	PurchaseSortCriteria,
 } from "../types/data";
 import { mockData } from "../test/mock-data";
+import { InMemoryDB } from "../db/in-memory-db";
 
 import { Router } from "./router";
-import { InMemoryDB } from "./in-memory-db";
 
 // Use the inMemory database with mock data
 const db = new InMemoryDB(mockData);

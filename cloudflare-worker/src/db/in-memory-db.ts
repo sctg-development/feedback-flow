@@ -26,37 +26,23 @@
 
 import { v4 as uuidv4 } from "uuid";
 
-import {
-	Feedback,
-	IdMapping,
-	Publication,
-	Purchase,
-	Refund,
-	Tester,
-} from "../types/data";
+import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
 
-export interface DB {
-	ids: IdMapping[];
-	testers: Tester[];
-	purchases: Purchase[];
-	feedbacks: Feedback[];
-	publications: Publication[];
-	refunds: Refund[];
-}
+import { DATABASESCHEMA, FeedbackFlowDB } from "./db-type";
 
 /**
  * In-memory database class for testing purposes
  * Provides CRUD-like operations for all data types
  */
-export class InMemoryDB {
-	private data: DB;
+export class InMemoryDB implements FeedbackFlowDB {
+	private data: DATABASESCHEMA;
 
 	/**
 	 * Create a new instance of the in-memory database
 	 * @param initialData Initial data to populate the database with
 	 */
 	constructor(
-		initialData: DB = {
+		initialData: DATABASESCHEMA = {
 			ids: [],
 			testers: [],
 			purchases: [],
@@ -66,6 +52,7 @@ export class InMemoryDB {
 		},
 	) {
 		// Clone the initial data to avoid modifications to the original object
+		// by converting it to JSON and back
 		this.data = JSON.parse(JSON.stringify(initialData));
 	}
 
@@ -73,7 +60,7 @@ export class InMemoryDB {
 	 * Reset the database with new data
 	 * @param newData Data to reset the database with
 	 */
-	reset(newData: DB) {
+	reset(newData: DATABASESCHEMA) {
 		this.data = JSON.parse(JSON.stringify(newData));
 	}
 
@@ -81,7 +68,7 @@ export class InMemoryDB {
 	 * Get a copy of the raw database data
 	 * @returns A deep copy of the current database state
 	 */
-	getRawData(): DB {
+	getRawData(): DATABASESCHEMA {
 		return JSON.parse(JSON.stringify(this.data));
 	}
 

@@ -9,9 +9,7 @@
 		"dev:env": "cp ../.env .dev.vars && wrangler dev",
 		"lint": "eslint --fix",
 		"start": "wrangler dev",
-		"test": "vitest",
-		"test:debug": "vitest --inspect-brk --no-file-parallelism",
-		"test:api": "set -a && source ../.env && set +a && node --experimental-vm-modules ./node_modules/.bin/jest",
+		"test": "set -a && source ../.env && set +a && node --experimental-vm-modules ./node_modules/.bin/jest",
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
