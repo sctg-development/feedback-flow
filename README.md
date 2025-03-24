@@ -85,7 +85,7 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 ### Tester Management
 
 - **POST `/api/tester`** - Add a tester to the database (their ID is automatically generated with a UUID) - needs admin:api permission
-  - Request: `{name /* tester's name */: string}`
+  - Request: `{name /* tester's name */: string, ids /* OAuth2 identifiers */: string[]|string}`
   - Response: `{success: boolean, uuid /* tester's account UUID */: string}`
 
 - **POST `/api/tester/ids`** - Add an ID to the authenticated tester - needs admin:api permission
