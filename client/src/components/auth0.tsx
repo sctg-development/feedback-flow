@@ -389,7 +389,7 @@ export const postJsonToSecuredApi = async (
     console.error(error);
     throw error;
   }
-}
+};
 
 /**
  * Checks if the user has a specific permission.
@@ -422,6 +422,8 @@ export const userHasPermission = async (
       audience: import.meta.env.AUTH0_AUDIENCE,
     });
     const payload = joseResult.payload as JWTPayload;
+
+    console.log(`You own this JWT: ${JSON.stringify(payload)}`);
 
     if (payload.permissions instanceof Array) {
       return payload.permissions.includes(permission);
