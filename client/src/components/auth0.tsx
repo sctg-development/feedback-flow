@@ -355,6 +355,43 @@ export const getJsonFromSecuredApi = async (
 };
 
 /**
+ * Posts JSON data to a secured API endpoint using Auth0 token authentication.
+ * Handles the token acquisition and authorization header setup automatically.
+ * @param {string} url - The URL of the secured API endpoint to post data to
+ * @param {any} data - The JSON data to post to the API
+ * @param {GetAccessTokenFunction} getAccessTokenFunction - Function to retrieve an access token, typically Auth0's getAccessTokenSilently
+ * @returns {Promise<any>} Promise resolving to the JSON response from the API
+ */
+export const postJsonToSecuredApi = async (
+  url: string,
+  data: any,
+  getAccessTokenFunction: GetAccessTokenFunction,
+) => {
+  try {
+    const accessToken = await getAccessTokenFunction({
+      authorizationParams: {
+        audience: import.meta.env.AUTH0_AUDIENCE,
+        scope: import.meta.env.AUTH0_SCOPE,
+      },
+    });
+    const apiResponse = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    return await apiResponse.json();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    throw error;
+  }
+}
+
+/**
  * Checks if the user has a specific permission.
  * @param permission - The permission to check for
  * @param {GetAccessTokenFunction} getAccessTokenFunction - Function to retrieve an access token, typically Auth0's getAccessTokenSilently
