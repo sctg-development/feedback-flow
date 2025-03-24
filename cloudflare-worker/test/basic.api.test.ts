@@ -41,6 +41,10 @@ const api = {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${AUTH0_TOKEN}`
+      },
+      validateStatus: function (status) {
+        return status < 500; // la requête résout tant que le code de sa réponse est
+                             // inférieur à 500
       }
     });
   },
@@ -49,6 +53,10 @@ const api = {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${AUTH0_TOKEN}`
+      },
+      validateStatus: function (status) {
+        return status < 500; // la requête résout tant que le code de sa réponse est
+                             // inférieur à 500
       }
     });
   },
@@ -121,9 +129,21 @@ describe('Feedback Flow API', () => {
       name: 'TESTER',
       id: testerId
     });
-    expect(response.status).toBe(209);
+
+    expect(response.status).toBe(409);
     expect(response.data.success).toBe(false);
-    expect(response.data.message).toBe('ID already exists for this tester');
+    expect(response.data.error).toBe('ID already exists in the database');
+  });
+
+  test('45. Should not add a duplicate OAuth ID owned by another tester', async () => {
+    const response = await api.post('/tester/ids', {
+      name: 'TESTER',
+      id: 'auth0|0987654321' /* Owned by Jane Doe */
+    });
+
+    expect(response.status).toBe(409);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toBe('ID already exists in the database');
   });
 
   test('50. Should create a purchase', async () => {

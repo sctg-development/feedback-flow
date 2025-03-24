@@ -28,6 +28,14 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
 
+/**
+ * Interface for the OAuth ID to tester UUID mapping
+ */
+interface IdMapping {
+	id: string; // OAuth ID (primary key)
+	testerUuid: string; // Reference to tester UUID
+}
+
 // Sample data collections
 const testersData: Tester[] = [
 	{
@@ -39,6 +47,20 @@ const testersData: Tester[] = [
 		uuid: "cc97a5cc-c4ba-4804-98b5-90532f09bd83",
 		name: "Jane Doe",
 		ids: ["auth0|0987654321"],
+	},
+];
+
+/**
+ * ID mappings table - simulates a separate table for ID lookups
+ */
+const idMappingsData: IdMapping[] = [
+	{
+		id: "auth0|1234567890",
+		testerUuid: "45f9830a-309b-4cda-95ec-71e000b78f7d",
+	},
+	{
+		id: "auth0|0987654321",
+		testerUuid: "cc97a5cc-c4ba-4804-98b5-90532f09bd83",
 	},
 ];
 
@@ -127,6 +149,100 @@ const refundsData: Refund[] = [
  */
 export const mockDb = {
 	/**
+	 * ID mappings operations
+	 */
+	idMappings: {
+		/**
+		 * Check if an ID exists in the database
+		 * @param {string} id - The OAuth ID to check
+		 * @returns {boolean} True if the ID exists, false otherwise
+		 */
+		exists: (id: string): boolean => {
+			return idMappingsData.some((mapping) => mapping.id === id);
+		},
+
+		/**
+		 * Check if multiple IDs exist in the database
+		 * @param {string[]} ids - Array of OAuth IDs to check
+		 * @returns {string[]} Array of IDs that already exist
+		 */
+		existsMultiple: (ids: string[]): string[] => {
+			return ids.filter((id) =>
+				idMappingsData.some((mapping) => mapping.id === id),
+			);
+		},
+
+		/**
+		 * Get the tester UUID associated with an ID
+		 * @param {string} id - The OAuth ID to look up
+		 * @returns {string|undefined} The associated tester UUID if found
+		 */
+		getTesterUuid: (id: string): string | undefined => {
+			const mapping = idMappingsData.find((mapping) => mapping.id === id);
+
+			return mapping?.testerUuid;
+		},
+
+		/**
+		 * Add a new ID to tester mapping
+		 * @param {string} id - The OAuth ID
+		 * @param {string} testerUuid - The associated tester UUID
+		 * @returns {boolean} True if successful, false if ID already exists
+		 */
+		put: (id: string, testerUuid: string): boolean => {
+			if (idMappingsData.some((mapping) => mapping.id === id)) {
+				return false; // ID already exists
+			}
+
+			idMappingsData.push({ id, testerUuid });
+
+			return true;
+		},
+
+		/**
+		 * Add multiple ID to tester mappings
+		 * @param {string[]} ids - Array of OAuth IDs
+		 * @param {string} testerUuid - The associated tester UUID
+		 * @returns {string[]} Array of IDs that were successfully added
+		 */
+		putMultiple: (ids: string[], testerUuid: string): string[] => {
+			const addedIds: string[] = [];
+
+			for (const id of ids) {
+				if (!idMappingsData.some((mapping) => mapping.id === id)) {
+					idMappingsData.push({ id, testerUuid });
+					addedIds.push(id);
+				}
+			}
+
+			return addedIds;
+		},
+
+		/**
+		 * Delete an ID mapping
+		 * @param {string} id - The OAuth ID to delete
+		 * @returns {boolean} True if successful, false if ID not found
+		 */
+		delete: (id: string): boolean => {
+			const index = idMappingsData.findIndex((mapping) => mapping.id === id);
+
+			if (index >= 0) {
+				idMappingsData.splice(index, 1);
+
+				return true;
+			}
+
+			return false;
+		},
+
+		/**
+		 * Get all ID mappings
+		 * @returns {IdMapping[]} Copy of all ID mappings
+		 */
+		getAll: () => [...idMappingsData],
+	},
+
+	/**
 	 * Tester-related database operations
 	 */
 	testers: {
@@ -156,6 +272,24 @@ export const mockDb = {
 
 			if (index >= 0) {
 				// Update existing tester
+				const oldIds = testersData[index].ids;
+				const newIds = newTester.ids;
+
+				// Remove old ID mappings that are no longer in the tester's ID list
+				for (const oldId of oldIds) {
+					if (!newIds.includes(oldId)) {
+						mockDb.idMappings.delete(oldId);
+					}
+				}
+
+				// Add new ID mappings
+				for (const newId of newIds) {
+					if (!oldIds.includes(newId)) {
+						mockDb.idMappings.put(newId, newTester.uuid);
+					}
+				}
+
+				// Update the tester
 				testersData[index] = newTester;
 
 				return newTester.ids;
@@ -164,6 +298,11 @@ export const mockDb = {
 				if (!newTester.uuid) {
 					newTester.uuid = uuidv4();
 				}
+
+				// Add ID mappings for all IDs in the new tester
+				mockDb.idMappings.putMultiple(newTester.ids, newTester.uuid);
+
+				// Add the tester
 				testersData.push(newTester);
 
 				return newTester.ids;
@@ -177,12 +316,17 @@ export const mockDb = {
 		getAll: () => [...testersData],
 
 		/**
-		 * Find a tester by their authentication ID
+		 * Find a tester by their authentication ID (efficient lookup using ID mappings)
 		 * @param {string} id - Authentication ID to search for
 		 * @returns {Tester|undefined} The matching tester or undefined if not found
 		 */
-		getTesterWithId: (id: string) =>
-			testersData.find((tester) => tester.ids.includes(id)),
+		getTesterWithId: (id: string) => {
+			const testerUuid = mockDb.idMappings.getTesterUuid(id);
+
+			if (!testerUuid) return undefined;
+
+			return testersData.find((tester) => tester.uuid === testerUuid);
+		},
 
 		/**
 		 * Find a tester by their UUID
@@ -191,6 +335,33 @@ export const mockDb = {
 		 */
 		getTesterWithUuid: (uuid: string) =>
 			testersData.find((tester) => tester.uuid === uuid),
+
+		/**
+		 * Add IDs to an existing tester
+		 * @param {string} uuid - UUID of the tester to update
+		 * @param {string[]} ids - IDs to add to the tester
+		 * @returns {string[]|undefined} Updated list of IDs if successful, undefined if tester not found
+		 */
+		addIds: (uuid: string, ids: string[]): string[] | undefined => {
+			const index = testersData.findIndex((tester) => tester.uuid === uuid);
+
+			if (index < 0) return undefined;
+
+			// Get existing IDs
+			const existingIds = testersData[index].ids;
+			// Check which IDs don't already exist in the mappings table
+			const newIds = ids.filter((id) => !mockDb.idMappings.exists(id));
+
+			// Add new ID mappings
+			mockDb.idMappings.putMultiple(newIds, uuid);
+
+			// Update tester with all IDs (existing + new)
+			const allIds = [...existingIds, ...newIds];
+
+			testersData[index].ids = allIds;
+
+			return allIds;
+		},
 	},
 
 	/**

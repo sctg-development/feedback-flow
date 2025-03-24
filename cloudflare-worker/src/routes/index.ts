@@ -127,7 +127,7 @@ const testerRoutes = (router: Router, env: Env) => {
 						return new Response(
 							JSON.stringify({
 								success: false,
-								error: "ID already exists for another tester",
+								error: "ID already exists in the database",
 							}),
 							{
 								status: 409,
@@ -227,7 +227,7 @@ const testerRoutes = (router: Router, env: Env) => {
 					return new Response(
 						JSON.stringify({
 							success: false,
-							error: "ID already exists for another tester",
+							error: "ID already exists in the database",
 						}),
 						{
 							status: 409,
