@@ -121,9 +121,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				// Check ID must be unique for the whole database
 				// TODO: might be very resource intensive with a large database
 				for (const _id of _ids) {
-					const inDbId = db.testers.find((t) => t.ids.includes(_id));
-
-					if (inDbId) {
+					if (db.idMappings.exists(_id)) {
 						return new Response(
 							JSON.stringify({
 								success: false,
@@ -220,10 +218,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				}
 
 				// Check ID must be unique for the whole database
-				// TODO: might be very resource intensive with a large database
-				const inDbId = db.testers.find((t) => t.ids.includes(testerId));
-
-				if (inDbId) {
+				if (db.idMappings.exists(testerId)) {
 					return new Response(
 						JSON.stringify({
 							success: false,

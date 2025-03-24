@@ -162,17 +162,6 @@ export const mockDb = {
 		},
 
 		/**
-		 * Check if multiple IDs exist in the database
-		 * @param {string[]} ids - Array of OAuth IDs to check
-		 * @returns {string[]} Array of IDs that already exist
-		 */
-		existsMultiple: (ids: string[]): string[] => {
-			return ids.filter((id) =>
-				idMappingsData.some((mapping) => mapping.id === id),
-			);
-		},
-
-		/**
 		 * Get the tester UUID associated with an ID
 		 * @param {string} id - The OAuth ID to look up
 		 * @returns {string|undefined} The associated tester UUID if found
