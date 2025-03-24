@@ -34,7 +34,7 @@ import {
 	Refund,
 	Tester,
 } from "../types/data";
-import { mockData } from "../test/mockData";
+import { mockData } from "../test/mock-data";
 
 export interface DB {
 	ids: IdMapping[];
@@ -45,24 +45,69 @@ export interface DB {
 	refunds: Refund[];
 }
 
-const inMemoryData: DB = mockData;
-
 /**
- * In-memory database for testing purposes
+ * In-memory database class for testing purposes
  * Provides CRUD-like operations for all data types
  */
-export const inMemoryDB = {
+export class InMemoryDB {
+	private data: DB;
+
+	/**
+	 * Create a new instance of the in-memory database
+	 * @param initialData Initial data to populate the database with
+	 */
+	constructor(
+		initialData: DB = {
+			ids: [],
+			testers: [],
+			purchases: [],
+			feedbacks: [],
+			publications: [],
+			refunds: [],
+		},
+	) {
+		// Clone the initial data to avoid modifications to the original object
+		this.data = JSON.parse(JSON.stringify(initialData));
+	}
+
+	/**
+	 * Reset the database with new data
+	 * @param newData Data to reset the database with
+	 */
+	reset(newData: DB) {
+		this.data = JSON.parse(JSON.stringify(newData));
+	}
+
+	/**
+	 * Get a copy of the raw database data
+	 * @returns A deep copy of the current database state
+	 */
+	getRawData(): DB {
+		return JSON.parse(JSON.stringify(this.data));
+	}
+
 	/**
 	 * ID mappings operations
 	 */
-	idMappings: {
+	idMappings = {
 		/**
 		 * Check if an ID exists in the database
 		 * @param {string} id - The OAuth ID to check
 		 * @returns {boolean} True if the ID exists, false otherwise
 		 */
 		exists: (id: string): boolean => {
-			return inMemoryData.ids.some((mapping) => mapping.id === id);
+			return this.data.ids.some((mapping) => mapping.id === id);
+		},
+
+		/**
+		 * Check if multiple IDs exist in the database
+		 * @param {string[]} ids - Array of OAuth IDs to check
+		 * @returns {string[]} Array of IDs that already exist
+		 */
+		existsMultiple: (ids: string[]): string[] => {
+			return ids.filter((id) =>
+				this.data.ids.some((mapping) => mapping.id === id),
+			);
 		},
 
 		/**
@@ -71,7 +116,7 @@ export const inMemoryDB = {
 		 * @returns {string|undefined} The associated tester UUID if found
 		 */
 		getTesterUuid: (id: string): string | undefined => {
-			const mapping = inMemoryData.ids.find((mapping) => mapping.id === id);
+			const mapping = this.data.ids.find((mapping) => mapping.id === id);
 
 			return mapping?.testerUuid;
 		},
@@ -83,11 +128,11 @@ export const inMemoryDB = {
 		 * @returns {boolean} True if successful, false if ID already exists
 		 */
 		put: (id: string, testerUuid: string): boolean => {
-			if (inMemoryData.ids.some((mapping) => mapping.id === id)) {
+			if (this.data.ids.some((mapping) => mapping.id === id)) {
 				return false; // ID already exists
 			}
 
-			inMemoryData.ids.push({ id, testerUuid });
+			this.data.ids.push({ id, testerUuid });
 
 			return true;
 		},
@@ -102,8 +147,8 @@ export const inMemoryDB = {
 			const addedIds: string[] = [];
 
 			for (const id of ids) {
-				if (!inMemoryData.ids.some((mapping) => mapping.id === id)) {
-					inMemoryData.ids.push({ id, testerUuid });
+				if (!this.data.ids.some((mapping) => mapping.id === id)) {
+					this.data.ids.push({ id, testerUuid });
 					addedIds.push(id);
 				}
 			}
@@ -117,10 +162,10 @@ export const inMemoryDB = {
 		 * @returns {boolean} True if successful, false if ID not found
 		 */
 		delete: (id: string): boolean => {
-			const index = inMemoryData.ids.findIndex((mapping) => mapping.id === id);
+			const index = this.data.ids.findIndex((mapping) => mapping.id === id);
 
 			if (index >= 0) {
-				inMemoryData.ids.splice(index, 1);
+				this.data.ids.splice(index, 1);
 
 				return true;
 			}
@@ -132,27 +177,26 @@ export const inMemoryDB = {
 		 * Get all ID mappings
 		 * @returns {IdMapping[]} Copy of all ID mappings
 		 */
-		getAll: () => [...inMemoryData.ids],
-	},
+		getAll: () => [...this.data.ids],
+	};
 
 	/**
 	 * Tester-related database operations
 	 */
-	testers: {
+	testers = {
 		/**
 		 * Find a tester that matches the provided condition
 		 * @param {function} fn - Predicate function to filter testers
 		 * @returns {Tester|undefined} The first matching tester or undefined if not found
 		 */
-		find: (fn: (tester: Tester) => boolean) => inMemoryData.testers.find(fn),
+		find: (fn: (tester: Tester) => boolean) => this.data.testers.find(fn),
 
 		/**
 		 * Filter testers based on the provided condition
 		 * @param {function} fn - Predicate function to filter testers
 		 * @returns {Tester[]} Array of testers matching the condition
 		 */
-		filter: (fn: (tester: Tester) => boolean) =>
-			inMemoryData.testers.filter(fn),
+		filter: (fn: (tester: Tester) => boolean) => this.data.testers.filter(fn),
 
 		/**
 		 * Add or update a tester in the database
@@ -160,31 +204,31 @@ export const inMemoryDB = {
 		 * @returns {string[]} The IDs associated with the tester
 		 */
 		put: (newTester: Tester) => {
-			const index = inMemoryData.testers.findIndex(
+			const index = this.data.testers.findIndex(
 				(tester) => tester.uuid === newTester.uuid,
 			);
 
 			if (index >= 0) {
 				// Update existing tester
-				const oldIds = inMemoryData.testers[index].ids;
+				const oldIds = this.data.testers[index].ids;
 				const newIds = newTester.ids;
 
 				// Remove old ID mappings that are no longer in the tester's ID list
 				for (const oldId of oldIds) {
 					if (!newIds.includes(oldId)) {
-						inMemoryDB.idMappings.delete(oldId);
+						this.idMappings.delete(oldId);
 					}
 				}
 
 				// Add new ID mappings
 				for (const newId of newIds) {
 					if (!oldIds.includes(newId)) {
-						inMemoryDB.idMappings.put(newId, newTester.uuid);
+						this.idMappings.put(newId, newTester.uuid);
 					}
 				}
 
 				// Update the tester
-				inMemoryData.testers[index] = newTester;
+				this.data.testers[index] = newTester;
 
 				return newTester.ids;
 			} else {
@@ -194,10 +238,10 @@ export const inMemoryDB = {
 				}
 
 				// Add ID mappings for all IDs in the new tester
-				inMemoryDB.idMappings.putMultiple(newTester.ids, newTester.uuid);
+				this.idMappings.putMultiple(newTester.ids, newTester.uuid);
 
 				// Add the tester
-				inMemoryData.testers.push(newTester);
+				this.data.testers.push(newTester);
 
 				return newTester.ids;
 			}
@@ -207,7 +251,7 @@ export const inMemoryDB = {
 		 * Get all testers from the database
 		 * @returns {Tester[]} A copy of all testers
 		 */
-		getAll: () => [...inMemoryData.testers],
+		getAll: () => [...this.data.testers],
 
 		/**
 		 * Find a tester by their authentication ID (efficient lookup using ID mappings)
@@ -215,11 +259,11 @@ export const inMemoryDB = {
 		 * @returns {Tester|undefined} The matching tester or undefined if not found
 		 */
 		getTesterWithId: (id: string) => {
-			const testerUuid = inMemoryDB.idMappings.getTesterUuid(id);
+			const testerUuid = this.idMappings.getTesterUuid(id);
 
 			if (!testerUuid) return undefined;
 
-			return inMemoryData.testers.find((tester) => tester.uuid === testerUuid);
+			return this.data.testers.find((tester) => tester.uuid === testerUuid);
 		},
 
 		/**
@@ -228,7 +272,7 @@ export const inMemoryDB = {
 		 * @returns {Tester|undefined} The matching tester or undefined if not found
 		 */
 		getTesterWithUuid: (uuid: string) =>
-			inMemoryData.testers.find((tester) => tester.uuid === uuid),
+			this.data.testers.find((tester) => tester.uuid === uuid),
 
 		/**
 		 * Add IDs to an existing tester
@@ -237,40 +281,39 @@ export const inMemoryDB = {
 		 * @returns {string[]|undefined} Updated list of IDs if successful, undefined if tester not found
 		 */
 		addIds: (uuid: string, ids: string[]): string[] | undefined => {
-			const index = inMemoryData.testers.findIndex(
+			const index = this.data.testers.findIndex(
 				(tester) => tester.uuid === uuid,
 			);
 
 			if (index < 0) return undefined;
 
 			// Get existing IDs
-			const existingIds = inMemoryData.testers[index].ids;
+			const existingIds = this.data.testers[index].ids;
 			// Check which IDs don't already exist in the mappings table
-			const newIds = ids.filter((id) => !inMemoryDB.idMappings.exists(id));
+			const newIds = ids.filter((id) => !this.idMappings.exists(id));
 
 			// Add new ID mappings
-			inMemoryDB.idMappings.putMultiple(newIds, uuid);
+			this.idMappings.putMultiple(newIds, uuid);
 
 			// Update tester with all IDs (existing + new)
 			const allIds = [...existingIds, ...newIds];
 
-			inMemoryData.testers[index].ids = allIds;
+			this.data.testers[index].ids = allIds;
 
 			return allIds;
 		},
-	},
+	};
 
 	/**
 	 * Purchase-related database operations
 	 */
-	purchases: {
+	purchases = {
 		/**
 		 * Find a purchase that matches the provided condition
 		 * @param {function} fn - Predicate function to filter purchases
 		 * @returns {Purchase|undefined} The first matching purchase or undefined if not found
 		 */
-		find: (fn: (purchase: Purchase) => boolean) =>
-			inMemoryData.purchases.find(fn),
+		find: (fn: (purchase: Purchase) => boolean) => this.data.purchases.find(fn),
 
 		/**
 		 * Filter purchases based on the provided condition
@@ -278,7 +321,7 @@ export const inMemoryDB = {
 		 * @returns {Purchase[]} Array of purchases matching the condition
 		 */
 		filter: (fn: (purchase: Purchase) => boolean) =>
-			inMemoryData.purchases.filter(fn),
+			this.data.purchases.filter(fn),
 
 		/**
 		 * Add a new purchase to the database
@@ -291,7 +334,7 @@ export const inMemoryDB = {
 				newPurchase.id = uuidv4();
 			}
 			newPurchase.testerUuid = testerUuid;
-			inMemoryData.purchases.push(newPurchase);
+			this.data.purchases.push(newPurchase);
 
 			return newPurchase.id;
 		},
@@ -303,13 +346,13 @@ export const inMemoryDB = {
 		 * @returns {boolean} True if update was successful, false otherwise
 		 */
 		update: (id: string, updates: Partial<Purchase>) => {
-			const index = inMemoryData.purchases.findIndex(
+			const index = this.data.purchases.findIndex(
 				(purchase) => purchase.id === id,
 			);
 
 			if (index >= 0) {
-				inMemoryData.purchases[index] = {
-					...inMemoryData.purchases[index],
+				this.data.purchases[index] = {
+					...this.data.purchases[index],
 					...updates,
 				};
 
@@ -323,20 +366,19 @@ export const inMemoryDB = {
 		 * Get all purchases from the database
 		 * @returns {Purchase[]} A copy of all purchases
 		 */
-		getAll: () => [...inMemoryData.purchases],
-	},
+		getAll: () => [...this.data.purchases],
+	};
 
 	/**
 	 * Feedback-related database operations
 	 */
-	feedbacks: {
+	feedbacks = {
 		/**
 		 * Find feedback that matches the provided condition
 		 * @param {function} fn - Predicate function to filter feedback
 		 * @returns {Feedback|undefined} The first matching feedback or undefined if not found
 		 */
-		find: (fn: (feedback: Feedback) => boolean) =>
-			inMemoryData.feedbacks.find(fn),
+		find: (fn: (feedback: Feedback) => boolean) => this.data.feedbacks.find(fn),
 
 		/**
 		 * Filter feedback based on the provided condition
@@ -344,7 +386,7 @@ export const inMemoryDB = {
 		 * @returns {Feedback[]} Array of feedback matching the condition
 		 */
 		filter: (fn: (feedback: Feedback) => boolean) =>
-			inMemoryData.feedbacks.filter(fn),
+			this.data.feedbacks.filter(fn),
 
 		/**
 		 * Add new feedback to the database
@@ -353,7 +395,7 @@ export const inMemoryDB = {
 		 * @returns {string} The purchase ID associated with the feedback
 		 */
 		put: (testerId: string, newFeedback: Feedback) => {
-			inMemoryData.feedbacks.push(newFeedback);
+			this.data.feedbacks.push(newFeedback);
 
 			return newFeedback.purchase;
 		},
@@ -362,20 +404,20 @@ export const inMemoryDB = {
 		 * Get all feedback from the database
 		 * @returns {Feedback[]} A copy of all feedback
 		 */
-		getAll: () => [...inMemoryData.feedbacks],
-	},
+		getAll: () => [...this.data.feedbacks],
+	};
 
 	/**
 	 * Publication-related database operations
 	 */
-	publications: {
+	publications = {
 		/**
 		 * Find a publication that matches the provided condition
 		 * @param {function} fn - Predicate function to filter publications
 		 * @returns {Publication|undefined} The first matching publication or undefined if not found
 		 */
 		find: (fn: (publication: Publication) => boolean) =>
-			inMemoryData.publications.find(fn),
+			this.data.publications.find(fn),
 
 		/**
 		 * Filter publications based on the provided condition
@@ -383,7 +425,7 @@ export const inMemoryDB = {
 		 * @returns {Publication[]} Array of publications matching the condition
 		 */
 		filter: (fn: (publication: Publication) => boolean) =>
-			inMemoryData.publications.filter(fn),
+			this.data.publications.filter(fn),
 
 		/**
 		 * Add a new publication to the database
@@ -392,7 +434,7 @@ export const inMemoryDB = {
 		 * @returns {string} The purchase ID associated with the publication
 		 */
 		put: (testerId: string, newPublication: Publication) => {
-			inMemoryData.publications.push(newPublication);
+			this.data.publications.push(newPublication);
 
 			return newPublication.purchase;
 		},
@@ -401,27 +443,26 @@ export const inMemoryDB = {
 		 * Get all publications from the database
 		 * @returns {Publication[]} A copy of all publications
 		 */
-		getAll: () => [...inMemoryData.publications],
-	},
+		getAll: () => [...this.data.publications],
+	};
 
 	/**
 	 * Refund-related database operations
 	 */
-	refunds: {
+	refunds = {
 		/**
 		 * Find a refund that matches the provided condition
 		 * @param {function} fn - Predicate function to filter refunds
 		 * @returns {Refund|undefined} The first matching refund or undefined if not found
 		 */
-		find: (fn: (refund: Refund) => boolean) => inMemoryData.refunds.find(fn),
+		find: (fn: (refund: Refund) => boolean) => this.data.refunds.find(fn),
 
 		/**
 		 * Filter refunds based on the provided condition
 		 * @param {function} fn - Predicate function to filter refunds
 		 * @returns {Refund[]} Array of refunds matching the condition
 		 */
-		filter: (fn: (refund: Refund) => boolean) =>
-			inMemoryData.refunds.filter(fn),
+		filter: (fn: (refund: Refund) => boolean) => this.data.refunds.filter(fn),
 
 		/**
 		 * Add a new refund to the database and mark the associated purchase as refunded
@@ -430,15 +471,15 @@ export const inMemoryDB = {
 		 * @returns {string} The purchase ID associated with the refund
 		 */
 		put: (testerId: string, newRefund: Refund) => {
-			inMemoryData.refunds.push(newRefund);
+			this.data.refunds.push(newRefund);
 
 			// Mark the purchase as refunded
-			const purchaseIndex = inMemoryData.purchases.findIndex(
+			const purchaseIndex = this.data.purchases.findIndex(
 				(p) => p.id === newRefund.purchase,
 			);
 
 			if (purchaseIndex >= 0) {
-				inMemoryData.purchases[purchaseIndex].refunded = true;
+				this.data.purchases[purchaseIndex].refunded = true;
 			}
 
 			return newRefund.purchase;
@@ -448,6 +489,6 @@ export const inMemoryDB = {
 		 * Get all refunds from the database
 		 * @returns {Refund[]} A copy of all refunds
 		 */
-		getAll: () => [...inMemoryData.refunds],
-	},
-};
+		getAll: () => [...this.data.refunds],
+	};
+}

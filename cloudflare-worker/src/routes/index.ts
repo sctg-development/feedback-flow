@@ -35,10 +35,13 @@ import {
 	TesterSortCriteria,
 	PurchaseSortCriteria,
 } from "../types/data";
+import { mockData } from "../test/mock-data";
 
 import { Router } from "./router";
-// Use the mock database
-import { inMemoryDB as db } from "./mockDb";
+import { InMemoryDB } from "./in-memory-db";
+
+// Use the inMemory database with mock data
+const db = new InMemoryDB(mockData);
 
 // Tester Management
 const testerRoutes = (router: Router, env: Env) => {
