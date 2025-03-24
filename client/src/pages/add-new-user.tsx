@@ -4,6 +4,15 @@ import { useEffect, useState, FormEvent } from "react";
 import { Form } from "@heroui/form";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@heroui/table";
+import { Pagination } from "@heroui/pagination";
 
 import {
   GetTestersResponse,
@@ -28,6 +37,7 @@ export default function AddNewUser() {
   const [testers, setTesters] = useState([] as Array<Tester>);
 
   const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [limit, setLimit] = useState(10);
   const [sort, setSort] = useState("name" as TesterSortCriteria);
   const [order, setOrder] = useState("asc" as OrderCriteria);
@@ -47,6 +57,9 @@ export default function AddNewUser() {
 
     if (response && response.success) {
       setTesters(response.data);
+      setPage(response.page);
+      setTotal(response.total);
+      setLimit(response.limit);
     }
   };
 
@@ -114,7 +127,37 @@ export default function AddNewUser() {
             <h1 className={title()}>
               <Trans t={t}>add-a-new-user</Trans>
             </h1>
-            <pre>{JSON.stringify(testers, null, 2)}</pre>
+            {/** Show the testers as a HeroUI table, testers have Tester[] type */}
+            <Table
+              aria-label="Example table with dynamic content"
+              bottomContent={
+                <div className="flex w-full justify-center">
+                  <Pagination
+                    isCompact
+                    showControls
+                    showShadow
+                    color="secondary"
+                    page={page}
+                    total={Math.ceil(total/limit)}
+                    onChange={(page) => setPage(page)}
+                  />
+                </div>
+              }
+              className="my-4"
+            >
+              <TableHeader>
+                <TableColumn>Tester Name</TableColumn>
+                <TableColumn>OAuth IDs</TableColumn>
+              </TableHeader>
+              <TableBody items={testers}>
+                {(item) => (
+                  <TableRow key={item.uuid}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.ids.join(", ")}</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
           <Form className="w-full max-w-xs" onSubmit={onSubmit}>
             <Input

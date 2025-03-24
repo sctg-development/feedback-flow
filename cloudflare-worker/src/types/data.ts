@@ -118,22 +118,6 @@ export interface GetTestersResponse {
 }
 
 /**
- * Request type for the POST /api/tester endpoint
- */
-export interface TesterCreateRequest {
-	/**
-	 * Name of the tester
-	 */
-	name: string;
-
-	/**
-	 * OAuth identifiers associated with the tester
-	 * Can be a single string or an array of strings
-	 */
-	ids: string[] | string;
-}
-
-/**
  * Response type for the POST /api/tester endpoint
  */
 export interface TesterCreateResponse {
