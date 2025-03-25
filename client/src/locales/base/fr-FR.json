@@ -47,5 +47,10 @@
   "please-enter-a-oauth-id": "Veuillez saisir un ID OAuth 2.0 (sub)",
   "oauth-id": "OAuth 2.0 ID (sub)",
   "enter-the-oauth-id": "Entrez l'id OAuth 2.0 (sub)",
-  "api-response": "Réponse de l'API"
+  "api-response": "Réponse de l'API",
+  "token": "Jeton",
+  "user": "Utilisateur",
+  "permissions": "Autorisation",
+  "expiration": "Expiration",
+  "no-permissions": "Aucune autorisation"
 }

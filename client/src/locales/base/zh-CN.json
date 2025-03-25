@@ -47,5 +47,10 @@
   "please-enter-a-oauth-id": "请输入OAuth 2.0 ID（sub）",
   "oauth-id": "OAuth 2.0 ID（sub）",
   "enter-the-oauth-id": "输入OAuth 2.0 ID（sub）",
-  "api-response": "API响应"
+  "api-response": "API响应",
+  "token": "令牌",
+  "user": "用户",
+  "permissions": "权限",
+  "expiration": "到期",
+  "no-permissions": "无许可"
 }

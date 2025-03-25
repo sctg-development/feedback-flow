@@ -18,6 +18,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@heroui/dropdown";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import { I18nIcon, LanguageSwitch } from "./language-switch";
 import { LoginLogoutButton, LoginLogoutLink } from "./auth0";
@@ -27,7 +28,6 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { ChevronDown, GithubIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
-import { useAuth0 } from "@auth0/auth0-react";
 export const Navbar = () => {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth0();
@@ -62,30 +62,30 @@ export const Navbar = () => {
           ))}
         </div>
         {isAuthenticated ? (
-        <NavbarItem>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button
-                className={clsx(
-                  linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
-                )}
-                variant="light"
-              >
-                {t("Administration")} <ChevronDown />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu>
-              {siteConfig().apiMenuItems.map((item) => (
-                <DropdownItem key={item.href} textValue={item.label}>
-                  <Link color="foreground" href="/add-user">
-                    {item.label}
-                  </Link>
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-        </NavbarItem>
+          <NavbarItem>
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  className={clsx(
+                    linkStyles({ color: "foreground" }),
+                    "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  )}
+                  variant="light"
+                >
+                  {t("Administration")} <ChevronDown />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu>
+                {siteConfig().apiMenuItems.map((item) => (
+                  <DropdownItem key={item.href} textValue={item.label}>
+                    <Link color="foreground" href="/add-user">
+                      {item.label}
+                    </Link>
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </NavbarItem>
         ) : (
           <></>
         )}

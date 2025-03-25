@@ -47,5 +47,10 @@
   "please-enter-a-oauth-id": "Ingrese una ID de OAuth 2.0 (sub)",
   "oauth-id": "OAuth 2.0 ID (sub)",
   "enter-the-oauth-id": "Ingrese la ID de OAuth 2.0 (sub)",
-  "api-response": "Respuesta de la API"
+  "api-response": "Respuesta de la API",
+  "token": "Token",
+  "user": "Usuario",
+  "permissions": "Permisos",
+  "expiration": "Vencimiento",
+  "no-permissions": "Sin permisos"
 }

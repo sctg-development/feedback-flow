@@ -47,5 +47,10 @@
   "please-enter-a-oauth-id": "الرجاء إدخال معرف Oauth 2.0 (sub)",
   "oauth-id": "OAuth 2.0 ID (sub)",
   "enter-the-oauth-id": "أدخل معرف Oauth 2.0 (sub)",
-  "api-response": "استجابة API"
+  "api-response": "استجابة API",
+  "token": "رمز",
+  "user": "مستخدم",
+  "permissions": "أذونات",
+  "expiration": "انتهاء",
+  "no-permissions": "لا أذونات"
 }
