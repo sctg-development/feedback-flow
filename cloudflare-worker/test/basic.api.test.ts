@@ -31,6 +31,7 @@ if (!AUTH0_TOKEN) {
 
 // Test state
 let testerId: string;
+let expirationDate: Date;
 let testerUuid: string;
 let purchaseId: string;
 
@@ -70,8 +71,14 @@ describe('Feedback Flow API', () => {
     // Extract the user ID (sub) from the JWT token
     const decodedToken = jose.decodeJwt(AUTH0_TOKEN);
     testerId = decodedToken.sub as string;
+    expirationDate = new Date((decodedToken.exp || 0 )* 1000);
 
-    console.log(`Using Auth0 user ID: ${testerId}`);
+    console.log(`Using Auth0 user ID: ${testerId} expiring on ${expirationDate}`);
+    if (expirationDate < new Date()) {
+      // stop the test if the token has expired
+      //throw new Error('Auth0 token has expired');
+      process.exit(1);
+    }
   });
   afterAll(() => {
     // Stop the Wrangler dev server
