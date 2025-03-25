@@ -26,12 +26,12 @@
 PRAGMA foreign_keys = ON;
 
 -- Suppression des tables si elles existent déjà (pour réinitialisation)
-DROP TABLE IF EXISTS refunds;
-DROP TABLE IF EXISTS publications;
-DROP TABLE IF EXISTS feedbacks;
-DROP TABLE IF EXISTS purchases;
-DROP TABLE IF EXISTS id_mappings;
-DROP TABLE IF EXISTS testers;
+-- DROP TABLE IF EXISTS refunds;
+-- DROP TABLE IF EXISTS publications;
+-- DROP TABLE IF EXISTS feedbacks;
+-- DROP TABLE IF EXISTS purchases;
+-- DROP TABLE IF EXISTS id_mappings;
+-- DROP TABLE IF EXISTS testers;
 
 -- Table des testeurs
 CREATE TABLE testers (

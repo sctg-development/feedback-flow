@@ -89,6 +89,15 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			return (results[0]?.count as number) > 0;
 		},
 
+		/**
+		 * Check if multiple IDs exist in the database
+		 *
+		 * @param ids Array of OAuth IDs to check
+		 * @returns Array of IDs that already exist in the database
+		 *
+		 * Note: This method uses a single SQL query with IN operator
+		 * which is more efficient than making multiple separate queries
+		 */
 		existsMultiple: async (ids: string[]): Promise<string[]> => {
 			if (ids.length === 0) return [];
 
@@ -581,6 +590,16 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			return refunds.filter(fn);
 		},
 
+		/**
+		 * Add a new refund to the database
+		 *
+		 * This operation uses a transaction to ensure both:
+		 * 1. The refund is inserted into the refunds table
+		 * 2. The associated purchase is marked as refunded
+		 *
+		 * If either operation fails, the entire transaction is rolled back
+		 * to prevent data inconsistency.
+		 */
 		put: async (testerId: string, newRefund: Refund): Promise<string> => {
 			try {
 				// Start a transaction to ensure atomicity of operations
@@ -662,7 +681,11 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 	}
 
 	/**
-	 * Get all purchases
+	 * Get all purchases from the database
+	 *
+	 * This method maps database column names to the Purchase interface properties,
+	 * including renaming database columns like 'order_number' to 'order' and
+	 * converting SQLite's 0/1 integers to JavaScript booleans for 'refunded'.
 	 */
 	private async getAllPurchases(): Promise<Purchase[]> {
 		const { results } = await this.db
