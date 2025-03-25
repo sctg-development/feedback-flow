@@ -26,7 +26,7 @@
 PRAGMA foreign_keys = ON;
 
 -- Désactiver temporairement les triggers pour l'insertion initiale
-PRAGMA triggers = OFF;
+-- PRAGMA triggers = OFF;
 
 -- Supprime les données existantes (optionnel, à utiliser avec précaution)
 DELETE FROM refunds;
@@ -125,7 +125,7 @@ INSERT INTO refunds (purchase_id, date, refund_date, amount) VALUES
 );
 
 -- Réactiver les triggers après l'insertion des données
-PRAGMA triggers = ON;
+-- PRAGMA triggers = ON;
 
 -- Requêtes de vérification des données insérées
 -- SELECT 'Testers' as table_name, COUNT(*) as count FROM testers
