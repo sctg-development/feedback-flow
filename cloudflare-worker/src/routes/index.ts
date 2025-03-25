@@ -56,7 +56,7 @@ const testerRoutes = (router: Router, env: Env) => {
 			const order = url.searchParams.get("order") || "asc";
 
 			// Get all testers
-			const testers = db.testers.getAll();
+			const testers = await db.testers.getAll();
 
 			// Ensure sort is a valid key
 			const sortKey = testerAllowedSortKeys.includes(sort as TesterSortCriteria)
@@ -124,7 +124,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				// Check ID must be unique for the whole database
 				// TODO: might be very resource intensive with a large database
 				for (const _id of _ids) {
-					if (db.idMappings.exists(_id)) {
+					if (await db.idMappings.exists(_id)) {
 						return new Response(
 							JSON.stringify({
 								success: false,
@@ -150,7 +150,7 @@ const testerRoutes = (router: Router, env: Env) => {
 					ids = _ids;
 				}
 				// Add to the database
-				const dbInsert = db.testers.put({ uuid, name, ids });
+				const dbInsert = await db.testers.put({ uuid, name, ids });
 
 				if (!dbInsert) {
 					return new Response(
@@ -221,7 +221,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				}
 
 				// Check ID must be unique for the whole database
-				if (db.idMappings.exists(testerId)) {
+				if (await db.idMappings.exists(testerId)) {
 					return new Response(
 						JSON.stringify({
 							success: false,
@@ -238,7 +238,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				}
 
 				// Find tester in the database
-				const tester = db.testers.find((t) => t.name === name);
+				const tester = await db.testers.find((t) => t.name === name);
 
 				if (!tester) {
 					return new Response(
@@ -273,7 +273,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				}
 
 				// Update the database
-				const ids = db.testers.put({
+				const ids = await db.testers.put({
 					...tester,
 					ids: [...tester.ids, testerId],
 				});
@@ -327,7 +327,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				);
 			}
 			// Find tester in the database
-			const tester = db.testers.find((t) => t.ids.includes(userId));
+			const tester = await db.testers.find((t) => t.ids.includes(userId));
 
 			if (!tester) {
 				return new Response(
@@ -400,23 +400,26 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				//  Add to the database
 				const id = uuidv4();
 				const testerId = router.jwtPayload.sub;
-				const testerUuid = db.testers.getTesterWithId(testerId || "")?.uuid;
+				const testerUuid = (await db.testers.getTesterWithId(testerId || ""))
+					?.uuid;
 
 				if (!testerId || !testerUuid) {
 					return router.handleUnauthorizedRequest();
 				}
 				//  TODO: Better error handling
 				const dbInsert =
-					db.purchases.put(testerUuid, {
-						id,
-						date,
-						order,
-						description,
-						amount,
-						screenshot,
-						testerUuid,
-						refunded: false,
-					}).length > 0;
+					(
+						await db.purchases.put(testerUuid, {
+							id,
+							date,
+							order,
+							description,
+							amount,
+							screenshot,
+							testerUuid,
+							refunded: false,
+						})
+					).length > 0;
 
 				return new Response(JSON.stringify({ success: dbInsert, id }), {
 					status: 201,
@@ -444,7 +447,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			const { id } = request.params;
 
 			// Find purchase in the database
-			const purchase = db.purchases.find((p) => p.id === id);
+			const purchase = await db.purchases.find((p) => p.id === id);
 
 			if (!purchase) {
 				return new Response(
@@ -501,7 +504,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			}
 
 			// Find tester by user ID
-			const tester = db.testers.find((t) => t.ids.includes(userId || ""));
+			const tester = await db.testers.find((t) => t.ids.includes(userId || ""));
 
 			if (!tester) {
 				return new Response(
@@ -517,7 +520,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			}
 
 			// Filter purchases by tester and non-refunded status
-			const purchases = db.purchases.filter(
+			const purchases = await db.purchases.filter(
 				(p) => p.testerUuid === tester.uuid && !p.refunded,
 			);
 
@@ -590,7 +593,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			}
 
 			// Find tester by user ID
-			const tester = db.testers.find((t) => t.ids.includes(userId || ""));
+			const tester = await db.testers.find((t) => t.ids.includes(userId || ""));
 
 			if (!tester) {
 				return new Response(
@@ -606,7 +609,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			}
 
 			// Filter purchases by tester and refunded status
-			const purchases = db.purchases.filter(
+			const purchases = await db.purchases.filter(
 				(p) => p.testerUuid === tester.uuid && p.refunded,
 			);
 
@@ -694,7 +697,11 @@ const feedbackRoutes = (router: Router, env: Env) => {
 				if (!testerId) {
 					return router.handleUnauthorizedRequest();
 				}
-				const id = db.feedbacks.put(testerId, { date, purchase, feedback });
+				const id = await db.feedbacks.put(testerId, {
+					date,
+					purchase,
+					feedback,
+				});
 
 				// TODO: check id for error handling
 				return new Response(JSON.stringify({ success: true, id }), {
@@ -746,7 +753,7 @@ const feedbackRoutes = (router: Router, env: Env) => {
 					return router.handleUnauthorizedRequest();
 				}
 				// Add to database
-				const id = db.publications.put(testerId, {
+				const id = await db.publications.put(testerId, {
 					date,
 					purchase,
 					screenshot,
@@ -778,7 +785,7 @@ const feedbackRoutes = (router: Router, env: Env) => {
 			const { id } = request.params;
 
 			// Find publication in the database
-			const publication = db.publications.find((p) => p.purchase === id);
+			const publication = await db.publications.find((p) => p.purchase === id);
 
 			if (!publication) {
 				return new Response(
@@ -847,7 +854,7 @@ const refundRoutes = (router: Router, env: Env) => {
 				if (!testerId) {
 					return router.handleUnauthorizedRequest();
 				}
-				const id = db.refunds.put(testerId, {
+				const id = await db.refunds.put(testerId, {
 					date,
 					purchase,
 					refunddate,
@@ -887,7 +894,7 @@ const refundRoutes = (router: Router, env: Env) => {
 			const { id } = request.params;
 
 			// Find refund in the database
-			const refund = db.refunds.find((r) => r.purchase === id);
+			const refund = await db.refunds.find((r) => r.purchase === id);
 
 			if (!refund) {
 				return new Response(
@@ -929,7 +936,7 @@ const refundRoutes = (router: Router, env: Env) => {
 		router.get(
 			"/api/backup/json",
 			async () => {
-				const json = db.backupToJson();
+				const json = await db.backupToJson();
 
 				return new Response(json, {
 					status: 200,

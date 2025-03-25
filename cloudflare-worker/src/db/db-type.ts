@@ -44,221 +44,131 @@ export interface DATABASESCHEMA {
 }
 
 /**
- * IdMappings repository interface
+ * IdMappings repository interface (async version)
  */
 export interface IdMappingsRepository {
 	/**
 	 * Check if an ID exists in the database
 	 * @param id The OAuth ID to check
 	 */
-	exists(id: string): boolean;
+	exists(id: string): Promise<boolean>;
 
 	/**
 	 * Check if multiple IDs exist in the database
 	 * @param ids Array of OAuth IDs to check
 	 */
-	existsMultiple(ids: string[]): string[];
+	existsMultiple(ids: string[]): Promise<string[]>;
 
 	/**
 	 * Get the tester UUID associated with an ID
 	 * @param id The OAuth ID to look up
 	 */
-	getTesterUuid(id: string): string | undefined;
+	getTesterUuid(id: string): Promise<string | undefined>;
 
 	/**
 	 * Add a new ID to tester mapping
 	 * @param id The OAuth ID
 	 * @param testerUuid The associated tester UUID
 	 */
-	put(id: string, testerUuid: string): boolean;
+	put(id: string, testerUuid: string): Promise<boolean>;
 
 	/**
 	 * Add multiple ID to tester mappings
 	 * @param ids Array of OAuth IDs
 	 * @param testerUuid The associated tester UUID
 	 */
-	putMultiple(ids: string[], testerUuid: string): string[];
+	putMultiple(ids: string[], testerUuid: string): Promise<string[]>;
 
 	/**
 	 * Delete an ID mapping
 	 * @param id The OAuth ID to delete
 	 */
-	delete(id: string): boolean;
+	delete(id: string): Promise<boolean>;
 
 	/**
 	 * Get all ID mappings
 	 */
-	getAll(): IdMapping[];
+	getAll(): Promise<IdMapping[]>;
 }
 
 /**
- * Testers repository interface
+ * Testers repository interface (async version)
  */
 export interface TestersRepository {
 	/**
 	 * Find a tester that matches the provided condition
 	 * @param fn Predicate function to filter testers
 	 */
-	find(fn: (tester: Tester) => boolean): Tester | undefined;
+	find(fn: (tester: Tester) => boolean): Promise<Tester | undefined>;
 
 	/**
 	 * Filter testers based on the provided condition
 	 * @param fn Predicate function to filter testers
 	 */
-	filter(fn: (tester: Tester) => boolean): Tester[];
+	filter(fn: (tester: Tester) => boolean): Promise<Tester[]>;
 
 	/**
 	 * Add or update a tester in the database
 	 * @param newTester The tester object to add or update
 	 */
-	put(newTester: Tester): string[];
+	put(newTester: Tester): Promise<string[]>;
 
 	/**
 	 * Get all testers from the database
 	 */
-	getAll(): Tester[];
+	getAll(): Promise<Tester[]>;
 
 	/**
 	 * Find a tester by their authentication ID
 	 * @param id Authentication ID to search for
 	 */
-	getTesterWithId(id: string): Tester | undefined;
+	getTesterWithId(id: string): Promise<Tester | undefined>;
 
 	/**
 	 * Find a tester by their UUID
 	 * @param uuid UUID to search for
 	 */
-	getTesterWithUuid(uuid: string): Tester | undefined;
+	getTesterWithUuid(uuid: string): Promise<Tester | undefined>;
 
 	/**
 	 * Add IDs to an existing tester
 	 * @param uuid UUID of the tester to update
 	 * @param ids IDs to add to the tester
 	 */
-	addIds(uuid: string, ids: string[]): string[] | undefined;
+	addIds(uuid: string, ids: string[]): Promise<string[] | undefined>;
 }
 
-/**
- * Purchases repository interface
- */
+// Convertir également PurchasesRepository, FeedbacksRepository, PublicationsRepository, RefundsRepository
+// de manière similaire (toutes les méthodes retournent des Promises)
 export interface PurchasesRepository {
-	/**
-	 * Find a purchase that matches the provided condition
-	 * @param fn Predicate function to filter purchases
-	 */
-	find(fn: (purchase: Purchase) => boolean): Purchase | undefined;
-
-	/**
-	 * Filter purchases based on the provided condition
-	 * @param fn Predicate function to filter purchases
-	 */
-	filter(fn: (purchase: Purchase) => boolean): Purchase[];
-
-	/**
-	 * Add a new purchase to the database
-	 * @param testerUuid UUID of the tester making the purchase
-	 * @param newPurchase The purchase object to add
-	 */
-	put(testerUuid: string, newPurchase: Purchase): string;
-
-	/**
-	 * Update an existing purchase in the database
-	 * @param id ID of the purchase to update
-	 * @param updates Fields to update
-	 */
-	update(id: string, updates: Partial<Purchase>): boolean;
-
-	/**
-	 * Get all purchases from the database
-	 */
-	getAll(): Purchase[];
+	find(fn: (purchase: Purchase) => boolean): Promise<Purchase | undefined>;
+	filter(fn: (purchase: Purchase) => boolean): Promise<Purchase[]>;
+	put(testerUuid: string, newPurchase: Purchase): Promise<string>;
+	update(id: string, updates: Partial<Purchase>): Promise<boolean>;
+	getAll(): Promise<Purchase[]>;
 }
 
-/**
- * Feedbacks repository interface
- */
 export interface FeedbacksRepository {
-	/**
-	 * Find feedback that matches the provided condition
-	 * @param fn Predicate function to filter feedback
-	 */
-	find(fn: (feedback: Feedback) => boolean): Feedback | undefined;
-
-	/**
-	 * Filter feedback based on the provided condition
-	 * @param fn Predicate function to filter feedback
-	 */
-	filter(fn: (feedback: Feedback) => boolean): Feedback[];
-
-	/**
-	 * Add new feedback to the database
-	 * @param testerId ID of the tester providing the feedback
-	 * @param newFeedback The feedback object to add
-	 */
-	put(testerId: string, newFeedback: Feedback): string;
-
-	/**
-	 * Get all feedback from the database
-	 */
-	getAll(): Feedback[];
+	find(fn: (feedback: Feedback) => boolean): Promise<Feedback | undefined>;
+	filter(fn: (feedback: Feedback) => boolean): Promise<Feedback[]>;
+	put(testerId: string, newFeedback: Feedback): Promise<string>;
+	getAll(): Promise<Feedback[]>;
 }
 
-/**
- * Publications repository interface
- */
 export interface PublicationsRepository {
-	/**
-	 * Find a publication that matches the provided condition
-	 * @param fn Predicate function to filter publications
-	 */
-	find(fn: (publication: Publication) => boolean): Publication | undefined;
-
-	/**
-	 * Filter publications based on the provided condition
-	 * @param fn Predicate function to filter publications
-	 */
-	filter(fn: (publication: Publication) => boolean): Publication[];
-
-	/**
-	 * Add a new publication to the database
-	 * @param testerId ID of the tester creating the publication
-	 * @param newPublication The publication object to add
-	 */
-	put(testerId: string, newPublication: Publication): string;
-
-	/**
-	 * Get all publications from the database
-	 */
-	getAll(): Publication[];
+	find(
+		fn: (publication: Publication) => boolean,
+	): Promise<Publication | undefined>;
+	filter(fn: (publication: Publication) => boolean): Promise<Publication[]>;
+	put(testerId: string, newPublication: Publication): Promise<string>;
+	getAll(): Promise<Publication[]>;
 }
 
-/**
- * Refunds repository interface
- */
 export interface RefundsRepository {
-	/**
-	 * Find a refund that matches the provided condition
-	 * @param fn Predicate function to filter refunds
-	 */
-	find(fn: (refund: Refund) => boolean): Refund | undefined;
-
-	/**
-	 * Filter refunds based on the provided condition
-	 * @param fn Predicate function to filter refunds
-	 */
-	filter(fn: (refund: Refund) => boolean): Refund[];
-
-	/**
-	 * Add a new refund to the database and mark the associated purchase as refunded
-	 * @param testerId ID of the tester receiving the refund
-	 * @param newRefund The refund object to add
-	 */
-	put(testerId: string, newRefund: Refund): string;
-
-	/**
-	 * Get all refunds from the database
-	 */
-	getAll(): Refund[];
+	find(fn: (refund: Refund) => boolean): Promise<Refund | undefined>;
+	filter(fn: (refund: Refund) => boolean): Promise<Refund[]>;
+	put(testerId: string, newRefund: Refund): Promise<string>;
+	getAll(): Promise<Refund[]>;
 }
 
 /**
@@ -294,4 +204,24 @@ export abstract class FeedbackFlowDB {
 	 * Refund-related database operations
 	 */
 	abstract refunds: RefundsRepository;
+
+	/**
+	 * Reset the database with new data (optional)
+	 */
+	abstract reset?(newData: DATABASESCHEMA): Promise<void>;
+
+	/**
+	 * Get a copy of the raw database data (optional)
+	 */
+	abstract getRawData?(): Promise<DATABASESCHEMA>;
+
+	/**
+	 * Backup the database to JSON string (optional)
+	 */
+	abstract backupToJson?(): Promise<string>;
+
+	/**
+	 * Restore the database from JSON string (optional)
+	 */
+	abstract restoreFromJson?(backup: string): Promise<void>;
 }

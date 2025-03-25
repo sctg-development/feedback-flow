@@ -60,7 +60,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 	 * Reset the database with new data
 	 * @param newData Data to reset the database with
 	 */
-	reset(newData: DATABASESCHEMA) {
+	async reset(newData: DATABASESCHEMA) {
 		this.data = JSON.parse(JSON.stringify(newData));
 	}
 
@@ -68,7 +68,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 	 * Get a copy of the raw database data
 	 * @returns A deep copy of the current database state
 	 */
-	getRawData(): DATABASESCHEMA {
+	async getRawData(): Promise<DATABASESCHEMA> {
 		return JSON.parse(JSON.stringify(this.data));
 	}
 
@@ -81,7 +81,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {string} id - The OAuth ID to check
 		 * @returns {boolean} True if the ID exists, false otherwise
 		 */
-		exists: (id: string): boolean => {
+		exists: async (id: string): Promise<boolean> => {
 			return this.data.ids.some((mapping) => mapping.id === id);
 		},
 
@@ -90,7 +90,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {string[]} ids - Array of OAuth IDs to check
 		 * @returns {string[]} Array of IDs that already exist
 		 */
-		existsMultiple: (ids: string[]): string[] => {
+		existsMultiple: async (ids: string[]): Promise<string[]> => {
 			return ids.filter((id) =>
 				this.data.ids.some((mapping) => mapping.id === id),
 			);
@@ -101,7 +101,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {string} id - The OAuth ID to look up
 		 * @returns {string|undefined} The associated tester UUID if found
 		 */
-		getTesterUuid: (id: string): string | undefined => {
+		getTesterUuid: async (id: string): Promise<string | undefined> => {
 			const mapping = this.data.ids.find((mapping) => mapping.id === id);
 
 			return mapping?.testerUuid;
@@ -113,7 +113,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {string} testerUuid - The associated tester UUID
 		 * @returns {boolean} True if successful, false if ID already exists
 		 */
-		put: (id: string, testerUuid: string): boolean => {
+		put: async (id: string, testerUuid: string): Promise<boolean> => {
 			if (this.data.ids.some((mapping) => mapping.id === id)) {
 				return false; // ID already exists
 			}
@@ -129,7 +129,10 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {string} testerUuid - The associated tester UUID
 		 * @returns {string[]} Array of IDs that were successfully added
 		 */
-		putMultiple: (ids: string[], testerUuid: string): string[] => {
+		putMultiple: async (
+			ids: string[],
+			testerUuid: string,
+		): Promise<string[]> => {
 			const addedIds: string[] = [];
 
 			for (const id of ids) {
@@ -147,7 +150,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {string} id - The OAuth ID to delete
 		 * @returns {boolean} True if successful, false if ID not found
 		 */
-		delete: (id: string): boolean => {
+		delete: async (id: string): Promise<boolean> => {
 			const index = this.data.ids.findIndex((mapping) => mapping.id === id);
 
 			if (index >= 0) {
@@ -163,7 +166,9 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * Get all ID mappings
 		 * @returns {IdMapping[]} Copy of all ID mappings
 		 */
-		getAll: () => [...this.data.ids],
+		getAll: async () => {
+			return [...this.data.ids];
+		},
 	};
 
 	/**
@@ -175,21 +180,22 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter testers
 		 * @returns {Tester|undefined} The first matching tester or undefined if not found
 		 */
-		find: (fn: (tester: Tester) => boolean) => this.data.testers.find(fn),
+		find: async (fn: (tester: Tester) => boolean) => this.data.testers.find(fn),
 
 		/**
 		 * Filter testers based on the provided condition
 		 * @param {function} fn - Predicate function to filter testers
 		 * @returns {Tester[]} Array of testers matching the condition
 		 */
-		filter: (fn: (tester: Tester) => boolean) => this.data.testers.filter(fn),
+		filter: async (fn: (tester: Tester) => boolean) =>
+			this.data.testers.filter(fn),
 
 		/**
 		 * Add or update a tester in the database
 		 * @param {Tester} newTester - The tester object to add or update
 		 * @returns {string[]} The IDs associated with the tester
 		 */
-		put: (newTester: Tester) => {
+		put: async (newTester: Tester) => {
 			const index = this.data.testers.findIndex(
 				(tester) => tester.uuid === newTester.uuid,
 			);
@@ -237,15 +243,15 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * Get all testers from the database
 		 * @returns {Tester[]} A copy of all testers
 		 */
-		getAll: () => [...this.data.testers],
+		getAll: async () => [...this.data.testers],
 
 		/**
 		 * Find a tester by their authentication ID (efficient lookup using ID mappings)
 		 * @param {string} id - Authentication ID to search for
 		 * @returns {Tester|undefined} The matching tester or undefined if not found
 		 */
-		getTesterWithId: (id: string) => {
-			const testerUuid = this.idMappings.getTesterUuid(id);
+		getTesterWithId: async (id: string) => {
+			const testerUuid = await this.idMappings.getTesterUuid(id);
 
 			if (!testerUuid) return undefined;
 
@@ -257,7 +263,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {string} uuid - UUID to search for
 		 * @returns {Tester|undefined} The matching tester or undefined if not found
 		 */
-		getTesterWithUuid: (uuid: string) =>
+		getTesterWithUuid: async (uuid: string) =>
 			this.data.testers.find((tester) => tester.uuid === uuid),
 
 		/**
@@ -266,7 +272,10 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {string[]} ids - IDs to add to the tester
 		 * @returns {string[]|undefined} Updated list of IDs if successful, undefined if tester not found
 		 */
-		addIds: (uuid: string, ids: string[]): string[] | undefined => {
+		addIds: async (
+			uuid: string,
+			ids: string[],
+		): Promise<string[] | undefined> => {
 			const index = this.data.testers.findIndex(
 				(tester) => tester.uuid === uuid,
 			);
@@ -299,14 +308,14 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter purchases
 		 * @returns {Purchase|undefined} The first matching purchase or undefined if not found
 		 */
-		find: (fn: (purchase: Purchase) => boolean) => this.data.purchases.find(fn),
+		find: async (fn: (purchase: Purchase) => boolean) => this.data.purchases.find(fn),
 
 		/**
 		 * Filter purchases based on the provided condition
 		 * @param {function} fn - Predicate function to filter purchases
 		 * @returns {Purchase[]} Array of purchases matching the condition
 		 */
-		filter: (fn: (purchase: Purchase) => boolean) =>
+		filter: async (fn: (purchase: Purchase) => boolean) =>
 			this.data.purchases.filter(fn),
 
 		/**
@@ -315,7 +324,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {Purchase} newPurchase - The purchase object to add
 		 * @returns {string} The ID of the newly added purchase
 		 */
-		put: (testerUuid: string, newPurchase: Purchase) => {
+		put: async (testerUuid: string, newPurchase: Purchase) => {
 			if (!newPurchase.id) {
 				newPurchase.id = uuidv4();
 			}
@@ -331,7 +340,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {Partial<Purchase>} updates - Fields to update
 		 * @returns {boolean} True if update was successful, false otherwise
 		 */
-		update: (id: string, updates: Partial<Purchase>) => {
+		update: async (id: string, updates: Partial<Purchase>) => {
 			const index = this.data.purchases.findIndex(
 				(purchase) => purchase.id === id,
 			);
@@ -352,7 +361,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * Get all purchases from the database
 		 * @returns {Purchase[]} A copy of all purchases
 		 */
-		getAll: () => [...this.data.purchases],
+		getAll: async () => [...this.data.purchases],
 	};
 
 	/**
@@ -364,14 +373,14 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter feedback
 		 * @returns {Feedback|undefined} The first matching feedback or undefined if not found
 		 */
-		find: (fn: (feedback: Feedback) => boolean) => this.data.feedbacks.find(fn),
+		find: async (fn: (feedback: Feedback) => boolean) => this.data.feedbacks.find(fn),
 
 		/**
 		 * Filter feedback based on the provided condition
 		 * @param {function} fn - Predicate function to filter feedback
 		 * @returns {Feedback[]} Array of feedback matching the condition
 		 */
-		filter: (fn: (feedback: Feedback) => boolean) =>
+		filter: async (fn: (feedback: Feedback) => boolean) =>
 			this.data.feedbacks.filter(fn),
 
 		/**
@@ -380,7 +389,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {Feedback} newFeedback - The feedback object to add
 		 * @returns {string} The purchase ID associated with the feedback
 		 */
-		put: (testerId: string, newFeedback: Feedback) => {
+		put: async (testerId: string, newFeedback: Feedback) => {
 			this.data.feedbacks.push(newFeedback);
 
 			return newFeedback.purchase;
@@ -390,7 +399,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * Get all feedback from the database
 		 * @returns {Feedback[]} A copy of all feedback
 		 */
-		getAll: () => [...this.data.feedbacks],
+		getAll: async () => [...this.data.feedbacks],
 	};
 
 	/**
@@ -402,7 +411,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter publications
 		 * @returns {Publication|undefined} The first matching publication or undefined if not found
 		 */
-		find: (fn: (publication: Publication) => boolean) =>
+		find: async (fn: (publication: Publication) => boolean) =>
 			this.data.publications.find(fn),
 
 		/**
@@ -410,7 +419,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter publications
 		 * @returns {Publication[]} Array of publications matching the condition
 		 */
-		filter: (fn: (publication: Publication) => boolean) =>
+		filter: async (fn: (publication: Publication) => boolean) =>
 			this.data.publications.filter(fn),
 
 		/**
@@ -419,7 +428,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {Publication} newPublication - The publication object to add
 		 * @returns {string} The purchase ID associated with the publication
 		 */
-		put: (testerId: string, newPublication: Publication) => {
+		put: async (testerId: string, newPublication: Publication) => {
 			this.data.publications.push(newPublication);
 
 			return newPublication.purchase;
@@ -429,7 +438,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * Get all publications from the database
 		 * @returns {Publication[]} A copy of all publications
 		 */
-		getAll: () => [...this.data.publications],
+		getAll: async () => [...this.data.publications],
 	};
 
 	/**
@@ -441,14 +450,14 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter refunds
 		 * @returns {Refund|undefined} The first matching refund or undefined if not found
 		 */
-		find: (fn: (refund: Refund) => boolean) => this.data.refunds.find(fn),
+		find: async (fn: (refund: Refund) => boolean) => this.data.refunds.find(fn),
 
 		/**
 		 * Filter refunds based on the provided condition
 		 * @param {function} fn - Predicate function to filter refunds
 		 * @returns {Refund[]} Array of refunds matching the condition
 		 */
-		filter: (fn: (refund: Refund) => boolean) => this.data.refunds.filter(fn),
+		filter: async (fn: (refund: Refund) => boolean) => this.data.refunds.filter(fn),
 
 		/**
 		 * Add a new refund to the database and mark the associated purchase as refunded
@@ -456,7 +465,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {Refund} newRefund - The refund object to add
 		 * @returns {string} The purchase ID associated with the refund
 		 */
-		put: (testerId: string, newRefund: Refund) => {
+		put: async (testerId: string, newRefund: Refund) => {
 			this.data.refunds.push(newRefund);
 
 			// Mark the purchase as refunded
@@ -475,20 +484,20 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * Get all refunds from the database
 		 * @returns {Refund[]} A copy of all refunds
 		 */
-		getAll: () => [...this.data.refunds],
+		getAll: async () => [...this.data.refunds],
 	};
 	/**
 	 * backup the database
 	 * @returns the database as a JSON string
 	 */
-	backupToJson(): string {
+	async backupToJson(): Promise<string> {
 		return JSON.stringify(this.data);
 	}
 	/**
 	 * restore the database from a JSON string
 	 * @param backup the backup JSON string
 	 */
-	restoreFromJson(backup: string) {
+	async restoreFromJson(backup: string) {
 		this.data = JSON.parse(backup);
 	}
 }
