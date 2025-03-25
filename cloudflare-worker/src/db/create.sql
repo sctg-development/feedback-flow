@@ -162,11 +162,3 @@ FROM
     LEFT JOIN refunds r ON p.id = r.purchase_id
 GROUP BY t.uuid;
 
--- -- Insérer des données de test (optionnel)
--- INSERT INTO testers (uuid, name) VALUES 
--- ('45f9830a-309b-4cda-95ec-71e000b78f7d', 'John Doe'),
--- ('cc97a5cc-c4ba-4804-98b5-90532f09bd83', 'Jane Doe');
-
--- INSERT INTO id_mappings (id, tester_uuid) VALUES
--- ('auth0|1234567890', '45f9830a-309b-4cda-95ec-71e000b78f7d'),
--- ('auth0|0987654321', 'cc97a5cc-c4ba-4804-98b5-90532f09bd83');
