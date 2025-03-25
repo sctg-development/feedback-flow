@@ -60,7 +60,7 @@ INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount,
     'Test order', 
     10.99, 
     'UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==', 
-    1  -- refunded: true dans mock-data.ts
+    1 
 ),
 (
     'aa92494a-a036-4a4e-9c6a-c3821a8cb6a4', 
@@ -70,7 +70,7 @@ INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount,
     'Test order 2', 
     20.99, 
     'UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==', 
-    1  -- refunded: true dans mock-data.ts
+    1
 ),
 (
     'b5e8c21d-7f4e-4a6b-9c3d-9e7a1f2b3c4d', 
@@ -80,7 +80,7 @@ INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount,
     'Premium product test', 
     59.99, 
     'UklGRp4AAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAkAAAABBxAREYiI/gcAVlA4IBgAAAAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AABQU0FJTgAAADhCSU0D7QAAAAAAEABIAAAAAQACAEgAAAABAAI4QklNBCgAAAAAAAwAAAACP/AAAAAAAAA4QklNBEMAAAAAAA5QYmVXARAABgBQAAAAAA==', 
-    0  -- refunded: false dans mock-data.ts
+    0
 );
 
 -- Insertion des feedbacks
