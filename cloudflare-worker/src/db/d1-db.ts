@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { D1Database } from "@cloudflare/workers-types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -188,7 +189,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			}
 
 			try {
-				// Begin transaction
+				// Démarrage d'une transaction pour garantir l'atomicité des opérations
+				// (soit toutes les opérations réussissent, soit aucune)
 				await this.db.exec("BEGIN TRANSACTION");
 
 				try {
@@ -233,6 +235,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					}
 
 					// Add new IDs
+					// Utilisation de INSERT OR IGNORE pour éviter les erreurs si l'ID existe déjà
 					for (const id of newTester.ids) {
 						await this.db
 							.prepare(
@@ -383,17 +386,20 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			id: string,
 			updates: Partial<Purchase>,
 		): Promise<boolean> => {
-			// Build the update query dynamically based on the fields to update
+			// Construction dynamique de la requête UPDATE en fonction des champs à mettre à jour
+			// Cette approche évite d'avoir à écrire une requête différente pour chaque combinaison de champs
 			const updateFields: string[] = [];
 			const params: any[] = [];
 
+			// Pour chaque champ potentiellement modifiable, vérifier s'il est présent dans l'objet updates
+			// Si oui, ajouter le champ à la liste des champs à mettre à jour et la valeur aux paramètres
 			if (updates.date !== undefined) {
 				updateFields.push("date = ?");
 				params.push(updates.date);
 			}
 
 			if (updates.order !== undefined) {
-				updateFields.push("order_number = ?");
+				updateFields.push("order_number = ?"); // Mapping entre 'order' dans l'objet et 'order_number' en DB
 				params.push(updates.order);
 			}
 
@@ -414,18 +420,21 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 			if (updates.refunded !== undefined) {
 				updateFields.push("refunded = ?");
-				params.push(updates.refunded ? 1 : 0);
+				params.push(updates.refunded ? 1 : 0); // Conversion du booléen en 0/1 pour D1/SQLite
 			}
 
+			// Si aucun champ n'est à mettre à jour, retourner false
 			if (updateFields.length === 0) {
 				return false; // Nothing to update
 			}
 
-			// Add the ID parameter
+			// Ajout de l'ID comme paramètre pour la clause WHERE
 			params.push(id);
 
-			// Create the SQL query
+			// Construction de la requête SQL complète
 			const sql = `UPDATE purchases SET ${updateFields.join(", ")} WHERE id = ?`;
+
+			console.log("SQL:", sql);
 
 			// Prepare the statement
 			const stmt = this.db.prepare(sql);
@@ -551,7 +560,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 		put: async (testerId: string, newRefund: Refund): Promise<string> => {
 			try {
-				// Begin transaction
+				// Démarrage d'une transaction pour garantir l'atomicité des opérations
+				// (soit toutes les opérations réussissent, soit aucune)
 				await this.db.exec("BEGIN TRANSACTION");
 
 				// Insert the refund
@@ -599,6 +609,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	/**
 	 * Get all testers with their IDs
+	 * Cette requête effectue:
+	 * 1. Une jointure entre la table testers et id_mappings
+	 * 2. GROUP_CONCAT pour regrouper tous les IDs d'un testeur en une seule chaîne
+	 * 3. Groupement par UUID pour obtenir un seul enregistrement par testeur
 	 */
 	private async getAllTestersWithIds(): Promise<Tester[]> {
 		// This query gets all testers and their IDs
@@ -613,7 +627,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			)
 			.all();
 
-		// Transform the results into Tester objects
+		// Transformation des résultats en objets Tester
+		// Conversion de la chaîne d'IDs concaténés en tableau
 		return results.map((row) => ({
 			uuid: row.uuid as string,
 			name: row.name as string,
