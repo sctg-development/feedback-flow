@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2025 Ronan LE MEILLAT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 /* eslint-disable no-console */
 import { D1Database } from "@cloudflare/workers-types";
 import { v4 as uuidv4 } from "uuid";
@@ -23,7 +46,7 @@ import {
 
 /**
  * Database implementation for the Cloudflare D1 database
- * Cloudflarre D1 database is a distributed SQL database
+ * Cloudflare D1 database is a distributed SQL database
  * The SQL language used is SQLite
  * The database is hosted on Cloudflare's D1 platform
  * @example
@@ -189,8 +212,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			}
 
 			try {
-				// Démarrage d'une transaction pour garantir l'atomicité des opérations
-				// (soit toutes les opérations réussissent, soit aucune)
+				// Start a transaction to ensure atomicity of operations
+				// (either all operations succeed or none do)
 				await this.db.exec("BEGIN TRANSACTION");
 
 				try {
@@ -391,15 +414,15 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			const updateFields: string[] = [];
 			const params: any[] = [];
 
-			// Pour chaque champ potentiellement modifiable, vérifier s'il est présent dans l'objet updates
-			// Si oui, ajouter le champ à la liste des champs à mettre à jour et la valeur aux paramètres
+			// For each potentially modifiable field, check if it's present in the updates object
+			// If yes, add the field to the list of fields to update and the value to the parameters
 			if (updates.date !== undefined) {
 				updateFields.push("date = ?");
 				params.push(updates.date);
 			}
 
 			if (updates.order !== undefined) {
-				updateFields.push("order_number = ?"); // Mapping entre 'order' dans l'objet et 'order_number' en DB
+				updateFields.push("order_number = ?"); // Mapping between 'order' in the object and 'order_number' in DB
 				params.push(updates.order);
 			}
 
@@ -428,10 +451,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				return false; // Nothing to update
 			}
 
-			// Ajout de l'ID comme paramètre pour la clause WHERE
+			// Add the ID as a parameter for the WHERE clause
 			params.push(id);
 
-			// Construction de la requête SQL complète
+			// Construct the complete SQL query
 			const sql = `UPDATE purchases SET ${updateFields.join(", ")} WHERE id = ?`;
 
 			console.log("SQL:", sql);
@@ -560,8 +583,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 		put: async (testerId: string, newRefund: Refund): Promise<string> => {
 			try {
-				// Démarrage d'une transaction pour garantir l'atomicité des opérations
-				// (soit toutes les opérations réussissent, soit aucune)
+				// Start a transaction to ensure atomicity of operations
+				// (either all operations succeed or none do)
 				await this.db.exec("BEGIN TRANSACTION");
 
 				// Insert the refund
@@ -609,26 +632,28 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	/**
 	 * Get all testers with their IDs
-	 * Cette requête effectue:
-	 * 1. Une jointure entre la table testers et id_mappings
-	 * 2. GROUP_CONCAT pour regrouper tous les IDs d'un testeur en une seule chaîne
-	 * 3. Groupement par UUID pour obtenir un seul enregistrement par testeur
+	 * This query performs:
+	 * 1. A join between the testers and id_mappings tables
+	 * 2. GROUP_CONCAT to combine all IDs of a tester into a single string
+	 * 3. Grouping by UUID to get a single record per tester
+	 *
+	 * Note: This is more efficient than making multiple queries and joining the results in JavaScript
 	 */
 	private async getAllTestersWithIds(): Promise<Tester[]> {
 		// This query gets all testers and their IDs
 		const { results } = await this.db
 			.prepare(
 				`
-        SELECT t.uuid, t.name, GROUP_CONCAT(i.id) as ids
-        FROM testers t
-        LEFT JOIN id_mappings i ON t.uuid = i.tester_uuid
-        GROUP BY t.uuid
-      `,
+		  SELECT t.uuid, t.name, GROUP_CONCAT(i.id) as ids
+		  FROM testers t
+		  LEFT JOIN id_mappings i ON t.uuid = i.tester_uuid
+		  GROUP BY t.uuid
+		`,
 			)
 			.all();
 
-		// Transformation des résultats en objets Tester
-		// Conversion de la chaîne d'IDs concaténés en tableau
+		// Transform results into Tester objects
+		// Convert the concatenated IDs string into an array
 		return results.map((row) => ({
 			uuid: row.uuid as string,
 			name: row.name as string,
@@ -732,6 +757,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	/**
 	 * Reset the database (not recommended for production but useful for testing)
+	 *
+	 * @throws {Error} Always throws an error as this operation is not supported in Cloudflare D1
 	 */
 	async reset(newData: any): Promise<void> {
 		throw new Error(
@@ -741,6 +768,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	/**
 	 * Get raw data (not recommended for production but useful for testing)
+	 *
+	 * @throws {Error} Always throws an error as this operation is not supported in Cloudflare D1
 	 */
 	async getRawData(): Promise<any> {
 		throw new Error(
