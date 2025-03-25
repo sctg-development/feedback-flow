@@ -294,15 +294,4 @@ export abstract class FeedbackFlowDB {
 	 * Refund-related database operations
 	 */
 	abstract refunds: RefundsRepository;
-
-	/**
-	 * Reset the database with new data (optional for implementations)
-	 * @param newData Data to reset the database with
-	 */
-	abstract reset?(newData: DATABASESCHEMA): void;
-
-	/**
-	 * Get a copy of the raw database data (optional for implementations)
-	 */
-	abstract getRawData?(): DATABASESCHEMA;
 }
