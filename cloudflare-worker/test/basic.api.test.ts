@@ -45,7 +45,7 @@ const api = {
       },
       validateStatus: function (status) {
         return status < 500; // la requête résout tant que le code de sa réponse est
-                             // inférieur à 500
+        // inférieur à 500
       }
     });
   },
@@ -57,7 +57,7 @@ const api = {
       },
       validateStatus: function (status) {
         return status < 500; // la requête résout tant que le code de sa réponse est
-                             // inférieur à 500
+        // inférieur à 500
       }
     });
   },
@@ -71,7 +71,7 @@ describe('Feedback Flow API', () => {
     // Extract the user ID (sub) from the JWT token
     const decodedToken = jose.decodeJwt(AUTH0_TOKEN);
     testerId = decodedToken.sub as string;
-    expirationDate = new Date((decodedToken.exp || 0 )* 1000);
+    expirationDate = new Date((decodedToken.exp || 0) * 1000);
 
     console.log(`Using Auth0 user ID: ${testerId} expiring on ${expirationDate}`);
     if (expirationDate < new Date()) {
@@ -251,19 +251,24 @@ describe('Feedback Flow API', () => {
 
   test('120. Should check if in memory database can be backed up', async () => {
     const response = await api.get('/backup/json');
-    expect(response.status).toBe(200);
-    expect(response.data).toBeDefined();
-    expect(response.data.testers).toBeDefined();
-    expect(response.data.purchases).toBeDefined();
-    expect(response.data.refunds).toBeDefined();
-    expect(response.data.feedbacks).toBeDefined();
-    expect(response.data.publications).toBeDefined();
-    expect(response.data.testers.length).toBe(3);
-    expect(response.data.purchases.length).toBe(4);
-    expect(response.data.refunds.length).toBe(3);
-    expect(response.data.feedbacks.length).toBe(3);
-    expect(response.data.publications.length).toBe(3);
-    expect(response.data.ids).toBeDefined();
-    expect(response.data.ids.length).toBe(4);
+    if (process.env.DB_BACKEND === 'memory') {
+      expect(response.status).toBe(200);
+      expect(response.data).toBeDefined();
+      expect(response.data.testers).toBeDefined();
+      expect(response.data.purchases).toBeDefined();
+      expect(response.data.refunds).toBeDefined();
+      expect(response.data.feedbacks).toBeDefined();
+      expect(response.data.publications).toBeDefined();
+      expect(response.data.testers.length).toBe(3);
+      expect(response.data.purchases.length).toBe(4);
+      expect(response.data.refunds.length).toBe(3);
+      expect(response.data.feedbacks.length).toBe(3);
+      expect(response.data.publications.length).toBe(3);
+      expect(response.data.ids).toBeDefined();
+      expect(response.data.ids.length).toBe(4);
+    }
+    else {
+      expect(response.status).toBe(404);
+    }
   });
 });
