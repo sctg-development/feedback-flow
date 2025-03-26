@@ -14,9 +14,9 @@ export default function ManageDatabasePage() {
           <h1 className={title()}>{t("manage-database")}</h1>
         </div>
         <ProtectedFetchToDownload
-          buttonText="Export Database"
-          downloadLinkText="Download Backup"
-          filename="database-backup.json"
+          buttonText={t('export-database')}
+          downloadLinkText={t('download-backup')}
+          filename={`database-backup-${new Date().toISOString()}.json`}
           permission={import.meta.env.BACKUP_PERMISSION}
           url={`${import.meta.env.API_BASE_URL}/backup/json`}
         />
