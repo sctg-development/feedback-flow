@@ -9,6 +9,7 @@ export default [
   eslint.configs.recommended,
   {
     files: ['**/*.{js,ts}'],
+    
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: 'module',
@@ -99,6 +100,7 @@ export default [
   },
   {
     ignores: [
+      'jest.config.ts',
       '.now/*',
       '*.css',
       '.changeset',

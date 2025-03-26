@@ -42,7 +42,7 @@ import {
 	PurchasesRepository,
 	RefundsRepository,
 	TestersRepository,
-} from "./db-type";
+} from "./db";
 
 /**
  * Database implementation for the Cloudflare D1 database
@@ -783,7 +783,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 	 *
 	 * @throws {Error} Always throws an error as this operation is not supported in Cloudflare D1
 	 */
-	async reset(newData: any): Promise<void> {
+	async reset(_newData: any): Promise<void> {
 		throw new Error(
 			"Not implemented for Cloudflare D1. Use database migrations instead.",
 		);

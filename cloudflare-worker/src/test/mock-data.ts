@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { DATABASESCHEMA } from "../db/db-type";
+import { DATABASESCHEMA } from "../db/db";
 import {
 	Feedback,
 	IdMapping,

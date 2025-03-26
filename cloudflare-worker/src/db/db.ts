@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * MIT License
  *
@@ -22,6 +23,7 @@
  * SOFTWARE.
  */
 
+import { mockData } from "../test/mock-data";
 import {
 	Feedback,
 	IdMapping,
@@ -30,6 +32,9 @@ import {
 	Refund,
 	Tester,
 } from "../types/data";
+
+import { CloudflareD1DB } from "./d1-db";
+import { InMemoryDB } from "./in-memory-db";
 
 /**
  * Interface for database structure
@@ -224,4 +229,27 @@ export abstract class FeedbackFlowDB {
 	 * Restore the database from JSON string (optional)
 	 */
 	abstract restoreFromJson?(backup: string): Promise<void>;
+}
+
+/**
+ * Singleton instance of the database
+ */
+let dbInstance: FeedbackFlowDB | null = null;
+
+/**
+ * Get the database instance based on the environment configuration
+ * @param env Environment configuration
+ */
+export function getDatabase(env: Env): FeedbackFlowDB {
+	if (dbInstance === null) {
+		// Initialiser la base de données en fonction de ENV.DB_BACKEND
+		dbInstance =
+			env.DB_BACKEND !== "memory"
+				? new CloudflareD1DB(env.FeedbackFlowDB)
+				: new InMemoryDB(mockData);
+
+		console.log(`Database initialized with backend: ${env.DB_BACKEND}`);
+	}
+
+	return dbInstance;
 }

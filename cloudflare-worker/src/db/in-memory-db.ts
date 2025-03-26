@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
 
-import { DATABASESCHEMA, FeedbackFlowDB } from "./db-type";
+import { DATABASESCHEMA, FeedbackFlowDB } from "./db";
 
 /**
  * In-memory database class for testing purposes
@@ -308,7 +308,8 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter purchases
 		 * @returns {Purchase|undefined} The first matching purchase or undefined if not found
 		 */
-		find: async (fn: (purchase: Purchase) => boolean) => this.data.purchases.find(fn),
+		find: async (fn: (purchase: Purchase) => boolean) =>
+			this.data.purchases.find(fn),
 
 		/**
 		 * Filter purchases based on the provided condition
@@ -373,7 +374,8 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter feedback
 		 * @returns {Feedback|undefined} The first matching feedback or undefined if not found
 		 */
-		find: async (fn: (feedback: Feedback) => boolean) => this.data.feedbacks.find(fn),
+		find: async (fn: (feedback: Feedback) => boolean) =>
+			this.data.feedbacks.find(fn),
 
 		/**
 		 * Filter feedback based on the provided condition
@@ -457,7 +459,8 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {function} fn - Predicate function to filter refunds
 		 * @returns {Refund[]} Array of refunds matching the condition
 		 */
-		filter: async (fn: (refund: Refund) => boolean) => this.data.refunds.filter(fn),
+		filter: async (fn: (refund: Refund) => boolean) =>
+			this.data.refunds.filter(fn),
 
 		/**
 		 * Add a new refund to the database and mark the associated purchase as refunded

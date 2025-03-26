@@ -35,13 +35,10 @@ import {
 	TesterSortCriteria,
 	PurchaseSortCriteria,
 } from "../types/data";
-import { mockData } from "../test/mock-data";
 import { InMemoryDB } from "../db/in-memory-db";
+import { getDatabase } from "../db/db";
 
 import { Router } from "./router";
-
-// Use the inMemory database with mock data
-const db = new InMemoryDB(mockData);
 
 // Tester Management
 const testerRoutes = (router: Router, env: Env) => {
@@ -49,6 +46,7 @@ const testerRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/testers",
 		async (request) => {
+			const db = getDatabase(env);
 			const url = new URL(request.url);
 			const page = parseInt(url.searchParams.get("page") || "1");
 			const limit = parseInt(url.searchParams.get("limit") || "10");
@@ -101,6 +99,8 @@ const testerRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/tester",
 		async (request) => {
+			const db = getDatabase(env);
+
 			try {
 				const { name, ids: _ids } =
 					(await request.json()) as TesterCreateRequest;
@@ -198,6 +198,8 @@ const testerRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/tester/ids",
 		async (request) => {
+			const db = getDatabase(env);
+
 			try {
 				const testerId = router.jwtPayload.sub;
 
@@ -311,6 +313,8 @@ const testerRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/tester",
 		async () => {
+			const db = getDatabase(env);
+
 			// Get user ID from authenticated user
 			const userId = router.jwtPayload.sub;
 
@@ -370,6 +374,8 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/purchase",
 		async (request) => {
+			const db = getDatabase(env);
+
 			try {
 				const data = (await request.json()) as PurchaseCreateRequest;
 				const { date, order, description, amount, screenshot } = data;
@@ -444,6 +450,8 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/purchase/:id",
 		async (request) => {
+			const db = getDatabase(env);
+
 			const { id } = request.params;
 
 			// Find purchase in the database
@@ -490,6 +498,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/purchases/not-refunded",
 		async (request) => {
+			const db = getDatabase(env);
 			const url = new URL(request.url);
 			const page = parseInt(url.searchParams.get("page") || "1");
 			const limit = parseInt(url.searchParams.get("limit") || "10");
@@ -579,6 +588,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/purchases/refunded",
 		async (request) => {
+			const db = getDatabase(env);
 			const url = new URL(request.url);
 			const page = parseInt(url.searchParams.get("page") || "1");
 			const limit = parseInt(url.searchParams.get("limit") || "10");
@@ -671,6 +681,8 @@ const feedbackRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/feedback",
 		async (request) => {
+			const db = getDatabase(env);
+
 			try {
 				const { date, purchase, feedback } =
 					(await request.json()) as FeedbackCreateRequest;
@@ -727,6 +739,8 @@ const feedbackRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/publish",
 		async (request) => {
+			const db = getDatabase(env);
+
 			try {
 				const { date, purchase, screenshot } =
 					(await request.json()) as PublishCreateRequest;
@@ -782,6 +796,7 @@ const feedbackRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/publish/:id",
 		async (request) => {
+			const db = getDatabase(env);
 			const { id } = request.params;
 
 			// Find publication in the database
@@ -828,6 +843,8 @@ const refundRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/refund",
 		async (request) => {
+			const db = getDatabase(env);
+
 			try {
 				const { date, purchase, refunddate, amount } =
 					(await request.json()) as RefundCreateRequest;
@@ -891,6 +908,7 @@ const refundRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/refund/:id",
 		async (request) => {
+			const db = getDatabase(env);
 			const { id } = request.params;
 
 			// Find refund in the database
@@ -930,6 +948,20 @@ const refundRoutes = (router: Router, env: Env) => {
 		},
 		env.READ_PERMISSION,
 	);
+};
+
+/**
+ * Setup routes
+ * @param router The router
+ * @param env The environment variables
+ */
+export const setupRoutes = (router: Router, env: Env) => {
+	const db = getDatabase(env);
+
+	testerRoutes(router, env);
+	purchaseRoutes(router, env);
+	feedbackRoutes(router, env);
+	refundRoutes(router, env);
 
 	// Only allow backup route for in-memory database
 	if (db instanceof InMemoryDB) {
@@ -962,16 +994,4 @@ const refundRoutes = (router: Router, env: Env) => {
 			});
 		});
 	}
-};
-
-/**
- * Setup routes
- * @param router The router
- * @param env The environment variables
- */
-export const setupRoutes = (router: Router, env: Env) => {
-	testerRoutes(router, env);
-	purchaseRoutes(router, env);
-	feedbackRoutes(router, env);
-	refundRoutes(router, env);
 };
