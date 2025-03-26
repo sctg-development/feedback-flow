@@ -251,24 +251,19 @@ describe('Feedback Flow API', () => {
 
   test('120. Should check if in memory database can be backed up', async () => {
     const response = await api.get('/backup/json');
-    if (process.env.DB_BACKEND === 'memory') {
-      expect(response.status).toBe(200);
-      expect(response.data).toBeDefined();
-      expect(response.data.testers).toBeDefined();
-      expect(response.data.purchases).toBeDefined();
-      expect(response.data.refunds).toBeDefined();
-      expect(response.data.feedbacks).toBeDefined();
-      expect(response.data.publications).toBeDefined();
-      expect(response.data.testers.length).toBe(3);
-      expect(response.data.purchases.length).toBe(4);
-      expect(response.data.refunds.length).toBe(3);
-      expect(response.data.feedbacks.length).toBe(3);
-      expect(response.data.publications.length).toBe(3);
-      expect(response.data.ids).toBeDefined();
-      expect(response.data.ids.length).toBe(4);
-    }
-    else {
-      expect(response.status).toBe(404);
-    }
+    expect(response.status).toBe(200);
+    expect(response.data).toBeDefined();
+    expect(response.data.testers).toBeDefined();
+    expect(response.data.purchases).toBeDefined();
+    expect(response.data.refunds).toBeDefined();
+    expect(response.data.feedbacks).toBeDefined();
+    expect(response.data.publications).toBeDefined();
+    expect(response.data.testers.length).toBe(3);
+    expect(response.data.purchases.length).toBe(4);
+    expect(response.data.refunds.length).toBe(3);
+    expect(response.data.feedbacks.length).toBe(3);
+    expect(response.data.publications.length).toBe(3);
+    expect(response.data.ids).toBeDefined();
+    expect(response.data.ids.length).toBe(4);
   });
 });

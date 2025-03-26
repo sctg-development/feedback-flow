@@ -37,6 +37,7 @@ import {
 } from "../types/data";
 import { InMemoryDB } from "../db/in-memory-db";
 import { getDatabase } from "../db/db";
+import { CloudflareD1DB } from "../db/d1-db";
 
 import { Router } from "./router";
 
@@ -964,7 +965,7 @@ export const setupRoutes = (router: Router, env: Env) => {
 	refundRoutes(router, env);
 
 	// Only allow backup route for in-memory database
-	if (db instanceof InMemoryDB) {
+	if (db instanceof InMemoryDB || db instanceof CloudflareD1DB) {
 		router.get(
 			"/api/backup/json",
 			async () => {
@@ -978,20 +979,24 @@ export const setupRoutes = (router: Router, env: Env) => {
 					},
 				});
 			},
-			env.ADMIN_PERMISSION,
+			env.BACKUP_PERMISSION,
 		);
-		router.post("/api/backup/json", async (request) => {
-			const json = await request.text();
+		router.post(
+			"/api/backup/json",
+			async (request) => {
+				const json = await request.text();
 
-			db.restoreFromJson(json);
+				db.restoreFromJson(json);
 
-			return new Response(JSON.stringify({ success: true }), {
-				status: 200,
-				headers: {
-					...router.corsHeaders,
-					"Content-Type": "application/json",
-				},
-			});
-		});
+				return new Response(JSON.stringify({ success: true }), {
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				});
+			},
+			env.BACKUP_PERMISSION,
+		);
 	}
 };

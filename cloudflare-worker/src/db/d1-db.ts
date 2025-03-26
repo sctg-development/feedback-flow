@@ -805,4 +805,102 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			"Not implemented for Cloudflare D1. Use database queries instead.",
 		);
 	}
+
+	/**
+	 * Backup the database to a JSON string
+	 * ATTENTION: This method is not recommended for production use because Cloudflare D1 is charged based on data usage
+	 *
+	 * @returns JSON string containing the entire database contents
+	 */
+	async backupToJson(): Promise<string> {
+		const statements = [
+			"SELECT * FROM testers",
+			"SELECT * FROM id_mappings",
+			"SELECT * FROM purchases",
+			"SELECT * FROM feedbacks",
+			"SELECT * FROM publications",
+			"SELECT * FROM refunds",
+		];
+		const preparedStatements = statements.map((stmt) => this.db.prepare(stmt));
+		const results = await this.db.batch(preparedStatements);
+
+		const testers = results[0].results;
+		const idMappings = results[1].results;
+		const purchases = results[2].results;
+		const feedbacks = results[3].results;
+		const publications = results[4].results;
+		const refunds = results[5].results;
+
+		const backup = {
+			testers,
+			ids: idMappings,
+			purchases,
+			feedbacks,
+			publications,
+			refunds,
+		};
+
+		return JSON.stringify(backup);
+	}
+
+	// ATTENTION: This method is not recommended for production use because Cloudflare D1 is charged based on data usage
+	// TODO: create some tests to verify the data is correctly restored
+	async restoreFromJson(_backup: string): Promise<void> {
+		const backup = JSON.parse(_backup);
+		const { testers, ids, purchases, feedbacks, publications, refunds } =
+			backup;
+		const dbCleanupStatements = [
+			"DELETE FROM testers",
+			"DELETE FROM id_mappings",
+			"DELETE FROM purchases",
+			"DELETE FROM feedbacks",
+			"DELETE FROM publications",
+			"DELETE FROM refunds",
+		];
+
+		// Insert the data back into the database
+		const dbInsertStatements = [
+			`INSERT INTO testers (uuid, name) VALUES ${testers
+				.map((tester: Tester) => `('${tester.uuid}', '${tester.name}')`)
+				.join(", ")}`,
+			`INSERT INTO id_mappings (id, tester_uuid) VALUES ${ids
+				.map((id: IdMapping) => `('${id.id}', '${id.testerUuid}')`)
+				.join(", ")}`,
+			`INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount, screenshot, refunded) VALUES ${purchases
+				.map(
+					(purchase: Purchase) =>
+						`('${purchase.id}', '${purchase.testerUuid}', '${purchase.date}', '${purchase.order}', '${purchase.description}', ${purchase.amount}, '${purchase.screenshot}', ${
+							purchase.refunded ? 1 : 0
+						})`,
+				)
+				.join(", ")}`,
+			`INSERT INTO feedbacks (purchase_id, date, feedback) VALUES ${feedbacks
+				.map(
+					(feedback: Feedback) =>
+						`('${feedback.purchase}', '${feedback.date}', '${feedback.feedback}')`,
+				)
+				.join(", ")}`,
+			`INSERT INTO publications (purchase_id, date, screenshot) VALUES ${publications
+				.map(
+					(publication: Publication) =>
+						`('${publication.purchase}', '${publication.date}', '${publication.screenshot}')`,
+				)
+				.join(", ")}`,
+			`INSERT INTO refunds (purchase_id, date, refund_date, amount) VALUES ${refunds
+				.map(
+					(refund: Refund) =>
+						`('${refund.purchase}', '${refund.date}', '${refund.refunddate}', ${refund.amount})`,
+				)
+				.join(", ")}`,
+		];
+		const globalStatements = [
+			dbCleanupStatements,
+			...dbInsertStatements,
+		].flat();
+		const preparedStatements = globalStatements.map((stmt) =>
+			this.db.prepare(stmt),
+		);
+
+		await this.db.batch(preparedStatements);
+	}
 }
