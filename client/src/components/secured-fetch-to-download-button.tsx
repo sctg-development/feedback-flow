@@ -25,6 +25,7 @@ import {
   AuthenticationGuardWithPermission,
   getJsonFromSecuredApi,
 } from "./auth0";
+import { DownloadIcon } from "./icons";
 
 interface FetchToDownloadProps {
   /**
@@ -51,7 +52,16 @@ interface FetchToDownloadProps {
    * Optional CSS class for the button
    */
   className?: string;
+
+  /**
+   * Optional put date in filename
+   */
+  putDateInFilename?: boolean;
 }
+
+const createFilenameWithDate = (filename: string, date: string) => {
+  return `${filename}-${date}.json`;
+};
 
 /**
  * A component that starts as a button, fetches JSON data when clicked,
@@ -72,11 +82,14 @@ export const FetchToDownload: React.FC<FetchToDownloadProps> = ({
   buttonText,
   downloadLinkText,
   filename,
+  putDateInFilename = false,
+
   className = "text-sm font-normal text-default-600 bg-default-100",
 }) => {
   const { getAccessTokenSilently } = useAuth0();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<any>(null);
+  const [downloadDate, setDownloadDate] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Function to handle the fetch operation
@@ -91,6 +104,7 @@ export const FetchToDownload: React.FC<FetchToDownloadProps> = ({
       );
 
       setData(responseData);
+      setDownloadDate(new Date().toISOString());
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("Error fetching data:", err);
@@ -135,25 +149,18 @@ export const FetchToDownload: React.FC<FetchToDownloadProps> = ({
   if (data) {
     return (
       <Link
-        className={`${className} flex items-center gap-2`}
-        download={filename}
+        className={`${className} flex items-center gap-2 p-2 rounded`}
+        download={
+          putDateInFilename
+            ? createFilenameWithDate(
+                filename,
+                downloadDate || new Date().toISOString(),
+              )
+            : filename
+        }
         href={getDownloadUrl()}
       >
-        <svg
-          fill="none"
-          height="16"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          width="16"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" x2="12" y1="15" y2="3" />
-        </svg>
+        <DownloadIcon />
         {downloadLinkText}
       </Link>
     );
