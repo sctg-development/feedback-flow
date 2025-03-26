@@ -47,6 +47,7 @@ jobs:
             echo "READ_PERMISSION=${{ vars.READ_PERMISSION }}" >> cloudflare-worker/.env
             echo "WRITE_PERMISSION=${{ vars.WRITE_PERMISSION }}" >> cloudflare-worker/.env
             echo "ADMIN_PERMISSION=${{ vars.ADMIN_PERMISSION }}" >> cloudflare-worker/.env
+            echo "DB_BACKEND=${{ vars.DB_BACKEND }}" >> cloudflare-worker/.env
 
         - name: Replace "// vars.*" in wrangler.jsonc with a json string
           run: |
