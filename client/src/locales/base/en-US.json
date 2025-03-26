@@ -58,5 +58,6 @@
   "export-database": "Export Database",
   "download-backup": "Download Backup",
   "browse": "Browse",
-  "reset": "Reset"
+  "reset": "Reset",
+  "drop-your-image-here": "Drop your image here"
 }

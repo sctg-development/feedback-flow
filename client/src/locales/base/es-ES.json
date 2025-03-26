@@ -56,5 +56,8 @@
   "manage-database": "Administrar la base de datos",
   "backup-database": "Hacer una copia de seguridad de la base de datos",
   "export-database": "Base de datos de exportación",
-  "download-backup": "Descargar copia de seguridad"
+  "download-backup": "Descargar copia de seguridad",
+  "browse": "Navegar",
+  "drop-your-image-here": "Deja tu imagen aquí",
+  "reset": "Reiniciar"
 }

@@ -240,6 +240,7 @@ export default function BlogPage() {
           accept="image/png, image/jpeg, image/webp"
           browseButtonText={t("browse")}
           className="rounded-xl"
+          dragDropZoneText={t("drop-your-image-here")}
           resetButtonText={t("reset")}
           onChange={(file) => setFile(file[0])}
         />

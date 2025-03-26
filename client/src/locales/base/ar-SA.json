@@ -56,5 +56,8 @@
   "manage-database": "إدارة قاعدة البيانات",
   "backup-database": "النسخ الاحتياطي لقاعدة البيانات",
   "export-database": "قاعدة بيانات التصدير",
-  "download-backup": "تنزيل النسخ الاحتياطي"
+  "download-backup": "تنزيل النسخ الاحتياطي",
+  "browse": "تصفح",
+  "drop-your-image-here": "أسقط صورتك هنا",
+  "reset": "إعادة ضبط"
 }
