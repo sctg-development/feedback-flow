@@ -40,13 +40,13 @@ jobs:
 
             echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> cloudflare-worker/.env
             echo "AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }}" >> cloudflare-worker/.env
-            echo "AUTH0_SCOPE=\"${{ secrets.AUTH0_SCOPE }}\"" >> cloudflare-worker/.env
+            echo "AUTH0_SCOPE=\"${{ vars.AUTH0_SCOPE }}\"" >> cloudflare-worker/.env
             echo "AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}" >> cloudflare-worker/.env
             echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> cloudflare-worker/.env
             echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> cloudflare-worker/.env
-            echo "READ_PERMISSION=${{ secrets.READ_PERMISSION }}" >> cloudflare-worker/.env
-            echo "WRITE_PERMISSION=${{ secrets.WRITE_PERMISSION }}" >> cloudflare-worker/.env
-            echo "ADMIN_PERMISSION=${{ secrets.ADMIN_PERMISSION }}" >> cloudflare-worker/.env
+            echo "READ_PERMISSION=${{ vars.READ_PERMISSION }}" >> cloudflare-worker/.env
+            echo "WRITE_PERMISSION=${{ vars.WRITE_PERMISSION }}" >> cloudflare-worker/.env
+            echo "ADMIN_PERMISSION=${{ vars.ADMIN_PERMISSION }}" >> cloudflare-worker/.env
 
         - name: Replace "// vars.*" in wrangler.jsonc with a json string
           run: |
@@ -76,10 +76,10 @@ jobs:
           env:
             AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
             AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-            AUTH0_SCOPE: ${{ secrets.AUTH0_SCOPE }}
+            AUTH0_SCOPE: ${{ vars.AUTH0_SCOPE }}
             AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
             API_BASE_URL: ${{ secrets.API_BASE_URL }}
             CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
-            READ_PERMISSION: ${{ secrets.READ_PERMISSION }}
-            WRITE_PERMISSION: ${{ secrets.WRITE_PERMISSION }}
-            ADMIN_PERMISSION: ${{ secrets.ADMIN_PERMISSION }}
+            READ_PERMISSION: ${{ vars.READ_PERMISSION }}
+            WRITE_PERMISSION: ${{ vars.WRITE_PERMISSION }}
+            ADMIN_PERMISSION: ${{ vars.ADMIN_PERMISSION }}
