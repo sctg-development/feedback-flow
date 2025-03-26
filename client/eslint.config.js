@@ -28,6 +28,7 @@ export default [
         HTMLFormElement: 'readonly',
         FormData: 'readonly',
         FormDataEntryValue: 'readonly',
+        Blob: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: {

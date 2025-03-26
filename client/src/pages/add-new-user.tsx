@@ -98,11 +98,6 @@ export default function AddNewUser() {
           if (hasAdminPermission) {
             await refreshTesters(page, limit, sort, order);
           }
-
-          // eslint-disable-next-line no-console
-          console.log(
-            `You have ${hasAdminPermission ? "" : "not "}permission to add a new user.`,
-          );
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error as Error);

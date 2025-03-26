@@ -1,5 +1,9 @@
 export type SiteConfig = typeof siteConfig;
+
 import i18next from "../i18n";
+
+import AddNewUser from "@/pages/add-new-user";
+import ManageDatabasePage from "@/pages/manage-database";
 
 export const siteConfig = () => {
   const t = i18next.t;
@@ -57,6 +61,14 @@ export const siteConfig = () => {
       {
         label: i18next.t("add-a-new-user"),
         href: "/add-user",
+        permission: import.meta.env.ADMIN_PERMISSION,
+        component: AddNewUser,
+      },
+      {
+        label: i18next.t("manage-database"),
+        href: "/manage-db",
+        permission: import.meta.env.BACKUP_PERMISSION,
+        component: ManageDatabasePage,
       },
     ],
     links: {

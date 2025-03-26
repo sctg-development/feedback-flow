@@ -18,10 +18,13 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@heroui/dropdown";
-import { useAuth0 } from "@auth0/auth0-react";
 
 import { I18nIcon, LanguageSwitch } from "./language-switch";
-import { LoginLogoutButton, LoginLogoutLink } from "./auth0";
+import {
+  AuthenticationGuardWithPermission,
+  LoginLogoutButton,
+  LoginLogoutLink,
+} from "./auth0";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -30,7 +33,6 @@ import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
 export const Navbar = () => {
   const { t } = useTranslation();
-  const { isAuthenticated } = useAuth0();
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
@@ -47,22 +49,26 @@ export const Navbar = () => {
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">
           {siteConfig().navItems.map((item) => (
-            <NavbarItem key={item.href}>
-              <Link
-                className={clsx(
-                  linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
-                )}
-                color="foreground"
-                href={item.href}
-              >
-                {item.label}
-              </Link>
-            </NavbarItem>
+            <AuthenticationGuardWithPermission permission="read:api">
+              <NavbarItem key={`nav-${item.href}`}>
+                <Link
+                  className={clsx(
+                    linkStyles({ color: "foreground" }),
+                    "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  )}
+                  color="foreground"
+                  href={item.href}
+                >
+                  {item.label}
+                </Link>
+              </NavbarItem>
+            </AuthenticationGuardWithPermission>
           ))}
         </div>
-        {isAuthenticated ? (
-          <NavbarItem>
+        <AuthenticationGuardWithPermission
+          permission={import.meta.env.ADMIN_PERMISSION}
+        >
+          <NavbarItem key="administration-menu">
             <Dropdown>
               <DropdownTrigger>
                 <Button
@@ -78,24 +84,29 @@ export const Navbar = () => {
               <DropdownMenu>
                 {siteConfig().apiMenuItems.map((item) => (
                   <DropdownItem key={item.href} textValue={item.label}>
-                    <Link color="foreground" href="/add-user">
-                      {item.label}
-                    </Link>
+                    <AuthenticationGuardWithPermission
+                      fallback={
+                        <span className="line-through">{item.label}</span>
+                      }
+                      permission={item.permission}
+                    >
+                      <Link color="foreground" href={item.href}>
+                        {item.label}
+                      </Link>
+                    </AuthenticationGuardWithPermission>
                   </DropdownItem>
                 ))}
               </DropdownMenu>
             </Dropdown>
           </NavbarItem>
-        ) : (
-          <></>
-        )}
+        </AuthenticationGuardWithPermission>
       </NavbarContent>
 
       <NavbarContent
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <NavbarItem className="hidden sm:flex gap-2">
+        <NavbarItem key="social-media" className="hidden sm:flex gap-2">
           <Link isExternal href={siteConfig().links.github} title={t("github")}>
             <GithubIcon className="text-default-500" />
           </Link>

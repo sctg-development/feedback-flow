@@ -52,5 +52,7 @@
   "token": "Token",
   "expiration": "Expiration",
   "permissions": "Permissions",
-  "no-permissions": "No permissions"
+  "no-permissions": "No permissions",
+  "backup-database": "Backup the database",
+  "manage-database": "Manage the database"
 }

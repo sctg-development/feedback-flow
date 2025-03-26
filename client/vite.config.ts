@@ -87,6 +87,9 @@ export default defineConfig({
     "import.meta.env.ADMIN_PERMISSION": JSON.stringify(
       process.env.ADMIN_PERMISSION,
     ),
+    "import.meta.env.BACKUP_PERMISSION": JSON.stringify(
+      process.env.BACKUP_PERMISSION,
+    ),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss()],
   build: {

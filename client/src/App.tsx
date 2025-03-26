@@ -6,9 +6,12 @@ import { useTranslation } from "react-i18next";
 import { SiteLoading } from "./components/site-loading";
 import DefaultLayout from "./layouts/default";
 import { title } from "./components/primitives";
-import { AuthenticationGuard, LogoutButton } from "./components/auth0";
+import {
+  AuthenticationGuard,
+  AuthenticationGuardWithPermission,
+  LogoutButton,
+} from "./components/auth0";
 import { siteConfig } from "./config/site";
-import AddNewUser from "./pages/add-new-user";
 
 import IndexPage from "@/pages/index";
 import ApiPage from "@/pages/api";
@@ -62,13 +65,22 @@ function App() {
           path="/blog"
         />
         <Route element={<AboutPage />} path="/about" />
-        {siteConfig().apiMenuItems.map((item) => (
-          <Route
-            key={item.href}
-            element={<AuthenticationGuard component={AddNewUser} />}
-            path={item.href}
-          />
-        ))}
+        {siteConfig().apiMenuItems.map((item) => {
+          // Check if item.component exists
+          const Component = item.component;
+
+          return (
+            <Route
+              key={item.href}
+              element={
+                <AuthenticationGuardWithPermission permission={item.permission}>
+                  {Component ? <Component /> : null}
+                </AuthenticationGuardWithPermission>
+              }
+              path={item.href}
+            />
+          );
+        })}
       </Routes>
     </Suspense>
   );

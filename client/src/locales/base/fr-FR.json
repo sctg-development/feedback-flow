@@ -52,5 +52,7 @@
   "user": "Utilisateur",
   "permissions": "Autorisation",
   "expiration": "Expiration",
-  "no-permissions": "Aucune autorisation"
+  "no-permissions": "Aucune autorisation",
+  "manage-database": "Gérer la base de données",
+  "backup-database": "Sauvegarder la base de données"
 }

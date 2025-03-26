@@ -52,5 +52,7 @@
   "user": "Usuario",
   "permissions": "Permisos",
   "expiration": "Vencimiento",
-  "no-permissions": "Sin permisos"
+  "no-permissions": "Sin permisos",
+  "manage-database": "Administrar la base de datos",
+  "backup-database": "Hacer una copia de seguridad de la base de datos"
 }

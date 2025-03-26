@@ -23,12 +23,11 @@ import {
 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
-import { FC } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@heroui/link";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 
-import { SiteLoading } from "./site-loading";
 
 /**
  * Renders the user's profile name with a tooltip showing their username.
@@ -295,14 +294,9 @@ export const LoginLogoutLink: FC<LogoutLinkProps> = ({
  */
 export const AuthenticationGuard: FC<{
   component: FC;
-  permission?: string;
 }> = ({ component }) => {
   const Component = withAuthenticationRequired(component, {
-    onRedirecting: () => (
-      <>
-        <SiteLoading />
-      </>
-    ),
+    onRedirecting: () => <>{/* <SiteLoading /> */}</>,
   });
 
   return <Component />;
@@ -435,4 +429,68 @@ export const userHasPermission = async (
     console.error(error);
     throw error;
   }
+};
+
+/**
+ * Component that conditionally renders its children based on whether the user has a specific permission.
+ *
+ * @param props - Component props
+ * @param props.permission - The required permission to display the content
+ * @param props.children - The child elements to display if the user has the permission
+ * @param props.fallback - Optional element to display if the user lacks the permission (defaults to empty fragment)
+ * @returns The children if the user has the permission, otherwise the fallback
+ *
+ * @example
+ * ```tsx
+ * <AuthenticationGuardWithPermission permission="read:api">
+ *   <ProtectedComponent />
+ * </AuthenticationGuardWithPermission>
+ * ```
+ */
+export const AuthenticationGuardWithPermission: FC<{
+  permission: string;
+  children: ReactNode;
+  fallback?: ReactNode;
+}> = ({ permission, children, fallback = <></> }) => {
+  const { getAccessTokenSilently } = useAuth0();
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkPermission = async () => {
+      try {
+        const result = await userHasPermission(
+          permission,
+          getAccessTokenSilently,
+        );
+
+        if (isMounted) {
+          setHasPermission(result);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("Permission check failed:", error);
+        if (isMounted) {
+          setHasPermission(false);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    checkPermission();
+
+    // Cleanup function to prevent state updates on unmounted component
+    return () => {
+      isMounted = false;
+    };
+  }, [getAccessTokenSilently, permission]);
+
+  if (isLoading) {
+    return <></>;
+  }
+
+  return hasPermission ? <>{children}</> : <>{fallback}</>;
 };

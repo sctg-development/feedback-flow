@@ -52,5 +52,7 @@
   "user": "مستخدم",
   "permissions": "أذونات",
   "expiration": "انتهاء",
-  "no-permissions": "لا أذونات"
+  "no-permissions": "لا أذونات",
+  "manage-database": "إدارة قاعدة البيانات",
+  "backup-database": "النسخ الاحتياطي لقاعدة البيانات"
 }
