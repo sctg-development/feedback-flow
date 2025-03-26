@@ -2,6 +2,7 @@ import { forwardRef } from "@heroui/system";
 import { Button } from "@heroui/button";
 import {
   cloneElement,
+  DragEvent,
   useCallback,
   useEffect,
   useMemo,
@@ -42,6 +43,7 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const singleInputFileRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>(initialFiles ?? []);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     initialFiles && setFiles(initialFiles);
@@ -57,6 +59,115 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
       if (singleInputFileRef.current) singleInputFileRef.current.value = "";
     },
     [setFiles, onChange],
+  );
+
+  // Check if file type is acceptable
+  const isAcceptableFileType = useCallback(
+    (file: File): boolean => {
+      if (!accept) return true;
+
+      // Split the accept string into individual MIME types or extensions
+      const acceptableTypes = accept.split(",").map((type) => type.trim());
+
+      // Check if the file type matches any of the acceptable types
+      return acceptableTypes.some((type) => {
+        // If accept type is a MIME type (e.g. "image/jpeg")
+        if (type.includes("/")) {
+          // Handle wildcards like "image/*"
+          if (type.endsWith("/*")) {
+            const category = type.split("/")[0];
+
+            return file.type.startsWith(`${category}/`);
+          }
+
+          return file.type === type;
+        }
+        // If accept type is a file extension (e.g. ".jpg")
+        else if (type.startsWith(".")) {
+          const extension = type.toLowerCase();
+
+          return file.name.toLowerCase().endsWith(extension);
+        }
+
+        return false;
+      });
+    },
+    [accept],
+  );
+
+  // Filter files to only include acceptable types
+  const filterAcceptableFiles = useCallback(
+    (files: File[]): File[] => {
+      return files.filter((file) => isAcceptableFileType(file));
+    },
+    [isAcceptableFileType],
+  );
+
+  // Handle drag events
+  const handleDragEnter = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (props.isDisabled) return;
+      setIsDragging(true);
+    },
+    [props.isDisabled],
+  );
+
+  const handleDragLeave = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (props.isDisabled) return;
+      setIsDragging(true);
+    },
+    [props.isDisabled],
+  );
+
+  const handleDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      if (props.isDisabled) return;
+
+      const droppedFiles: File[] = [];
+
+      // Handle drag and drop
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        // Convert FileList to Array
+        const fileList = e.dataTransfer.files;
+
+        for (let i = 0; i < fileList.length; i++) {
+          droppedFiles.push(fileList[i]);
+        }
+
+        // Filter files by accepted types
+        const acceptableFiles = filterAcceptableFiles(droppedFiles);
+
+        if (acceptableFiles.length === 0) {
+          console.warn("No acceptable file types were dropped");
+
+          return;
+        }
+
+        // Update files based on multiple flag
+        if (multiple) {
+          updateFiles([...files, ...acceptableFiles]);
+        } else {
+          // If not multiple, just take the first file
+          updateFiles([acceptableFiles[0]]);
+        }
+      }
+    },
+    [props.isDisabled, multiple, files, filterAcceptableFiles, updateFiles],
   );
 
   const topbarElement = useMemo(() => {
@@ -221,7 +332,17 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
     uploadButton,
   ]);
 
-  const baseStyles = styles.base({ class: clsx(classNames?.base, className) });
+  // Add dragOver styles to the base styles
+  const baseStyles = useMemo(() => {
+    return styles.base({
+      class: clsx(
+        classNames?.base,
+        className,
+        "relative", // Add relative positioning to the parent component
+        isDragging && "border-primary border-dashed border-2 bg-primary-50",
+      ),
+    });
+  }, [styles, classNames?.base, className, isDragging]);
 
   return (
     <Component
@@ -229,6 +350,10 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
       aria-label="File upload"
       className={baseStyles}
       role="region"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
       {...otherProps}
     >
       <input
@@ -268,6 +393,12 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
       />
 
       {topbarElement}
+
+      {isDragging && (
+        <div className="absolute inset-0 flex items-center justify-center bg-primary-50 bg-opacity-80 text-primary-600 text-xl font-medium rounded-lg z-10">
+          Drop files here
+        </div>
+      )}
 
       {(files.length || children) && (
         <div className={styles.items()}>
