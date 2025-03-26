@@ -60,6 +60,7 @@ There may be a delay between the purchase and the refund. Additionally, the refu
 | admin:api  | Administer the API |
 | read:api  | Read one's own feedback data |
 | write:api  | Write one's own feedback data |
+| backup:api  | Manage the database |
 
 ## Application Features
 
@@ -137,3 +138,12 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 
 - **GET `/api/refund/:id`** - Get information about a specific refund - needs read:api permission
   - Response: `{success: boolean, data: {date: string, purchase: string, refunddate: string, amount: number}}`
+
+### Database Management
+
+- **GET `/api/backup/json`** - Backup the database - needs backup:api permission
+  - Response: `{success: boolean, data: {backup: string}}`
+
+- **POST `/api/backup/json`** - Restore the database - needs backup:api permission
+  - Request: `{backup /* backup string */: string}`
+  - Response: `{success: boolean}`
