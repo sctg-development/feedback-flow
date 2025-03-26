@@ -49,6 +49,7 @@ jobs:
             echo "ADMIN_PERMISSION=${{ vars.ADMIN_PERMISSION }}" >> cloudflare-worker/.env
             echo "DB_BACKEND=${{ vars.DB_BACKEND }}" >> cloudflare-worker/.env
             echo "BACKUP_PERMISSION=${{ vars.BACKUP_PERMISSION }}" >> cloudflare-worker/.env
+            echo "DB_MAX_IMAGE_SIZE=${{ vars.DB_MAX_IMAGE_SIZE }}" >> cloudflare-worker/.env
 
         - name: Replace "// vars.*" in wrangler.jsonc with a json string
           run: |
@@ -56,7 +57,7 @@ jobs:
             cp wrangler.jsonc wrangler.jsonc.bak
             set -a && source .env && set +a 
             cat .env
-            cat wrangler.jsonc.bak | sed 's|// "vars".*.|,"vars": { "AUTH0_DOMAIN": "'"${AUTH0_DOMAIN}"'", "AUTH0_CLIENT_ID": "'"${AUTH0_CLIENT_ID}"'", "AUTH0_SCOPE": "'"${AUTH0_SCOPE}"'", "AUTH0_AUDIENCE": "'"${AUTH0_AUDIENCE}"'", "API_BASE_URL": "'"${API_BASE_URL}"'", "CORS_ORIGIN": "'"${CORS_ORIGIN}"'", "DB_BACKEND": "'"${DB_BACKEND}"'", "BACKUP_PERMISSION": "'"${BACKUP_PERMISSION}"'", "READ_PERMISSION": "'"${READ_PERMISSION}"'", "WRITE_PERMISSION": "'"${WRITE_PERMISSION}"'", "ADMIN_PERMISSION": "'"${ADMIN_PERMISSION}"'" }|' > wrangler.jsonc.2
+            cat wrangler.jsonc.bak | sed 's|// "vars".*.|,"vars": { "AUTH0_DOMAIN": "'"${AUTH0_DOMAIN}"'", "AUTH0_CLIENT_ID": "'"${AUTH0_CLIENT_ID}"'", "AUTH0_SCOPE": "'"${AUTH0_SCOPE}"'", "AUTH0_AUDIENCE": "'"${AUTH0_AUDIENCE}"'", "API_BASE_URL": "'"${API_BASE_URL}"'", "CORS_ORIGIN": "'"${CORS_ORIGIN}"'", "DB_BACKEND": "'"${DB_BACKEND}"'", "DB_MAX_IMAGE_SIZE": "'"${DB_MAX_IMAGE_SIZE}"'", "BACKUP_PERMISSION": "'"${BACKUP_PERMISSION}"'", "READ_PERMISSION": "'"${READ_PERMISSION}"'", "WRITE_PERMISSION": "'"${WRITE_PERMISSION}"'", "ADMIN_PERMISSION": "'"${ADMIN_PERMISSION}"'" }|' > wrangler.jsonc.2
             cat wrangler.jsonc.2 | sed 's|// "routes".*.|,"routes": [{ "pattern": "'"${DOMAIN_NAME}"'", "custom_domain": true }]|'  > wrangler.jsonc
             cat wrangler.jsonc
         - name: Deploy
@@ -77,6 +78,7 @@ jobs:
                 ADMIN_PERMISSION
                 DB_BACKEND
                 BACKUP_PERMISSION
+                DB_MAX_IMAGE_SIZE
           env:
             AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
             AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
@@ -89,3 +91,4 @@ jobs:
             ADMIN_PERMISSION: ${{ vars.ADMIN_PERMISSION }}
             DB_BACKEND: ${{ vars.DB_BACKEND }}
             BACKUP_PERMISSION: ${{ vars.BACKUP_PERMISSION }}
+            DB_MAX_IMAGE_SIZE: ${{ vars.DB_MAX_IMAGE_SIZE }}

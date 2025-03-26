@@ -26,9 +26,14 @@ export default [
         console: 'readonly',
         fetch: 'readonly',
         HTMLFormElement: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
         FormData: 'readonly',
         FormDataEntryValue: 'readonly',
         Blob: 'readonly',
+        File: 'readonly',
+        FileReader: 'readonly',
+        Image: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: {

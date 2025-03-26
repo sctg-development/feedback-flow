@@ -56,5 +56,7 @@
   "backup-database": "Backup the database",
   "manage-database": "Manage the database",
   "export-database": "Export Database",
-  "download-backup": "Download Backup"
+  "download-backup": "Download Backup",
+  "browse": "Browse",
+  "reset": "Reset"
 }

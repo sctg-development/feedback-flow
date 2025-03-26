@@ -90,6 +90,9 @@ export default defineConfig({
     "import.meta.env.BACKUP_PERMISSION": JSON.stringify(
       process.env.BACKUP_PERMISSION,
     ),
+    "import.meta.env.DB_MAX_IMAGE_SIZE": JSON.stringify(
+      process.env.DB_MAX_IMAGE_SIZE,
+    )
   },
   plugins: [react(), tsconfigPaths(), tailwindcss()],
   build: {
