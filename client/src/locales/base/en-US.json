@@ -54,5 +54,7 @@
   "permissions": "Permissions",
   "no-permissions": "No permissions",
   "backup-database": "Backup the database",
-  "manage-database": "Manage the database"
+  "manage-database": "Manage the database",
+  "export-database": "Export Database",
+  "download-backup": "Download Backup"
 }

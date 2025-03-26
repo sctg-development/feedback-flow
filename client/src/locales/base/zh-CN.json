@@ -54,5 +54,7 @@
   "expiration": "到期",
   "no-permissions": "无许可",
   "manage-database": "管理数据库",
-  "backup-database": "备份数据库"
+  "backup-database": "备份数据库",
+  "export-database": "导出数据库",
+  "download-backup": "下载备份"
 }

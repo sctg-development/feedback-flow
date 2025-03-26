@@ -54,5 +54,7 @@
   "expiration": "Expiration",
   "no-permissions": "Aucune autorisation",
   "manage-database": "Gérer la base de données",
-  "backup-database": "Sauvegarder la base de données"
+  "backup-database": "Sauvegarder la base de données",
+  "export-database": "Base de données d'exportation",
+  "download-backup": "Télécharger la sauvegarde"
 }

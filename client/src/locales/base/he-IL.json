@@ -54,5 +54,7 @@
   "expiration": "פְּקִיעָה",
   "no-permissions": "אין הרשאות",
   "manage-database": "נהל את בסיס הנתונים",
-  "backup-database": "גבה את בסיס הנתונים"
+  "backup-database": "גבה את בסיס הנתונים",
+  "export-database": "ייצוא מסד נתונים",
+  "download-backup": "הורד גיבוי"
 }
