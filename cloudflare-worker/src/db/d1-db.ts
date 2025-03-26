@@ -223,7 +223,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			try {
 				// Start a transaction to ensure atomicity of operations
 				// (either all operations succeed or none do)
-				await this.db.exec("BEGIN TRANSACTION");
+				// TODO: D1 database does not support transactions, so we need to find an alternative
+				// await this.db.exec("BEGIN TRANSACTION");
 
 				try {
 					// Check if tester exists
@@ -278,12 +279,14 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					}
 
 					// Commit transaction
-					await this.db.exec("COMMIT");
+					// TODO: D1 database does not support transactions, so we need to find an alternative
+					// await this.db.exec("COMMIT");
 
 					return newTester.ids;
 				} catch (error) {
 					// Rollback on error
-					await this.db.exec("ROLLBACK");
+					// TODO: D1 database does not support transactions, so we need to find an alternative
+					await this.db.exec("-- ROLLBACK");
 					throw error;
 				}
 			} catch (error) {
@@ -604,7 +607,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			try {
 				// Start a transaction to ensure atomicity of operations
 				// (either all operations succeed or none do)
-				await this.db.exec("BEGIN TRANSACTION");
+				// TODO: D1 database does not support transactions, so we need to find an alternative
+				// await this.db.exec("BEGIN TRANSACTION");
 
 				// Insert the refund
 				await this.db
@@ -629,12 +633,14 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					.run();
 
 				// Commit the transaction
-				await this.db.exec("COMMIT");
+				// TODO: D1 database does not support transactions, so we need to find an alternative
+				// await this.db.exec("COMMIT");
 
 				return newRefund.purchase;
 			} catch (error) {
 				// Rollback on error
-				await this.db.exec("ROLLBACK");
+				// TODO: D1 database does not support transactions, so we need to find an alternative
+				await this.db.exec("-- ROLLBACK");
 				console.error("Error adding refund:", error);
 				throw error;
 			}
