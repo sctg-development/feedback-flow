@@ -297,7 +297,7 @@ const ImageUpload = forwardRef<"div", ImageUploadProps>((props, ref) => {
           <Button
             color="primary"
             size="sm"
-            onClick={() => {
+            onPress={() => {
               // Download all converted images as a zip file
               // This is just a placeholder - you'll need to implement zip functionality
               // or handle downloads individually
@@ -309,7 +309,7 @@ const ImageUpload = forwardRef<"div", ImageUploadProps>((props, ref) => {
               link.click();
             }}
           >
-            {t("Download Converted Images")}
+            {t("download-converted-images",{count: convertedImages.length})}
           </Button>
         </div>
       )}

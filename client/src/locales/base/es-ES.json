@@ -67,5 +67,8 @@
   "add": "Agregar",
   "paste": "Pasta",
   "Image Preview": "Vista previa de imagen",
-  "Download Converted Images": "Descargar imágenes convertidas"
+  "Download Converted Images": "Descargar imágenes convertidas",
+  "clipboard-api-not-supported-in-this-browser": "API de portapapeles no es compatible con este navegador",
+  "download-converted-images_one": "Descargar imagen convertida",
+  "download-converted-images_other": "Descargar imágenes convertidas"
 }

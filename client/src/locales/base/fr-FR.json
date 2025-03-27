@@ -67,5 +67,8 @@
   "add": "Ajouter",
   "paste": "Coller",
   "Image Preview": "Aperçu de l'image",
-  "Download Converted Images": "Télécharger des images converties"
+  "Download Converted Images": "Télécharger des images converties",
+  "clipboard-api-not-supported-in-this-browser": "API du presse-papiers non pris en charge dans ce navigateur",
+  "download-converted-images_one": "Télécharger l'image convertie",
+  "download-converted-images_other": "Télécharger des images converties"
 }

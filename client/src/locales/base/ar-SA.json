@@ -67,5 +67,8 @@
   "add": "يضيف",
   "paste": "لصق",
   "Image Preview": "معاينة الصورة",
-  "Download Converted Images": "تنزيل الصور المحولة"
+  "Download Converted Images": "تنزيل الصور المحولة",
+  "clipboard-api-not-supported-in-this-browser": "واجهة برمجة تطبيقات الحافظة غير مدعومة في هذا المتصفح",
+  "download-converted-images_one": "تنزيل الصورة المحولة",
+  "download-converted-images_other": "تنزيل الصور المحولة"
 }

@@ -67,5 +67,8 @@
   "add": "לְהוֹסִיף",
   "paste": "לְהַדבִּיק",
   "Image Preview": "תצוגה מקדימה של תמונה",
-  "Download Converted Images": "הורד תמונות שהוסבו"
+  "Download Converted Images": "הורד תמונות שהוסבו",
+  "clipboard-api-not-supported-in-this-browser": "ממשק API של הלוח לא נתמך בדפדפן זה",
+  "download-converted-images_one": "הורד תמונה המרה",
+  "download-converted-images_other": "הורד תמונות שהוסבו"
 }

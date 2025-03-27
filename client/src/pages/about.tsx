@@ -30,6 +30,9 @@ export default function DocsPage() {
             previewSize={120}
             resetButtonText={t("reset")}
             webpQuality={0.7}
+            onChange={(files) => {
+              console.log("Files selected:", files);
+            }}
           />
         </div>
       </section>
