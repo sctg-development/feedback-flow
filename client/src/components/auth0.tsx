@@ -419,7 +419,7 @@ export const userHasPermission = async (
     if (payload.permissions instanceof Array) {
       // eslint-disable-next-line no-console
       console.log(
-        `You own this JWT: ${JSON.stringify(payload)}, permission is ${payload.permissions.includes(permission)}`,
+        `You own this JWT: ${JSON.stringify(payload)}, permission (${permission}) is ${payload.permissions.includes(permission)}`,
       );
 
       return payload.permissions.includes(permission);
