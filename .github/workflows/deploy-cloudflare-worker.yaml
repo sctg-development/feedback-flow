@@ -50,6 +50,7 @@ jobs:
             echo "DB_BACKEND=${{ vars.DB_BACKEND }}" >> cloudflare-worker/.env
             echo "BACKUP_PERMISSION=${{ vars.BACKUP_PERMISSION }}" >> cloudflare-worker/.env
             echo "DB_MAX_IMAGE_SIZE=${{ vars.DB_MAX_IMAGE_SIZE }}" >> cloudflare-worker/.env
+            cat cloudflare-worker/.env
 
         - name: Replace "// vars.*" in wrangler.jsonc with a json string
           run: |

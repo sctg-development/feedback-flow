@@ -51,6 +51,7 @@ jobs:
           export READ_PERMISSION="${{ vars.READ_PERMISSION }}"
           export WRITE_PERMISSION="${{ vars.WRITE_PERMISSION }}"
           export ADMIN_PERMISSION="${{ vars.ADMIN_PERMISSION }}"
+          export BACKUP_PERMISSION="${{ vars.BACKUP_PERMISSION }}"
           export DB_MAX_IMAGE_SIZE="${{ vars.DB_MAX_IMAGE_SIZE }}"
           npx vite build --base=/${{ github.event.repository.name }}
 
