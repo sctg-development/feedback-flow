@@ -2,6 +2,7 @@ import { Trans, useTranslation } from "react-i18next";
 
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
+import ImageUpload from "@/components/image-upload";
 
 export default function DocsPage() {
   const { t } = useTranslation();
@@ -13,6 +14,23 @@ export default function DocsPage() {
           <h1 className={title()}>
             <Trans t={t}>about</Trans>
           </h1>
+          <ImageUpload
+            convertToWebp
+            limitSize
+            multiple
+            showPasteButton
+            accept="image/png, image/jpeg, image/webp, image/gif"
+            addButtonText={t("add")}
+            browseButtonText={t("browse")}
+            className="rounded p-1 my-4"
+            dragDropZoneText={t("drop-your-image-here")}
+            maxDimension={800}
+            maxFileSize={10 * 1024 * 1024} // 10MB max
+            pasteButtonText={t("paste")}
+            previewSize={120}
+            resetButtonText={t("reset")}
+            webpQuality={0.7}
+          />
         </div>
       </section>
     </DefaultLayout>

@@ -63,5 +63,7 @@
   "paste-from-clipboard": "Coller depuis le presse-papiers",
   "no-acceptable-content-found-in-clipboard": "Aucun contenu acceptable ({{acceptableTypes}}) trouvé dans le presse-papiers",
   "clipboard-is-empty": "Le presse-papiers est vide",
-  "failed-to-paste-from-clipboard": "Échec de la pâte à partir du presse-papiers"
+  "failed-to-paste-from-clipboard": "Échec de la pâte à partir du presse-papiers",
+  "add": "Ajouter",
+  "paste": "Coller"
 }

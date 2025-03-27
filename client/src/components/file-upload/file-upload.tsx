@@ -56,6 +56,7 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
     browseButton,
     browseButtonText,
     addButton,
+    addButtonText,
     resetButton,
     resetButtonText,
     uploadButton,
@@ -469,7 +470,7 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
           disabled={props.isDisabled}
           onPress={() => onAdd()}
         >
-          Add
+          {addButtonText}
         </Button>
       ),
     [addButton, onAdd],

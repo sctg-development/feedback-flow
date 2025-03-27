@@ -147,6 +147,7 @@ const getWebpConvertedImageContent = (
             resolve(webpDataUrl);
           } else {
             // Fallback - this browser might not support WebP output
+            // eslint-disable-next-line no-console
             console.warn(
               "Browser may not support WebP conversion. Falling back to original format.",
             );

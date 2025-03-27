@@ -63,5 +63,7 @@
   "paste-from-clipboard": "הדבק מהלוח",
   "no-acceptable-content-found-in-clipboard": "לא מקובל ({{etchableTypes}}) שנמצא בלוח הלוח",
   "clipboard-is-empty": "הלוח ריק",
-  "failed-to-paste-from-clipboard": "הדבקת הלוח נכשלה"
+  "failed-to-paste-from-clipboard": "הדבקת הלוח נכשלה",
+  "add": "לְהוֹסִיף",
+  "paste": "לְהַדבִּיק"
 }

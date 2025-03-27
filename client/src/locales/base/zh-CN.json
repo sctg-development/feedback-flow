@@ -63,5 +63,7 @@
   "paste-from-clipboard": "从剪贴板粘贴",
   "no-acceptable-content-found-in-clipboard": "在剪贴板中没有可接受的（{acceptableTypes}}）内容",
   "clipboard-is-empty": "剪贴板是空的",
-  "failed-to-paste-from-clipboard": "无法从剪贴板粘贴"
+  "failed-to-paste-from-clipboard": "无法从剪贴板粘贴",
+  "add": "添加",
+  "paste": "粘贴"
 }

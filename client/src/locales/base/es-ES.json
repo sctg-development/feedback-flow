@@ -63,5 +63,7 @@
   "paste-from-clipboard": "Pegar del portapapeles",
   "no-acceptable-content-found-in-clipboard": "No se encuentra el contenido aceptable ({{aceptableTypes}}) que se encuentra en el portapapeles",
   "clipboard-is-empty": "El portapapeles está vacío",
-  "failed-to-paste-from-clipboard": "No se pudo pegar desde el portapapeles"
+  "failed-to-paste-from-clipboard": "No se pudo pegar desde el portapapeles",
+  "add": "Agregar",
+  "paste": "Pasta"
 }

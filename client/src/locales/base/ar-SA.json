@@ -63,5 +63,7 @@
   "paste-from-clipboard": "لصق من الحافظة",
   "no-acceptable-content-found-in-clipboard": "لا يوجد محتوى مقبول ({{accessableTypes}}) الموجود في الحافظة",
   "clipboard-is-empty": "الحافظة فارغة",
-  "failed-to-paste-from-clipboard": "فشل لصق من الحافظة"
+  "failed-to-paste-from-clipboard": "فشل لصق من الحافظة",
+  "add": "يضيف",
+  "paste": "لصق"
 }

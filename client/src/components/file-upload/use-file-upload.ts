@@ -58,6 +58,10 @@ interface Props extends Omit<HTMLHeroUIProps<"div">, "onChange"> {
    */
   addButton?: ReactElement<ButtonProps>;
   /**
+   * A different text for the add button.
+   */
+  addButtonText?: string;
+  /**
    * Custom Reset Button.
    */
   resetButton?: ReactElement<ButtonProps>;
@@ -133,6 +137,7 @@ export function useFileUpload(originalProps: UseFileUploadProps) {
     as,
     className,
     multiple = false,
+    addButtonText = "Add",
     browseButtonText = "Browse",
     resetButtonText = "Reset",
     dragDropZoneText = "Drop files here",
@@ -159,6 +164,7 @@ export function useFileUpload(originalProps: UseFileUploadProps) {
     className,
     multiple,
     dragDropZoneText,
+    addButtonText,
     browseButtonText,
     resetButtonText,
     ...otherProps,
