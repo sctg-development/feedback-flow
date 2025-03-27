@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2025 Ronan LE MEILLAT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 import { forwardRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@heroui/button";
@@ -60,6 +83,26 @@ export interface ImageUploadProps extends Omit<FileUploadProps, "onChange"> {
  * A specialized component for uploading and processing images.
  * Extends FileUpload with image-specific features like WebP conversion
  * and size limiting while maintaining aspect ratio.
+ * @example
+ * ```tsx
+ * <ImageUpload
+ *            convertToWebp
+ *            limitSize
+ *            multiple
+ *            showPasteButton
+ *            accept="image/png, image/jpeg, image/webp, image/gif"
+ *            addButtonText="Add"
+ *            browseButtonText="Browsr"
+ *            className="rounded p-1 my-4"
+ *            dragDropZoneText="Drop your image here"
+ *            maxDimension={800}
+ *            maxFileSize={10 * 1024 * 1024} // 10MB max
+ *            pasteButtonText="Paste"
+ *            previewSize={120}
+ *            resetButtonText="Reset"
+ *            webpQuality={0.7}
+ *          />
+ * ```
  */
 const ImageUpload = forwardRef<"div", ImageUploadProps>((props, ref) => {
   const {
