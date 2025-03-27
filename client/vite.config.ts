@@ -92,7 +92,7 @@ export default defineConfig({
     ),
     "import.meta.env.DB_MAX_IMAGE_SIZE": JSON.stringify(
       process.env.DB_MAX_IMAGE_SIZE,
-    )
+    ),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss()],
   build: {

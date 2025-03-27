@@ -28,7 +28,6 @@ import { useTranslation } from "react-i18next";
 import { Link } from "@heroui/link";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 
-
 /**
  * Renders the user's profile name with a tooltip showing their username.
  * @returns The user's name with a tooltip showing their username
@@ -417,11 +416,19 @@ export const userHasPermission = async (
     });
     const payload = joseResult.payload as JWTPayload;
 
+    // eslint-disable-next-line no-console
     console.log(`You own this JWT: ${JSON.stringify(payload)}`);
 
     if (payload.permissions instanceof Array) {
       return payload.permissions.includes(permission);
     } else {
+      // eslint-disable-next-line no-console
+      console.log(
+        `The permissions claim is not an array: ${JSON.stringify(
+          payload.permissions,
+        )}`,
+      );
+
       return false;
     }
   } catch (error) {
