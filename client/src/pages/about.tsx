@@ -30,8 +30,13 @@ export default function DocsPage() {
             previewSize={120}
             resetButtonText={t("reset")}
             webpQuality={0.7}
-            onChange={(files) => {
-              console.log("Files selected:", files);
+            onChange={(_files, dataUrls) => {
+              // eslint-disable-next-line no-console
+              console.log(`Number of files: ${(dataUrls || []).length}`);
+              (dataUrls || []).forEach((element) => {
+                // eslint-disable-next-line no-console
+                console.log(element.converted);
+              });
             }}
           />
         </div>
