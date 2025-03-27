@@ -34,6 +34,9 @@ export default [
         File: 'readonly',
         FileReader: 'readonly',
         Image: 'readonly',
+        ClipboardItem: 'readonly',
+        ClipboardEvent: 'readonly',
+        navigator: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: {

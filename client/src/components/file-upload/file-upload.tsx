@@ -33,6 +33,9 @@ import {
   useState,
 } from "react";
 import { clsx } from "@heroui/shared-utils";
+import { useTranslation } from "react-i18next";
+
+import { PasteIcon } from "../icons";
 
 import { UseFileUploadProps, useFileUpload } from "./use-file-upload";
 import FileUploadItem from "./file-upload-item";
@@ -61,6 +64,9 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
     fileItemElement,
     topbar,
     onChange,
+    showPasteButton = false,
+    pasteButtonText = "Paste",
+    pasteButton,
     ...otherProps
   } = useFileUpload({ ...props, ref });
 
@@ -68,6 +74,8 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
   const singleInputFileRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>(initialFiles ?? []);
   const [isDragging, setIsDragging] = useState(false);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     initialFiles && setFiles(initialFiles);
@@ -177,6 +185,7 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
         const acceptableFiles = filterAcceptableFiles(droppedFiles);
 
         if (acceptableFiles.length === 0) {
+          // eslint-disable-next-line no-console
           console.warn("No acceptable file types were dropped");
 
           return;
@@ -192,6 +201,176 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
       }
     },
     [props.isDisabled, multiple, files, filterAcceptableFiles, updateFiles],
+  );
+
+  // Add new state to track paste errors
+  const [pasteError, setPasteError] = useState<string | null>(null);
+
+  // Function to convert clipboard items to files
+  const clipboardItemToFile = useCallback(
+    async (item: ClipboardItem): Promise<File | null> => {
+      // Get all types from the clipboard item
+      const types = item.types;
+
+      // If accept prop exists, check if the item type is acceptable
+      if (accept) {
+        const acceptableTypes = accept.split(",").map((type) => type.trim());
+
+        // Find a matching type
+        const matchingType = types.find((type) => {
+          // Check for direct match
+          if (acceptableTypes.includes(type)) return true;
+
+          // Check for wildcard matches (e.g., "image/*")
+          return acceptableTypes.some((acceptType) => {
+            if (acceptType.endsWith("/*")) {
+              const category = acceptType.split("/")[0];
+
+              return type.startsWith(`${category}/`);
+            }
+
+            return false;
+          });
+        });
+
+        if (!matchingType) {
+          // No acceptable types found
+          return null;
+        }
+
+        // Try to get the blob for the matching type
+        try {
+          const blob = await item.getType(matchingType);
+
+          // Create a file from the blob
+          const fileName = `pasted-${new Date().getTime()}.${getExtensionFromMimeType(matchingType)}`;
+
+          return new File([blob], fileName, { type: matchingType });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error("Error getting clipboard item:", error);
+
+          return null;
+        }
+      } else {
+        // If no accept prop, try to get the first type
+        try {
+          const firstType = types[0];
+          const blob = await item.getType(firstType);
+
+          // Create a file from the blob
+          const fileName = `pasted-${new Date().getTime()}.${getExtensionFromMimeType(firstType)}`;
+
+          return new File([blob], fileName, { type: firstType });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error("Error getting clipboard item:", error);
+
+          return null;
+        }
+      }
+    },
+    [accept],
+  );
+
+  // Helper function to get file extension from MIME type
+  const getExtensionFromMimeType = (mimeType: string): string => {
+    const mimeToExt: Record<string, string> = {
+      "image/png": "png",
+      "image/jpeg": "jpg",
+      "image/jpg": "jpg",
+      "image/gif": "gif",
+      "image/webp": "webp",
+      "image/svg+xml": "svg",
+      "text/plain": "txt",
+      "application/pdf": "pdf",
+      "application/json": "json",
+      "application/xml": "xml",
+      "text/html": "html",
+      "text/csv": "csv",
+    };
+
+    return mimeToExt[mimeType] || "bin";
+  };
+
+  // Function to handle pasting from clipboard
+  const handlePaste = useCallback(async () => {
+    try {
+      setPasteError(null);
+
+      // Check if clipboard API is available
+      if (!navigator.clipboard || !navigator.clipboard.read) {
+        setPasteError(t("clipboard-api-not-supported-in-this-browser"));
+
+        return;
+      }
+
+      // Read clipboard data
+      const clipboardItems = await navigator.clipboard.read();
+
+      if (clipboardItems.length === 0) {
+        setPasteError(t("clipboard-is-empty"));
+
+        return;
+      }
+
+      // Convert clipboard items to files
+      const newFiles: File[] = [];
+
+      for (const item of clipboardItems) {
+        const file = await clipboardItemToFile(item);
+
+        if (file) {
+          newFiles.push(file);
+        }
+      }
+
+      if (newFiles.length === 0) {
+        setPasteError(
+          t("no-acceptable-content-found-in-clipboard", {
+            acceptableTypes: accept ? accept : "",
+          }),
+        );
+
+        return;
+      }
+
+      // Update files based on multiple flag
+      if (multiple) {
+        updateFiles([...files, ...newFiles]);
+      } else {
+        // If not multiple, just use the first file
+        updateFiles([newFiles[0]]);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error pasting from clipboard:", error);
+      setPasteError(t("failed-to-paste-from-clipboard"));
+    }
+  }, [multiple, files, clipboardItemToFile, updateFiles, accept]);
+
+  // Create paste button element
+  const pasteButtonElement = useMemo(
+    () =>
+      pasteButton ? (
+        cloneElement(pasteButton, {
+          disabled: props.isDisabled,
+          onPress: (ev) => {
+            handlePaste();
+            pasteButton.props.onPress?.(ev);
+          },
+        })
+      ) : (
+        <Button
+          color="secondary"
+          disabled={props.isDisabled}
+          startContent={<PasteIcon />}
+          onPress={handlePaste}
+        >
+          {pasteButtonText}
+        </Button>
+      ),
+    [pasteButton, pasteButtonText, handlePaste, props.isDisabled],
   );
 
   const topbarElement = useMemo(() => {
@@ -308,7 +487,7 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
         })
       ) : (
         <Button
-          color="warning"
+          color="primary"
           disabled={props.isDisabled}
           onPress={() => {
             onReset();
@@ -331,6 +510,7 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
           {multiple && files.length !== 0 && addButtonElement}
           {files.length !== 0 && resetButtonElement}
           {browseButtonElement}
+          {showPasteButton && pasteButtonElement}
           {uploadButtonElement}
         </div>
       );
@@ -354,6 +534,8 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
     addButtonElement,
     resetButtonElement,
     uploadButton,
+    showPasteButton,
+    pasteButtonElement,
   ]);
 
   // Add dragOver styles to the base styles
@@ -417,6 +599,12 @@ const FileUpload = forwardRef<"div", FileUploadProps>((props, ref) => {
       />
 
       {topbarElement}
+
+      {pasteError && (
+        <div className="text-danger text-sm p-2 mt-1 bg-danger-50 rounded">
+          {pasteError}
+        </div>
+      )}
 
       {isDragging && (
         <div className="absolute inset-0 flex items-center justify-center bg-primary-50 bg-opacity-80 text-primary-600 text-xl font-medium rounded-lg z-10">

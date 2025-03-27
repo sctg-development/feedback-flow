@@ -44,7 +44,7 @@ const fileUpload = tv({
       "overflow-y-auto",
       "subpixel-antialiased",
     ],
-    item: ["flex", "gap-4", "my-4"],
+    item: ["flex", "gap-2", "my-2"],
     buttons: [
       "flex",
       "gap-3",

@@ -237,25 +237,28 @@ export default function BlogPage() {
           </h1>
         </div>
         <FileUpload
+          showPasteButton
           accept="image/png, image/jpeg, image/webp"
           browseButtonText={t("browse")}
-          className="rounded-xl"
           dragDropZoneText={t("drop-your-image-here")}
+          pasteButtonText={t('paste-from-clipboard')}
           resetButtonText={t("reset")}
           onChange={(file) => setFile(file[0])}
         />
         {webpImage && (
-          <img alt="WebP image" className="rounded-xl" src={webpImage} />
+          <>
+            <img alt="WebP image" className="rounded-xl" src={webpImage} />
+            <Snippet
+              className="max-w-2xs sm:max-w-sm md:max-w-md lg:max-w-3xl"
+              symbol=""
+              title="webp-image"
+            >
+              <div className="max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-2xl whitespace-break-spaces  text-wrap break-words">
+                {webpImage}
+              </div>
+            </Snippet>{" "}
+          </>
         )}
-        <Snippet
-          className="max-w-2xs sm:max-w-sm md:max-w-md lg:max-w-3xl"
-          symbol=""
-          title="webp-image"
-        >
-          <div className="max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-2xl whitespace-break-spaces  text-wrap break-words">
-            {webpImage}
-          </div>
-        </Snippet>
       </section>
     </DefaultLayout>
   );

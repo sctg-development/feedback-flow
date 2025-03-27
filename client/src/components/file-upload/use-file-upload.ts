@@ -102,6 +102,22 @@ interface Props extends Omit<HTMLHeroUIProps<"div">, "onChange"> {
    * Triggered when file(s) selected, added or removed.
    */
   onChange?: (files: File[]) => void;
+  /**
+   * Whether to show the paste button
+   * @default false
+   */
+  showPasteButton?: boolean;
+
+  /**
+   * Text to display on the paste button
+   * @default "Paste"
+   */
+  pasteButtonText?: string;
+
+  /**
+   * Custom paste button element
+   */
+  pasteButton?: ReactElement<ButtonProps>;
 }
 
 export type UseFileUploadProps = Props & FileUploadVariantProps;

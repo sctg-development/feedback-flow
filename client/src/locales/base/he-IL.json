@@ -59,5 +59,9 @@
   "download-backup": "הורד גיבוי",
   "browse": "לְדַפדֵף",
   "drop-your-image-here": "זרוק את התמונה שלך כאן",
-  "reset": "אִתחוּל"
+  "reset": "אִתחוּל",
+  "paste-from-clipboard": "הדבק מהלוח",
+  "no-acceptable-content-found-in-clipboard": "לא מקובל ({{etchableTypes}}) שנמצא בלוח הלוח",
+  "clipboard-is-empty": "הלוח ריק",
+  "failed-to-paste-from-clipboard": "הדבקת הלוח נכשלה"
 }

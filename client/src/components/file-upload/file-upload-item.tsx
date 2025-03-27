@@ -23,7 +23,7 @@
  */
 import { Button } from "@heroui/button";
 import { HTMLHeroUIProps } from "@heroui/system";
-import { CloseIcon } from "@heroui/shared-icons";
+import { DeleteIcon } from "@heroui/shared-icons";
 import { FC } from "react";
 
 export interface FileUploadItemProps extends HTMLHeroUIProps<"div"> {
@@ -55,7 +55,7 @@ const FileUploadItem: FC<FileUploadItemProps> = ({
         role="listitem"
         onPress={() => onFileRemove(file)}
       >
-        <CloseIcon />
+        <DeleteIcon />
       </Button>
       <span>{file.name}</span>
       <span>{formatFileSize(file.size)}</span>

@@ -59,5 +59,9 @@
   "download-backup": "Télécharger la sauvegarde",
   "browse": "Parcourir",
   "drop-your-image-here": "Déposez votre image ici",
-  "reset": "Réinitialiser"
+  "reset": "Réinitialiser",
+  "paste-from-clipboard": "Coller depuis le presse-papiers",
+  "no-acceptable-content-found-in-clipboard": "Aucun contenu acceptable ({{acceptableTypes}}) trouvé dans le presse-papiers",
+  "clipboard-is-empty": "Le presse-papiers est vide",
+  "failed-to-paste-from-clipboard": "Échec de la pâte à partir du presse-papiers"
 }

@@ -59,5 +59,10 @@
   "download-backup": "Download Backup",
   "browse": "Browse",
   "reset": "Reset",
-  "drop-your-image-here": "Drop your image here"
+  "drop-your-image-here": "Drop your image here",
+  "paste-from-clipboard": "Paste from Clipboard",
+  "no-acceptable-content-found-in-clipboard": "No acceptable ({{acceptableTypes}}) content found in clipboard",
+  "clipboard-is-empty": "Clipboard is empty",
+  "clipboard-api-not-supported-in-this-browser": "Clipboard API not supported in this browser",
+  "failed-to-paste-from-clipboard": "Failed to paste from clipboard"
 }

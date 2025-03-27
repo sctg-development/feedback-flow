@@ -59,5 +59,9 @@
   "download-backup": "تنزيل النسخ الاحتياطي",
   "browse": "تصفح",
   "drop-your-image-here": "أسقط صورتك هنا",
-  "reset": "إعادة ضبط"
+  "reset": "إعادة ضبط",
+  "paste-from-clipboard": "لصق من الحافظة",
+  "no-acceptable-content-found-in-clipboard": "لا يوجد محتوى مقبول ({{accessableTypes}}) الموجود في الحافظة",
+  "clipboard-is-empty": "الحافظة فارغة",
+  "failed-to-paste-from-clipboard": "فشل لصق من الحافظة"
 }
