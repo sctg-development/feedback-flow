@@ -14,11 +14,11 @@
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.8.5",
+		"@cloudflare/vitest-pool-workers": "^0.8.6",
 		"@cloudflare/workers-types": "^4.20250321.0",
 		"@jest/globals": "^29.7.0",
 		"@types/jest": "^29.5.14",
-		"@types/node": "^22.13.13",
+		"@types/node": "^22.13.14",
 		"@typescript-eslint/eslint-plugin": "^8.28.0",
 		"@typescript-eslint/parser": "^8.28.0",
 		"axios": "^1.8.4",
@@ -34,7 +34,7 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^5.8.2",
 		"vitest": "~3.0.9",
-		"wrangler": "^4.4.1"
+		"wrangler": "^4.5.0"
 	},
 	"dependencies": {
 		"jose": "^6.0.10",
