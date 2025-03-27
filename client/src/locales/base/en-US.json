@@ -66,5 +66,7 @@
   "clipboard-api-not-supported-in-this-browser": "Clipboard API not supported in this browser",
   "failed-to-paste-from-clipboard": "Failed to paste from clipboard",
   "add": "Add",
-  "paste": "Paste"
+  "paste": "Paste",
+  "Image Preview": "Image Preview",
+  "Download Converted Images": "Download Converted Images"
 }

@@ -65,5 +65,7 @@
   "clipboard-is-empty": "הלוח ריק",
   "failed-to-paste-from-clipboard": "הדבקת הלוח נכשלה",
   "add": "לְהוֹסִיף",
-  "paste": "לְהַדבִּיק"
+  "paste": "לְהַדבִּיק",
+  "Image Preview": "תצוגה מקדימה של תמונה",
+  "Download Converted Images": "הורד תמונות שהוסבו"
 }

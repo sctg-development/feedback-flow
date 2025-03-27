@@ -65,5 +65,7 @@
   "clipboard-is-empty": "El portapapeles está vacío",
   "failed-to-paste-from-clipboard": "No se pudo pegar desde el portapapeles",
   "add": "Agregar",
-  "paste": "Pasta"
+  "paste": "Pasta",
+  "Image Preview": "Vista previa de imagen",
+  "Download Converted Images": "Descargar imágenes convertidas"
 }

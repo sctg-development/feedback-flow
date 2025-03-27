@@ -65,5 +65,7 @@
   "clipboard-is-empty": "剪贴板是空的",
   "failed-to-paste-from-clipboard": "无法从剪贴板粘贴",
   "add": "添加",
-  "paste": "粘贴"
+  "paste": "粘贴",
+  "Image Preview": "图像预览",
+  "Download Converted Images": "下载转换的图像"
 }

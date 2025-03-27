@@ -65,5 +65,7 @@
   "clipboard-is-empty": "Le presse-papiers est vide",
   "failed-to-paste-from-clipboard": "Échec de la pâte à partir du presse-papiers",
   "add": "Ajouter",
-  "paste": "Coller"
+  "paste": "Coller",
+  "Image Preview": "Aperçu de l'image",
+  "Download Converted Images": "Télécharger des images converties"
 }
