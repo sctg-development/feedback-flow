@@ -985,8 +985,26 @@ export const setupRoutes = (router: Router, env: Env) => {
 			"/api/backup/json",
 			async (request) => {
 				const json = await request.json();
+
+				// eslint-disable-next-line no-console
 				console.log("Restoring from JSON");
-				db.restoreFromJsonString(JSON.stringify(json));
+				const result = await db.restoreFromJsonString(JSON.stringify(json));
+
+				if (!result.success) {
+					return new Response(
+						JSON.stringify({
+							success: false,
+							error: result.message || "Failed to restore",
+						}),
+						{
+							status: 500,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
 
 				return new Response(JSON.stringify({ success: true }), {
 					status: 200,

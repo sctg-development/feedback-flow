@@ -933,7 +933,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	// ATTENTION: This method is not recommended for production use because Cloudflare D1 is charged based on data usage
 	// TODO: create some tests to verify the data is correctly restored
-	async restoreFromJsonString(_backup: string): Promise<void> {
+	async restoreFromJsonString(_backup: string): Promise<{success: boolean, message?: string}> {
 		const backup = JSON.parse(_backup);
 
 		// console.log("Restoring database from backup:", backup);
@@ -976,6 +976,50 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			"DELETE FROM publications",
 			"DELETE FROM refunds",
 		];
+
+		// Map the data to the database types
+		// const db_testers: d1_tester[] = testers.map((tester: Tester) => ({
+		// 	uuid: tester.uuid,
+		// 	name: tester.name,
+		// }));
+		// const db_idMappings: d1_id_mapping[] = ids.map((id: IdMapping) => ({
+		// 	id: id.id,
+		// 	tester_uuid: id.testerUuid,
+		// }));
+		// const db_purchases: d1_purchase[] = purchases.map((purchase: Purchase) => ({
+		// 	id: purchase.id,
+		// 	tester_uuid: purchase.testerUuid,
+		// 	date: purchase.date,
+		// 	order_number: purchase.order,
+		// 	description: purchase.description,
+		// 	amount: purchase.amount,
+		// 	screenshot: purchase.screenshot,
+		// 	refunded: purchase.refunded ? 1 : 0,
+		// }));
+		// const db_feedbacks: d1_feedback[] = feedbacks.map((feedback: Feedback) => ({
+		// 	purchase_id: feedback.purchase,
+		// 	date: feedback.date,
+		// 	feedback: feedback.feedback,
+		// }));
+		// const db_publications: d1_publication[] = publications.map(
+		// 	(publication: Publication) => ({
+		// 		purchase_id: publication.purchase,
+		// 		date: publication.date,
+		// 		screenshot: publication.screenshot,
+		// 	}),
+		// );
+		// const db_refunds: d1_refund[] = refunds.map((refund: Refund) => ({
+		// 	purchase_id: refund.purchase,
+		// 	date: refund.date,
+		// 	refund_date: refund.refundDate,
+		// 	amount: refund.amount,
+		// }));
+		// console.log("DB Testers:", db_testers);
+		// console.log("DB ID Mappings:", db_idMappings);
+		// console.log("DB Purchases:", db_purchases);
+		// console.log("DB Feedbacks:", db_feedbacks);
+		// console.log("DB Publications:", db_publications);
+		// console.log("DB Refunds:", db_refunds);
 
 		// Insert the data back into the database
 		const dbInsertStatements = [
@@ -1021,11 +1065,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		);
 
 		try {
+			console.log("Executing batch insert...");
 			const result = await this.db.batch(
 				preparedStatements.map((stmt) => stmt.bind()),
 			);
 
-			console.log("Result of batch insert:", result);
+			return { success: result.map((r) => r.success).every((r) => r), message: JSON.stringify(result) };
 		} catch (error) {
 			console.error("Error during batch insert:", error);
 			throw new Error("Error during batch insert");

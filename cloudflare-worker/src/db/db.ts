@@ -228,7 +228,9 @@ export abstract class FeedbackFlowDB {
 	/**
 	 * Restore the database from JSON string (optional)
 	 */
-	abstract restoreFromJsonString?(backup: string): Promise<void>;
+	abstract restoreFromJsonString?(
+		backup: string,
+	): Promise<{ success: boolean; message?: string }>;
 }
 
 /**
@@ -245,8 +247,8 @@ export function getDatabase(env: Env): FeedbackFlowDB {
 		// Initialiser la base de données en fonction de env.DB_BACKEND
 		dbInstance =
 			env.DB_BACKEND !== "memory"
-				? new CloudflareD1DB(env.FeedbackFlowDB)
-				: new InMemoryDB(mockData);
+				? (new CloudflareD1DB(env.FeedbackFlowDB) as FeedbackFlowDB)
+				: (new InMemoryDB(mockData) as FeedbackFlowDB);
 
 		console.log(`Database initialized with backend: ${env.DB_BACKEND}`);
 	}
