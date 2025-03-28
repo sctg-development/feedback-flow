@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
@@ -9,6 +10,13 @@ import PaginatedTable from "@/components/paginated-table";
 export default function IndexPage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth0();
+  const [refundPurchases, setRefundPurchases] = useState(false);
+
+  const handleRefundPurchases = (purchaseId: string) => {
+    console.log("Refunding purchase with ID:", purchaseId);
+    setRefundPurchases(true);
+    // Logic to refund purchases
+  };
 
   return (
     <DefaultLayout>
@@ -45,7 +53,7 @@ export default function IndexPage() {
                       <Button
                         color="primary"
                         size="md"
-                        onPress={() => alert(item.id)}
+                        onPress={() => handleRefundPurchases(item.id)}
                       >
                         Refund
                       </Button>
@@ -59,6 +67,9 @@ export default function IndexPage() {
           </div>
         )}
       </section>
+      {refundPurchases && (
+        <div>modal</div>
+      )}
     </DefaultLayout>
   );
 }
