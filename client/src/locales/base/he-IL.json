@@ -86,5 +86,12 @@
   "tester-name": "שם הבוחן",
   "oauth-ids": "מזהי OAuth",
   "no-data-available": "אין נתונים זמינים",
-  "error-fetching-data": "שגיאה בהשגת נתונים"
+  "error-fetching-data": "שגיאה בהשגת נתונים",
+  "manage-all-your": "נהל את כל שלך",
+  "in-one-place": "במקום אחד.",
+  "date": "תַאֲרִיך",
+  "order": "לְהַזמִין",
+  "description": "תֵאוּר",
+  "amount": "סְכוּם",
+  "purchases-not-refunded": "רכישות שלא הוחזרו"
 }

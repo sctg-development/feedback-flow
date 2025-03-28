@@ -86,5 +86,12 @@
   "tester-name": "测试人员名称",
   "oauth-ids": "OAuth ID",
   "no-data-available": "没有可用的数据",
-  "error-fetching-data": "错误获取数据"
+  "error-fetching-data": "错误获取数据",
+  "manage-all-your": "管理你的一切",
+  "in-one-place": "在一个地方。",
+  "date": "日期",
+  "order": "命令",
+  "description": "描述",
+  "amount": "数量",
+  "purchases-not-refunded": "购买未退款"
 }

@@ -86,5 +86,12 @@
   "tester-name": "Nombre del probador",
   "oauth-ids": "OAuth IDs",
   "no-data-available": "No hay datos disponibles",
-  "error-fetching-data": "Error al obtener datos"
+  "error-fetching-data": "Error al obtener datos",
+  "manage-all-your": "Administre todos sus",
+  "in-one-place": "en un lugar.",
+  "date": "Fecha",
+  "order": "Orden",
+  "description": "Descripción",
+  "amount": "Cantidad",
+  "purchases-not-refunded": "Compras no reembolsadas"
 }

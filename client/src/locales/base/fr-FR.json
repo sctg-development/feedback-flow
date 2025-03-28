@@ -86,5 +86,12 @@
   "tester-name": "Nom de testeur",
   "oauth-ids": "IDs OAuth2",
   "no-data-available": "Aucune donnée disponible",
-  "error-fetching-data": "Erreur de récupération des données"
+  "error-fetching-data": "Erreur de récupération des données",
+  "manage-all-your": "Gérez tous vos",
+  "in-one-place": "en un seul endroit.",
+  "date": "Date",
+  "order": "Commande",
+  "description": "Description",
+  "amount": "Montant",
+  "purchases-not-refunded": "Achats non remboursés"
 }

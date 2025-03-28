@@ -86,5 +86,12 @@
   "tester-name": "اسم اختبار",
   "oauth-ids": "معرفات OAuth",
   "no-data-available": "لا توجد بيانات متاحة",
-  "error-fetching-data": "خطأ جلب البيانات"
+  "error-fetching-data": "خطأ جلب البيانات",
+  "manage-all-your": "إدارة كل ما تبذلونه منك",
+  "in-one-place": "في مكان واحد.",
+  "date": "تاريخ",
+  "order": "طلب",
+  "description": "وصف",
+  "amount": "كمية",
+  "purchases-not-refunded": "عمليات الشراء غير المستردة"
 }
