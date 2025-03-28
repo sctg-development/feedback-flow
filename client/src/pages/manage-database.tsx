@@ -62,6 +62,7 @@ export default function ManageDatabasePage() {
 
           setRestoreDatabaseResult(ret);
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error("Error processing JSON:", error);
           setError(error instanceof Error ? error.message : t("error-unknown"));
         } finally {
@@ -88,8 +89,8 @@ export default function ManageDatabasePage() {
         <div className="grid gap-8 w-full max-w-xl">
           {/* Section Export */}
           <Panel
-            title={t("export-database")}
             description={t("export-database-description")}
+            title={t("export-database")}
           >
             <ProtectedFetchToDownload
               putDateInFilename
@@ -103,8 +104,8 @@ export default function ManageDatabasePage() {
 
           {/* Section Restore */}
           <Panel
-            title={t("restore-database")}
             description={t("restore-database-description")}
+            title={t("restore-database")}
           >
             <div className="space-y-4">
               <FileUpload
