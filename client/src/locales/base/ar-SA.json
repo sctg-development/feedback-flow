@@ -82,5 +82,9 @@
   "error-reading-file": "خطأ قراءة الملف",
   "error-unknown": "خطأ غير معروف",
   "restore-database": "استعادة قاعدة البيانات",
-  "restore-the-database": "استعادة قاعدة البيانات"
+  "restore-the-database": "استعادة قاعدة البيانات",
+  "tester-name": "اسم اختبار",
+  "oauth-ids": "معرفات OAUTH",
+  "no-data-available": "لا توجد بيانات متاحة",
+  "error-fetching-data": "خطأ جلب البيانات"
 }

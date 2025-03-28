@@ -82,5 +82,9 @@
   "error-reading-file": "Error al archivo de lectura",
   "error-unknown": "Error desconocido",
   "restore-database": "Restaurar la base de datos",
-  "restore-the-database": "Restaurar la base de datos"
+  "restore-the-database": "Restaurar la base de datos",
+  "tester-name": "Nombre del probador",
+  "oauth-ids": "OAuth IDs",
+  "no-data-available": "No hay datos disponibles",
+  "error-fetching-data": "Error al obtener datos"
 }

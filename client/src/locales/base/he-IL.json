@@ -82,5 +82,9 @@
   "error-reading-file": "קובץ קריאת שגיאה",
   "error-unknown": "שגיאה לא ידועה",
   "restore-database": "שחזר את בסיס הנתונים",
-  "restore-the-database": "שחזר את בסיס הנתונים"
+  "restore-the-database": "שחזר את בסיס הנתונים",
+  "tester-name": "שם הבוחן",
+  "oauth-ids": "מזהי OAuth",
+  "no-data-available": "אין נתונים זמינים",
+  "error-fetching-data": "שגיאה בהשגת נתונים"
 }

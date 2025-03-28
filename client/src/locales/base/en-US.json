@@ -81,5 +81,9 @@
   "restore-database": "Restore the database",
   "confirm-restore": "Confirm the restoration",
   "cancel": "Cancel",
-  "confirm-restore-warning": "Are you sure to restore the database ?"
+  "confirm-restore-warning": "Are you sure to restore the database ?",
+  "tester-name": "Tester Name",
+  "oauth-ids": "OAuth IDs",
+  "no-data-available": "No data available",
+  "error-fetching-data": "Error fetching data"
 }

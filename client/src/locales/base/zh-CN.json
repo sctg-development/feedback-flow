@@ -82,5 +82,9 @@
   "error-reading-file": "错误读取文件",
   "error-unknown": "未知错误",
   "restore-database": "还原数据库",
-  "restore-the-database": "还原数据库"
+  "restore-the-database": "还原数据库",
+  "tester-name": "测试人员名称",
+  "oauth-ids": "OAuth ID",
+  "no-data-available": "没有可用的数据",
+  "error-fetching-data": "错误获取数据"
 }
