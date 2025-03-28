@@ -13,6 +13,9 @@ export default function ManageDatabasePage() {
   const { t } = useTranslation();
   const [fileUpload, setFileUpload] = useState(null as File | null);
   const { getAccessTokenSilently } = useAuth0();
+  const [restoreDatabaseResult, setRestoreDatabaseResult] = useState(
+    null as any | null,
+  );
 
   const handleJsonFileUpload = async (file: File) => {
     const reader = new FileReader();
@@ -24,14 +27,13 @@ export default function ManageDatabasePage() {
         try {
           const destUrl = `${import.meta.env.API_BASE_URL}/backup/json`;
 
-          console.log("Uploading JSON data to:", destUrl);
           const ret = await postJsonToSecuredApi(
             `${import.meta.env.API_BASE_URL}/backup/json`,
             JSON.parse(jsonData as string),
             getAccessTokenSilently,
           );
 
-          console.log("Response from upload:", ret);
+          setRestoreDatabaseResult(ret);
         } catch (error) {
           console.error("Error parsing JSON:", error);
         }
@@ -65,14 +67,18 @@ export default function ManageDatabasePage() {
           browseButtonText={t("browse")}
           resetButtonText={t("reset")}
           onChange={(files) => {
-            console.log(files[0]);
             setFileUpload(files[0]);
           }}
         />
-        {fileUpload && (
-          <Button onPress={async ()=> await handleJsonFileUpload(fileUpload)}>
+        {fileUpload && !restoreDatabaseResult?.success && (
+          <Button onPress={async () => await handleJsonFileUpload(fileUpload)}>
             {t("restore-the-database")}
           </Button>
+        )}
+        {restoreDatabaseResult?.success && (
+          <div className="text-center text-muted-foreground">
+            <p>{t("restore-database-success")}</p>
+          </div>
         )}
       </section>
     </DefaultLayout>

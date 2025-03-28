@@ -72,5 +72,6 @@
   "download-converted-images_one": "Descargar imagen convertida",
   "download-converted-images_other": "Descargar imágenes convertidas",
   "export-database-description": "Use esta herramienta para exportar el contenido de la base de datos.",
-  "restore-database-description": "Use esta herramienta para restaurar la base de datos"
+  "restore-database-description": "Use esta herramienta para restaurar la base de datos",
+  "restore-database-success": "La base de datos como se ha restaurado"
 }

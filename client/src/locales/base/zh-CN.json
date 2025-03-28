@@ -72,5 +72,6 @@
   "download-converted-images_one": "下载转换的图像",
   "download-converted-images_other": "下载转换的图像",
   "export-database-description": "使用此工具导出数据库内容。",
-  "restore-database-description": "使用此工具还原数据库"
+  "restore-database-description": "使用此工具还原数据库",
+  "restore-database-success": "还原的数据库"
 }

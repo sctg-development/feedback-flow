@@ -72,5 +72,6 @@
   "download-converted-images_one": "تنزيل الصورة المحولة",
   "download-converted-images_other": "تنزيل الصور المحولة",
   "export-database-description": "استخدم هذه الأداة لتصدير محتوى قاعدة البيانات.",
-  "restore-database-description": "استخدم هذه الأداة لاستعادة قاعدة البيانات"
+  "restore-database-description": "استخدم هذه الأداة لاستعادة قاعدة البيانات",
+  "restore-database-success": "قاعدة البيانات كما تم ترميمها"
 }
