@@ -73,5 +73,14 @@
   "download-converted-images_other": "تنزيل الصور المحولة",
   "export-database-description": "استخدم هذه الأداة لتصدير محتوى قاعدة البيانات.",
   "restore-database-description": "استخدم هذه الأداة لاستعادة قاعدة البيانات",
-  "restore-database-success": "قاعدة البيانات كما تم ترميمها"
+  "restore-database-success": "تم استعادة قاعدة البيانات",
+  "cancel": "يلغي",
+  "confirm-restore": "تأكيد الاستعادة",
+  "confirm-restore-warning": "هل أنت متأكد من استعادة قاعدة البيانات؟",
+  "error-file-too-large": "خطأ: ملف كبير جدًا",
+  "error-not-json-file": "خطأ: ليس ملف JSON",
+  "error-reading-file": "خطأ قراءة الملف",
+  "error-unknown": "خطأ غير معروف",
+  "restore-database": "استعادة قاعدة البيانات",
+  "restore-the-database": "استعادة قاعدة البيانات"
 }

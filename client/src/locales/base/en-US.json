@@ -73,5 +73,13 @@
   "export-database-description": "Use this tool to export the database content.",
   "restore-the-database": "Restore the database",
   "restore-database-description": "Use this tool to restore the database",
-  "restore-database-success": "The database as been restored"
+  "restore-database-success": "The database has been restored",
+  "error-not-json-file": "Error: not a JSON file",
+  "error-file-too-large": "Error: File too large",
+  "error-unknown": "Unknown error",
+  "error-reading-file": "Error reading file",
+  "restore-database": "Restore the database",
+  "confirm-restore": "Confirm the restoration",
+  "cancel": "Cancel",
+  "confirm-restore-warning": "Are you sure to restore the database ?"
 }

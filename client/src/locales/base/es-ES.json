@@ -73,5 +73,14 @@
   "download-converted-images_other": "Descargar imágenes convertidas",
   "export-database-description": "Use esta herramienta para exportar el contenido de la base de datos.",
   "restore-database-description": "Use esta herramienta para restaurar la base de datos",
-  "restore-database-success": "La base de datos como se ha restaurado"
+  "restore-database-success": "La base de datos se ha restaurado",
+  "cancel": "Cancelar",
+  "confirm-restore": "Confirmar la restauración",
+  "confirm-restore-warning": "¿Estás seguro de restaurar la base de datos?",
+  "error-file-too-large": "Error: archivo demasiado grande",
+  "error-not-json-file": "Error: no un archivo JSON",
+  "error-reading-file": "Error al archivo de lectura",
+  "error-unknown": "Error desconocido",
+  "restore-database": "Restaurar la base de datos",
+  "restore-the-database": "Restaurar la base de datos"
 }

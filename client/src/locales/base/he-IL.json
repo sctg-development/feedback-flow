@@ -73,5 +73,14 @@
   "download-converted-images_other": "הורד תמונות שהוסבו",
   "export-database-description": "השתמש בכלי זה כדי לייצא את תוכן מסד הנתונים.",
   "restore-database-description": "השתמש בכלי זה כדי לשחזר את מסד הנתונים",
-  "restore-database-success": "בסיס הנתונים ששוחזר"
+  "restore-database-success": "בסיס הנתונים שוחזר",
+  "cancel": "לְבַטֵל",
+  "confirm-restore": "אשר את השיקום",
+  "confirm-restore-warning": "האם אתה בטוח לשחזר את מסד הנתונים?",
+  "error-file-too-large": "שגיאה: קובץ גדול מדי",
+  "error-not-json-file": "שגיאה: לא קובץ JSON",
+  "error-reading-file": "קובץ קריאת שגיאה",
+  "error-unknown": "שגיאה לא ידועה",
+  "restore-database": "שחזר את בסיס הנתונים",
+  "restore-the-database": "שחזר את בסיס הנתונים"
 }

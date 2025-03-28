@@ -73,5 +73,14 @@
   "download-converted-images_other": "下载转换的图像",
   "export-database-description": "使用此工具导出数据库内容。",
   "restore-database-description": "使用此工具还原数据库",
-  "restore-database-success": "还原的数据库"
+  "restore-database-success": "数据库已恢复",
+  "cancel": "取消",
+  "confirm-restore": "确认修复",
+  "confirm-restore-warning": "您一定要还原数据库吗？",
+  "error-file-too-large": "错误：文件太大",
+  "error-not-json-file": "错误：不是JSON文件",
+  "error-reading-file": "错误读取文件",
+  "error-unknown": "未知错误",
+  "restore-database": "还原数据库",
+  "restore-the-database": "还原数据库"
 }
