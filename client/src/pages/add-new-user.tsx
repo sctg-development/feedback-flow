@@ -1,3 +1,20 @@
+/**
+ * @copyright Copyright (c) 2024-2025 Ronan LE MEILLAT
+ * @license AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 import { Trans, useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState, FormEvent } from "react";
@@ -24,16 +41,15 @@ import {
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import {
+  AuthenticationGuardWithPermission,
   getJsonFromSecuredApi,
   postJsonToSecuredApi,
-  userHasPermission,
 } from "@/components/auth0";
 
 export default function AddNewUser() {
   const { t } = useTranslation();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
-  const [hasAdminPermission, setHasAdminPermission] = useState(false);
   const [testers, setTesters] = useState([] as Array<Tester>);
 
   const [page, setPage] = useState(1);
@@ -78,6 +94,7 @@ export default function AddNewUser() {
     )) as TesterCreateResponse;
 
     if (apiResponse && apiResponse.success) {
+      // eslint-disable-next-line no-console
       console.log(`Created tester with UUID: ${apiResponse.uuid}`);
 
       // Refresh the list of testers
@@ -88,20 +105,7 @@ export default function AddNewUser() {
   useEffect(() => {
     const fetchData = async () => {
       if (isAuthenticated) {
-        try {
-          setHasAdminPermission(
-            await userHasPermission(
-              import.meta.env.ADMIN_PERMISSION,
-              getAccessTokenSilently,
-            ),
-          );
-          if (hasAdminPermission) {
-            await refreshTesters(page, limit, sort, order);
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error as Error);
-        }
+        await refreshTesters(page, limit, sort, order);
       }
     };
 
@@ -109,14 +113,16 @@ export default function AddNewUser() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (isAuthenticated && hasAdminPermission) {
+    if (isAuthenticated) {
       refreshTesters(page, limit, sort, order);
     }
-  }, [page, limit, sort, order, isAuthenticated, hasAdminPermission]);
+  }, [page, limit, sort, order, isAuthenticated]);
 
   return (
     <DefaultLayout>
-      {hasAdminPermission ? (
+      <AuthenticationGuardWithPermission
+        permission={import.meta.env.ADMIN_PERMISSION}
+      >
         <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
           <div className="inline-block max-w-lg text-center justify-center">
             <h1 className={title()}>
@@ -133,7 +139,7 @@ export default function AddNewUser() {
                     showShadow
                     color="secondary"
                     page={page}
-                    total={Math.ceil(total/limit)}
+                    total={Math.ceil(total / limit)}
                     onChange={(page) => setPage(page)}
                   />
                 </div>
@@ -179,9 +185,7 @@ export default function AddNewUser() {
             </Button>
           </Form>
         </section>
-      ) : (
-        <></>
-      )}
+      </AuthenticationGuardWithPermission>
     </DefaultLayout>
   );
 }
