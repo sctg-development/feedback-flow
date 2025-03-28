@@ -69,5 +69,8 @@
   "paste": "Paste",
   "Image Preview": "Image Preview",
   "download-converted-images_one": "Download Converted Image",
-  "download-converted-images_other": "Download Converted Images"
+  "download-converted-images_other": "Download Converted Images",
+  "export-database-description": "Use this tool to export the database content.",
+  "restore-the-database": "Restore the database",
+  "restore-database-description": "Use this tool to restore the database"
 }

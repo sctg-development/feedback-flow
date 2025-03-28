@@ -70,5 +70,7 @@
   "Download Converted Images": "下载转换的图像",
   "clipboard-api-not-supported-in-this-browser": "此浏览器中不支持剪贴板API",
   "download-converted-images_one": "下载转换的图像",
-  "download-converted-images_other": "下载转换的图像"
+  "download-converted-images_other": "下载转换的图像",
+  "export-database-description": "使用此工具导出数据库内容。",
+  "restore-database-description": "使用此工具还原数据库"
 }

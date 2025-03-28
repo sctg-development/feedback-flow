@@ -70,5 +70,7 @@
   "Download Converted Images": "Descargar imágenes convertidas",
   "clipboard-api-not-supported-in-this-browser": "API de portapapeles no es compatible con este navegador",
   "download-converted-images_one": "Descargar imagen convertida",
-  "download-converted-images_other": "Descargar imágenes convertidas"
+  "download-converted-images_other": "Descargar imágenes convertidas",
+  "export-database-description": "Use esta herramienta para exportar el contenido de la base de datos.",
+  "restore-database-description": "Use esta herramienta para restaurar la base de datos"
 }

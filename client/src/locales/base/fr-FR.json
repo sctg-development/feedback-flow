@@ -70,5 +70,7 @@
   "Download Converted Images": "Télécharger des images converties",
   "clipboard-api-not-supported-in-this-browser": "API du presse-papiers non pris en charge dans ce navigateur",
   "download-converted-images_one": "Télécharger l'image convertie",
-  "download-converted-images_other": "Télécharger des images converties"
+  "download-converted-images_other": "Télécharger des images converties",
+  "export-database-description": "Utilisez cet outil pour exporter le contenu de la base de données.",
+  "restore-database-description": "Utilisez cet outil pour restaurer la base de données"
 }
