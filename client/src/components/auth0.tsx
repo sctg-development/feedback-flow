@@ -35,8 +35,7 @@ import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 export function Profile() {
   const { user } = useAuth0();
 
-  // eslint-disable-next-line no-console
-  console.log(JSON.stringify(user));
+  // console.log(JSON.stringify(user));
 
   return (
     <Tooltip content={user?.nickname} delay={750}>
@@ -417,19 +416,17 @@ export const userHasPermission = async (
     const payload = joseResult.payload as JWTPayload;
 
     if (payload.permissions instanceof Array) {
-      // eslint-disable-next-line no-console
-      console.log(
-        `You own this JWT: ${JSON.stringify(payload)}, permission (${permission}) is ${payload.permissions.includes(permission)}`,
-      );
+      // console.log(
+      //   `You own this JWT: ${JSON.stringify(payload)}, permission (${permission}) is ${payload.permissions.includes(permission)}`,
+      // );
 
       return payload.permissions.includes(permission);
     } else {
-      // eslint-disable-next-line no-console
-      console.log(
-        `The permissions claim is not an array: ${JSON.stringify(
-          payload.permissions,
-        )}`,
-      );
+      // console.log(
+      //   `The permissions claim is not an array: ${JSON.stringify(
+      //     payload.permissions,
+      //   )}`,
+      // );
 
       return false;
     }
