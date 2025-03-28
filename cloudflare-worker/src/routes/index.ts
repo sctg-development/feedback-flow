@@ -847,10 +847,10 @@ const refundRoutes = (router: Router, env: Env) => {
 			const db = getDatabase(env);
 
 			try {
-				const { date, purchase, refunddate, amount } =
+				const { date, purchase, refundDate, amount } =
 					(await request.json()) as RefundCreateRequest;
 
-				if (!date || !purchase || !refunddate || amount === undefined) {
+				if (!date || !purchase || !refundDate || amount === undefined) {
 					return new Response(
 						JSON.stringify({
 							success: false,
@@ -875,7 +875,7 @@ const refundRoutes = (router: Router, env: Env) => {
 				const id = await db.refunds.put(testerId, {
 					date,
 					purchase,
-					refunddate,
+					refundDate,
 					amount,
 				});
 
@@ -934,7 +934,7 @@ const refundRoutes = (router: Router, env: Env) => {
 					data: {
 						date: refund.date,
 						purchase: refund.purchase,
-						refunddate: refund.refunddate,
+						refundDate: refund.refundDate,
 						amount: refund.amount,
 					},
 				}),
@@ -984,9 +984,9 @@ export const setupRoutes = (router: Router, env: Env) => {
 		router.post(
 			"/api/backup/json",
 			async (request) => {
-				const json = await request.text();
-
-				db.restoreFromJson(json);
+				const json = await request.json();
+				console.log("Restoring from JSON");
+				db.restoreFromJsonString(JSON.stringify(json));
 
 				return new Response(JSON.stringify({ success: true }), {
 					status: 200,

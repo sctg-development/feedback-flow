@@ -127,13 +127,13 @@ export const refundsData: Refund[] = [
 	{
 		date: "2025-03-25",
 		purchase: "d5726cf2-36f6-41d8-bd37-f349314561b4",
-		refunddate: "2025-03-28",
+		refundDate: "2025-03-28",
 		amount: 10.99,
 	},
 	{
 		date: "2021-02-15",
 		purchase: "aa92494a-a036-4a4e-9c6a-c3821a8cb6a4",
-		refunddate: "2021-02-20",
+		refundDate: "2021-02-20",
 		amount: 20.99,
 	},
 ];

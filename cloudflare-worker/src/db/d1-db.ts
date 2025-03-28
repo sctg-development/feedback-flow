@@ -44,6 +44,50 @@ import {
 	TestersRepository,
 } from "./db";
 
+// Internal db types
+type d1_tester = {
+	uuid: string; // UUID of the tester map to `uuid`
+	name: string; // Name of the tester map to `name`
+};
+type d1_id_mapping = {
+	id: string; // OAuth ID map to `id`
+	tester_uuid: string; // UUID of the tester map to `testerUuid`
+};
+type d1_purchase = {
+	id: string; // ID of the purchase map to `id`
+	tester_uuid: string; // UUID of the tester map to `testerUuid`
+	date: string; // Date of the purchase map to `date`
+	order_number: string; // Order number of the purchase map to `order`
+	description: string; // Description of the purchase map to `description`
+	amount: number; // Amount of the purchase map to `amount`
+	screenshot: string; // Screenshot of the purchase map to `screenshot`
+	refunded: number; // Refunded status of the purchase map to `refunded`
+};
+type d1_feedback = {
+	purchase_id: string; // ID of the purchase map to `purchase`
+	date: string; // Date of the feedback map to `date`
+	feedback: string; // Feedback text map to `feedback`
+};
+type d1_publication = {
+	purchase_id: string; // ID of the purchase map to `purchase`
+	date: string; // Date of the publication map to `date`
+	screenshot: string; // Screenshot of the publication map to `screenshot`
+};
+type d1_refund = {
+	purchase_id: string; // ID of the purchase map to `purchase`
+	date: string; // Date of the refund map to `date`
+	refund_date: string; // Refund date map to `refundDate`
+	amount: number; // Amount of the refund map to `amount`
+};
+type d1_internal = {
+	d1_testers: d1_tester[];
+	d1_id_mappings: d1_id_mapping[];
+	d1_purchases: d1_purchase[];
+	d1_feedbacks: d1_feedback[];
+	d1_publications: d1_publication[];
+	d1_refunds: d1_refund[];
+};
+
 /**
  * Database implementation for the Cloudflare D1 database
  * Cloudflare D1 database is a distributed SQL database
@@ -621,7 +665,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					.bind(
 						newRefund.purchase,
 						newRefund.date,
-						newRefund.refunddate,
+						newRefund.refundDate,
 						newRefund.amount,
 					)
 					.run();
@@ -770,7 +814,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		const { results } = await this.db
 			.prepare(
 				`
-        SELECT purchase_id as purchase, date, refund_date as refunddate, amount
+        SELECT purchase_id as purchase, date, refund_date as refundDate, amount
         FROM refunds
       `,
 			)
@@ -779,7 +823,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		return results.map((row) => ({
 			purchase: row.purchase as string,
 			date: row.date as string,
-			refunddate: row.refunddate as string,
+			refundDate: row.refundDate as string,
 			amount: row.amount as number,
 		}));
 	}
@@ -824,13 +868,57 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		const preparedStatements = statements.map((stmt) => this.db.prepare(stmt));
 		const results = await this.db.batch(preparedStatements);
 
-		const testers = results[0].results;
-		const idMappings = results[1].results;
-		const purchases = results[2].results;
-		const feedbacks = results[3].results;
-		const publications = results[4].results;
-		const refunds = results[5].results;
+		// Map the database results to the corresponding types
+		// This is necessary because D1 returns the results in a generic format
+		// and we need to convert them to the specific types we use in our application
+		const db_testers = results[0].results as d1_tester[];
+		const db_idMappings = results[1].results as d1_id_mapping[];
+		const db_purchases = results[2].results as d1_purchase[];
+		const db_feedbacks = results[3].results as d1_feedback[];
+		const db_publications = results[4].results as d1_publication[];
+		const db_refunds = results[5].results as d1_refund[];
 
+		const idMappings: IdMapping[] = db_idMappings.map((row) => ({
+			id: row.id as string,
+			testerUuid: row.tester_uuid as string,
+		}));
+
+		const testers: Tester[] = db_testers.map((row) => ({
+			uuid: row.uuid as string,
+			name: row.name as string,
+			// ids are coming from the id_mappings table we need to find the corresponding IDs in the idMappings array
+			ids: idMappings
+				.filter((idMapping) => idMapping.testerUuid === row.uuid)
+				.map((idMapping) => idMapping.id),
+		}));
+
+		const purchases: Purchase[] = db_purchases.map((row) => ({
+			id: row.id as string,
+			testerUuid: row.tester_uuid as string,
+			date: row.date as string,
+			order: row.order_number as string,
+			description: row.description as string,
+			amount: row.amount as number,
+			screenshot: row.screenshot as string,
+			refunded: Boolean(row.refunded),
+		}));
+		const feedbacks: Feedback[] = db_feedbacks.map((row) => ({
+			purchase: row.purchase_id as string,
+			date: row.date as string,
+			feedback: row.feedback as string,
+		}));
+		const publications: Publication[] = db_publications.map((row) => ({
+			purchase: row.purchase_id as string,
+			date: row.date as string,
+			screenshot: row.screenshot as string,
+		}));
+		const refunds: Refund[] = db_refunds.map((row) => ({
+			purchase: row.purchase_id as string,
+			date: row.date as string,
+			refundDate: row.refund_date as string,
+			amount: row.amount as number,
+		}));
+		// Create a backup object
 		const backup = {
 			testers,
 			ids: idMappings,
@@ -845,8 +933,39 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	// ATTENTION: This method is not recommended for production use because Cloudflare D1 is charged based on data usage
 	// TODO: create some tests to verify the data is correctly restored
-	async restoreFromJson(_backup: string): Promise<void> {
+	async restoreFromJsonString(_backup: string): Promise<void> {
 		const backup = JSON.parse(_backup);
+
+		// console.log("Restoring database from backup:", backup);
+		// Check if the backup is valid
+		if (!backup) {
+			console.error("Parsing error: Invalid backup data");
+			throw new Error("Parsing error: Invalid backup data");
+		}
+		if (!backup.testers) {
+			console.error("Parsing error: Missing testers data");
+			throw new Error("Parsing error: Missing testers data");
+		}
+		if (!backup.ids) {
+			console.error("Parsing error: Missing IDs data");
+			throw new Error("Parsing error: Missing IDs data");
+		}
+		if (!backup.purchases) {
+			console.error("Parsing error: Missing purchases data");
+			throw new Error("Parsing error: Missing purchases data");
+		}
+		if (!backup.feedbacks) {
+			console.error("Parsing error: Missing feedbacks data");
+			throw new Error("Parsing error: Missing feedbacks data");
+		}
+		if (!backup.publications) {
+			console.error("Parsing error: Missing publications data");
+			throw new Error("Parsing error: Missing publications data");
+		}
+		if (!backup.refunds) {
+			console.error("Parsing error: Missing refunds data");
+			throw new Error("Parsing error: Missing refunds data");
+		}
 		const { testers, ids, purchases, feedbacks, publications, refunds } =
 			backup;
 		const dbCleanupStatements = [
@@ -889,7 +1008,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			`INSERT INTO refunds (purchase_id, date, refund_date, amount) VALUES ${refunds
 				.map(
 					(refund: Refund) =>
-						`('${refund.purchase}', '${refund.date}', '${refund.refunddate}', ${refund.amount})`,
+						`('${refund.purchase}', '${refund.date}', '${refund.refundDate}', ${refund.amount})`,
 				)
 				.join(", ")}`,
 		];
@@ -901,6 +1020,15 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			this.db.prepare(stmt),
 		);
 
-		await this.db.batch(preparedStatements);
+		try {
+			const result = await this.db.batch(
+				preparedStatements.map((stmt) => stmt.bind()),
+			);
+
+			console.log("Result of batch insert:", result);
+		} catch (error) {
+			console.error("Error during batch insert:", error);
+			throw new Error("Error during batch insert");
+		}
 	}
 }

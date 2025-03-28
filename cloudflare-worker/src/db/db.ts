@@ -228,7 +228,7 @@ export abstract class FeedbackFlowDB {
 	/**
 	 * Restore the database from JSON string (optional)
 	 */
-	abstract restoreFromJson?(backup: string): Promise<void>;
+	abstract restoreFromJsonString?(backup: string): Promise<void>;
 }
 
 /**

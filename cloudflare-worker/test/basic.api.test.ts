@@ -214,7 +214,7 @@ describe('Feedback Flow API', () => {
     const response = await api.post('/refund', {
       date: today,
       purchase: purchaseId,
-      refunddate: today, // Same day refund for testing
+      refundDate: today, // Same day refund for testing
       amount: 29.99
     });
 

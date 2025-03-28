@@ -500,7 +500,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 	 * restore the database from a JSON string
 	 * @param backup the backup JSON string
 	 */
-	async restoreFromJson(backup: string) {
+	async restoreFromJsonString(backup: string) {
 		this.data = JSON.parse(backup);
 	}
 }

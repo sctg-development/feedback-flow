@@ -7,6 +7,8 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"dev:env": "cp ../.env .dev.vars && wrangler dev",
+		"dev:env:d1": "sed -i .bak -e 's/^DB_BACKEND=.*$/DB_BACKEND=d1/' ../.env && cp ../.env .dev.vars && wrangler dev",
+		"dev:env:memory": "sed -i .bak -e 's/^DB_BACKEND=.*$/DB_BACKEND=memory/' ../.env && cp ../.env .dev.vars && wrangler dev",
 		"lint": "eslint --fix",
 		"start": "wrangler dev",
 		"test": "set -a && source ../.env && set +a && node --experimental-vm-modules ./node_modules/.bin/jest",

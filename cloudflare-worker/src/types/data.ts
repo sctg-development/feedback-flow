@@ -27,192 +27,192 @@
 
 // Tester information
 export interface Tester {
-  uuid: string;
-  name: string;
-  ids: string[];
-  created_at?: string;
-  updated_at?: string;
+	uuid: string;
+	name: string;
+	ids: string[];
+	created_at?: string;
+	updated_at?: string;
 }
 
 /**
  * Interface for the OAuth ID to tester UUID mapping
  */
 export interface IdMapping {
-  id: string; // OAuth ID (primary key)
-  testerUuid: string; // Reference to tester UUID
-  created_at?: string;
+	id: string; // OAuth ID (primary key)
+	testerUuid: string; // Reference to tester UUID
+	created_at?: string;
 }
 
 // Purchase information
 export interface Purchase {
-  id: string;
-  date: string;
-  order: string;
-  description: string;
-  amount: number;
-  screenshot: string;
-  testerUuid: string;
-  refunded: boolean;
-  created_at?: string;
-  updated_at?: string;
+	id: string;
+	date: string;
+	order: string;
+	description: string;
+	amount: number;
+	screenshot: string;
+	testerUuid: string;
+	refunded: boolean;
+	created_at?: string;
+	updated_at?: string;
 }
 
 // Feedback information
 export interface Feedback {
-  date: string;
-  purchase: string; // Foreign key to purchase.id
-  feedback: string;
-  created_at?: string;
+	date: string;
+	purchase: string; // Foreign key to purchase.id
+	feedback: string;
+	created_at?: string;
 }
 
 // Publication information
 export interface Publication {
-  date: string;
-  purchase: string; // Foreign key to purchase.id
-  screenshot: string;
-  create_at?: string;
+	date: string;
+	purchase: string; // Foreign key to purchase.id
+	screenshot: string;
+	create_at?: string;
 }
 
 // Refund information
 export interface Refund {
-  date: string;
-  purchase: string; // Foreign key to purchase.id
-  refunddate: string;
-  amount: number;
-  created_at?: string;
+	date: string;
+	purchase: string; // Foreign key to purchase.id
+	refundDate: string;
+	amount: number;
+	created_at?: string;
 }
 
 // Complete mock database structure
 export interface MockDatabase {
-  testers: Tester[];
-  purchases: Purchase[];
-  feedbacks: Feedback[];
-  publications: Publication[];
-  refunds: Refund[];
+	testers: Tester[];
+	purchases: Purchase[];
+	feedbacks: Feedback[];
+	publications: Publication[];
+	refunds: Refund[];
 }
 
 // API request/response types
 export interface TesterCreateRequest {
-  /**
-   * Tester name
-   */
-  name: string;
-  /**
-   * Tester ID (e.g., OAuth ID) as string or array of strings
-   */
-  ids: string | string[];
+	/**
+	 * Tester name
+	 */
+	name: string;
+	/**
+	 * Tester ID (e.g., OAuth ID) as string or array of strings
+	 */
+	ids: string | string[];
 }
 
 /**
  * Response type for the GET /api/testers endpoint
  */
 export interface GetTestersResponse {
-  /**
-   * Indicates if the request was successful
-   */
-  success: boolean;
+	/**
+	 * Indicates if the request was successful
+	 */
+	success: boolean;
 
-  /**
-   * Array of testers with pagination applied
-   */
-  data: Array<Tester>;
+	/**
+	 * Array of testers with pagination applied
+	 */
+	data: Array<Tester>;
 
-  /**
-   * Total number of testers (before pagination)
-   */
-  total: number;
+	/**
+	 * Total number of testers (before pagination)
+	 */
+	total: number;
 
-  /**
-   * Current page number
-   */
-  page: number;
+	/**
+	 * Current page number
+	 */
+	page: number;
 
-  /**
-   * Number of items per page
-   */
-  limit: number;
+	/**
+	 * Number of items per page
+	 */
+	limit: number;
 }
 
 /**
  * Response type for the POST /api/tester endpoint
  */
 export interface TesterCreateResponse {
-  /**
-   * Indicates if the request was successful
-   */
-  success: boolean;
+	/**
+	 * Indicates if the request was successful
+	 */
+	success: boolean;
 
-  /**
-   * The UUID assigned to the newly created tester
-   * Only present when success is true
-   */
-  uuid?: string;
+	/**
+	 * The UUID assigned to the newly created tester
+	 * Only present when success is true
+	 */
+	uuid?: string;
 
-  /**
-   * Error message
-   * Only present when success is false
-   */
-  error?: string;
+	/**
+	 * Error message
+	 * Only present when success is false
+	 */
+	error?: string;
 }
 export interface TesterIdAddRequest {
-  name: string;
-  id: string;
+	name: string;
+	id: string;
 }
 
 export interface PurchaseCreateRequest {
-  date: string;
-  order: string;
-  description: string;
-  amount: number;
-  screenshot: string;
+	date: string;
+	order: string;
+	description: string;
+	amount: number;
+	screenshot: string;
 }
 
 export interface FeedbackCreateRequest {
-  date: string;
-  purchase: string;
-  feedback?: string;
+	date: string;
+	purchase: string;
+	feedback?: string;
 }
 
 export interface PublishCreateRequest {
-  date: string;
-  purchase: string;
-  screenshot: string;
+	date: string;
+	purchase: string;
+	screenshot: string;
 }
 
 export interface RefundCreateRequest {
-  date: string;
-  purchase: string;
-  refunddate: string;
-  amount: number;
+	date: string;
+	purchase: string;
+	refundDate: string;
+	amount: number;
 }
 
 // Success response pattern
 export interface SuccessResponse {
-  success: boolean;
-  id?: string;
-  uuid?: string;
-  ids?: string[];
-  data?: any;
-  total?: number;
-  page?: number;
-  limit?: number;
+	success: boolean;
+	id?: string;
+	uuid?: string;
+	ids?: string[];
+	data?: any;
+	total?: number;
+	page?: number;
+	limit?: number;
 }
 
 // Error response pattern
 export interface ErrorResponse {
-  success: boolean;
-  error: string;
+	success: boolean;
+	error: string;
 }
 
 export type OrderCriteria = "asc" | "desc";
 
 // Define valid sort keys for purchases
 export const purchaseAllowedSortKeys = [
-  "id",
-  "date",
-  "order",
-  "description",
-  "amount",
+	"id",
+	"date",
+	"order",
+	"description",
+	"amount",
 ] as const;
 export type PurchaseSortCriteria = (typeof purchaseAllowedSortKeys)[number];
 
