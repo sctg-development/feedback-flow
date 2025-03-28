@@ -18,22 +18,22 @@ export const siteConfig = () => {
         label: i18next.t("home"),
         href: "/",
       },
-      {
-        label: i18next.t("api"),
-        href: "/api",
-      },
-      {
-        label: i18next.t("pricing"),
-        href: "/pricing",
-      },
-      {
-        label: i18next.t("blog"),
-        href: "/blog",
-      },
-      {
-        label: i18next.t("about"),
-        href: "/about",
-      },
+      // {
+      //   label: i18next.t("api"),
+      //   href: "/api",
+      // },
+      // {
+      //   label: i18next.t("pricing"),
+      //   href: "/pricing",
+      // },
+      // {
+      //   label: i18next.t("blog"),
+      //   href: "/blog",
+      // },
+      // {
+      //   label: i18next.t("about"),
+      //   href: "/about",
+      // },
     ],
     navMenuItems: [
       {
