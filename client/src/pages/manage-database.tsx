@@ -18,6 +18,13 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Button } from "@heroui/button";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import { title } from "@/components/primitives";
@@ -177,33 +184,39 @@ export default function ManageDatabasePage() {
 
         {/* Confirmation dialog */}
         {showConfirmDialog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-gray-100 dark:bg-gray-700 p-6 rounded-lg max-w-md w-full">
-              <h3 className="text-lg font-semibold mb-2">
-                {t("confirm-restore")}
-              </h3>
-              <p className="mb-4 text-danger">{t("confirm-restore-warning")}</p>
-              <div className="flex justify-end gap-2">
-                <Button
-                  color="warning"
-                  variant="light"
-                  onPress={() => setShowConfirmDialog(false)}
-                >
-                  {t("cancel")}
-                </Button>
-                <Button
-                  color="danger"
-                  isLoading={isLoading}
-                  onPress={async () => {
-                    setShowConfirmDialog(false);
-                    await handleJsonFileUpload(fileUpload!);
-                  }}
-                >
-                  {t("confirm-restore")}
-                </Button>
-              </div>
-            </div>
-          </div>
+          <>
+            <Modal isOpen={showConfirmDialog}>
+              <ModalContent>
+                {() => (
+                  <>
+                    <ModalHeader className="flex flex-col gap-1">
+                      {t("confirm-restore")}
+                    </ModalHeader>
+                    <ModalBody>{t("confirm-restore")}</ModalBody>
+                    <ModalFooter>
+                      <Button
+                        color="warning"
+                        variant="light"
+                        onPress={() => setShowConfirmDialog(false)}
+                      >
+                        {t("cancel")}
+                      </Button>
+                      <Button
+                        color="danger"
+                        isLoading={isLoading}
+                        onPress={async () => {
+                          setShowConfirmDialog(false);
+                          await handleJsonFileUpload(fileUpload!);
+                        }}
+                      >
+                        {t("confirm-restore")}
+                      </Button>
+                    </ModalFooter>
+                  </>
+                )}
+              </ModalContent>
+            </Modal>
+          </>
         )}
       </section>
     </DefaultLayout>
