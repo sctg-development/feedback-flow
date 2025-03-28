@@ -84,7 +84,7 @@
   "restore-database": "استعادة قاعدة البيانات",
   "restore-the-database": "استعادة قاعدة البيانات",
   "tester-name": "اسم اختبار",
-  "oauth-ids": "معرفات OAUTH",
+  "oauth-ids": "معرفات OAuth",
   "no-data-available": "لا توجد بيانات متاحة",
   "error-fetching-data": "خطأ جلب البيانات"
 }
