@@ -163,13 +163,19 @@ export interface PurchasesRepository {
 	put(testerUuid: string, newPurchase: Purchase): Promise<string>;
 	update(id: string, updates: Partial<Purchase>): Promise<boolean>;
 	getAll(): Promise<Purchase[]>;
+
 	/**
-	 * Get purchase status information for a specific tester
-	 * @param {string} testerUuid - UUID of the tester to get purchase status for
-	 * @returns {Promise<PurchaseStatus[]>} Array of purchase status objects
+	 * Get all purchases for a tester with full status
+	 * @param testerUuid UUID of the tester
+	 * @param limitToNotRefunded Optional flag to limit to not refunded purchases
+	 * @param page Optional page number for pagination
+	 * @param limit Optional limit for number of results per page
+	 * @param sort Optional sorting field
+	 * @param order Optional sorting order (asc/desc)
 	 */
 	getPurchaseStatus(
 		testerUuid: string,
+		limitToNotRefunded?: boolean,
 		page?: number,
 		limit?: number,
 		sort?: string,

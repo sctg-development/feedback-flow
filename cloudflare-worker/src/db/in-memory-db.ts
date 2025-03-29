@@ -366,16 +366,24 @@ export class InMemoryDB implements FeedbackFlowDB {
 
 		/**
 		 * Get purchase status information for a specific tester
-		 * @param {string} testerUuid - UUID of the tester to get purchase status for
-		 * @returns {Promise<PurchaseStatus[]>} Array of purchase status objects
+		 * @param testerUuid The UUID of the tester
+		 * @param limitToNotRefunded Optional flag to limit results to not refunded purchases
+		 * @param page Optional page number for pagination
+		 * @param limit Optional limit for number of results per page
+		 * @param sort Optional field to sort by (default: 'date')
+		 * @param order Optional sorting order (asc/desc, default: 'desc')
 		 */
 		getPurchaseStatus: async (
 			testerUuid: string,
+			limitToNotRefunded?: boolean,
 			page?: number,
 			limit?: number,
 			sort?: string,
 			order?: string,
 		): Promise<PurchaseStatus[]> => {
+			if (!limitToNotRefunded) {
+				limitToNotRefunded = false; // Default to false
+			}
 			if (!testerUuid) {
 				throw new Error("Tester UUID is required");
 			}
@@ -412,7 +420,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			);
 
 			// Build the status for each purchase
-			return testerPurchases
+			const result = testerPurchases
 				.map((purchase) => {
 					// Check for related feedback, publication, and refund
 					const hasFeedback = this.data.feedbacks.some(
@@ -457,6 +465,13 @@ export class InMemoryDB implements FeedbackFlowDB {
 						}
 					}
 				});
+
+			// Filter out refunded purchases if requested
+			if (limitToNotRefunded) {
+				return result.filter((purchase) => !purchase.refunded);
+			}
+
+			return result;
 		},
 	};
 

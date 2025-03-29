@@ -28,7 +28,7 @@ export default function IndexPage() {
           <div className="flex gap-3">
             <PaginatedTable
               columns={[
-                { field: "id", label: t("id"), sortable: false },
+                { field: "purchase", label: t("id"), sortable: false },
                 { field: "date", label: t("date"), sortable: true },
                 { field: "order", label: t("order"), sortable: true },
                 {
@@ -36,7 +36,19 @@ export default function IndexPage() {
                   label: t("description"),
                   sortable: false,
                 },
-                { field: "amount", label: t("amount"), sortable: true },
+                { field: "amount", label: t("amount"), sortable: false },
+                { field: "refunded", label: t("refunded"), sortable: false },
+                {
+                  field: "hasFeedback",
+                  label: t("hasFeedback"),
+                  sortable: false,
+                },
+                { field: "refunded", label: t("refunded"), sortable: false },
+                {
+                  field: "hasPublication",
+                  label: t("hasPublication"),
+                  sortable: false,
+                },
                 {
                   field: "actions",
                   label: "Actions",
@@ -53,7 +65,7 @@ export default function IndexPage() {
                   ),
                 },
               ]}
-              dataUrl={`${import.meta.env.API_BASE_URL}/purchases/not-refunded`}
+              dataUrl={`${import.meta.env.API_BASE_URL}/purchases-status`}
               title={t("purchases-not-refunded")}
             />
           </div>

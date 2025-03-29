@@ -683,6 +683,8 @@ const purchaseRoutes = (router: Router, env: Env) => {
 		async (request) => {
 			const db = getDatabase(env);
 			const url = new URL(request.url);
+			const limitToNotRefunded =
+				url.searchParams.get("limitToNotRefunded") === "true";
 			const page = parseInt(url.searchParams.get("page") || "1");
 			const limit = parseInt(url.searchParams.get("limit") || "10");
 			const sort = url.searchParams.get("sort") || "date";
@@ -711,6 +713,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			try {
 				const purchases = await db.purchases.getPurchaseStatus(
 					tester.uuid,
+					limitToNotRefunded,
 					page,
 					limit,
 					sort,

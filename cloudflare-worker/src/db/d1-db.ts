@@ -533,18 +533,27 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		getAll: async (): Promise<Purchase[]> => {
 			return this.getAllPurchases();
 		},
+
 		/**
 		 * Get purchase status information for a specific tester
-		 * @param {string} testerUuid - UUID of the tester to get purchase status for
-		 * @returns {Promise<PurchaseStatus[]>} Array of purchase status objects
+		 * @param testerUuid The UUID of the tester
+		 * @param limitToNotRefunded Optional flag to limit results to not refunded purchases
+		 * @param page Optional page number for pagination
+		 * @param limit Optional limit for number of results per page
+		 * @param sort Optional field to sort by (default: 'date')
+		 * @param order Optional sorting order (asc/desc, default: 'desc')
 		 */
 		getPurchaseStatus: async (
 			testerUuid: string,
+			limitToNotRefunded?: boolean,
 			page?: number,
 			limit?: number,
 			sort?: string,
 			order?: string,
 		): Promise<PurchaseStatus[]> => {
+			if (!limitToNotRefunded) {
+				limitToNotRefunded = false; // Default to false
+			}
 			if (!testerUuid) {
 				throw new Error("Tester UUID is required");
 			}
@@ -572,12 +581,18 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			if (!["desc", "asc"].includes(order)) {
 				throw new Error("Invalid order field");
 			}
+			let limitToNotRefundedQuery = "";
+
+			if (limitToNotRefunded) {
+				limitToNotRefundedQuery = "AND refunded = 0";
+			}
+
 			// Pagination logic
 			const offset = page && limit ? (page - 1) * limit : 0;
 
 			const preparedStatement = this.db
 				.prepare(
-					`SELECT * FROM purchase_status WHERE tester_uuid = ? ORDER BY ${sort} ${order.toUpperCase()} LIMIT ? OFFSET ?`,
+					`SELECT * FROM purchase_status WHERE tester_uuid = ? ${limitToNotRefundedQuery} ORDER BY ${sort} ${order.toUpperCase()} LIMIT ? OFFSET ?`,
 				)
 				.bind(testerUuid, limit, offset);
 
