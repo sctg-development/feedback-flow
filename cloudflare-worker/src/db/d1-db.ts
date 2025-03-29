@@ -40,6 +40,7 @@ import {
 	IdMappingsRepository,
 	PublicationsRepository,
 	PurchasesRepository,
+	PurchaseStatus,
 	RefundsRepository,
 	TestersRepository,
 } from "./db";
@@ -532,6 +533,69 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		getAll: async (): Promise<Purchase[]> => {
 			return this.getAllPurchases();
 		},
+		/**
+		 * Get purchase status information for a specific tester
+		 * @param {string} testerUuid - UUID of the tester to get purchase status for
+		 * @returns {Promise<PurchaseStatus[]>} Array of purchase status objects
+		 */
+		getPurchaseStatus: async (
+			testerUuid: string,
+			page?: number,
+			limit?: number,
+			sort?: string,
+			order?: string,
+		): Promise<PurchaseStatus[]> => {
+			if (!testerUuid) {
+				throw new Error("Tester UUID is required");
+			}
+			if (page && page < 1) {
+				throw new Error("Page must be greater than 0");
+			}
+			if (limit && limit < 1) {
+				throw new Error("Limit must be greater than 0");
+			}
+			if (!limit) {
+				limit = 10; // Default limit
+			}
+			if (!page) {
+				page = 1; // Default page
+			}
+			if (sort && !["order", "date"].includes(sort)) {
+				throw new Error("Sort must be 'date' or 'order'");
+			}
+			if (!sort) {
+				sort = "date"; // Default sort on date
+			}
+			if (!order) {
+				order = "desc"; // Default order DESC
+			}
+			if (!["desc", "asc"].includes(order)) {
+				throw new Error("Invalid order field");
+			}
+			// Pagination logic
+			const offset = page && limit ? (page - 1) * limit : 0;
+
+			const preparedStatement = this.db
+				.prepare(
+					`SELECT * FROM purchase_status WHERE tester_uuid = ? ORDER BY ${sort} ${order.toUpperCase()} LIMIT ? OFFSET ?`,
+				)
+				.bind(testerUuid, limit, offset);
+
+			const { results } = await preparedStatement.all();
+
+			return results.map((row) => ({
+				purchase: row.id as string,
+				testerUuid: row.tester_uuid as string,
+				date: row.date as string,
+				order: row.order_number as string,
+				description: row.description as string,
+				amount: row.amount as number,
+				refunded: Boolean(row.refunded),
+				hasFeedback: Boolean(row.has_feedback),
+				hasPublication: Boolean(row.has_publication),
+				hasRefund: Boolean(row.has_refund),
+			}));
+		},
 	};
 
 	/**
@@ -933,7 +997,9 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	// ATTENTION: This method is not recommended for production use because Cloudflare D1 is charged based on data usage
 	// TODO: create some tests to verify the data is correctly restored
-	async restoreFromJsonString(_backup: string): Promise<{success: boolean, message?: string}> {
+	async restoreFromJsonString(
+		_backup: string,
+	): Promise<{ success: boolean; message?: string }> {
 		const backup = JSON.parse(_backup);
 
 		// console.log("Restoring database from backup:", backup);
@@ -1070,7 +1136,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				preparedStatements.map((stmt) => stmt.bind()),
 			);
 
-			return { success: result.map((r) => r.success).every((r) => r), message: JSON.stringify(result) };
+			return {
+				success: result.map((r) => r.success).every((r) => r),
+				message: JSON.stringify(result),
+			};
 		} catch (error) {
 			console.error("Error during batch insert:", error);
 			throw new Error("Error during batch insert");

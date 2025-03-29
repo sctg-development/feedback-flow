@@ -79,6 +79,7 @@ describe('Feedback Flow API', () => {
       //throw new Error('Auth0 token has expired');
       process.exit(1);
     }
+
   });
   afterAll(() => {
     // Stop the Wrangler dev server
@@ -265,5 +266,82 @@ describe('Feedback Flow API', () => {
     expect(response.data.publications.length).toBe(3);
     expect(response.data.ids).toBeDefined();
     expect(response.data.ids.length).toBe(4);
+  });
+
+  test('140. Should get purchase status for the current tester', async () => {
+    // S'assurer que nous avons un tester identifié
+    expect(testerId).toBeDefined();
+    expect(testerUuid).toBeDefined();
+    
+    // Appel à l'API pour récupérer le statut des achats
+    const response = await api.get('/purchase-status');
+    
+    // Vérifier les codes de réponse et la structure
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    
+    // Vérifier que les données sont correctes
+    expect(response.data.data).toBeDefined();
+    expect(Array.isArray(response.data.data)).toBe(true);
+    
+    // Dans nos données de test, John Doe (qui est notre tester actuel) a 2 achats
+    const purchases = response.data.data;
+    expect(purchases.length).toBe(1);
+    
+    // Vérifier la structure d'un achat dans la réponse
+    const purchase = purchases[0];
+    expect(purchase.purchase).toBeDefined();
+    expect(purchase.testerUuid).toBe(testerUuid);
+    expect(purchase.date).toBeDefined();
+    expect(purchase.order).toBeDefined();
+    expect(purchase.description).toBeDefined();
+    expect(purchase.amount).toBeDefined();
+    expect(typeof purchase.refunded).toBe('boolean');
+    expect(typeof purchase.hasFeedback).toBe('boolean');
+    expect(typeof purchase.hasPublication).toBe('boolean');
+    expect(typeof purchase.hasRefund).toBe('boolean');
+    
+    // Vérifier que l'achat que nous avons ajouté et remboursé a le bon statut
+    const ourPurchase = purchases.find((p: { purchase: string; }) => p.purchase === purchaseId);
+    expect(ourPurchase).toBeDefined();
+    expect(ourPurchase.refunded).toBe(true);
+    expect(ourPurchase.hasFeedback).toBe(true);
+    expect(ourPurchase.hasPublication).toBe(true);
+    expect(ourPurchase.hasRefund).toBe(true);
+    
+    // Vérifier la pagination et le tri
+    expect(response.data.page).toBeDefined();
+    expect(response.data.limit).toBeDefined();
+    expect(response.data.total).toBeDefined();
+  });
+
+  test('145. Should get purchase status with custom pagination and sorting', async () => {
+    // Appel à l'API avec des paramètres personnalisés
+    const response = await api.get('/purchase-status?page=1&limit=1&sort=date&order=asc');
+    
+    // Vérifier les codes de réponse et la structure
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    
+    // Vérifier que la pagination fonctionne
+    expect(response.data.data.length).toBeLessThanOrEqual(1);
+    expect(response.data.page).toBe(1);
+    expect(response.data.limit).toBe(1);
+    
+    // Vérifier que le tri fonctionne (nous devrions avoir l'achat le plus ancien en premier)
+    if (response.data.data.length > 0) {
+      const firstPurchase = response.data.data[0];
+      const secondResponse = await api.get('/purchase-status?page=1&limit=5&sort=date&order=desc');
+      expect(secondResponse.status).toBe(200);
+      
+      if (secondResponse.data.data.length > 1) {
+        const lastPurchase = secondResponse.data.data[secondResponse.data.data.length - 1];
+        // La date du premier achat dans un tri ascendant devrait être antérieure 
+        // à la date du dernier achat dans un tri descendant
+        expect(new Date(firstPurchase.date).getTime()).toBeLessThanOrEqual(
+          new Date(lastPurchase.date).getTime()
+        );
+      }
+    }
   });
 });

@@ -48,6 +48,18 @@ export interface DATABASESCHEMA {
 	refunds: Refund[];
 }
 
+export interface PurchaseStatus {
+	purchase: string;
+	testerUuid: string;
+	date: string;
+	order: string;
+	description: string;
+	amount: number;
+	refunded: boolean;
+	hasFeedback: boolean;
+	hasPublication: boolean;
+	hasRefund: boolean;
+}
 /**
  * IdMappings repository interface (async version)
  */
@@ -151,6 +163,18 @@ export interface PurchasesRepository {
 	put(testerUuid: string, newPurchase: Purchase): Promise<string>;
 	update(id: string, updates: Partial<Purchase>): Promise<boolean>;
 	getAll(): Promise<Purchase[]>;
+	/**
+	 * Get purchase status information for a specific tester
+	 * @param {string} testerUuid - UUID of the tester to get purchase status for
+	 * @returns {Promise<PurchaseStatus[]>} Array of purchase status objects
+	 */
+	getPurchaseStatus(
+		testerUuid: string,
+		page?: number,
+		limit?: number,
+		sort?: string,
+		order?: string,
+	): Promise<PurchaseStatus[]>;
 }
 
 export interface FeedbacksRepository {

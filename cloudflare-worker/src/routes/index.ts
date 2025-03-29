@@ -674,6 +674,85 @@ const purchaseRoutes = (router: Router, env: Env) => {
 		},
 		env.READ_PERMISSION,
 	);
+	/**
+	 * Get purchase status with pagination
+	 * @param request The request object
+	 */
+	router.get(
+		"/api/purchase-status",
+		async (request) => {
+			const db = getDatabase(env);
+			const url = new URL(request.url);
+			const page = parseInt(url.searchParams.get("page") || "1");
+			const limit = parseInt(url.searchParams.get("limit") || "10");
+			const sort = url.searchParams.get("sort") || "date";
+			const order = url.searchParams.get("order") || "desc";
+			const testerId = router.jwtPayload.sub;
+
+			if (!testerId) {
+				return router.handleUnauthorizedRequest();
+			}
+			// Find tester by user ID
+			const tester = await db.testers.find((t) => t.ids.includes(testerId));
+
+			if (!tester) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Unauthorized" }),
+					{
+						status: 403,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+
+			try {
+				const purchases = await db.purchases.getPurchaseStatus(
+					tester.uuid,
+					page,
+					limit,
+					sort,
+					order,
+				);
+
+				return new Response(
+					JSON.stringify({
+						success: true,
+						data: purchases,
+						total: purchases.length,
+						page,
+						limit,
+					}),
+					{
+						status: 200,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			} catch (error) {
+				console.error("Error fetching purchase status:", error);
+
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: `Invalid request: ${(error as Error).message}`,
+					}),
+					{
+						status: 400,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+		},
+		env.READ_PERMISSION,
+	);
 };
 
 // Feedback Management

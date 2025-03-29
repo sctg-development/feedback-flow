@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
 
-import { DATABASESCHEMA, FeedbackFlowDB } from "./db";
+import { DATABASESCHEMA, FeedbackFlowDB, PurchaseStatus } from "./db";
 
 /**
  * In-memory database class for testing purposes
@@ -363,6 +363,101 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @returns {Purchase[]} A copy of all purchases
 		 */
 		getAll: async () => [...this.data.purchases],
+
+		/**
+		 * Get purchase status information for a specific tester
+		 * @param {string} testerUuid - UUID of the tester to get purchase status for
+		 * @returns {Promise<PurchaseStatus[]>} Array of purchase status objects
+		 */
+		getPurchaseStatus: async (
+			testerUuid: string,
+			page?: number,
+			limit?: number,
+			sort?: string,
+			order?: string,
+		): Promise<PurchaseStatus[]> => {
+			if (!testerUuid) {
+				throw new Error("Tester UUID is required");
+			}
+			if (page && page < 1) {
+				throw new Error("Page must be greater than 0");
+			}
+			if (limit && limit < 1) {
+				throw new Error("Limit must be greater than 0");
+			}
+			if (!limit) {
+				limit = 10; // Default limit
+			}
+			if (!page) {
+				page = 1; // Default page
+			}
+			if (sort && !["date", "order"].includes(sort)) {
+				throw new Error("Sort must be 'date' or 'order'");
+			}
+			if (!sort) {
+				sort = "date"; // Default sort column
+			}
+			if (!order) {
+				order = "desc"; // Default order
+			}
+			if (order && !["asc", "desc"].includes(order)) {
+				throw new Error("Order must be 'asc' or 'descc'");
+			}
+			// Pagination logic
+			const offset = page && limit ? (page - 1) * limit : 0;
+
+			// Get all purchases for the tester
+			const testerPurchases = this.data.purchases.filter(
+				(purchase) => purchase.testerUuid === testerUuid,
+			);
+
+			// Build the status for each purchase
+			return testerPurchases
+				.map((purchase) => {
+					// Check for related feedback, publication, and refund
+					const hasFeedback = this.data.feedbacks.some(
+						(feedback) => feedback.purchase === purchase.id,
+					);
+
+					const hasPublication = this.data.publications.some(
+						(publication) => publication.purchase === purchase.id,
+					);
+
+					const hasRefund = this.data.refunds.some(
+						(refund) => refund.purchase === purchase.id,
+					);
+
+					// Return the purchase status object
+					return {
+						purchase: purchase.id,
+						testerUuid: purchase.testerUuid,
+						date: purchase.date,
+						order: purchase.order,
+						description: purchase.description,
+						amount: purchase.amount,
+						refunded: purchase.refunded || false,
+						hasFeedback,
+						hasPublication,
+						hasRefund,
+					};
+				})
+				.slice(offset, offset + limit)
+				.sort((a, b) => {
+					if (sort === "date") {
+						if (order === "asc") {
+							return new Date(a.date).getTime() - new Date(b.date).getTime();
+						} else {
+							return new Date(b.date).getTime() - new Date(a.date).getTime();
+						}
+					} else {
+						if (order === "asc") {
+							return a.order.localeCompare(b.order);
+						} else {
+							return b.order.localeCompare(a.order);
+						}
+					}
+				});
+		},
 	};
 
 	/**
