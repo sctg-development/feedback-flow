@@ -112,7 +112,7 @@
   "add-feedback": "Ajouter des commentaires",
   "please-upload-screenshot": "Veuillez télécharger une capture d'écran",
   "error-publishing-feedback": "Erreur lors de la publication de vos commentaires",
-  "publish": "Changement de publication",
-  "upload-screenshot-instruction": "Sélectionnez ou collez la capture d'écran de rétroaction",
+  "publish": "Publication",
+  "upload-screenshot-instruction": "Sélectionnez ou collez la capture d'écran de publication",
   "select-date": "Date de création de commentaires"
 }
