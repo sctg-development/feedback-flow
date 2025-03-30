@@ -57,6 +57,7 @@ let testerId: string;
 let expirationDate: Date;
 let testerUuid: string;
 let purchaseId: string;
+let purchaseItIdNoFeedback: string;
 let purchaseItNotRefundedId: string;
 
 // HTTP client with authorization
@@ -323,6 +324,21 @@ describe('Feedback Flow API', () => {
     expect(response.data.id).toBe(purchaseItNotRefundedId);
   });
 
+  test('163. Should create a non-refunded purchase with no feedback', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
+      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      description: 'Test product purchase no feedback',
+      amount: 69.99,
+      screenshot: testImageBase64
+    };
+    const response = await api.post('/purchase', purchase);
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBeDefined();
+    purchaseItIdNoFeedback = response.data.id;
+  });
+
   test('170. Should get purchase status for the current tester', async () => {
     // Ensure we have an identified tester
     expect(testerId).toBeDefined();
@@ -339,9 +355,9 @@ describe('Feedback Flow API', () => {
     expect(response.data.data).toBeDefined();
     expect(Array.isArray(response.data.data)).toBe(true);
     
-    // In our test data, John Doe (our current tester) has 2 purchases
+    // In our test data, John Doe (our current tester) has 3 purchases
     const purchases = response.data.data;
-    expect(purchases.length).toBe(2);
+    expect(purchases.length).toBe(3);
     
     // Verify structure of a purchase in the response
     const purchase = purchases[0];
