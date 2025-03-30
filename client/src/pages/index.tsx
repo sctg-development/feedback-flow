@@ -96,7 +96,6 @@ export default function IndexPage() {
     if (toggleAllPurchases) {
       return (
         <Button
-          aria-role="button"
           className="text-3xl font-bold"
           variant="light"
           onPress={handleToggleAllPurchases}
@@ -107,7 +106,6 @@ export default function IndexPage() {
     } else {
       return (
         <Button
-          aria-role="button"
           className="text-3xl font-bold"
           variant="light"
           onPress={handleToggleAllPurchases}
