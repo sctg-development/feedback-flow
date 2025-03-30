@@ -106,5 +106,13 @@
   "id": "identifiant",
   "publish-feedback": "Publier des commentaires",
   "refund": "Remboursement",
-  "purchases-refunded": "Achats remboursés et non remboursés"
+  "purchases-refunded": "Achats remboursés et non remboursés",
+  "enter-your-feedback-here": "Entrez vos commentaires ici…",
+  "submit-feedback": "Soumettre des commentaires",
+  "add-feedback": "Ajouter des commentaires",
+  "please-upload-screenshot": "Veuillez télécharger une capture d'écran",
+  "error-publishing-feedback": "Erreur lors de la publication de vos commentaires",
+  "publish": "Changement de publication",
+  "upload-screenshot-instruction": "Sélectionnez ou collez la capture d'écran de rétroaction",
+  "select-date": "Date de création de commentaires"
 }

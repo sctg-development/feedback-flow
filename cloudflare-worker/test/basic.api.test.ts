@@ -339,6 +339,34 @@ describe('Feedback Flow API', () => {
     purchaseItIdNoFeedback = response.data.id;
   });
 
+  test('166. Should create a purchase and a add feedback but not published', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
+      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      description: 'Test product purchase not published',
+      amount: 89.99,
+      screenshot: testImageBase64
+    };
+
+    const response = await api.post('/purchase', purchase);
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBeDefined();
+
+    const purchaseIdFeedbackNotPublished = response.data.id;
+
+    const feedbackResponse = await api.post('/feedback', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: purchaseIdFeedbackNotPublished,
+      feedback: 'This is a fantastic product! Works exactly as described.'
+    });
+
+    expect(feedbackResponse.status).toBe(201);
+    expect(feedbackResponse.data.success).toBe(true);
+    expect(feedbackResponse.data.id).toBe(purchaseIdFeedbackNotPublished);
+  });
+
   test('170. Should get purchase status for the current tester', async () => {
     // Ensure we have an identified tester
     expect(testerId).toBeDefined();
@@ -357,7 +385,7 @@ describe('Feedback Flow API', () => {
     
     // In our test data, John Doe (our current tester) has 3 purchases
     const purchases = response.data.data;
-    expect(purchases.length).toBe(3);
+    expect(purchases.length).toBe(4);
     
     // Verify structure of a purchase in the response
     const purchase = purchases[0];

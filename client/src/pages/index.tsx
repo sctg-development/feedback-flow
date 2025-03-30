@@ -29,12 +29,17 @@ import { Button } from "@heroui/button";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import PaginatedTable from "@/components/paginated-table";
+import AddFeedbackModal from "@/components/add-feedback-modal";
+import PublishFeedbackModal from "@/components/publish-feedback-modal";
 
 export default function IndexPage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth0();
   const [refundPurchases, setRefundPurchases] = useState(false);
+  const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
+  const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
   const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
+  const [purchaseId, setPurchaseId] = useState("");
 
   const renderAtionColumn = (item: any) => {
     if (item.refunded) {
@@ -46,9 +51,7 @@ export default function IndexPage() {
           <Button
             color="primary"
             size="md"
-            onPress={() =>
-              window.alert(`TODO: handle create feedback ${item.purchase}`)
-            }
+            onPress={() => handleCreateFeedback(item.purchase)}
           >
             {t("create-feedback")}
           </Button>
@@ -59,11 +62,10 @@ export default function IndexPage() {
       return (
         <div className="flex gap-2">
           <Button
+            key={"publish-feedback"}
             color="primary"
             size="md"
-            onPress={() =>
-              window.alert(`TODO: handle publish feedback ${item.purchase}`)
-            }
+            onPress={() => handlePublishFeedback(item.purchase)}
           >
             {t("publish-feedback")}
           </Button>
@@ -118,8 +120,20 @@ export default function IndexPage() {
 
   const handleRefundPurchases = (purchaseId: string) => {
     console.log("Refunding purchase with ID:", purchaseId);
+    setPurchaseId(purchaseId);
     setRefundPurchases(true);
-    // Logic to refund purchases
+  };
+
+  const handleCreateFeedback = (purchaseId: string) => {
+    console.log("Creating feedback for purchase with ID:", purchaseId);
+    setPurchaseId(purchaseId);
+    setCreateFeedbackPurchase(true);
+  };
+
+  const handlePublishFeedback = (purchaseId: string) => {
+    console.log("Publishing feedback for purchase with ID:", purchaseId);
+    setPurchaseId(purchaseId);
+    setPublishFeedbackPurchase(true);
   };
 
   return (
@@ -176,7 +190,31 @@ export default function IndexPage() {
           </div>
         )}
       </section>
-      {refundPurchases && <div>modal</div>}
+
+      {/* Add Feedback Modal */}
+      {createFeedbackPurchase && (
+        <AddFeedbackModal
+          isOpen={createFeedbackPurchase}
+          purchaseId={purchaseId}
+          onClose={() => setCreateFeedbackPurchase(false)}
+        >
+          <></>
+        </AddFeedbackModal>
+      )}
+
+      {/* Publish Feedback Modal */}
+      {publishFeedbackPurchase && (
+        <PublishFeedbackModal
+          isOpen={publishFeedbackPurchase}
+          purchaseId={purchaseId}
+          onClose={() => setPublishFeedbackPurchase(false)}
+        >
+          <></>
+        </PublishFeedbackModal>
+      )}
+
+      {/* Refund Modal */}
+      {refundPurchases && "TODO"}
     </DefaultLayout>
   );
 }

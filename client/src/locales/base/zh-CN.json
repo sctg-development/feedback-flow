@@ -106,5 +106,13 @@
   "id": "ID",
   "publish-feedback": "发布反馈",
   "refund": "退款",
-  "purchases-refunded": "购买退款，不退款"
+  "purchases-refunded": "购买退款，不退款",
+  "enter-your-feedback-here": "在这里输入您的反馈…",
+  "submit-feedback": "提交反馈",
+  "add-feedback": "添加反馈",
+  "please-upload-screenshot": "请上传屏幕截图",
+  "error-publishing-feedback": "发表您的反馈时出错",
+  "publish": "更改以发布",
+  "upload-screenshot-instruction": "选择或粘贴反馈屏幕截图",
+  "select-date": "反馈创建日期"
 }

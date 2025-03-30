@@ -106,5 +106,13 @@
   "id": "بطاقة تعريف",
   "publish-feedback": "نشر ردود الفعل",
   "refund": "استرداد",
-  "purchases-refunded": "عمليات الشراء المستردة وعدم استردادها"
+  "purchases-refunded": "عمليات الشراء المستردة وعدم استردادها",
+  "enter-your-feedback-here": "أدخل ملاحظاتك هنا ...",
+  "submit-feedback": "إرسال الملاحظات",
+  "add-feedback": "أضف ردود الفعل",
+  "please-upload-screenshot": "يرجى تحميل لقطة شاشة",
+  "error-publishing-feedback": "خطأ أثناء نشر ملاحظاتك",
+  "publish": "تغيير للنشر",
+  "upload-screenshot-instruction": "حدد أو لصق لقطة الشاشة",
+  "select-date": "تاريخ إنشاء التعليقات"
 }

@@ -106,5 +106,13 @@
   "publish-feedback": "Publish Feedback",
   "refund": "Refund",
   "purchases-refunded": "Purchases refunded and not refunded",
-  "Download Converted Images": "Download converted images"
+  "Download Converted Images": "Download converted images",
+  "submit-feedback": "Submit Feedback",
+  "enter-your-feedback-here": "Enter your feedback here…",
+  "add-feedback": "Add Feedback",
+  "please-upload-screenshot": "Please upload a screenshot",
+  "error-publishing-feedback": "Error while publishing your feedback",
+  "upload-screenshot-instruction": "Select or paste the feedback screenshot",
+  "publish": "Change to Publish",
+  "select-date": "Feedback creation date"
 }

@@ -104,7 +104,7 @@ export interface ImageUploadProps extends Omit<FileUploadProps, "onChange"> {
  *          />
  * ```
  */
-const ImageUpload = forwardRef<"div", ImageUploadProps>((props, ref) => {
+export const ImageUpload = forwardRef<"div", ImageUploadProps>((props, ref) => {
   const {
     onChange,
     convertToWebp = false,
