@@ -49,8 +49,11 @@ export const Navbar = () => {
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">
           {siteConfig().navItems.map((item) => (
-            <AuthenticationGuardWithPermission permission="read:api">
-              <NavbarItem key={`nav-${item.href}`}>
+            <AuthenticationGuardWithPermission
+              key={`nav-${item.href}`}
+              permission="read:api"
+            >
+              <NavbarItem>
                 <Link
                   className={clsx(
                     linkStyles({ color: "foreground" }),
