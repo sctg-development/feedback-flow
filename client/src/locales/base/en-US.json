@@ -93,5 +93,13 @@
   "amount": "Amount",
   "purchases-not-refunded": "Purchases not refunded",
   "in-one-place": "in one place.",
-  "manage-all-your": "Manage all your"
+  "manage-all-your": "Manage all your",
+  "error-missing-unique-key": "The unique key {{key}} is missing",
+  "yes": "yes",
+  "no": "no",
+  "hasPublication": "Published",
+  "hasFeedback": "Feedback",
+  "refunded": "Refunded",
+  "actions": "Actions",
+  "purchase": "Purchase"
 }

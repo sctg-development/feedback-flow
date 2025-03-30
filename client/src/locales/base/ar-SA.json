@@ -93,5 +93,13 @@
   "order": "طلب",
   "description": "وصف",
   "amount": "كمية",
-  "purchases-not-refunded": "عمليات الشراء غير المستردة"
+  "purchases-not-refunded": "عمليات الشراء غير المستردة",
+  "error-missing-unique-key": "المفتاح الفريد {{key}} مفقود",
+  "yes": "نعم",
+  "no": "لا",
+  "actions": "الإجراءات",
+  "refunded": "رد",
+  "hasFeedback": "تعليق",
+  "hasPublication": "المنشورة",
+  "purchase": "شراء"
 }

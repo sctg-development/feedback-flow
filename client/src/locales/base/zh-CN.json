@@ -93,5 +93,13 @@
   "order": "命令",
   "description": "描述",
   "amount": "数量",
-  "purchases-not-refunded": "购买未退款"
+  "purchases-not-refunded": "购买未退款",
+  "error-missing-unique-key": "唯一键{{key}}丢失了",
+  "yes": "是的",
+  "no": "不",
+  "actions": "动作",
+  "refunded": "退款",
+  "hasFeedback": "反馈",
+  "hasPublication": "出版",
+  "purchase": "购买"
 }

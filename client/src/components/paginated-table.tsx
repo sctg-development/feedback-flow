@@ -264,7 +264,23 @@ export default function PaginatedTable({
       );
 
       if (isSuccessfulResponse(response)) {
-        setItems(response[dataKey] || []);
+        // Vérifier que chaque élément a une propriété correspondant à rowKey
+        const data = response[dataKey] || [];
+
+        // Vérifier si au moins un élément existe et n'a pas la clé requise
+        if (data.length > 0 && data.some((item: any) => !item[rowKey])) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `Warning: Some items don't have the required unique key '${rowKey} did you defined a rowKey (uuid is the default one)'.`,
+          );
+
+          setError(t("error-missing-unique-key", { key: rowKey }));
+          setItems([]);
+        } else {
+          // Tout est en ordre
+          setItems(data);
+        }
+
         setPage(response[pageKey] || page);
         setTotal(response[totalKey] || 0);
         setLimit(response[limitKey] || limit);
@@ -368,7 +384,11 @@ export default function PaginatedTable({
               </TableColumn>
             ))}
           </TableHeader>
-          <TableBody emptyContent={t("no-data-available")} items={items}>
+          <TableBody
+            key={rowKey}
+            emptyContent={t("no-data-available")}
+            items={items}
+          >
             {(item) => (
               <TableRow key={item[rowKey]}>
                 {columns.map((column) => (
@@ -398,6 +418,18 @@ export default function PaginatedTable({
     // Handle arrays (e.g., for the ids joining)
     if (Array.isArray(item[field])) {
       return item[field].join(", ");
+    }
+    // Handle boolean values
+    if (typeof item[field] === "boolean") {
+      return item[field] ? t("yes") : t("no");
+    }
+    // Handle numbers
+    if (typeof item[field] === "number") {
+      return item[field].toLocaleString();
+    }
+    // Handle dates
+    if (item[field] instanceof Date) {
+      return item[field].toLocaleDateString();
     }
 
     return item[field];

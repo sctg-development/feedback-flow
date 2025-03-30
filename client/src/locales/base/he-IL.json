@@ -93,5 +93,13 @@
   "order": "לְהַזמִין",
   "description": "תֵאוּר",
   "amount": "סְכוּם",
-  "purchases-not-refunded": "רכישות שלא הוחזרו"
+  "purchases-not-refunded": "רכישות שלא הוחזרו",
+  "error-missing-unique-key": "המפתח הייחודי {{Key}} חסר",
+  "yes": "כֵּן",
+  "no": "לֹא",
+  "actions": "פעולות",
+  "refunded": "הוחזר",
+  "hasFeedback": "מָשׁוֹב",
+  "hasPublication": "פורסם",
+  "purchase": "לִרְכּוֹשׁ"
 }

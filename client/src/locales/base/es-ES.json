@@ -93,5 +93,13 @@
   "order": "Orden",
   "description": "Descripción",
   "amount": "Cantidad",
-  "purchases-not-refunded": "Compras no reembolsadas"
+  "purchases-not-refunded": "Compras no reembolsadas",
+  "error-missing-unique-key": "Falta la tecla única {{clave}}",
+  "yes": "Sí",
+  "no": "No",
+  "actions": "Comportamiento",
+  "refunded": "Reintegrado",
+  "hasFeedback": "Comentario",
+  "hasPublication": "Publicado",
+  "purchase": "Compra"
 }

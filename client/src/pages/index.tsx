@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2025 Ronan LE MEILLAT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -12,6 +35,56 @@ export default function IndexPage() {
   const { isAuthenticated } = useAuth0();
   const [refundPurchases, setRefundPurchases] = useState(false);
 
+  const renderAtionColumn = (item: any) => {
+    if (item.refunded) {
+      return <span className="text-green-500">Refunded</span>;
+    }
+    if (!item.hasFeedback) {
+      return (
+        <div className="flex gap-2">
+          <Button
+            color="primary"
+            size="md"
+            onPress={() =>
+              window.alert(`TODO: handle create feedback ${item.purchase}`)
+            }
+          >
+            Create Feedback
+          </Button>
+        </div>
+      );
+    }
+    if (item.hasFeedback && !item.hasPublication) {
+      return (
+        <div className="flex gap-2">
+          <Button
+            color="primary"
+            size="md"
+            onPress={() =>
+              window.alert(`TODO: handle publish feedback ${item.purchase}`)
+            }
+          >
+            Publish Feedback
+          </Button>
+        </div>
+      );
+    }
+    if (item.hasFeedback && item.hasPublication) {
+      return (
+        <div className="flex gap-2">
+          <Button
+            color="primary"
+            size="md"
+            onPress={() => handleRefundPurchases(item.purchase)}
+          >
+            Refund
+          </Button>
+        </div>
+      );
+    }
+
+    return <span className="text-red-500">Unknown</span>;
+  };
   const handleRefundPurchases = (purchaseId: string) => {
     console.log("Refunding purchase with ID:", purchaseId);
     setRefundPurchases(true);
@@ -36,7 +109,7 @@ export default function IndexPage() {
           <div className="flex gap-3">
             <PaginatedTable
               columns={[
-                { field: "purchase", label: t("id"), sortable: false },
+                { field: "purchase", label: t("purchase"), sortable: false },
                 { field: "date", label: t("date"), sortable: true },
                 { field: "order", label: t("order"), sortable: true },
                 {
@@ -45,43 +118,34 @@ export default function IndexPage() {
                   sortable: false,
                 },
                 { field: "amount", label: t("amount"), sortable: false },
-                { field: "refunded", label: t("refunded"), sortable: false },
                 {
                   field: "hasFeedback",
                   label: t("hasFeedback"),
                   sortable: false,
                 },
-                { field: "refunded", label: t("refunded"), sortable: false },
                 {
                   field: "hasPublication",
                   label: t("hasPublication"),
                   sortable: false,
                 },
+                { field: "refunded", label: t("refunded"), sortable: false },
                 {
                   field: "actions",
-                  label: "Actions",
-                  render: (item) => (
-                    <div className="flex gap-2">
-                      <Button
-                        color="primary"
-                        size="md"
-                        onPress={() => handleRefundPurchases(item.id)}
-                      >
-                        Refund
-                      </Button>
-                    </div>
-                  ),
+                  label: t("actions"),
+                  render: (item) => renderAtionColumn(item),
                 },
               ]}
-              dataUrl={`${import.meta.env.API_BASE_URL}/purchases-status`}
+              dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status`}
+              defaultSortField="date"
+              defaultSortOrder="desc"
+              permission={import.meta.env.READ_PERMISSION}
+              rowKey="purchase"
               title={t("purchases-not-refunded")}
             />
           </div>
         )}
       </section>
-      {refundPurchases && (
-        <div>modal</div>
-      )}
+      {refundPurchases && <div>modal</div>}
     </DefaultLayout>
   );
 }

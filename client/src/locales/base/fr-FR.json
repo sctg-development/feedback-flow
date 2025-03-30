@@ -93,5 +93,13 @@
   "order": "Commande",
   "description": "Description",
   "amount": "Montant",
-  "purchases-not-refunded": "Achats non remboursés"
+  "purchases-not-refunded": "Achats non remboursés",
+  "error-missing-unique-key": "La clé unique {{key}} est manquante",
+  "yes": "Oui",
+  "no": "Non",
+  "actions": "Actes",
+  "refunded": "Remboursé",
+  "hasFeedback": "Avis",
+  "hasPublication": "Publié",
+  "purchase": "Achat"
 }
