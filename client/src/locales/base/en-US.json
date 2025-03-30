@@ -101,5 +101,10 @@
   "hasFeedback": "Feedback",
   "refunded": "Refunded",
   "actions": "Actions",
-  "purchase": "Purchase"
+  "purchase": "Purchase",
+  "create-feedback": "Create Feedback",
+  "publish-feedback": "Publish Feedback",
+  "refund": "Refund",
+  "purchases-refunded": "Purchases refunded and not refunded",
+  "Download Converted Images": "Download converted images"
 }

@@ -21,11 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
 
+import { title as titleStyle } from "@/components/primitives";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import PaginatedTable from "@/components/paginated-table";
@@ -34,6 +35,7 @@ export default function IndexPage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth0();
   const [refundPurchases, setRefundPurchases] = useState(false);
+  const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
 
   const renderAtionColumn = (item: any) => {
     if (item.refunded) {
@@ -49,7 +51,7 @@ export default function IndexPage() {
               window.alert(`TODO: handle create feedback ${item.purchase}`)
             }
           >
-            Create Feedback
+            {t("create-feedback")}
           </Button>
         </div>
       );
@@ -64,7 +66,7 @@ export default function IndexPage() {
               window.alert(`TODO: handle publish feedback ${item.purchase}`)
             }
           >
-            Publish Feedback
+            {t("publish-feedback")}
           </Button>
         </div>
       );
@@ -77,7 +79,7 @@ export default function IndexPage() {
             size="md"
             onPress={() => handleRefundPurchases(item.purchase)}
           >
-            Refund
+            {t("refund")}
           </Button>
         </div>
       );
@@ -85,6 +87,29 @@ export default function IndexPage() {
 
     return <span className="text-red-500">Unknown</span>;
   };
+
+  const renderTitle: () => ReactNode = () => {
+    // When the use click on the title, it will toggle all purchases
+    const handleToggleAllPurchases = () => {
+      setToggleAllPurchases(!toggleAllPurchases);
+      console.log("Toggle all purchases:", !toggleAllPurchases);
+    };
+
+    if (toggleAllPurchases) {
+      return (
+        <h1 className={titleStyle()} onClick={handleToggleAllPurchases}>
+          {t("purchases-refunded")}
+        </h1>
+      );
+    } else {
+      return (
+        <h1 className={titleStyle()} onClick={handleToggleAllPurchases}>
+          {t("purchases-not-refunded")}
+        </h1>
+      );
+    }
+  };
+
   const handleRefundPurchases = (purchaseId: string) => {
     console.log("Refunding purchase with ID:", purchaseId);
     setRefundPurchases(true);
@@ -135,12 +160,12 @@ export default function IndexPage() {
                   render: (item) => renderAtionColumn(item),
                 },
               ]}
-              dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status`}
+              dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status?limitToNotRefunded=${toggleAllPurchases?"false":"true"}`}
               defaultSortField="date"
               defaultSortOrder="desc"
               permission={import.meta.env.READ_PERMISSION}
               rowKey="purchase"
-              title={t("purchases-not-refunded")}
+              title={() => renderTitle()}
             />
           </div>
         )}

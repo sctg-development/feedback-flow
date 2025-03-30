@@ -101,5 +101,10 @@
   "refunded": "Remboursé",
   "hasFeedback": "Avis",
   "hasPublication": "Publié",
-  "purchase": "Achat"
+  "purchase": "Achat",
+  "create-feedback": "Créer des commentaires",
+  "id": "identifiant",
+  "publish-feedback": "Publier des commentaires",
+  "refund": "Remboursement",
+  "purchases-refunded": "Achats remboursés et non remboursés"
 }

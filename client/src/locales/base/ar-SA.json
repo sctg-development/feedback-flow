@@ -101,5 +101,10 @@
   "refunded": "رد",
   "hasFeedback": "تعليق",
   "hasPublication": "المنشورة",
-  "purchase": "شراء"
+  "purchase": "شراء",
+  "create-feedback": "إنشاء ملاحظات",
+  "id": "بطاقة تعريف",
+  "publish-feedback": "نشر ردود الفعل",
+  "refund": "استرداد",
+  "purchases-refunded": "عمليات الشراء المستردة وعدم استردادها"
 }

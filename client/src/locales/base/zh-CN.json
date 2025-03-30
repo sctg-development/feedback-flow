@@ -101,5 +101,10 @@
   "refunded": "退款",
   "hasFeedback": "反馈",
   "hasPublication": "出版",
-  "purchase": "购买"
+  "purchase": "购买",
+  "create-feedback": "创建反馈",
+  "id": "ID",
+  "publish-feedback": "发布反馈",
+  "refund": "退款",
+  "purchases-refunded": "购买退款，不退款"
 }

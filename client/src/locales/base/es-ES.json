@@ -101,5 +101,10 @@
   "refunded": "Reintegrado",
   "hasFeedback": "Comentario",
   "hasPublication": "Publicado",
-  "purchase": "Compra"
+  "purchase": "Compra",
+  "create-feedback": "Crear comentarios",
+  "id": "identificación",
+  "publish-feedback": "Publicar comentarios",
+  "refund": "Reembolso",
+  "purchases-refunded": "Compras reembolsadas y no reembolsadas"
 }

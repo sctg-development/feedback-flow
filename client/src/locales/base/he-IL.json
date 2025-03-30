@@ -101,5 +101,10 @@
   "refunded": "הוחזר",
   "hasFeedback": "מָשׁוֹב",
   "hasPublication": "פורסם",
-  "purchase": "לִרְכּוֹשׁ"
+  "purchase": "לִרְכּוֹשׁ",
+  "create-feedback": "צור משוב",
+  "id": "תְעוּדַת זֶהוּת",
+  "publish-feedback": "לפרסם משוב",
+  "refund": "הֶחזֵר",
+  "purchases-refunded": "רכישות שהוחזרו ולא הוחזרו"
 }
