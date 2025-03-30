@@ -26,7 +26,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
 
-import { title as titleStyle } from "@/components/primitives";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import PaginatedTable from "@/components/paginated-table";
@@ -92,20 +91,29 @@ export default function IndexPage() {
     // When the use click on the title, it will toggle all purchases
     const handleToggleAllPurchases = () => {
       setToggleAllPurchases(!toggleAllPurchases);
-      console.log("Toggle all purchases:", !toggleAllPurchases);
     };
 
     if (toggleAllPurchases) {
       return (
-        <h1 className={titleStyle()} onClick={handleToggleAllPurchases}>
+        <Button
+          aria-role="button"
+          className="text-3xl font-bold"
+          variant="light"
+          onPress={handleToggleAllPurchases}
+        >
           {t("purchases-refunded")}
-        </h1>
+        </Button>
       );
     } else {
       return (
-        <h1 className={titleStyle()} onClick={handleToggleAllPurchases}>
+        <Button
+          aria-role="button"
+          className="text-3xl font-bold"
+          variant="light"
+          onPress={handleToggleAllPurchases}
+        >
           {t("purchases-not-refunded")}
-        </h1>
+        </Button>
       );
     }
   };
@@ -160,7 +168,7 @@ export default function IndexPage() {
                   render: (item) => renderAtionColumn(item),
                 },
               ]}
-              dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status?limitToNotRefunded=${toggleAllPurchases?"false":"true"}`}
+              dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status?limitToNotRefunded=${toggleAllPurchases ? "false" : "true"}`}
               defaultSortField="date"
               defaultSortOrder="desc"
               permission={import.meta.env.READ_PERMISSION}
