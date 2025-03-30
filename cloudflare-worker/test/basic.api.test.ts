@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2025 Ronan LE MEILLAT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import * as jose from 'jose';
@@ -34,6 +57,7 @@ let testerId: string;
 let expirationDate: Date;
 let testerUuid: string;
 let purchaseId: string;
+let purchaseItNotRefundedId: string;
 
 // HTTP client with authorization
 const api = {
@@ -44,8 +68,8 @@ const api = {
         'Authorization': `Bearer ${AUTH0_TOKEN}`
       },
       validateStatus: function (status) {
-        return status < 500; // la requête résout tant que le code de sa réponse est
-        // inférieur à 500
+        return status < 500; // The request resolves as long as the response code is
+        // less than 500
       }
     });
   },
@@ -56,8 +80,8 @@ const api = {
         'Authorization': `Bearer ${AUTH0_TOKEN}`
       },
       validateStatus: function (status) {
-        return status < 500; // la requête résout tant que le code de sa réponse est
-        // inférieur à 500
+        return status < 500; // The request resolves as long as the response code is
+        // less than 500
       }
     });
   },
@@ -111,7 +135,7 @@ describe('Feedback Flow API', () => {
     console.log(`Created tester with UUID: ${testerUuid}`);
   });
 
-  test('25. The list of testers should have now 3 members', async () => {
+  test('30. The list of testers should now have 3 members', async () => {
     const response = await api.get('/testers');
     console.log(`Testers: ${JSON.stringify(response.data)}`);
     expect(response.data.data.length).toBe(3);
@@ -120,7 +144,7 @@ describe('Feedback Flow API', () => {
     expect(response.data.data).toBeDefined();
   });
 
-  test('30. Should add the OAuth ID to the tester', async () => {
+  test('40. Should add the OAuth ID to the tester', async () => {
     const response = await api.post('/tester/ids', {
       name: 'TESTER',
       id: testerId
@@ -132,7 +156,7 @@ describe('Feedback Flow API', () => {
     expect(response.data.ids).toContain(testerId);
   });
 
-  test('40. Should not add duplicate OAuth ID to the tester', async () => {
+  test('50. Should not add duplicate OAuth ID to the tester', async () => {
     const response = await api.post('/tester/ids', {
       name: 'TESTER',
       id: testerId
@@ -143,7 +167,7 @@ describe('Feedback Flow API', () => {
     expect(response.data.error).toBe('ID already exists in the database');
   });
 
-  test('45. Should not add a duplicate OAuth ID owned by another tester', async () => {
+  test('60. Should not add a duplicate OAuth ID owned by another tester', async () => {
     const response = await api.post('/tester/ids', {
       name: 'TESTER',
       id: 'auth0|0987654321' /* Owned by Jane Doe */
@@ -154,7 +178,7 @@ describe('Feedback Flow API', () => {
     expect(response.data.error).toBe('ID already exists in the database');
   });
 
-  test('50. Should create a purchase', async () => {
+  test('70. Should create a purchase', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
       order: `ORDER-${uuidv4().substring(0, 8)}`,
@@ -173,7 +197,7 @@ describe('Feedback Flow API', () => {
     console.log(`Created purchase with ID: ${purchaseId}`);
   });
 
-  test('60. Should add feedback for the purchase', async () => {
+  test('80. Should add feedback for the purchase', async () => {
     const response = await api.post('/feedback', {
       date: new Date().toISOString().split('T')[0],
       purchase: purchaseId,
@@ -185,7 +209,7 @@ describe('Feedback Flow API', () => {
     expect(response.data.id).toBe(purchaseId);
   });
 
-  test('70. Should record publication of feedback', async () => {
+  test('90. Should record publication of feedback', async () => {
     const response = await api.post('/publish', {
       date: new Date().toISOString().split('T')[0],
       purchase: purchaseId,
@@ -197,7 +221,7 @@ describe('Feedback Flow API', () => {
     expect(response.data.id).toBe(purchaseId);
   });
 
-  test('80. Should verify the purchase is now in the not refunded list', async () => {
+  test('100. Should verify the purchase is now in the not refunded list', async () => {
     // Get the list of not refunded purchases
     const response = await api.get('/purchases/not-refunded');
     expect(response.status).toBe(200);
@@ -209,7 +233,7 @@ describe('Feedback Flow API', () => {
     expect(response.data.data.length).toBe(1);
   });
 
-  test('90. Should record refund for the purchase', async () => {
+  test('110. Should record refund for the purchase', async () => {
     const today = new Date().toISOString().split('T')[0];
 
     const response = await api.post('/refund', {
@@ -224,19 +248,19 @@ describe('Feedback Flow API', () => {
     expect(response.data.id).toBe(purchaseId);
   });
 
-  test('100. Should verify the purchase is now not in the not refunded list', async () => {
+  test('120. Should verify the purchase is now not in the not refunded list', async () => {
     // Get the list of refunded purchases
     const response = await api.get('/purchases/not-refunded');
 
     expect(response.status).toBe(200);
     expect(response.data.success).toBe(true);
 
-    // Check if our purchase is not the refunded list
+    // Check if our purchase is not in the not refunded list
     const refundedPurchase = response.data.data.find((p: any) => p.id === purchaseId);
     expect(refundedPurchase).toBeUndefined();
   });
 
-  test('110. Should verify the purchase is now in the refunded list', async () => {
+  test('130. Should verify the purchase is now in the refunded list', async () => {
     // Get the list of refunded purchases
     const response = await api.get('/purchases/refunded');
 
@@ -246,11 +270,11 @@ describe('Feedback Flow API', () => {
     // Check if our purchase is in the refunded list
     const refundedPurchase = response.data.data.find((p: any) => p.id === purchaseId);
     expect(refundedPurchase).toBeDefined();
-    // Check if the refund list contails exactly 1 line (only our purchase)
+    // Check if the refund list contains exactly 1 line (only our purchase)
     expect(response.data.data.length).toBe(1);
   });
 
-  test('120. Should check if in memory database can be backed up', async () => {
+  test('140. Should check if in-memory database can be backed up', async () => {
     const response = await api.get('/backup/json');
     expect(response.status).toBe(200);
     expect(response.data).toBeDefined();
@@ -268,27 +292,58 @@ describe('Feedback Flow API', () => {
     expect(response.data.ids.length).toBe(4);
   });
 
-  test('140. Should get purchase status for the current tester', async () => {
-    // S'assurer que nous avons un tester identifié
+  test('150. Should create a non-refunded purchase', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
+      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      description: 'Test product purchase not refunded',
+      amount: 49.99,
+      screenshot: testImageBase64
+    };
+
+    const response = await api.post('/purchase', purchase);
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBeDefined();
+
+    purchaseItNotRefundedId = response.data.id;
+    console.log(`Created purchase with ID: ${purchaseItNotRefundedId}`);
+  });
+
+  test('160. Should add feedback for the non-refunded purchase', async () => {
+    const response = await api.post('/feedback', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: purchaseItNotRefundedId,
+      feedback: 'This is a fantastic product! Works exactly as described.'
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBe(purchaseItNotRefundedId);
+  });
+
+  test('170. Should get purchase status for the current tester', async () => {
+    // Ensure we have an identified tester
     expect(testerId).toBeDefined();
     expect(testerUuid).toBeDefined();
     
-    // Appel à l'API pour récupérer le statut des achats
+    // Call the API to retrieve purchase status
     const response = await api.get('/purchase-status');
     
-    // Vérifier les codes de réponse et la structure
+    // Verify response codes and structure
     expect(response.status).toBe(200);
     expect(response.data.success).toBe(true);
     
-    // Vérifier que les données sont correctes
+    // Verify data correctness
     expect(response.data.data).toBeDefined();
     expect(Array.isArray(response.data.data)).toBe(true);
     
-    // Dans nos données de test, John Doe (qui est notre tester actuel) a 2 achats
+    // In our test data, John Doe (our current tester) has 2 purchases
     const purchases = response.data.data;
-    expect(purchases.length).toBe(1);
+    expect(purchases.length).toBe(2);
     
-    // Vérifier la structure d'un achat dans la réponse
+    // Verify structure of a purchase in the response
     const purchase = purchases[0];
     expect(purchase.purchase).toBeDefined();
     expect(purchase.testerUuid).toBe(testerUuid);
@@ -301,34 +356,43 @@ describe('Feedback Flow API', () => {
     expect(typeof purchase.hasPublication).toBe('boolean');
     expect(typeof purchase.hasRefund).toBe('boolean');
     
-    // Vérifier que l'achat que nous avons ajouté et remboursé a le bon statut
+    // Verify that the purchase we added and refunded has the correct status
     const ourPurchase = purchases.find((p: { purchase: string; }) => p.purchase === purchaseId);
     expect(ourPurchase).toBeDefined();
     expect(ourPurchase.refunded).toBe(true);
     expect(ourPurchase.hasFeedback).toBe(true);
     expect(ourPurchase.hasPublication).toBe(true);
     expect(ourPurchase.hasRefund).toBe(true);
+
+    // Verify that the purchase we added but did not refund has the correct status
+    const notRefundedPurchase = purchases.find((p: { purchase: string; }) => p.purchase === purchaseItNotRefundedId);
+    expect(notRefundedPurchase).toBeDefined();
+    expect(notRefundedPurchase.refunded).toBe(false);
+    expect(notRefundedPurchase.hasFeedback).toBe(true);
+    expect(notRefundedPurchase.hasPublication).toBe(false);
+    expect(notRefundedPurchase.hasRefund).toBe(false);
     
-    // Vérifier la pagination et le tri
+    // Verify pagination and sorting
     expect(response.data.page).toBeDefined();
     expect(response.data.limit).toBeDefined();
     expect(response.data.total).toBeDefined();
+    //console.log(`json response: ${JSON.stringify(purchases, null, 2)}`);
   });
 
-  test('145. Should get purchase status with custom pagination and sorting', async () => {
-    // Appel à l'API avec des paramètres personnalisés
+  test('180. Should get purchase status with custom pagination and sorting', async () => {
+    // Call the API with custom parameters
     const response = await api.get('/purchase-status?page=1&limit=1&sort=date&order=asc');
     
-    // Vérifier les codes de réponse et la structure
+    // Verify response codes and structure
     expect(response.status).toBe(200);
     expect(response.data.success).toBe(true);
     
-    // Vérifier que la pagination fonctionne
+    // Verify that pagination works
     expect(response.data.data.length).toBeLessThanOrEqual(1);
     expect(response.data.page).toBe(1);
     expect(response.data.limit).toBe(1);
     
-    // Vérifier que le tri fonctionne (nous devrions avoir l'achat le plus ancien en premier)
+    // Verify that sorting works (we should have the oldest purchase first)
     if (response.data.data.length > 0) {
       const firstPurchase = response.data.data[0];
       const secondResponse = await api.get('/purchase-status?page=1&limit=5&sort=date&order=desc');
@@ -336,8 +400,8 @@ describe('Feedback Flow API', () => {
       
       if (secondResponse.data.data.length > 1) {
         const lastPurchase = secondResponse.data.data[secondResponse.data.data.length - 1];
-        // La date du premier achat dans un tri ascendant devrait être antérieure 
-        // à la date du dernier achat dans un tri descendant
+        // The date of the first purchase in ascending sort should be earlier
+        // than the date of the last purchase in descending sort
         expect(new Date(firstPurchase.date).getTime()).toBeLessThanOrEqual(
           new Date(lastPurchase.date).getTime()
         );
