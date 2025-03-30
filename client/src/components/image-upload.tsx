@@ -309,7 +309,7 @@ const ImageUpload = forwardRef<"div", ImageUploadProps>((props, ref) => {
               link.click();
             }}
           >
-            {t("download-converted-images",{count: convertedImages.length})}
+            {t("download-converted-images", { count: convertedImages.length })}
           </Button>
         </div>
       )}

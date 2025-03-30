@@ -242,7 +242,7 @@ export default function BlogPage() {
           accept="image/png, image/jpeg, image/webp"
           browseButtonText={t("browse")}
           dragDropZoneText={t("drop-your-image-here")}
-          pasteButtonText={t('paste-from-clipboard')}
+          pasteButtonText={t("paste-from-clipboard")}
           resetButtonText={t("reset")}
           onChange={(file) => setFile(file[0])}
         />
