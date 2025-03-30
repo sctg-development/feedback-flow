@@ -78,9 +78,9 @@ export interface PaginatedTableProps {
   dataUrl: string;
 
   /**
-   * Table title
+   * Table title or a function that renders a custom title
    */
-  title: string;
+  title: string | (() => ReactNode);
 
   /**
    * Column definitions
@@ -157,50 +157,160 @@ export interface PaginatedTableProps {
 }
 
 /**
- * Component to display a paginated table with sorting and filtering
- * @param permission Permission required to view this table
- * @param dataUrl API endpoint URL for fetching data
- * @param title Table title
- * @param columns Column definitions
- * @param defaultPageSize Default page size
- * @param defaultSortField Default sort field
- * @param defaultSortOrder Default sort order
- * @example Custom column rendering
+ * Component to display a paginated table with sorting and filtering capabilities
+ *
+ * Features:
+ * - Pagination with customizable page size
+ * - Column sorting (ascending/descending)
+ * - Custom column rendering
+ * - Custom title rendering
+ * - Authentication and permission checks
+ * - Loading states and error handling
+ * - Empty state customization
+ *
+ * @param permission - Permission required to view this table
+ * @param dataUrl - API endpoint URL for fetching data
+ * @param title - Table title (string) or a function that renders a custom title
+ * @param columns - Column definitions
+ * @param defaultPageSize - Default number of items per page (default: 10)
+ * @param defaultSortField - Default field to sort by
+ * @param defaultSortOrder - Default sort order ("asc" or "desc")
+ * @param tableProps - Additional props to pass to the Table component
+ * @param paginationProps - Additional props to pass to the Pagination component
+ * @param emptyContent - Custom content to display when no data is available
+ * @param dataKey - Response key for data items (default: "data")
+ * @param totalKey - Response key for total count (default: "total")
+ * @param pageKey - Response key for current page (default: "page")
+ * @param limitKey - Response key for page size (default: "limit")
+ * @param isSuccessfulResponse - Function to check if the response is successful
+ * @param rowKey - Key to use as a unique identifier for rows (default: "uuid")
+ *
+ * @example Basic Usage
  * ```tsx
  * <PaginatedTable
- * dataUrl={`${import.meta.env.API_BASE_URL}/products`}
- * title="product-list"
- * permission={import.meta.env.ADMIN_PERMISSION}
- * columns={[
- *   { field: "name", label: "Product Name", sortable: true },
- *   { field: "price", label: "Price", sortable: true,
- *     render: (item) => `$${item.price.toFixed(2)}`
- *   },
- *   { field: "status", label: "Status",
- *     render: (item) => (
- *       <div className={`status-badge ${item.status}`}>
- *         {item.status.toUpperCase()}
- *       </div>
- *     )
- *   },
- *   { field: "actions", label: "Actions",
- *     render: (item) => (
- *       <div className="flex gap-2">
- *         <Button size="sm" color="primary" onPress={() => editProduct(item.uuid)}>
- *           Edit
- *         </Button>
- *         <Button size="sm" color="danger" onPress={() => deleteProduct(item.uuid)}>
- *           Delete
- *         </Button>
- *       </div>
- *     )
- *   }
- * ]}
- *   defaultSortField="name"
- *   defaultPageSize={20}
+ *   dataUrl="/api/users"
+ *   title="Users"
+ *   columns={[
+ *     { field: "name", label: "Name", sortable: true },
+ *     { field: "email", label: "Email" },
+ *     { field: "role", label: "Role" }
+ *   ]}
  * />
  * ```
- * @returns
+ *
+ * @example With Pagination and Sorting
+ * ```tsx
+ * <PaginatedTable
+ *   dataUrl="/api/products"
+ *   title="Products"
+ *   columns={[
+ *     { field: "name", label: "Name", sortable: true },
+ *     { field: "category", label: "Category", sortable: true },
+ *     { field: "price", label: "Price", sortable: true }
+ *   ]}
+ *   defaultPageSize={20}
+ *   defaultSortField="name"
+ *   defaultSortOrder="asc"
+ * />
+ * ```
+ *
+ * @example With Custom Column Rendering
+ * ```tsx
+ * <PaginatedTable
+ *   dataUrl="/api/orders"
+ *   title="Orders"
+ *   columns={[
+ *     { field: "id", label: "Order ID" },
+ *     {
+ *       field: "status",
+ *       label: "Status",
+ *       render: (item) => (
+ *         <Badge
+ *           color={item.status === 'completed' ? 'success' :
+ *                  item.status === 'pending' ? 'warning' : 'danger'}
+ *         >
+ *           {item.status.toUpperCase()}
+ *         </Badge>
+ *       )
+ *     },
+ *     {
+ *       field: "total",
+ *       label: "Total",
+ *       render: (item) => `$${item.total.toFixed(2)}`
+ *     },
+ *     {
+ *       field: "actions",
+ *       label: "Actions",
+ *       render: (item) => (
+ *         <div className="flex gap-2">
+ *           <Button size="sm" onPress={() => viewOrder(item.id)}>View</Button>
+ *           <Button size="sm" color="danger" onPress={() => cancelOrder(item.id)}>Cancel</Button>
+ *         </div>
+ *       )
+ *     }
+ *   ]}
+ *   rowKey="id"
+ * />
+ * ```
+ *
+ * @example With Custom Title Rendering and Required Permission
+ * ```tsx
+ * <PaginatedTable
+ *   permission="admin:access"
+ *   dataUrl="/api/inventory"
+ *   title={() => (
+ *     <div className="flex flex-col gap-2">
+ *       <div className="flex items-center justify-center gap-2">
+ *         <InventoryIcon className="w-6 h-6 text-primary" />
+ *         <h1 className="text-2xl font-bold">{t("inventory-management")}</h1>
+ *       </div>
+ *       <div className="flex justify-center gap-2">
+ *         <Button size="sm" startContent={<DownloadIcon />} onPress={exportInventory}>
+ *           {t("export")}
+ *         </Button>
+ *         <Button size="sm" startContent={<PlusIcon />} onPress={openAddProductModal}>
+ *           {t("add-product")}
+ *         </Button>
+ *       </div>
+ *     </div>
+ *   )}
+ *   columns={[
+ *     { field: "sku", label: "SKU", sortable: true },
+ *     { field: "name", label: "Product", sortable: true },
+ *     {
+ *       field: "stock",
+ *       label: "Stock Level",
+ *       sortable: true,
+ *       render: (item) => (
+ *         <div className="flex items-center gap-2">
+ *           <div className={`w-3 h-3 rounded-full ${
+ *             item.stock > 20 ? "bg-success" :
+ *             item.stock > 5 ? "bg-warning" : "bg-danger"
+ *           }`} />
+ *           <span>{item.stock} units</span>
+ *         </div>
+ *       )
+ *     },
+ *     {
+ *       field: "lastUpdated",
+ *       label: "Last Updated",
+ *       sortable: true,
+ *       render: (item) => new Date(item.lastUpdated).toLocaleDateString()
+ *     }
+ *   ]}
+ *   emptyContent={
+ *     <div className="p-6 text-center">
+ *       <NoDataIcon className="w-12 h-12 mx-auto text-muted-foreground" />
+ *       <p className="mt-2">{t("no-inventory-items")}</p>
+ *       <Button className="mt-4" onPress={openAddProductModal}>
+ *         {t("add-first-product")}
+ *       </Button>
+ *     </div>
+ *   }
+ * />
+ * ```
+ *
+ * @returns A paginated table component with the specified configuration
  */
 export default function PaginatedTable({
   permission,
@@ -323,9 +433,15 @@ export default function PaginatedTable({
   const renderContent = () => (
     <div className="w-full">
       <div className="text-center mb-6">
-        <h1 className={titleStyle()}>
-          <Trans t={t}>{title}</Trans>
-        </h1>
+        {typeof title === "function" ? (
+          // If title is a function, call it to render custom content
+          title()
+        ) : (
+          // If title is a string, render it as before
+          <h1 className={titleStyle()}>
+            <Trans t={t}>{title}</Trans>
+          </h1>
+        )}
       </div>
 
       {isLoading && items.length === 0 ? (
@@ -344,7 +460,7 @@ export default function PaginatedTable({
         )
       ) : (
         <Table
-          aria-label={title}
+          aria-label={typeof title === "string" ? title : "Paginated Table"}
           bottomContent={
             total > limit && (
               <div className="flex justify-center">
