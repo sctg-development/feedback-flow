@@ -31,6 +31,7 @@ import DefaultLayout from "@/layouts/default";
 import PaginatedTable from "@/components/paginated-table";
 import AddFeedbackModal from "@/components/add-feedback-modal";
 import PublishFeedbackModal from "@/components/publish-feedback-modal";
+import RefundPurchaseModal from "@/components/refund-purchase-modal";
 
 export default function IndexPage() {
   const { t } = useTranslation();
@@ -39,7 +40,13 @@ export default function IndexPage() {
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
   const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
   const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
-  const [purchaseId, setPurchaseId] = useState("");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [purchase, setPurchase] = useState({ purchaseId: "", amount: 0 });
+
+  // Function to refresh the table
+  const refreshTable = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   const renderAtionColumn = (item: any) => {
     if (item.refunded) {
@@ -51,7 +58,7 @@ export default function IndexPage() {
           <Button
             color="primary"
             size="md"
-            onPress={() => handleCreateFeedback(item.purchase)}
+            onPress={() => handleCreateFeedback(item.purchase, item.amount)}
           >
             {t("create-feedback")}
           </Button>
@@ -65,7 +72,7 @@ export default function IndexPage() {
             key={"publish-feedback"}
             color="primary"
             size="md"
-            onPress={() => handlePublishFeedback(item.purchase)}
+            onPress={() => handlePublishFeedback(item.purchase, item.amount)}
           >
             {t("publish-feedback")}
           </Button>
@@ -78,7 +85,7 @@ export default function IndexPage() {
           <Button
             color="primary"
             size="md"
-            onPress={() => handleRefundPurchases(item.purchase)}
+            onPress={() => handleRefundPurchases(item.purchase, item.amount)}
           >
             {t("refund")}
           </Button>
@@ -118,21 +125,18 @@ export default function IndexPage() {
     }
   };
 
-  const handleRefundPurchases = (purchaseId: string) => {
-    console.log("Refunding purchase with ID:", purchaseId);
-    setPurchaseId(purchaseId);
+  const handleRefundPurchases = (purchaseId: string, amount: number) => {
+    setPurchase({ purchaseId, amount });
     setRefundPurchases(true);
   };
 
-  const handleCreateFeedback = (purchaseId: string) => {
-    console.log("Creating feedback for purchase with ID:", purchaseId);
-    setPurchaseId(purchaseId);
+  const handleCreateFeedback = (purchaseId: string, amount: number) => {
+    setPurchase({ purchaseId, amount });
     setCreateFeedbackPurchase(true);
   };
 
-  const handlePublishFeedback = (purchaseId: string) => {
-    console.log("Publishing feedback for purchase with ID:", purchaseId);
-    setPurchaseId(purchaseId);
+  const handlePublishFeedback = (purchaseId: string, amount: number) => {
+    setPurchase({ purchaseId, amount });
     setPublishFeedbackPurchase(true);
   };
 
@@ -184,6 +188,7 @@ export default function IndexPage() {
               defaultSortField="date"
               defaultSortOrder="desc"
               permission={import.meta.env.READ_PERMISSION}
+              refreshTrigger={refreshTrigger}
               rowKey="purchase"
               title={() => renderTitle()}
             />
@@ -195,8 +200,9 @@ export default function IndexPage() {
       {createFeedbackPurchase && (
         <AddFeedbackModal
           isOpen={createFeedbackPurchase}
-          purchaseId={purchaseId}
+          purchaseId={purchase.purchaseId}
           onClose={() => setCreateFeedbackPurchase(false)}
+          onSuccess={refreshTable}
         >
           <></>
         </AddFeedbackModal>
@@ -206,15 +212,25 @@ export default function IndexPage() {
       {publishFeedbackPurchase && (
         <PublishFeedbackModal
           isOpen={publishFeedbackPurchase}
-          purchaseId={purchaseId}
+          purchaseId={purchase.purchaseId}
           onClose={() => setPublishFeedbackPurchase(false)}
+          onSuccess={refreshTable}
         >
           <></>
         </PublishFeedbackModal>
       )}
 
       {/* Refund Modal */}
-      {refundPurchases && "TODO"}
+      {refundPurchases && (
+        <RefundPurchaseModal
+          children={undefined}
+          defaultAmount={purchase.amount}
+          isOpen={refundPurchases}
+          purchaseId={purchase.purchaseId}
+          onClose={() => setRefundPurchases(false)}
+          onSuccess={refreshTable}
+        />
+      )}
     </DefaultLayout>
   );
 }

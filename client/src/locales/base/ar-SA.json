@@ -114,5 +114,18 @@
   "error-publishing-feedback": "خطأ أثناء نشر ملاحظاتك",
   "publish": "تغيير للنشر",
   "upload-screenshot-instruction": "حدد أو لصق لقطة الشاشة",
-  "select-date": "تاريخ إنشاء التعليقات"
+  "select-date": "تاريخ إنشاء التعليقات",
+  "feedback-submitted": "ردود الفعل المقدمة",
+  "error-submitting-feedback": "خطأ في إرسال التعليقات",
+  "not-filled": "لا تملأ",
+  "error": "خطأ",
+  "success": "نجاح",
+  "refund-processed-successfully": "استرداد الأموال التي تمت معالجتها بنجاح",
+  "error-processing-refund": "خطأ معالجة استرداد",
+  "refund-purchase": "استرداد الشراء",
+  "refund-instructions": "الرجاء إدخال مبلغ الاسترداد",
+  "refund-date": "تاريخ الاسترداد",
+  "process-refund": "معالجة استرداد الأموال",
+  "please-select-refund-date": "الرجاء تحديد تاريخ الاسترداد",
+  "please-enter-valid-amount": "الرجاء إدخال مبلغ صالح"
 }

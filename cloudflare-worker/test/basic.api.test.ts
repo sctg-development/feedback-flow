@@ -238,7 +238,7 @@ describe('Feedback Flow API', () => {
     const today = new Date().toISOString().split('T')[0];
 
     const response = await api.post('/refund', {
-      date: today,
+      date: today, // record date
       purchase: purchaseId,
       refundDate: today, // Same day refund for testing
       amount: 29.99
@@ -324,7 +324,7 @@ describe('Feedback Flow API', () => {
     expect(response.data.id).toBe(purchaseItNotRefundedId);
   });
 
-  test('163. Should create a non-refunded purchase with no feedback', async () => {
+  test('170. Should create a non-refunded purchase with no feedback', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
       order: `ORDER-${uuidv4().substring(0, 8)}`,
@@ -339,7 +339,7 @@ describe('Feedback Flow API', () => {
     purchaseItIdNoFeedback = response.data.id;
   });
 
-  test('166. Should create a purchase and a add feedback but not published', async () => {
+  test('180. Should create a purchase and add feedback but not publish it', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
       order: `ORDER-${uuidv4().substring(0, 8)}`,
@@ -367,7 +367,44 @@ describe('Feedback Flow API', () => {
     expect(feedbackResponse.data.id).toBe(purchaseIdFeedbackNotPublished);
   });
 
-  test('170. Should get purchase status for the current tester', async () => {
+  test('190. Should create a purchase, add feedback to it, publish the feedback but do not refund the purchase', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
+      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      description: 'Test product purchase with feedback and publication',
+      amount: 69.99,
+      screenshot: testImageBase64
+    };
+    const response = await api.post('/purchase', purchase);
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBeDefined();
+    const newPurchaseId = response.data.id;
+    const feedbackResponse = await api.post('/feedback', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: newPurchaseId,
+      feedback: 'This is a fantastic product! Works exactly as described.'
+    });
+    expect(feedbackResponse.status).toBe(201);
+    expect(feedbackResponse.data.success).toBe(true);
+    expect(feedbackResponse.data.id).toBe(newPurchaseId);
+    const publishResponse = await api.post('/publish', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: newPurchaseId,
+      screenshot: testImageBase64
+    });
+    expect(publishResponse.status).toBe(201);
+    expect(publishResponse.data.success).toBe(true);
+    expect(publishResponse.data.id).toBe(newPurchaseId);
+    // Check if the purchase is in the not refunded list
+    const notRefundedResponse = await api.get('/purchases/not-refunded');
+    expect(notRefundedResponse.status).toBe(200);
+    expect(notRefundedResponse.data.success).toBe(true);
+    const notRefundedPurchase = notRefundedResponse.data.data.find((p: any) => p.id === newPurchaseId);
+    expect(notRefundedPurchase).toBeDefined();
+  });
+
+  test('200. Should get purchase status for the current tester', async () => {
     // Ensure we have an identified tester
     expect(testerId).toBeDefined();
     expect(testerUuid).toBeDefined();
@@ -383,9 +420,9 @@ describe('Feedback Flow API', () => {
     expect(response.data.data).toBeDefined();
     expect(Array.isArray(response.data.data)).toBe(true);
     
-    // In our test data, John Doe (our current tester) has 3 purchases
+    // In our test data, the current tester has 5 purchases
     const purchases = response.data.data;
-    expect(purchases.length).toBe(4);
+    expect(purchases.length).toBe(5);
     
     // Verify structure of a purchase in the response
     const purchase = purchases[0];
@@ -420,10 +457,9 @@ describe('Feedback Flow API', () => {
     expect(response.data.page).toBeDefined();
     expect(response.data.limit).toBeDefined();
     expect(response.data.total).toBeDefined();
-    //console.log(`json response: ${JSON.stringify(purchases, null, 2)}`);
   });
 
-  test('180. Should get purchase status with custom pagination and sorting', async () => {
+  test('210. Should get purchase status with custom pagination and sorting', async () => {
     // Call the API with custom parameters
     const response = await api.get('/purchase-status?page=1&limit=1&sort=date&order=asc');
     

@@ -114,5 +114,18 @@
   "error-publishing-feedback": "שגיאה בעת פרסום המשוב שלך",
   "publish": "שינוי לפרסום",
   "upload-screenshot-instruction": "בחר או הדבק את צילום המסך של המשוב",
-  "select-date": "תאריך יצירת משוב"
+  "select-date": "תאריך יצירת משוב",
+  "feedback-submitted": "משוב שהוגש",
+  "error-submitting-feedback": "שגיאה בהגשת משוב",
+  "not-filled": "לא מלא",
+  "error": "שְׁגִיאָה",
+  "success": "הַצלָחָה",
+  "refund-processed-successfully": "החזר מעובד בהצלחה",
+  "error-processing-refund": "החזר עיבוד שגיאות",
+  "refund-purchase": "החזר את הרכישה",
+  "refund-instructions": "אנא הזן את סכום ההחזר",
+  "refund-date": "תאריך החזר כספי",
+  "process-refund": "לעבד את ההחזר",
+  "please-select-refund-date": "אנא בחר בתאריך ההחזר",
+  "please-enter-valid-amount": "אנא הזן סכום תקף"
 }

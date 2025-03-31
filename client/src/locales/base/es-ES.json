@@ -114,5 +114,18 @@
   "error-publishing-feedback": "Error al publicar sus comentarios",
   "publish": "Cambio para publicar",
   "upload-screenshot-instruction": "Seleccione o pegue la captura de pantalla de la publicacion",
-  "select-date": "Fecha de creación de comentarios"
+  "select-date": "Fecha de creación de comentarios",
+  "feedback-submitted": "Comentarios enviados",
+  "error-submitting-feedback": "Error al enviar comentarios",
+  "not-filled": "No lleno",
+  "error": "Error",
+  "success": "Éxito",
+  "refund-processed-successfully": "Reembolso procesado con éxito",
+  "error-processing-refund": "Reembolso de procesamiento de errores",
+  "refund-purchase": "Reembolsar la compra",
+  "refund-instructions": "Ingrese el monto del reembolso",
+  "refund-date": "Fecha de reembolso",
+  "process-refund": "Procesar el reembolso",
+  "please-select-refund-date": "Seleccione la fecha de reembolso",
+  "please-enter-valid-amount": "Ingrese una cantidad válida"
 }

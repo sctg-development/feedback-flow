@@ -114,5 +114,20 @@
   "error-publishing-feedback": "Error while publishing your feedback",
   "upload-screenshot-instruction": "Select or paste the feedback screenshot",
   "publish": "Change to Publish",
-  "select-date": "Feedback creation date"
+  "select-date": "Feedback creation date",
+  "feedback-submitted": "Feedback submitted",
+  "error-submitting-feedback": "Error submitting feedback",
+  "not-filled": "Not filled",
+  "please-enter-feedback": "Please enter feedback",
+  "error": "Error",
+  "success": "Success",
+  "feedback-published-successfully": "Feedback published successfully",
+  "refund-processed-successfully": "Refund processed successfully",
+  "error-processing-refund": "Error processing refund",
+  "refund-purchase": "Refund the purchase",
+  "refund-instructions": "Please enter the amount of the refund",
+  "refund-date": "Refund  date",
+  "process-refund": "Process the refund",
+  "please-enter-valid-amount": "Please enter a valid amount",
+  "please-select-refund-date": "Please select the refund date"
 }

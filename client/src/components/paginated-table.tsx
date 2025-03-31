@@ -154,6 +154,12 @@ export interface PaginatedTableProps {
    * @default "uuid"
    */
   rowKey?: string;
+
+  /**
+   * Optional value that triggers a data refresh when changed
+   * Useful for refreshing the table after external data modifications
+   */
+  refreshTrigger?: any;
 }
 
 /**
@@ -184,6 +190,7 @@ export interface PaginatedTableProps {
  * @param limitKey - Response key for page size (default: "limit")
  * @param isSuccessfulResponse - Function to check if the response is successful
  * @param rowKey - Key to use as a unique identifier for rows (default: "uuid")
+ * @param refreshTrigger - Optional value that triggers a data refresh when changed
  *
  * @example Basic Usage
  * ```tsx
@@ -329,6 +336,7 @@ export default function PaginatedTable({
   limitKey = "limit",
   isSuccessfulResponse = (response) => response?.success === true,
   rowKey = "uuid",
+  refreshTrigger,
 }: PaginatedTableProps) {
   const { t } = useTranslation();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -409,7 +417,7 @@ export default function PaginatedTable({
   // Fetch data when component mounts or dependencies change
   useEffect(() => {
     fetchData(page, limit, sort, order);
-  }, [page, limit, sort, order, isAuthenticated, dataUrl]);
+  }, [page, limit, sort, order, isAuthenticated, dataUrl, refreshTrigger]);
 
   /**
    * Handle sort change

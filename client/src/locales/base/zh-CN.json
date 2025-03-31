@@ -114,5 +114,18 @@
   "error-publishing-feedback": "发表您的反馈时出错",
   "publish": "更改以发布",
   "upload-screenshot-instruction": "选择或粘贴反馈屏幕截图",
-  "select-date": "反馈创建日期"
+  "select-date": "反馈创建日期",
+  "feedback-submitted": "提交反馈",
+  "error-submitting-feedback": "错误提交反馈",
+  "not-filled": "没有填充",
+  "error": "错误",
+  "success": "成功",
+  "refund-processed-successfully": "退款成功处理",
+  "error-processing-refund": "错误处理退款",
+  "refund-purchase": "退还购买",
+  "refund-instructions": "请输入退款的金额",
+  "refund-date": "退款日期",
+  "process-refund": "处理退款",
+  "please-select-refund-date": "请选择退款日期",
+  "please-enter-valid-amount": "请输入有效金额"
 }

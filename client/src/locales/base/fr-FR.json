@@ -114,5 +114,18 @@
   "error-publishing-feedback": "Erreur lors de la publication de vos commentaires",
   "publish": "Publication",
   "upload-screenshot-instruction": "Sélectionnez ou collez la capture d'écran de publication",
-  "select-date": "Date de création de commentaires"
+  "select-date": "Date de création de commentaires",
+  "feedback-submitted": "Commentaire soumis",
+  "error-submitting-feedback": "Erreur de soumission des commentaires",
+  "not-filled": "Pas rempli",
+  "error": "Erreur",
+  "success": "Succès",
+  "refund-processed-successfully": "Rembourser avec succès",
+  "error-processing-refund": "Remboursement du traitement des erreurs",
+  "refund-purchase": "Rembourser l'achat",
+  "refund-instructions": "Veuillez saisir le montant du remboursement",
+  "refund-date": "Date de remboursement",
+  "process-refund": "Traiter le remboursement",
+  "please-select-refund-date": "Veuillez sélectionner la date de remboursement",
+  "please-enter-valid-amount": "Veuillez saisir un montant valide"
 }
