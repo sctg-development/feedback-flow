@@ -147,3 +147,45 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 - **POST `/api/backup/json`** - Restore the database - needs backup:api permission
   - Request: `{backup /* backup string */: string}`
   - Response: `{success: boolean}`
+
+## Development
+The application is developed using React 19, Vite, and Tailwind CSS. The backend is developed using Cloudflare Workers and the [Cloudflare D1](https://developers.cloudflare.com/d1/worker-api/) database.
+
+The repository is structured as a monorepo with the following structure:
+
+
+Clone the repository and install the dependencies:
+
+```bash
+git clone https://github.com/sctg-development/feedback-flow.git
+cd feedback-flow/cloudflare-worker
+npm ci
+cd ../client
+npm ci
+```
+
+### Configure Auth0
+
+See the [Auth0.md](./Auth0.md) file for detailed instructions on how to configure Auth0 for the application.
+
+### Environment Variables
+The application requires the following environment variables to be set in a `.env` file in the root of the repository:
+
+```bash
+AUTH0_CLIENT_ID=your_auth0_client_id
+AUTH0_CLIENT_SECRET=your_auth0_client_secret
+AUTH0_DOMAIN=your_auth0_domain
+AUTH0_SCOPE="openid profile email read:api write:api admin:api backup:api"
+AUTH0_AUDIENCE="http://localhost:8787/api"
+AUTH0_SUB=your_current_user_token_sub
+API_BASE_URL=http://localhost:8787/api
+CORS_ORIGIN=http://localhost:5173
+READ_PERMISSION=read:api
+WRITE_PERMISSION=write:api
+ADMIN_PERMISSION=admin:api
+BACKUP_PERMISSION=backup:api
+CRYPTOKEN=any_random_string_to_encrypt_the_variables_in_the_repo
+DB_BACKEND=memory # or d1
+DB_MAX_IMAGE_SIZE=640
+AUTH0_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnaXRodWJ8MTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwicGVybWlzc2lvbnMiOiJyZWFkOmFwaSB3cml0ZTphcGkgYWRtaW46YXBpIGJhY2t1cDphcGkifQ.m1URdlBbuHa9_e3xN2MEMnkGm3ISbVBAuW7fWgL7fms"
+```
