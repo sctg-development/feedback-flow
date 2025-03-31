@@ -126,13 +126,22 @@ export default function IndexPage() {
       );
     } else {
       return (
-        <Button
-          className="text-3xl font-bold"
-          variant="light"
-          onPress={handleToggleAllPurchases}
-        >
-          {t("purchases-not-refunded")}
-        </Button>
+        <div className="flex justify-between items-center w-full">
+          <Button
+            className="text-3xl font-bold"
+            variant="light"
+            onPress={handleToggleAllPurchases}
+          >
+            {t("purchases-not-refunded")}
+          </Button>
+          <Button
+            color="primary"
+            startContent={<EditIcon />}
+            onPress={() => setCreateNewPurchase(true)}
+          >
+            {t("new-purchase")}
+          </Button>
+        </div>
       );
     }
   };
