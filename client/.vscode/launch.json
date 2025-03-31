@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Edge",
+        "request": "launch",
+        "type": "msedge",
+        "osx": {
+          "runtimeExecutable": "/Applications/Microsoft Edge Canary.app/Contents/MacOS/Microsoft Edge Canary"
+        },
+        "url": "http://localhost:5173",
+        "webRoot": "${workspaceFolder}"
+      },
+    ]
+  }
