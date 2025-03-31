@@ -1,10 +1,10 @@
 # Application Feedback Flow
 
-Feedback Flow is an application designed to manage the feedback from product testers. 
+Feedback Flow is an application designed to manage the feedback from product testers.
 
-This application is intended for product testers who wish to test a product and provide their opinion on it. The management of products offered by sellers is outside the scope of this application. 
+This application is intended for product testers who wish to test a product and provide their opinion on it. The management of products offered by sellers is outside the scope of this application.
 
-The application allows the tester to manage their purchases, feedback, and refunds. 
+The application allows the tester to manage their purchases, feedback, and refunds.
 
 Thus, in case of a dispute with a seller, the tester can prove that they have indeed purchased the product and provided their opinion on it, and that this opinion has been published by the platform.
 
@@ -18,7 +18,7 @@ The application is deployed on a CDN as a static SPA (Single Page Application). 
 
 ## Data Analysis
 
-- A product tester is someone who tests a product and provides feedback on it. 
+- A product tester is someone who tests a product and provides feedback on it.
 - A product is an item or service that is tested by a tester.
 - The seller is the person who sells the product.
 - Feedback is the opinion given by the tester about the product.
@@ -149,10 +149,10 @@ The REST API exchanges all objects in JSON format. The API provides the followin
   - Response: `{success: boolean}`
 
 ## Development
+
 The application is developed using React 19, Vite, and Tailwind CSS. The backend is developed using Cloudflare Workers and the [Cloudflare D1](https://developers.cloudflare.com/d1/worker-api/) database.
 
 The repository is structured as a monorepo with the following structure:
-
 
 Clone the repository and install the dependencies:
 
@@ -169,6 +169,7 @@ npm ci
 See the [Auth0.md](https://github.com/sctg-development/feedback-flow/blob/main/Auth0.md) file for detailed instructions on how to configure Auth0 for the application.
 
 ### Environment Variables
+
 The application requires the following environment variables to be set in a `.env` file in the root of the repository:
 
 ```bash
@@ -189,3 +190,33 @@ DB_BACKEND=memory # or d1
 DB_MAX_IMAGE_SIZE=640
 AUTH0_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnaXRodWJ8MTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwicGVybWlzc2lvbnMiOiJyZWFkOmFwaSB3cml0ZTphcGkgYWRtaW46YXBpIGJhY2t1cDphcGkifQ.m1URdlBbuHa9_e3xN2MEMnkGm3ISbVBAuW7fWgL7fms"
 ```
+
+### Run the Application
+
+To run the application, you need to start both the client and the server.
+In the root of the repository, run the following command:
+
+1. Start the development server backend:
+
+   ```bash
+   cd cloudflare-worker && npm run dev:env
+   ```
+
+2. Start the development server frontend in another terminal:
+
+   ```bash
+   cd client && npm run dev:env
+   ```
+
+3. The application should now be running at [http://localhost:5173](http://localhost:5173) and the API at [http://localhost:8787](http://localhost:8787).
+4. Connect to the application with your browser to [http://localhost:5173](http://localhost:5173).
+
+5. Log in to the application with your GitHub account. Copy the token from the application, you can find it by clicking on your name in the appliation footer.
+6. Copy the token and paste it in the `AUTH0_TOKEN` variable in the `.env` file.
+7. Restart the Cloudflare Worker.
+8. in the `cloudflare-worker` folder, run the following command test the worker and add some data to the **TESTER** user linked to your GitHub account:
+
+   ```bash
+   cd cloudflare-worker
+   npm test
+   ```
