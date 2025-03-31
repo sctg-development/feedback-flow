@@ -166,7 +166,7 @@ npm ci
 
 ### Configure Auth0
 
-See the [Auth0.md](Auth0.md) file for detailed instructions on how to configure Auth0 for the application.
+See the [Auth0.md](https://github.com/sctg-development/feedback-flow/blob/main/Auth0.md) file for detailed instructions on how to configure Auth0 for the application.
 
 ### Environment Variables
 The application requires the following environment variables to be set in a `.env` file in the root of the repository:
