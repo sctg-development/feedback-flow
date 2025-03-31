@@ -144,5 +144,10 @@
   "purchase-created-successfully": "الشراء التي تم إنشاؤها بنجاح",
   "purchase-date": "تاريخ الشراء",
   "receipt-screenshot": "لقطة الشاشة",
-  "receipt-screenshot-required": "لقطة الشاشة المطلوبة"
+  "receipt-screenshot-required": "لقطة الشاشة المطلوبة",
+  "add-oauth-id-to": "أضف معرف OAuth",
+  "error-adding-oauth-id": "خطأ في إضافة معرف OAuth",
+  "oauth-id-added-successfully": "أضاف معرف Oauth بنجاح",
+  "oauth-id-format-hint": "تلميح تنسيق معرف OAUTH",
+  "please-enter-valid-oauth-id": "الرجاء إدخال معرف Oauth صالح"
 }

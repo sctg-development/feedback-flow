@@ -144,5 +144,10 @@
   "purchase-created-successfully": "Achat créé avec succès",
   "purchase-date": "Date d'achat",
   "receipt-screenshot": "Capture d'écran de réception",
-  "receipt-screenshot-required": "Capture d'écran requise requise"
+  "receipt-screenshot-required": "Capture d'écran requise requise",
+  "add-oauth-id-to": "Ajouter ID OAuth",
+  "error-adding-oauth-id": "Erreur ajoutant ID OAuth",
+  "oauth-id-added-successfully": "OAuth ID a ajouté avec succès",
+  "oauth-id-format-hint": "Indice de format d'identification OAuth",
+  "please-enter-valid-oauth-id": "Veuillez saisir un identifiant OAuth valide"
 }

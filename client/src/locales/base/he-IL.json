@@ -144,5 +144,10 @@
   "purchase-created-successfully": "הרכישה שנוצרה בהצלחה",
   "purchase-date": "תאריך רכישה",
   "receipt-screenshot": "צילום מסך קבלה",
-  "receipt-screenshot-required": "צילום מסך קבלה נדרש"
+  "receipt-screenshot-required": "צילום מסך קבלה נדרש",
+  "add-oauth-id-to": "הוסף מזהה OAuth",
+  "error-adding-oauth-id": "שגיאה הוספת מזהה OAuth",
+  "oauth-id-added-successfully": "מזהה Oauth הוסיף בהצלחה",
+  "oauth-id-format-hint": "רמז לתבנית זיהוי של Oauth",
+  "please-enter-valid-oauth-id": "אנא הזן מזהה OAuth תקף"
 }

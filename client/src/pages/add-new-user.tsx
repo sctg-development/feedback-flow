@@ -29,6 +29,7 @@ import {
   postJsonToSecuredApi,
 } from "@/components/auth0";
 import PaginatedTable from "@/components/paginated-table";
+import AddIdToTester from "@/components/AddIdToTesterModal";
 
 /**
  * Page component for adding new users/testers to the system
@@ -45,6 +46,11 @@ export default function AddNewUser() {
   const { t } = useTranslation();
   const { getAccessTokenSilently } = useAuth0();
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isAddIdModalOpen, setIsAddIdModalOpen] = useState(false);
+  const [selectedTester, setSelectedTester] = useState<{
+    uuid: string;
+    name: string;
+  }>({ uuid: "", name: "" });
 
   /**
    * Handles form submission to create a new tester
@@ -79,6 +85,27 @@ export default function AddNewUser() {
     }
   };
 
+  /**
+   * Handles the add ID button click
+   * Opens the Add ID modal for the selected tester
+   *
+   * @param {string} uuid - The UUID of the tester
+   * @param {string} name - The name of the tester
+   * @returns {void}
+   */
+  const handleAddId = (uuid: string, name: string) => {
+    setSelectedTester({ uuid, name });
+    setIsAddIdModalOpen(true);
+  };
+
+  /**
+   * Refreshes the table after a successful operation
+   * Used as a callback for both add tester and add ID operations
+   */
+  const refreshTable = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
   return (
     <DefaultLayout>
       <AuthenticationGuardWithPermission
@@ -91,6 +118,15 @@ export default function AddNewUser() {
             columns={[
               { field: "name", label: t("tester-name"), sortable: true },
               { field: "ids", label: t("oauth-ids"), sortable: true },
+              {
+                field: "actions",
+                label: t("actions"),
+                render: (item) => (
+                  <Button onPress={() => handleAddId(item.uuid, item.name)}>
+                    Add ID
+                  </Button>
+                ),
+              },
             ]}
             dataUrl={`${import.meta.env.API_BASE_URL}/testers`}
             defaultPageSize={10}
@@ -125,6 +161,16 @@ export default function AddNewUser() {
               {t("submit")}
             </Button>
           </Form>
+          {/* Add ID Modal */}
+          {isAddIdModalOpen && (
+            <AddIdToTester
+              children={undefined}
+              isOpen={isAddIdModalOpen}
+              testerName={selectedTester.name}
+              onClose={() => setIsAddIdModalOpen(false)}
+              onSuccess={refreshTable}
+            />
+          )}
         </section>
       </AuthenticationGuardWithPermission>
     </DefaultLayout>

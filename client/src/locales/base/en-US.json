@@ -144,5 +144,10 @@
   "receipt-screenshot": "Receipt screenshot",
   "drop-your-receipt-here": "Drop your receipt here",
   "receipt-screenshot-required": "Receipt screenshot required",
-  "create": "Create"
+  "create": "Create",
+  "please-enter-valid-oauth-id": "Please enter a valid OAuth Id",
+  "oauth-id-added-successfully": "OAuth Id added successfully",
+  "error-adding-oauth-id": "Error adding OAuth Id",
+  "add-oauth-id-to": "Add OAuth Id",
+  "oauth-id-format-hint": "Oauth Id Format Hint"
 }
