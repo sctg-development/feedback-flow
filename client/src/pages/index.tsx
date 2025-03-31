@@ -35,6 +35,19 @@ import PublishFeedbackModal from "@/components/publish-feedback-modal";
 import RefundPurchaseModal from "@/components/refund-purchase-modal";
 import CreatePurchaseModal from "@/components/create-purchase-modal";
 
+/**
+ * Main page of the application displaying purchase data in a tabular format
+ *
+ * Features:
+ * - Display purchase data with sorting and filtering
+ * - Toggle between showing all purchases or only non-refunded purchases
+ * - Create new purchases
+ * - Add feedback to existing purchases
+ * - Publish feedback with screenshots
+ * - Process refunds for purchases with published feedback
+ *
+ * @returns {JSX.Element} The rendered IndexPage component
+ */
 export default function IndexPage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth0();
@@ -51,6 +64,23 @@ export default function IndexPage() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  /**
+   * Renders the action column for a purchase row based on its status
+   *
+   * The available actions depend on the purchase status:
+   * - If refunded, displays a "Refunded" label
+   * - If no feedback, shows "Create Feedback" button
+   * - If has feedback but no publication, shows "Publish Feedback" button
+   * - If has feedback and publication, shows "Refund" button
+   *
+   * @param {Object} item - The purchase item data
+   * @param {string} item.purchase - Purchase ID
+   * @param {boolean} item.refunded - Whether the purchase has been refunded
+   * @param {boolean} item.hasFeedback - Whether the purchase has feedback
+   * @param {boolean} item.hasPublication - Whether the feedback has been published
+   * @param {number} item.amount - The purchase amount
+   * @returns {JSX.Element} The rendered action column content
+   */
   const renderAtionColumn = (item: any) => {
     if (item.refunded) {
       return <span className="text-green-500">{t("refunded")}</span>;
@@ -99,6 +129,17 @@ export default function IndexPage() {
     return <span className="text-red-500">Unknown</span>;
   };
 
+  /**
+   * Renders the table title with toggle functionality and create button
+   *
+   * The title changes based on the current filter state:
+   * - "Purchases Not Refunded" when showing only non-refunded purchases
+   * - "Purchases Refunded" when showing all purchases
+   *
+   * Clicking the title toggles between these two views
+   *
+   * @returns {ReactNode} The rendered title element
+   */
   const renderTitle: () => ReactNode = () => {
     // When the use click on the title, it will toggle all purchases
     const handleToggleAllPurchases = () => {
@@ -146,16 +187,34 @@ export default function IndexPage() {
     }
   };
 
+  /**
+   * Handles opening the refund modal for a specific purchase
+   *
+   * @param {string} purchaseId - The ID of the purchase to refund
+   * @param {number} amount - The purchase amount
+   */
   const handleRefundPurchases = (purchaseId: string, amount: number) => {
     setPurchase({ purchaseId, amount });
     setRefundPurchases(true);
   };
 
+  /**
+   * Handles opening the feedback modal for a specific purchase
+   *
+   * @param {string} purchaseId - The ID of the purchase to add feedback to
+   * @param {number} amount - The purchase amount
+   */
   const handleCreateFeedback = (purchaseId: string, amount: number) => {
     setPurchase({ purchaseId, amount });
     setCreateFeedbackPurchase(true);
   };
 
+  /**
+   * Handles opening the publish feedback modal for a specific purchase
+   *
+   * @param {string} purchaseId - The ID of the purchase to publish feedback for
+   * @param {number} amount - The purchase amount
+   */
   const handlePublishFeedback = (purchaseId: string, amount: number) => {
     setPurchase({ purchaseId, amount });
     setPublishFeedbackPurchase(true);

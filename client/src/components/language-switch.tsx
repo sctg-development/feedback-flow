@@ -64,25 +64,44 @@ export const I18nIcon: FC<IconSvgProps> = ({
 };
 
 /**
- * Language switch component
- * @description
- * A language switch component that allows users to change the language of the application
- * It uses the i18n instance to change the language and update the document metadata
- * Available languages are defined in the i18n configuration (src/i18n.ts)
- * @param availableLanguages Optional The available languages default [{ code: "en-US", nativeName: "English", isRTL: false, isDefault: true }]
- * @param icon Optional custom icon to use instead of the default I18nIcon
+ * Language switch component for multilingual applications
+ *
+ * Provides a dropdown interface for users to select their preferred language.
+ * Automatically updates application UI direction (LTR/RTL) based on language settings
+ * and persists language preference in localStorage.
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {AvailableLanguage[]} [props.availableLanguages] - List of available languages
+ *        Defaults to English only if not provided
+ * @param {FC<IconSvgProps>} [props.icon] - Custom icon component
+ *        Defaults to I18nIcon if not provided
+ *
  * @example
- * ```tsx
- * <LanguageSwitch  availableLanguages={[{ code: "en-US", nativeName: "English", isRTL: false, isDefault: true },{ code: "fr-FR", nativeName: "Français", isRTL: false }]} />
- * ```
+ * // Basic usage with default English only
+ * <LanguageSwitch />
+ *
  * @example
- * ```tsx
+ * // With multiple languages
+ * <LanguageSwitch
+ *   availableLanguages={[
+ *     { code: "en-US", nativeName: "English", isRTL: false, isDefault: true },
+ *     { code: "fr-FR", nativeName: "Français", isRTL: false }
+ *   ]}
+ * />
+ *
+ * @example
+ * // With imported language config and custom icon
  * import { availableLanguages } from "@/i18n";
- * <LanguageSwitch availableLanguages={availableLanguages} />
- * ```
+ * import { GlobeIcon } from "@/icons";
+ *
+ * <LanguageSwitch
+ *   availableLanguages={availableLanguages}
+ *   icon={GlobeIcon}
+ * />
  */
 export const LanguageSwitch: FC<LanguageSwitchProps> = ({
-  availableLanguages: availableLanguages = [
+  availableLanguages = [
     { code: "en-US", nativeName: "English", isRTL: false, isDefault: true },
   ],
   icon: Icon = I18nIcon,

@@ -81,27 +81,37 @@ export interface ImageUploadProps extends Omit<FileUploadProps, "onChange"> {
 
 /**
  * A specialized component for uploading and processing images.
- * Extends FileUpload with image-specific features like WebP conversion
- * and size limiting while maintaining aspect ratio.
+ *
+ * Features:
+ * - Upload images via drag & drop, file browser, or paste
+ * - Convert images to WebP format with configurable quality
+ * - Resize images while maintaining aspect ratio
+ * - Preview uploaded images
+ * - File size validation
+ * - Supports single or multiple image uploads
+ *
+ * @component
  * @example
  * ```tsx
  * <ImageUpload
- *            convertToWebp
- *            limitSize
- *            multiple
- *            showPasteButton
- *            accept="image/png, image/jpeg, image/webp, image/gif"
- *            addButtonText="Add"
- *            browseButtonText="Browsr"
- *            className="rounded p-1 my-4"
- *            dragDropZoneText="Drop your image here"
- *            maxDimension={800}
- *            maxFileSize={10 * 1024 * 1024} // 10MB max
- *            pasteButtonText="Paste"
- *            previewSize={120}
- *            resetButtonText="Reset"
- *            webpQuality={0.7}
- *          />
+ *   convertToWebp
+ *   limitSize
+ *   multiple
+ *   showPasteButton
+ *   accept="image/png, image/jpeg, image/webp, image/gif"
+ *   browseButtonText="Browse"
+ *   dragDropZoneText="Drop your image here"
+ *   maxDimension={800}
+ *   maxFileSize={10 * 1024 * 1024} // 10MB max
+ *   pasteButtonText="Paste"
+ *   previewSize={120}
+ *   resetButtonText="Reset"
+ *   webpQuality={0.7}
+ *   onChange={(files, convertedImages) => {
+ *     console.log('Original files:', files);
+ *     console.log('Converted images:', convertedImages);
+ *   }}
+ * />
  * ```
  */
 export const ImageUpload = forwardRef<"div", ImageUploadProps>((props, ref) => {

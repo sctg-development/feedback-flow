@@ -21,6 +21,29 @@ import { postJsonToSecuredApi } from "./auth0";
 
 import { ImageUpload } from "@/components/image-upload";
 
+/**
+ * Modal component for creating a new purchase record
+ *
+ * Provides a form with fields for:
+ * - Order number
+ * - Product description
+ * - Purchase amount
+ * - Purchase date
+ * - Receipt screenshot
+ *
+ * Features:
+ * - Form validation for all required fields
+ * - Image upload with preview
+ * - Form reset functionality
+ * - Loading state during submission
+ * - Success/error toast notifications
+ *
+ * @param {Object} props - Component props
+ * @param {Function} [props.onSuccess] - Optional callback to execute after successful creation
+ * @param {boolean} props.isOpen - Whether the modal is currently visible
+ * @param {Function} props.onClose - Function to close the modal
+ * @returns {JSX.Element} The rendered modal component
+ */
 export default function CreatePurchaseModal({
   onSuccess,
   ...props
@@ -37,6 +60,14 @@ export default function CreatePurchaseModal({
   const [amount, setAmount] = useState<number>(0);
   const formRef = useRef<HTMLFormElement>(null);
 
+  /**
+   * Handles file upload change events from the ImageUpload component
+   * Sets the screenshot state to the base64 data of the uploaded image
+   *
+   * @param {File[]} _files - Array of uploaded files (not used directly)
+   * @param {{ original: File; converted: string; }[] | undefined} dataUrls -
+   *        Array of objects containing the original files and their data URL conversions
+   */
   const handleFileChange = (
     _files: File[],
     dataUrls:
@@ -56,6 +87,12 @@ export default function CreatePurchaseModal({
     }
   };
 
+  /**
+   * Handles date selection events from the DatePicker component
+   * Converts the selected date to a string format and updates state
+   *
+   * @param {any} date - The date object from the date picker
+   */
   const handleDateChange = (date: any) => {
     // Convert date to YYYY-MM-DD format
     if (date) {
@@ -65,6 +102,13 @@ export default function CreatePurchaseModal({
     }
   };
 
+  /**
+   * Handles form submission to create a new purchase
+   * Validates all form fields, submits the data to the API, and handles the response
+   *
+   * @param {FormEvent} e - The form submission event
+   * @returns {Promise<void>} A promise that resolves when the submission is complete
+   */
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -167,6 +211,10 @@ export default function CreatePurchaseModal({
     }
   };
 
+  /**
+   * Resets the form to its initial state
+   * Clears all input fields, the screenshot, and selected date
+   */
   const resetForm = () => {
     setScreenshot(null);
     setSelectedDate(null);

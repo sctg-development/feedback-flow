@@ -30,13 +30,30 @@ import {
 } from "@/components/auth0";
 import PaginatedTable from "@/components/paginated-table";
 
+/**
+ * Page component for adding new users/testers to the system
+ *
+ * Features:
+ * - Displays a table of existing testers
+ * - Provides a form to add new testers
+ * - Automatically refreshes the table after successful additions
+ * - Protected by admin permission requirements
+ *
+ * @returns {JSX.Element} The rendered AddNewUser page component
+ */
 export default function AddNewUser() {
   const { t } = useTranslation();
   const { getAccessTokenSilently } = useAuth0();
   const [refreshKey, setRefreshKey] = useState(0);
 
   /**
-   * Handle form submission to create a new tester
+   * Handles form submission to create a new tester
+   *
+   * Processes the form data, makes an API request to create a new tester,
+   * and updates the UI accordingly (resets form, refreshes table)
+   *
+   * @param {FormEvent<HTMLFormElement>} e - The form submission event
+   * @returns {Promise<void>} A promise that resolves when the submission is complete
    */
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

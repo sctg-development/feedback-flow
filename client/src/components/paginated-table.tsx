@@ -43,6 +43,15 @@ import {
 } from "@/components/auth0";
 import { OrderCriteria } from "@/types/data";
 
+/**
+ * Column definition for the paginated table
+ *
+ * @typedef {Object} ColumnDefinition
+ * @property {string} field - Field name from the data object
+ * @property {string} label - Display label for the column header (will be translated)
+ * @property {Function} [render] - Optional custom renderer function for cell content
+ * @property {boolean} [sortable=false] - Whether this column can be sorted
+ */
 export interface ColumnDefinition {
   /**
    * Field name from the data object
@@ -66,6 +75,28 @@ export interface ColumnDefinition {
   sortable?: boolean;
 }
 
+/**
+ * Props for the PaginatedTable component
+ *
+ * @typedef {Object} PaginatedTableProps
+ * @property {string} [permission] - Permission required to view this table
+ * @property {string} dataUrl - API endpoint URL for fetching data
+ * @property {string|Function} title - Table title or a function that renders a custom title
+ * @property {ColumnDefinition[]} columns - Column definitions
+ * @property {number} [defaultPageSize=10] - Default number of items per page
+ * @property {string} [defaultSortField] - Default field to sort by
+ * @property {OrderCriteria} [defaultSortOrder="asc"] - Default sort order
+ * @property {Partial<TableProps>} [tableProps={}] - Additional props for the Table component
+ * @property {Partial<PaginationProps>} [paginationProps={}] - Additional props for the Pagination component
+ * @property {ReactNode} [emptyContent] - Custom content to display when no data is available
+ * @property {string} [dataKey="data"] - Response key for the data array
+ * @property {string} [totalKey="total"] - Response key for the total count
+ * @property {string} [pageKey="page"] - Response key for the current page
+ * @property {string} [limitKey="limit"] - Response key for the page size
+ * @property {Function} [isSuccessfulResponse] - Function to determine if a response is successful
+ * @property {string} [rowKey="uuid"] - Key to use as a unique identifier for rows
+ * @property {any} [refreshTrigger] - Value that triggers a data refresh when changed
+ */
 export interface PaginatedTableProps {
   /**
    * Permission required to view this table
@@ -341,17 +372,44 @@ export default function PaginatedTable({
   const { t } = useTranslation();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
 
+  /** Array of data items to display in the table */
   const [items, setItems] = useState<any[]>([]);
+
+  /** Current page number (1-based) */
   const [page, setPage] = useState(1);
+
+  /** Total number of items across all pages */
   const [total, setTotal] = useState(0);
+
+  /** Number of items per page */
   const [limit, setLimit] = useState(defaultPageSize);
+
+  /** Current field name being used for sorting */
   const [sort, setSort] = useState(defaultSortField || columns[0]?.field || "");
+
+  /** Current sort direction ('asc' or 'desc') */
   const [order, setOrder] = useState(defaultSortOrder);
+
+  /** Whether data is currently being loaded */
   const [isLoading, setIsLoading] = useState(false);
+
+  /** Error message to display, or null if no error */
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Fetch data from the API
+   * Fetches data from the API endpoint with pagination, sorting, and filtering
+   *
+   * Constructs API query params from current pagination and sorting state,
+   * handles the API response, and updates component state accordingly.
+   * Also performs validation on the response data.
+   *
+   * @async
+   * @param {number} page - Current page number (1-based)
+   * @param {number} limit - Number of items per page
+   * @param {string} sort - Field name to sort by
+   * @param {OrderCriteria} order - Sort direction ('asc' or 'desc')
+   * @returns {Promise<void>}
+   * @throws Will display error messages if API request fails
    */
   const fetchData = async (
     page: number,
@@ -414,7 +472,16 @@ export default function PaginatedTable({
     }
   };
 
-  // Fetch data when component mounts or dependencies change
+  /**
+   * Effect to fetch data when dependencies change
+   *
+   * Triggers a data refresh when:
+   * - Pagination settings change (page, limit)
+   * - Sort settings change (sort field, sort order)
+   * - Authentication status changes
+   * - Data URL changes
+   * - External refresh trigger changes
+   */
   useEffect(() => {
     fetchData(page, limit, sort, order);
   }, [page, limit, sort, order, isAuthenticated, dataUrl, refreshTrigger]);
@@ -436,7 +503,15 @@ export default function PaginatedTable({
   };
 
   /**
-   * Render the content
+   * Renders the main content of the table component
+   *
+   * Handles different display states:
+   * - Loading state with spinner
+   * - Error state with error message
+   * - Empty state with custom or default empty content
+   * - Data display with sortable columns and pagination
+   *
+   * @returns {JSX.Element} The rendered table content
    */
   const renderContent = () => (
     <div className="w-full">
@@ -531,7 +606,19 @@ export default function PaginatedTable({
   );
 
   /**
-   * Helper to render a cell value based on the field path
+   * Renders a cell value based on the data type and field path
+   *
+   * Supports:
+   * - Nested properties via dot notation (e.g., "user.name")
+   * - Array values (joined with commas)
+   * - Boolean values (translated to "yes"/"no")
+   * - Number values (with locale-specific formatting)
+   * - Date objects (formatted as locale date strings)
+   * - Default string representation for other types
+   *
+   * @param {any} item - The data item (row)
+   * @param {string} field - The field name or path to display
+   * @returns {ReactNode} The formatted cell content
    */
   const renderCellValue = (item: any, field: string) => {
     // Handle nested properties using dot notation (e.g., "user.name")
