@@ -50,7 +50,7 @@ export default function IndexPage() {
 
   const renderAtionColumn = (item: any) => {
     if (item.refunded) {
-      return <span className="text-green-500">Refunded</span>;
+      return <span className="text-green-500">{t("refunded")}</span>;
     }
     if (!item.hasFeedback) {
       return (
