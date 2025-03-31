@@ -208,7 +208,7 @@ const testerRoutes = (router: Router, env: Env) => {
 					return router.handleUnauthorizedRequest();
 				}
 
-				const { name } = (await request.json()) as TesterIdAddRequest;
+				let { name, id } = (await request.json()) as TesterIdAddRequest;
 
 				if (!name) {
 					return new Response(
@@ -222,9 +222,12 @@ const testerRoutes = (router: Router, env: Env) => {
 						},
 					);
 				}
+				if (!id) {
+					id = testerId;
+				}
 
 				// Check ID must be unique for the whole database
-				if (await db.idMappings.exists(testerId)) {
+				if (await db.idMappings.exists(id)) {
 					return new Response(
 						JSON.stringify({
 							success: false,
@@ -257,7 +260,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				}
 
 				// Check if ID already exists to avoid duplicates
-				if (tester.ids.includes(testerId)) {
+				if (tester.ids.includes(id)) {
 					return new Response(
 						JSON.stringify({
 							success: false,
@@ -278,7 +281,7 @@ const testerRoutes = (router: Router, env: Env) => {
 				// Update the database
 				const ids = await db.testers.put({
 					...tester,
-					ids: [...tester.ids, testerId],
+					ids: [...tester.ids, id],
 				});
 
 				return new Response(

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { FormEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
