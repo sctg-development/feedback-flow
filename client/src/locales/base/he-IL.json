@@ -127,5 +127,22 @@
   "refund-date": "תאריך החזר כספי",
   "process-refund": "לעבד את ההחזר",
   "please-select-refund-date": "אנא בחר בתאריך ההחזר",
-  "please-enter-valid-amount": "אנא הזן סכום תקף"
+  "please-enter-valid-amount": "אנא הזן סכום תקף",
+  "create": "לִיצוֹר",
+  "create-new-purchase": "צור רכישה חדשה",
+  "drop-your-receipt-here": "זרוק את הקבלה שלך כאן",
+  "enter-order-number": "הזן את מספר ההזמנה",
+  "enter-product-description": "הזן את תיאור המוצר",
+  "error-creating-purchase": "שגיאה ביצירת רכישה",
+  "feedback-published-successfully": "משוב שפורסם בהצלחה",
+  "new-purchase": "רכישה חדשה",
+  "order-number": "מספר הזמנה",
+  "please-enter-description": "אנא הזן את DISCINCTING",
+  "please-enter-feedback": "אנא הכנס משוב",
+  "please-enter-order-number": "אנא הזן את מספר ההזמנה",
+  "please-upload-receipt-screenshot": "אנא העלה צילום מסך קבלה",
+  "purchase-created-successfully": "הרכישה שנוצרה בהצלחה",
+  "purchase-date": "תאריך רכישה",
+  "receipt-screenshot": "צילום מסך קבלה",
+  "receipt-screenshot-required": "צילום מסך קבלה נדרש"
 }

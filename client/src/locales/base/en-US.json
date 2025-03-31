@@ -129,5 +129,20 @@
   "refund-date": "Refund  date",
   "process-refund": "Process the refund",
   "please-enter-valid-amount": "Please enter a valid amount",
-  "please-select-refund-date": "Please select the refund date"
+  "please-select-refund-date": "Please select the refund date",
+  "please-upload-receipt-screenshot": "Please upload receipt screenshot",
+  "please-enter-order-number": "Please enter order number",
+  "please-enter-description": "Please enter desccription",
+  "purchase-created-successfully": "Purchase created successfully",
+  "error-creating-purchase": "Error creating purchase",
+  "enter-order-number": "Enter order number",
+  "enter-product-description": "Enter product description",
+  "new-purchase": "New purchase",
+  "create-new-purchase": "Create  new purchase",
+  "order-number": "Order number",
+  "purchase-date": "Purchase date",
+  "receipt-screenshot": "Receipt screenshot",
+  "drop-your-receipt-here": "Drop your receipt here",
+  "receipt-screenshot-required": "Receipt screenshot required",
+  "create": "Create"
 }

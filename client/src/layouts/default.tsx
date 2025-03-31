@@ -14,6 +14,7 @@ import { Snippet } from "@heroui/snippet";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
 
 import { Navbar } from "@/components/navbar";
+import { siteConfig } from "@/config/site";
 
 export default function DefaultLayout({
   children,
@@ -55,13 +56,13 @@ export default function DefaultLayout({
         <Link
           isExternal
           className="flex items-center gap-1 text-current"
-          href="https://heroui.com"
+          href={siteConfig().links.sctg}
           title={t("heroui-com-homepage")}
         >
           <span className="text-default-600">
             <Trans ns="base">powered-by</Trans>
           </span>
-          <p className="text-primary">HeroUI&nbsp;</p>
+          <p className="text-primary">{t("brand")}&nbsp;</p>
         </Link>
         <Dropdown>
           <DropdownTrigger>

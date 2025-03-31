@@ -127,5 +127,22 @@
   "refund-date": "退款日期",
   "process-refund": "处理退款",
   "please-select-refund-date": "请选择退款日期",
-  "please-enter-valid-amount": "请输入有效金额"
+  "please-enter-valid-amount": "请输入有效金额",
+  "create": "创造",
+  "create-new-purchase": "创建新购买",
+  "drop-your-receipt-here": "放在这里的收据",
+  "enter-order-number": "输入订单号",
+  "enter-product-description": "输入产品描述",
+  "error-creating-purchase": "错误创建购买",
+  "feedback-published-successfully": "反馈成功发布",
+  "new-purchase": "新购买",
+  "order-number": "订单号",
+  "please-enter-description": "请输入Desccription",
+  "please-enter-feedback": "请输入反馈",
+  "please-enter-order-number": "请输入订单号",
+  "please-upload-receipt-screenshot": "请上传收据屏幕截图",
+  "purchase-created-successfully": "购买成功创建",
+  "purchase-date": "购买日期",
+  "receipt-screenshot": "收据屏幕截图",
+  "receipt-screenshot-required": "收据屏幕快照"
 }

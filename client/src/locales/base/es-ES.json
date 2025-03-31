@@ -127,5 +127,22 @@
   "refund-date": "Fecha de reembolso",
   "process-refund": "Procesar el reembolso",
   "please-select-refund-date": "Seleccione la fecha de reembolso",
-  "please-enter-valid-amount": "Ingrese una cantidad válida"
+  "please-enter-valid-amount": "Ingrese una cantidad válida",
+  "create": "Crear",
+  "create-new-purchase": "Crear una nueva compra",
+  "drop-your-receipt-here": "Deja tu recibo aquí",
+  "enter-order-number": "Ingrese el número de pedido",
+  "enter-product-description": "Ingrese la descripción del producto",
+  "error-creating-purchase": "Error a crear compra",
+  "feedback-published-successfully": "Comentarios publicados con éxito",
+  "new-purchase": "Nueva compra",
+  "order-number": "Número de orden",
+  "please-enter-description": "Por favor ingrese la descripción",
+  "please-enter-feedback": "Por favor ingrese comentarios",
+  "please-enter-order-number": "Ingrese el número de pedido",
+  "please-upload-receipt-screenshot": "Sube la captura de pantalla de recibo",
+  "purchase-created-successfully": "Compra creada con éxito",
+  "purchase-date": "Fecha de compra",
+  "receipt-screenshot": "Captura de pantalla de recibo",
+  "receipt-screenshot-required": "Se requiere captura de pantalla de recibo"
 }

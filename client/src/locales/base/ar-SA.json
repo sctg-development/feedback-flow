@@ -127,5 +127,22 @@
   "refund-date": "تاريخ الاسترداد",
   "process-refund": "معالجة استرداد الأموال",
   "please-select-refund-date": "الرجاء تحديد تاريخ الاسترداد",
-  "please-enter-valid-amount": "الرجاء إدخال مبلغ صالح"
+  "please-enter-valid-amount": "الرجاء إدخال مبلغ صالح",
+  "create": "يخلق",
+  "create-new-purchase": "إنشاء شراء جديد",
+  "drop-your-receipt-here": "إسقاط إيصالك هنا",
+  "enter-order-number": "أدخل رقم الطلب",
+  "enter-product-description": "أدخل وصف المنتج",
+  "error-creating-purchase": "خطأ في إنشاء الشراء",
+  "feedback-published-successfully": "ملاحظات نشرت بنجاح",
+  "new-purchase": "شراء جديد",
+  "order-number": "رقم الطلب",
+  "please-enter-description": "الرجاء إدخال description",
+  "please-enter-feedback": "الرجاء إدخال الملاحظات",
+  "please-enter-order-number": "الرجاء إدخال رقم الطلب",
+  "please-upload-receipt-screenshot": "يرجى تحميل لقطة الشاشة",
+  "purchase-created-successfully": "الشراء التي تم إنشاؤها بنجاح",
+  "purchase-date": "تاريخ الشراء",
+  "receipt-screenshot": "لقطة الشاشة",
+  "receipt-screenshot-required": "لقطة الشاشة المطلوبة"
 }

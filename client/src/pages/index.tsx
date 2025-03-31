@@ -25,6 +25,7 @@ import { ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
+import { EditIcon } from "@heroui/shared-icons";
 
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
@@ -32,10 +33,12 @@ import PaginatedTable from "@/components/paginated-table";
 import AddFeedbackModal from "@/components/add-feedback-modal";
 import PublishFeedbackModal from "@/components/publish-feedback-modal";
 import RefundPurchaseModal from "@/components/refund-purchase-modal";
+import CreatePurchaseModal from "@/components/create-purchase-modal";
 
 export default function IndexPage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth0();
+  const [createNewPurchase, setCreateNewPurchase] = useState(false);
   const [refundPurchases, setRefundPurchases] = useState(false);
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
   const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
@@ -104,13 +107,22 @@ export default function IndexPage() {
 
     if (toggleAllPurchases) {
       return (
-        <Button
-          className="text-3xl font-bold"
-          variant="light"
-          onPress={handleToggleAllPurchases}
-        >
-          {t("purchases-refunded")}
-        </Button>
+        <div className="flex justify-between items-center w-full">
+          <Button
+            className="text-3xl font-bold"
+            variant="light"
+            onPress={handleToggleAllPurchases}
+          >
+            {t("purchases-refunded")}
+          </Button>
+          <Button
+            color="primary"
+            startContent={<EditIcon />}
+            onPress={() => setCreateNewPurchase(true)}
+          >
+            {t("new-purchase")}
+          </Button>
+        </div>
       );
     } else {
       return (
@@ -196,6 +208,15 @@ export default function IndexPage() {
         )}
       </section>
 
+      {/* Add the new Create Purchase Modal */}
+      {createNewPurchase && (
+        <CreatePurchaseModal
+          children={undefined}
+          isOpen={createNewPurchase}
+          onClose={() => setCreateNewPurchase(false)}
+          onSuccess={refreshTable}
+        />
+      )}
       {/* Add Feedback Modal */}
       {createFeedbackPurchase && (
         <AddFeedbackModal
