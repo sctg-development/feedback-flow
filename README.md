@@ -220,3 +220,10 @@ In the root of the repository, run the following command:
    cd cloudflare-worker
    npm test
    ```
+## Screenshots
+<img width="468" alt="add-feedback" src="https://github.com/user-attachments/assets/b28d28e5-a782-40e6-9daa-3f48447a1c30" />
+<img width="462" alt="refund" src="https://github.com/user-attachments/assets/b91764a4-121a-4d43-b924-35c5b2e88a27" />
+<img width="1043" alt="add-user" src="https://github.com/user-attachments/assets/bded224e-e8eb-494d-bd06-cdf4754a62e7" />
+<img width="477" alt="publish-feedback" src="https://github.com/user-attachments/assets/c128ad7c-48fe-4d7d-9866-82b5a376c293" />
+<img width="1235" alt="add-purchase" src="https://github.com/user-attachments/assets/ca78fd8d-cae5-42ac-a7dc-b2be6662262a" />
+<img width="1244" alt="main" src="https://github.com/user-attachments/assets/ecbf3f10-f040-4b59-bba5-4507d8cb83aa" />
