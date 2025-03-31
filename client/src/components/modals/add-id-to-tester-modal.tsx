@@ -14,7 +14,7 @@ import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 import { addToast } from "@heroui/toast";
 
-import { postJsonToSecuredApi } from "./auth0";
+import { postJsonToSecuredApi } from "../auth0";
 
 /**
  * Modal component for adding an OAuth ID to an existing tester

@@ -16,7 +16,7 @@ import { DatePicker } from "@heroui/date-picker";
 import { addToast } from "@heroui/toast";
 import { NumberInput } from "@heroui/number-input";
 
-import { postJsonToSecuredApi } from "./auth0";
+import { postJsonToSecuredApi } from "../auth0";
 
 export default function RefundPurchaseModal({
   purchaseId,
@@ -144,7 +144,6 @@ export default function RefundPurchaseModal({
             <div className="mb-4">
               <NumberInput
                 isRequired
-                className="w-full p-2 border rounded"
                 label={t("amount")}
                 min={0.01}
                 name="amount"
@@ -161,7 +160,6 @@ export default function RefundPurchaseModal({
                 <DatePicker
                   ref={refundDatePickerRef}
                   isRequired
-                  className="w-full p-2 border rounded"
                   defaultValue={today(getLocalTimeZone())}
                   label={t("refund-date")}
                   maxValue={today(getLocalTimeZone()).add({ days: 10 })}

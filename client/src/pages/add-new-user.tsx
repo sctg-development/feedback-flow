@@ -29,7 +29,7 @@ import {
   postJsonToSecuredApi,
 } from "@/components/auth0";
 import PaginatedTable from "@/components/paginated-table";
-import AddIdToTester from "@/components/AddIdToTesterModal";
+import AddIdToTester from "@/components/modals/add-id-to-tester-modal";
 
 /**
  * Page component for adding new users/testers to the system

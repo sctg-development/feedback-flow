@@ -16,7 +16,7 @@ import { Textarea } from "@heroui/input";
 import { useTranslation } from "react-i18next";
 import { FormEvent, useState } from "react";
 
-import { postJsonToSecuredApi } from "./auth0";
+import { postJsonToSecuredApi } from "../auth0";
 
 /**
  * Constructs a modal for adding feedback.
@@ -120,7 +120,6 @@ export default function AddFeedbackModal({
             <I18nProvider locale={i18n.language}>
               <DatePicker
                 isRequired
-                className="w-full p-2 border rounded"
                 defaultValue={today(getLocalTimeZone()).subtract({ days: 1 })}
                 label={t("select-date")}
                 maxValue={today(getLocalTimeZone())}
@@ -128,13 +127,14 @@ export default function AddFeedbackModal({
                 name="date"
               />
             </I18nProvider>
-            <Textarea
-              className="w-full p-2 border rounded"
-              defaultValue={t("not-filled")}
-              name="feedback"
-              placeholder={t("enter-your-feedback-here")}
-              rows={4}
-            />
+            <div className="w-full">
+              <Textarea
+                defaultValue={t("not-filled")}
+                name="feedback"
+                placeholder={t("enter-your-feedback-here")}
+                rows={4}
+              />
+            </div>
             <div className="flex justify-end gap-2 mt-4">
               <Button
                 color="danger"

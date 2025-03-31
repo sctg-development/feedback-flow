@@ -30,10 +30,10 @@ import { EditIcon } from "@heroui/shared-icons";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import PaginatedTable from "@/components/paginated-table";
-import AddFeedbackModal from "@/components/add-feedback-modal";
-import PublishFeedbackModal from "@/components/publish-feedback-modal";
-import RefundPurchaseModal from "@/components/refund-purchase-modal";
-import CreatePurchaseModal from "@/components/create-purchase-modal";
+import AddFeedbackModal from "@/components/modals/add-feedback-modal";
+import PublishFeedbackModal from "@/components/modals/publish-feedback-modal";
+import RefundPurchaseModal from "@/components/modals/refund-purchase-modal";
+import CreatePurchaseModal from "@/components/modals/create-purchase-modal";
 
 /**
  * Main page of the application displaying purchase data in a tabular format

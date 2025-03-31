@@ -15,7 +15,7 @@ import { getLocalTimeZone, today } from "@internationalized/date";
 import { DatePicker } from "@heroui/date-picker";
 import { addToast } from "@heroui/toast";
 
-import { postJsonToSecuredApi } from "./auth0";
+import { postJsonToSecuredApi } from "../auth0";
 
 import { ImageUpload } from "@/components/image-upload";
 
@@ -177,7 +177,6 @@ export default function PublishFeedbackModal({
               <I18nProvider locale={i18n.language}>
                 <DatePicker
                   isRequired
-                  className="w-full p-2 border rounded"
                   defaultValue={today(getLocalTimeZone()).subtract({ days: 1 })}
                   label={t("select-date")}
                   maxValue={today(getLocalTimeZone())}

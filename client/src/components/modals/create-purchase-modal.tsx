@@ -17,7 +17,7 @@ import { Input } from "@heroui/input";
 import { addToast } from "@heroui/toast";
 import { NumberInput } from "@heroui/number-input";
 
-import { postJsonToSecuredApi } from "./auth0";
+import { postJsonToSecuredApi } from "../auth0";
 
 import { ImageUpload } from "@/components/image-upload";
 
@@ -238,13 +238,10 @@ export default function CreatePurchaseModal({
         </ModalHeader>
         <ModalBody>
           <Form ref={formRef} onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                {t("order-number")}
-              </label>
+            <div className="mb-4 w-full">
               <Input
                 isRequired
-                className="w-full p-2 border rounded"
+                label={t("order-number")}
                 name="orderNumber"
                 placeholder={t("enter-order-number")}
                 value={orderNumber}
@@ -252,13 +249,10 @@ export default function CreatePurchaseModal({
               />
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                {t("description")}
-              </label>
+            <div className="mb-4 w-full">
               <Input
                 isRequired
-                className="w-full p-2 border rounded"
+                label={t("description")}
                 name="description"
                 placeholder={t("enter-product-description")}
                 value={description}
@@ -267,12 +261,9 @@ export default function CreatePurchaseModal({
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                {t("amount")}
-              </label>
               <NumberInput
                 isRequired
-                className="w-full p-2 border rounded"
+                label={t("amount")}
                 min={0.01}
                 name="amount"
                 placeholder="0.00"
@@ -287,7 +278,6 @@ export default function CreatePurchaseModal({
               <I18nProvider locale={i18n.language}>
                 <DatePicker
                   isRequired
-                  className="w-full p-2 border rounded"
                   defaultValue={today(getLocalTimeZone())}
                   label={t("purchase-date")}
                   maxValue={today(getLocalTimeZone())}
