@@ -265,6 +265,9 @@ export default function IndexPage() {
                   field: "description",
                   label: t("description"),
                   sortable: false,
+                  onCellAction: (item) => {
+                    setScreenshot(item.purchaseScreenshot);
+                  },
                 },
                 {
                   field: "amount",
@@ -286,6 +289,11 @@ export default function IndexPage() {
                   sortable: false,
                   className: "hidden lg:table-cell",
                   headerClassName: "hidden md:table-cell",
+                  onCellAction: (item) => {
+                    if (item.hasPublication) {
+                      setScreenshot(item.publicationScreenshot);
+                    }
+                  }
                 },
                 {
                   field: "refunded",
@@ -354,6 +362,15 @@ export default function IndexPage() {
           purchaseId={purchase.purchaseId}
           onClose={() => setRefundPurchases(false)}
           onSuccess={refreshTable}
+        />
+      )}
+      {/* Screenshot Modal */}
+      {screenshot && (
+        <ScreenshotModal
+          children={undefined}
+          isOpen={!!screenshot}
+          screenshot={screenshot}
+          onClose={() => setScreenshot(null)}
         />
       )}
     </DefaultLayout>

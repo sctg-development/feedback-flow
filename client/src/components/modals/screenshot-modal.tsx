@@ -19,13 +19,7 @@
  * @description Modal component for showing a screenshot coming from the api as a data url
  * @param {string} screenshot - The screenshot data URL to display
  */
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  ModalProps,
-} from "@heroui/modal";
+import { Modal, ModalBody, ModalContent, ModalProps } from "@heroui/modal";
 import { Image } from "@heroui/image";
 
 export const ScreenshotModal = ({
@@ -37,9 +31,8 @@ export const ScreenshotModal = ({
   return (
     <Modal {...props}>
       <ModalContent>
-        <ModalHeader>{screenshot}</ModalHeader>
         <ModalBody>
-          <Image alt="Screenshot" src={screenshot} />
+          <Image alt="Screenshot" className="w-full" src={screenshot} />
         </ModalBody>
       </ModalContent>
     </Modal>

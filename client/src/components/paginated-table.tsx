@@ -83,6 +83,14 @@ export interface ColumnDefinition {
    * Optional class name for the column header
    */
   headerClassName?: string;
+  /**
+   * Optional action handler for cell clicks
+   * Called when a cell in this column is clicked
+   *
+   * @param {any} item - The row data for the clicked cell
+   * @returns {void}
+   */
+  onCellAction?: (item: any) => void;
 }
 
 /**
@@ -357,7 +365,26 @@ export interface PaginatedTableProps {
  *   }
  * />
  * ```
- *
+ * @example With Cell Actions
+ * ```tsx
+ * <PaginatedTable
+ *   dataUrl="/api/files"
+ *   title="Documents"
+ *   columns={[
+ *     { field: "name", label: "Filename", sortable: true },
+ *     { field: "size", label: "Size", render: (item) => formatFileSize(item.size) },
+ *     { field: "type", label: "Type" },
+ *     {
+ *       field: "actions",
+ *       label: "Actions",
+ *       render: (item) => (
+ *         <Button size="sm">View</Button>
+ *       ),
+ *       onCellAction: (item) => openDocument(item.id)
+ *     }
+ *   ]}
+ * />
+ * ```
  * @returns A paginated table component with the specified configuration
  */
 export default function PaginatedTable({
@@ -608,6 +635,11 @@ export default function PaginatedTable({
                   <TableCell
                     key={`${item[rowKey]}-${column.field}`}
                     className={column.className}
+                    onClick={
+                      column.onCellAction
+                        ? () => column.onCellAction?.(item)
+                        : undefined
+                    }
                   >
                     {column.render
                       ? column.render(item)
