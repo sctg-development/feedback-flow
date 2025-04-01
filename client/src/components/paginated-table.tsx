@@ -79,6 +79,10 @@ export interface ColumnDefinition {
    * Optional class name for the column header
    */
   className?: string;
+  /**
+   * Optional class name for the column header
+   */
+  headerClassName?: string;
 }
 
 /**
@@ -576,6 +580,7 @@ export default function PaginatedTable({
                 className={clsx(
                   column.sortable && "cursor-pointer select-none",
                   column.className,
+                  column.headerClassName,
                 )}
                 onClick={
                   column.sortable
