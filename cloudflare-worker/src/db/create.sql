@@ -26,12 +26,12 @@
 PRAGMA foreign_keys = ON;
 
 -- Suppression des tables si elles existent déjà (pour réinitialisation)
--- DROP TABLE IF EXISTS refunds;
--- DROP TABLE IF EXISTS publications;
--- DROP TABLE IF EXISTS feedbacks;
--- DROP TABLE IF EXISTS purchases;
--- DROP TABLE IF EXISTS id_mappings;
--- DROP TABLE IF EXISTS testers;
+DROP TABLE IF EXISTS refunds;
+DROP TABLE IF EXISTS publications;
+DROP TABLE IF EXISTS feedbacks;
+DROP TABLE IF EXISTS purchases;
+DROP TABLE IF EXISTS id_mappings;
+DROP TABLE IF EXISTS testers;
 
 -- Table des testeurs
 CREATE TABLE testers (
@@ -125,6 +125,7 @@ BEGIN
 END;
 
 -- Vue pour obtenir facilement les achats avec leur statut de feedback, publication et remboursement
+DROP VIEW IF EXISTS purchase_status;
 CREATE VIEW purchase_status AS
 SELECT 
     p.id,
@@ -134,6 +135,8 @@ SELECT
     p.description,
     p.amount,
     p.refunded,
+    pub.screenshot as publication_screenshot,
+    p.screenshot as purchase_screenshot,
     CASE WHEN f.id IS NOT NULL THEN 1 ELSE 0 END as has_feedback,
     CASE WHEN pub.id IS NOT NULL THEN 1 ELSE 0 END as has_publication,
     CASE WHEN r.id IS NOT NULL THEN 1 ELSE 0 END as has_refund
@@ -144,6 +147,7 @@ FROM
     LEFT JOIN refunds r ON p.id = r.purchase_id;
 
 -- Vue pour obtenir des statistiques par testeur
+DROP VIEW IF EXISTS tester_statistics;
 CREATE VIEW tester_statistics AS
 SELECT 
     t.uuid,

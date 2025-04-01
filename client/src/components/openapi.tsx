@@ -2,8 +2,10 @@
 import { useEffect, useState } from "react";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
+import { useTranslation } from "react-i18next";
 
 export function OpenAPI() {
+  const { t } = useTranslation();
   const url = import.meta.env.BASE_URL.endsWith("/")
     ? import.meta.env.BASE_URL + "openapi.json"
     : import.meta.env.BASE_URL + "/openapi.json";
@@ -20,7 +22,7 @@ export function OpenAPI() {
             url: import.meta.env.API_BASE_URL.endsWith("/api")
               ? import.meta.env.API_BASE_URL.split("/api")[0]
               : import.meta.env.API_BASE_URL,
-            description: "API server",
+            description: t("api-server"),
           },
         ];
         setOpenApiSpec(data);

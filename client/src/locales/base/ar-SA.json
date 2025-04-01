@@ -149,5 +149,6 @@
   "error-adding-oauth-id": "خطأ في إضافة معرف OAuth",
   "oauth-id-added-successfully": "أضاف معرف Oauth بنجاح",
   "oauth-id-format-hint": "تلميح تنسيق معرف OAUTH",
-  "please-enter-valid-oauth-id": "الرجاء إدخال معرف Oauth صالح"
+  "please-enter-valid-oauth-id": "الرجاء إدخال معرف Oauth صالح",
+  "api-server": "خادم API"
 }

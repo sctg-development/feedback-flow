@@ -149,5 +149,6 @@
   "oauth-id-added-successfully": "OAuth Id added successfully",
   "error-adding-oauth-id": "Error adding OAuth Id",
   "add-oauth-id-to": "Add OAuth Id",
-  "oauth-id-format-hint": "Oauth Id Format Hint"
+  "oauth-id-format-hint": "Oauth Id Format Hint",
+  "api-server": "API server"
 }

@@ -149,5 +149,6 @@
   "error-adding-oauth-id": "שגיאה הוספת מזהה OAuth",
   "oauth-id-added-successfully": "מזהה Oauth הוסיף בהצלחה",
   "oauth-id-format-hint": "רמז לתבנית זיהוי של Oauth",
-  "please-enter-valid-oauth-id": "אנא הזן מזהה OAuth תקף"
+  "please-enter-valid-oauth-id": "אנא הזן מזהה OAuth תקף",
+  "api-server": "שרת API"
 }

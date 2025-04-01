@@ -12,6 +12,7 @@
 		"lint": "eslint --fix",
 		"start": "wrangler dev",
 		"test": "set -a && source ../.env && set +a && node --experimental-vm-modules ./node_modules/.bin/jest",
+		"d1:create": "npx wrangler d1 execute --local --file src/db/create.sql feedbackflow-db",
 		"d1:init": "npx wrangler d1 execute --local --file src/test/seed-test-data.sql feedbackflow-db",
 		"cf-typegen": "wrangler types"
 	},

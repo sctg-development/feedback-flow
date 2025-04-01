@@ -59,6 +59,8 @@ export interface PurchaseStatus {
 	hasFeedback: boolean;
 	hasPublication: boolean;
 	hasRefund: boolean;
+	purchaseScreenshot?: string;
+	publicationScreenshot?: string;
 }
 /**
  * IdMappings repository interface (async version)

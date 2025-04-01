@@ -598,18 +598,23 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 			const { results } = await preparedStatement.all();
 
-			return results.map((row) => ({
-				purchase: row.id as string,
-				testerUuid: row.tester_uuid as string,
-				date: row.date as string,
-				order: row.order_number as string,
-				description: row.description as string,
-				amount: row.amount as number,
-				refunded: Boolean(row.refunded),
-				hasFeedback: Boolean(row.has_feedback),
-				hasPublication: Boolean(row.has_publication),
-				hasRefund: Boolean(row.has_refund),
-			}));
+			return results.map(
+				(row) =>
+					({
+						purchase: row.id as string,
+						testerUuid: row.tester_uuid as string,
+						date: row.date as string,
+						order: row.order_number as string,
+						description: row.description as string,
+						amount: row.amount as number,
+						refunded: Boolean(row.refunded),
+						hasFeedback: Boolean(row.has_feedback),
+						hasPublication: Boolean(row.has_publication),
+						hasRefund: Boolean(row.has_refund),
+						publicationScreenshot: row.publication_screenshot as string,
+						purchaseScreenshot: row.purchase_screenshot as string,
+					}) as PurchaseStatus,
+			);
 		},
 	};
 

@@ -423,15 +423,15 @@ export class InMemoryDB implements FeedbackFlowDB {
 			const result = testerPurchases
 				.map((purchase) => {
 					// Check for related feedback, publication, and refund
-					const hasFeedback = this.data.feedbacks.some(
+					const hasFeedback = this.data.feedbacks.find(
 						(feedback) => feedback.purchase === purchase.id,
 					);
 
-					const hasPublication = this.data.publications.some(
+					const hasPublication = this.data.publications.find(
 						(publication) => publication.purchase === purchase.id,
 					);
 
-					const hasRefund = this.data.refunds.some(
+					const hasRefund = this.data.refunds.find(
 						(refund) => refund.purchase === purchase.id,
 					);
 
@@ -444,10 +444,12 @@ export class InMemoryDB implements FeedbackFlowDB {
 						description: purchase.description,
 						amount: purchase.amount,
 						refunded: purchase.refunded || false,
-						hasFeedback,
-						hasPublication,
-						hasRefund,
-					};
+						hasFeedback: hasFeedback !== undefined,
+						hasPublication: hasPublication !== undefined,
+						hasRefund: hasRefund !== undefined,
+						publicationScreenshot: hasPublication?.screenshot,
+						purchaseSreenshot: purchase.screenshot,
+					} as PurchaseStatus;
 				})
 				.slice(offset, offset + limit)
 				.sort((a, b) => {
