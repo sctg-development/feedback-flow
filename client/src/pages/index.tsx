@@ -148,9 +148,9 @@ export default function IndexPage() {
 
     if (toggleAllPurchases) {
       return (
-        <div className="flex justify-between items-center w-full">
+        <div className="flex flex-col sm:flex-row justify-between items-center w-full">
           <Button
-            className="text-3xl font-bold"
+            className="text-3xl font-bold max-w-screen"
             variant="light"
             onPress={handleToggleAllPurchases}
           >
@@ -167,9 +167,9 @@ export default function IndexPage() {
       );
     } else {
       return (
-        <div className="flex justify-between items-center w-full">
+        <div className="flex flex-col sm:flex-row  justify-between items-center w-full">
           <Button
-            className="text-3xl font-bold"
+            className="flex text-3xl font-bold max-w-screen"
             variant="light"
             onPress={handleToggleAllPurchases}
           >
@@ -235,26 +235,26 @@ export default function IndexPage() {
             <span className={title()}>{t("in-one-place")}</span>
           </div>
         ) : (
-          <div className="flex gap-3">
+          <div className="flex gap-3 max-w-screen">
             <PaginatedTable
               columns={[
                 {
                   field: "purchase",
                   label: t("purchase"),
                   sortable: false,
-                  className: "hidden md:flex",
+                  className: "",
                 },
                 {
                   field: "date",
                   label: t("date"),
                   sortable: true,
-                  className: "hidden md:flex",
+                  className: "",
                 },
                 {
                   field: "order",
                   label: t("order"),
                   sortable: true,
-                  className: "hidden md:flex",
+                  className: "",
                 },
                 {
                   field: "description",
@@ -265,25 +265,25 @@ export default function IndexPage() {
                   field: "amount",
                   label: t("amount"),
                   sortable: false,
-                  className: "hidden md:flex",
+                  className: "",
                 },
                 {
                   field: "hasFeedback",
                   label: t("hasFeedback"),
                   sortable: false,
-                  className: "hidden md:flex",
+                  className: "",
                 },
                 {
                   field: "hasPublication",
                   label: t("hasPublication"),
                   sortable: false,
-                  className: "hidden md:flex",
+                  className: "",
                 },
                 {
                   field: "refunded",
                   label: t("refunded"),
                   sortable: false,
-                  className: "hidden md:flex",
+                  className: "",
                 },
                 {
                   field: "actions",
