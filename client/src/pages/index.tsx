@@ -238,26 +238,53 @@ export default function IndexPage() {
           <div className="flex gap-3">
             <PaginatedTable
               columns={[
-                { field: "purchase", label: t("purchase"), sortable: false },
-                { field: "date", label: t("date"), sortable: true },
-                { field: "order", label: t("order"), sortable: true },
+                {
+                  field: "purchase",
+                  label: t("purchase"),
+                  sortable: false,
+                  className: "hidden md:flex",
+                },
+                {
+                  field: "date",
+                  label: t("date"),
+                  sortable: true,
+                  className: "hidden md:flex",
+                },
+                {
+                  field: "order",
+                  label: t("order"),
+                  sortable: true,
+                  className: "hidden md:flex",
+                },
                 {
                   field: "description",
                   label: t("description"),
                   sortable: false,
                 },
-                { field: "amount", label: t("amount"), sortable: false },
+                {
+                  field: "amount",
+                  label: t("amount"),
+                  sortable: false,
+                  className: "hidden md:flex",
+                },
                 {
                   field: "hasFeedback",
                   label: t("hasFeedback"),
                   sortable: false,
+                  className: "hidden md:flex",
                 },
                 {
                   field: "hasPublication",
                   label: t("hasPublication"),
                   sortable: false,
+                  className: "hidden md:flex",
                 },
-                { field: "refunded", label: t("refunded"), sortable: false },
+                {
+                  field: "refunded",
+                  label: t("refunded"),
+                  sortable: false,
+                  className: "hidden md:flex",
+                },
                 {
                   field: "actions",
                   label: t("actions"),

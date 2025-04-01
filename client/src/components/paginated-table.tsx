@@ -35,6 +35,7 @@ import {
 } from "@heroui/table";
 import { Pagination, PaginationProps } from "@heroui/pagination";
 import { Spinner } from "@heroui/spinner";
+import { clsx } from "@heroui/shared-utils";
 
 import { title as titleStyle } from "@/components/primitives";
 import {
@@ -50,6 +51,7 @@ import { OrderCriteria } from "@/types/data";
  * @property {string} field - Field name from the data object
  * @property {string} label - Display label for the column header (will be translated)
  * @property {Function} [render] - Optional custom renderer function for cell content
+ * @property {string} className - Optional class name for the column header
  * @property {boolean} [sortable=false] - Whether this column can be sorted
  */
 export interface ColumnDefinition {
@@ -73,6 +75,10 @@ export interface ColumnDefinition {
    * @default false
    */
   sortable?: boolean;
+  /**
+   * Optional class name for the column header
+   */
+  className?: string;
 }
 
 /**
@@ -567,7 +573,10 @@ export default function PaginatedTable({
             {columns.map((column) => (
               <TableColumn
                 key={column.field}
-                className={column.sortable ? "cursor-pointer select-none" : ""}
+                className={clsx(
+                  column.sortable && "cursor-pointer select-none",
+                  column.className,
+                )}
                 onClick={
                   column.sortable
                     ? () => handleSortChange(column.field)
@@ -591,7 +600,10 @@ export default function PaginatedTable({
             {(item) => (
               <TableRow key={item[rowKey]}>
                 {columns.map((column) => (
-                  <TableCell key={`${item[rowKey]}-${column.field}`}>
+                  <TableCell
+                    key={`${item[rowKey]}-${column.field}`}
+                    className={column.className}
+                  >
                     {column.render
                       ? column.render(item)
                       : renderCellValue(item, column.field)}
