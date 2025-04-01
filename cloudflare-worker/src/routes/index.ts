@@ -43,7 +43,63 @@ import { Router } from "./router";
 
 // Tester Management
 const testerRoutes = (router: Router, env: Env) => {
-	// Get all testers with pagination and sort, requires admin permission
+	/**
+	 * @openapi
+	 * /api/testers:
+	 *   get:
+	 *     summary: Get all testers with pagination and sorting
+	 *     description: Returns a paginated list of testers. Requires admin permission.
+	 *     tags:
+	 *       - Testers
+	 *     parameters:
+	 *       - name: page
+	 *         in: query
+	 *         description: Page number
+	 *         schema:
+	 *           type: integer
+	 *           default: 1
+	 *       - name: limit
+	 *         in: query
+	 *         description: Number of items per page
+	 *         schema:
+	 *           type: integer
+	 *           default: 10
+	 *       - name: sort
+	 *         in: query
+	 *         description: Sort field
+	 *         schema:
+	 *           type: string
+	 *           default: name
+	 *       - name: order
+	 *         in: query
+	 *         description: Sort order
+	 *         schema:
+	 *           type: string
+	 *           enum: [asc, desc]
+	 *           default: asc
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved testers
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   type: array
+	 *                   items:
+	 *                     $ref: '#/components/schemas/Tester'
+	 *                 total:
+	 *                   type: integer
+	 *                 page:
+	 *                   type: integer
+	 *                 limit:
+	 *                   type: integer
+	 *       403:
+	 *         description: Unauthorized request
+	 */
 	router.get(
 		"/api/testers",
 		async (request) => {
@@ -96,7 +152,39 @@ const testerRoutes = (router: Router, env: Env) => {
 		env.ADMIN_PERMISSION,
 	);
 
-	// Add a tester
+	/**
+	 * @openapi
+	 * /api/tester:
+	 *   post:
+	 *     summary: Add a new tester
+	 *     description: Creates a new tester with the provided details. Requires admin permission.
+	 *     tags:
+	 *       - Testers
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             $ref: '#/components/schemas/TesterCreateRequest'
+	 *     responses:
+	 *       201:
+	 *         description: Tester successfully created
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 uuid:
+	 *                   type: string
+	 *       400:
+	 *         description: Invalid request or missing required fields
+	 *       409:
+	 *         description: ID already exists in the database
+	 *       500:
+	 *         description: Failed to create tester
+	 */
 	router.post(
 		"/api/tester",
 		async (request) => {
@@ -195,7 +283,45 @@ const testerRoutes = (router: Router, env: Env) => {
 		env.ADMIN_PERMISSION,
 	);
 
-	// Add ID to tester
+	/**
+	 * @openapi
+	 * /api/tester/ids:
+	 *   post:
+	 *     summary: Add ID to existing tester
+	 *     description: Adds a new ID to an existing tester. Requires admin permission.
+	 *     tags:
+	 *       - Testers
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             $ref: '#/components/schemas/TesterIdAddRequest'
+	 *     responses:
+	 *       200:
+	 *         description: ID successfully added to tester
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 name:
+	 *                   type: string
+	 *                 ids:
+	 *                   type: array
+	 *                   items:
+	 *                     type: string
+	 *       209:
+	 *         description: ID already exists for this tester
+	 *       400:
+	 *         description: Invalid request or missing required fields
+	 *       404:
+	 *         description: Tester not found
+	 *       409:
+	 *         description: ID already exists in the database
+	 */
 	router.post(
 		"/api/tester/ids",
 		async (request) => {
@@ -313,7 +439,40 @@ const testerRoutes = (router: Router, env: Env) => {
 		env.ADMIN_PERMISSION,
 	);
 
-	// Get tester info by one of their IDs
+	/**
+	 * @openapi
+	 * /api/tester:
+	 *   get:
+	 *     summary: Get tester info by ID
+	 *     description: Returns information about the authenticated tester. Requires admin permission.
+	 *     tags:
+	 *       - Testers
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved tester info
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   type: object
+	 *                   properties:
+	 *                     uuid:
+	 *                       type: string
+	 *                     nom:
+	 *                       type: string
+	 *                     ids:
+	 *                       type: array
+	 *                       items:
+	 *                         type: string
+	 *       403:
+	 *         description: Unauthorized request
+	 *       404:
+	 *         description: Tester not found
+	 */
 	router.get(
 		"/api/tester",
 		async () => {
@@ -374,7 +533,35 @@ const testerRoutes = (router: Router, env: Env) => {
 
 // Purchase Management
 const purchaseRoutes = (router: Router, env: Env) => {
-	// Add a purchase
+	/**
+	 * @openapi
+	 * /api/purchase:
+	 *   post:
+	 *     summary: Add a new purchase
+	 *     description: Creates a new purchase record. Requires write permission.
+	 *     tags:
+	 *       - Purchases
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             $ref: '#/components/schemas/PurchaseCreateRequest'
+	 *     responses:
+	 *       201:
+	 *         description: Purchase successfully created
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 id:
+	 *                   type: string
+	 *       400:
+	 *         description: Invalid request or missing required fields
+	 */
 	router.post(
 		"/api/purchase",
 		async (request) => {
@@ -450,7 +637,36 @@ const purchaseRoutes = (router: Router, env: Env) => {
 		env.WRITE_PERMISSION,
 	);
 
-	// Get purchase by ID
+	/**
+	 * @openapi
+	 * /api/purchase/{id}:
+	 *   get:
+	 *     summary: Get purchase by ID
+	 *     description: Returns information about a specific purchase. Requires read permission.
+	 *     tags:
+	 *       - Purchases
+	 *     parameters:
+	 *       - name: id
+	 *         in: path
+	 *         required: true
+	 *         description: Purchase ID
+	 *         schema:
+	 *           type: string
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved purchase info
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   $ref: '#/components/schemas/Purchase'
+	 *       404:
+	 *         description: Purchase not found
+	 */
 	router.get(
 		"/api/purchase/:id",
 		async (request) => {
@@ -498,7 +714,63 @@ const purchaseRoutes = (router: Router, env: Env) => {
 		env.READ_PERMISSION,
 	);
 
-	// Get non-refunded purchases (with pagination)
+	/**
+	 * @openapi
+	 * /api/purchases/not-refunded:
+	 *   get:
+	 *     summary: Get non-refunded purchases
+	 *     description: Returns a paginated list of non-refunded purchases for the authenticated user. Requires read permission.
+	 *     tags:
+	 *       - Purchases
+	 *     parameters:
+	 *       - name: page
+	 *         in: query
+	 *         description: Page number
+	 *         schema:
+	 *           type: integer
+	 *           default: 1
+	 *       - name: limit
+	 *         in: query
+	 *         description: Number of items per page
+	 *         schema:
+	 *           type: integer
+	 *           default: 10
+	 *       - name: sort
+	 *         in: query
+	 *         description: Sort field
+	 *         schema:
+	 *           type: string
+	 *           default: date
+	 *       - name: order
+	 *         in: query
+	 *         description: Sort order
+	 *         schema:
+	 *           type: string
+	 *           enum: [asc, desc]
+	 *           default: desc
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved purchases
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   type: array
+	 *                   items:
+	 *                     $ref: '#/components/schemas/PurchaseSummary'
+	 *                 total:
+	 *                   type: integer
+	 *                 page:
+	 *                   type: integer
+	 *                 limit:
+	 *                   type: integer
+	 *       403:
+	 *         description: Unauthorized request
+	 */
 	router.get(
 		"/api/purchases/not-refunded",
 		async (request) => {
@@ -588,7 +860,63 @@ const purchaseRoutes = (router: Router, env: Env) => {
 		env.READ_PERMISSION,
 	);
 
-	// Get refunded purchases (with pagination)
+	/**
+	 * @openapi
+	 * /api/purchases/refunded:
+	 *   get:
+	 *     summary: Get refunded purchases
+	 *     description: Returns a paginated list of refunded purchases for the authenticated user. Requires read permission.
+	 *     tags:
+	 *       - Purchases
+	 *     parameters:
+	 *       - name: page
+	 *         in: query
+	 *         description: Page number
+	 *         schema:
+	 *           type: integer
+	 *           default: 1
+	 *       - name: limit
+	 *         in: query
+	 *         description: Number of items per page
+	 *         schema:
+	 *           type: integer
+	 *           default: 10
+	 *       - name: sort
+	 *         in: query
+	 *         description: Sort field
+	 *         schema:
+	 *           type: string
+	 *           default: date
+	 *       - name: order
+	 *         in: query
+	 *         description: Sort order
+	 *         schema:
+	 *           type: string
+	 *           enum: [asc, desc]
+	 *           default: desc
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved purchases
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   type: array
+	 *                   items:
+	 *                     $ref: '#/components/schemas/PurchaseSummary'
+	 *                 total:
+	 *                   type: integer
+	 *                 page:
+	 *                   type: integer
+	 *                 limit:
+	 *                   type: integer
+	 *       403:
+	 *         description: Unauthorized request
+	 */
 	router.get(
 		"/api/purchases/refunded",
 		async (request) => {
@@ -678,8 +1006,69 @@ const purchaseRoutes = (router: Router, env: Env) => {
 		env.READ_PERMISSION,
 	);
 	/**
-	 * Get purchase status with pagination
-	 * @param request The request object
+	 * @openapi
+	 * /api/purchase-status:
+	 *   get:
+	 *     summary: Get purchase status with pagination
+	 *     description: Returns a paginated list of purchase statuses for the authenticated user. Requires read permission.
+	 *     tags:
+	 *       - Purchases
+	 *     parameters:
+	 *       - name: limitToNotRefunded
+	 *         in: query
+	 *         description: Limit to non-refunded purchases
+	 *         schema:
+	 *           type: boolean
+	 *           default: false
+	 *       - name: page
+	 *         in: query
+	 *         description: Page number
+	 *         schema:
+	 *           type: integer
+	 *           default: 1
+	 *       - name: limit
+	 *         in: query
+	 *         description: Number of items per page
+	 *         schema:
+	 *           type: integer
+	 *           default: 10
+	 *       - name: sort
+	 *         in: query
+	 *         description: Sort field
+	 *         schema:
+	 *           type: string
+	 *           default: date
+	 *       - name: order
+	 *         in: query
+	 *         description: Sort order
+	 *         schema:
+	 *           type: string
+	 *           enum: [asc, desc]
+	 *           default: desc
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved purchase statuses
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   type: array
+	 *                   items:
+	 *                     $ref: '#/components/schemas/PurchaseStatus'
+	 *                 total:
+	 *                   type: integer
+	 *                 page:
+	 *                   type: integer
+	 *                 limit:
+	 *                   type: integer
+	 *       400:
+	 *         description: Invalid request
+	 *       403:
+	 *         description: Unauthorized request
 	 */
 	router.get(
 		"/api/purchase-status",
@@ -763,7 +1152,35 @@ const purchaseRoutes = (router: Router, env: Env) => {
 
 // Feedback Management
 const feedbackRoutes = (router: Router, env: Env) => {
-	// Add feedback
+	/**
+	 * @openapi
+	 * /api/feedback:
+	 *   post:
+	 *     summary: Add feedback
+	 *     description: Creates a new feedback record. Requires write permission.
+	 *     tags:
+	 *       - Feedback
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             $ref: '#/components/schemas/FeedbackCreateRequest'
+	 *     responses:
+	 *       201:
+	 *         description: Feedback successfully created
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 id:
+	 *                   type: string
+	 *       400:
+	 *         description: Invalid request or missing required fields
+	 */
 	router.post(
 		"/api/feedback",
 		async (request) => {
@@ -821,7 +1238,35 @@ const feedbackRoutes = (router: Router, env: Env) => {
 		env.WRITE_PERMISSION,
 	);
 
-	// Record publication of feedback
+	/**
+	 * @openapi
+	 * /api/publish:
+	 *   post:
+	 *     summary: Record publication of feedback
+	 *     description: Records the publication of feedback. Requires write permission.
+	 *     tags:
+	 *       - Feedback
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             $ref: '#/components/schemas/PublishCreateRequest'
+	 *     responses:
+	 *       201:
+	 *         description: Publication successfully recorded
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 id:
+	 *                   type: string
+	 *       400:
+	 *         description: Invalid request or missing required fields
+	 */
 	router.post(
 		"/api/publish",
 		async (request) => {
@@ -878,7 +1323,36 @@ const feedbackRoutes = (router: Router, env: Env) => {
 		env.WRITE_PERMISSION,
 	);
 
-	// Get publication info
+	/**
+	 * @openapi
+	 * /api/publish/{id}:
+	 *   get:
+	 *     summary: Get publication info
+	 *     description: Returns information about a specific publication. Requires read permission.
+	 *     tags:
+	 *       - Feedback
+	 *     parameters:
+	 *       - name: id
+	 *         in: path
+	 *         required: true
+	 *         description: Purchase ID
+	 *         schema:
+	 *           type: string
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved publication info
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   $ref: '#/components/schemas/Publication'
+	 *       404:
+	 *         description: Publication not found
+	 */
 	router.get(
 		"/api/publish/:id",
 		async (request) => {
@@ -925,7 +1399,35 @@ const feedbackRoutes = (router: Router, env: Env) => {
 
 // Refund Management
 const refundRoutes = (router: Router, env: Env) => {
-	// Record refund
+	/**
+	 * @openapi
+	 * /api/refund:
+	 *   post:
+	 *     summary: Record refund
+	 *     description: Records a refund for a purchase. Requires write permission.
+	 *     tags:
+	 *       - Refunds
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             $ref: '#/components/schemas/RefundCreateRequest'
+	 *     responses:
+	 *       201:
+	 *         description: Refund successfully recorded
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 id:
+	 *                   type: string
+	 *       400:
+	 *         description: Invalid request or missing required fields
+	 */
 	router.post(
 		"/api/refund",
 		async (request) => {
@@ -990,7 +1492,36 @@ const refundRoutes = (router: Router, env: Env) => {
 		env.WRITE_PERMISSION,
 	);
 
-	// Get refund info
+	/**
+	 * @openapi
+	 * /api/refund/{id}:
+	 *   get:
+	 *     summary: Get refund info
+	 *     description: Returns information about a specific refund. Requires read permission.
+	 *     tags:
+	 *       - Refunds
+	 *     parameters:
+	 *       - name: id
+	 *         in: path
+	 *         required: true
+	 *         description: Purchase ID
+	 *         schema:
+	 *           type: string
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved refund info
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   $ref: '#/components/schemas/Refund'
+	 *       404:
+	 *         description: Refund not found
+	 */
 	router.get(
 		"/api/refund/:id",
 		async (request) => {
@@ -1037,7 +1568,222 @@ const refundRoutes = (router: Router, env: Env) => {
 };
 
 /**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Tester:
+ *       type: object
+ *       properties:
+ *         uuid:
+ *           type: string
+ *         name:
+ *           type: string
+ *         ids:
+ *           type: array
+ *           items:
+ *             type: string
+ *     TesterCreateRequest:
+ *       type: object
+ *       required:
+ *         - name
+ *         - ids
+ *       properties:
+ *         name:
+ *           type: string
+ *         ids:
+ *           oneOf:
+ *             - type: string
+ *             - type: array
+ *               items:
+ *                 type: string
+ *     TesterIdAddRequest:
+ *       type: object
+ *       required:
+ *         - name
+ *       properties:
+ *         name:
+ *           type: string
+ *         id:
+ *           type: string
+ *     Purchase:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         order:
+ *           type: string
+ *         description:
+ *           type: string
+ *         amount:
+ *           type: number
+ *         screenshot:
+ *           type: string
+ *     PurchaseSummary:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         order:
+ *           type: string
+ *         description:
+ *           type: string
+ *         refunded:
+ *           type: boolean
+ *         amount:
+ *           type: number
+ *     PurchaseStatus:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         order:
+ *           type: string
+ *         description:
+ *           type: string
+ *         amount:
+ *           type: number
+ *         refunded:
+ *           type: boolean
+ *     PurchaseCreateRequest:
+ *       type: object
+ *       required:
+ *         - date
+ *         - order
+ *         - description
+ *         - amount
+ *         - screenshot
+ *       properties:
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         order:
+ *           type: string
+ *         description:
+ *           type: string
+ *         amount:
+ *           type: number
+ *         screenshot:
+ *           type: string
+ *     FeedbackCreateRequest:
+ *       type: object
+ *       required:
+ *         - date
+ *         - purchase
+ *         - feedback
+ *       properties:
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         purchase:
+ *           type: string
+ *         feedback:
+ *           type: string
+ *     PublishCreateRequest:
+ *       type: object
+ *       required:
+ *         - date
+ *         - purchase
+ *         - screenshot
+ *       properties:
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         purchase:
+ *           type: string
+ *         screenshot:
+ *           type: string
+ *     Publication:
+ *       type: object
+ *       properties:
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         purchase:
+ *           type: string
+ *         screenshot:
+ *           type: string
+ *     RefundCreateRequest:
+ *       type: object
+ *       required:
+ *         - date
+ *         - purchase
+ *         - refundDate
+ *         - amount
+ *       properties:
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         purchase:
+ *           type: string
+ *         refundDate:
+ *           type: string
+ *           format: date-time
+ *         amount:
+ *           type: number
+ *     Refund:
+ *       type: object
+ *       properties:
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         purchase:
+ *           type: string
+ *         refundDate:
+ *           type: string
+ *           format: date-time
+ *         amount:
+ *           type: number
+ */
+
+/**
  * Setup routes
+ * @openapi
+ * /api/backup/json:
+ *   get:
+ *     summary: Backup database to JSON
+ *     description: Exports the entire database as JSON. Only available for in-memory and D1 databases. Requires backup permission.
+ *     tags:
+ *       - System
+ *     responses:
+ *       200:
+ *         description: Successfully exported database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *   post:
+ *     summary: Restore database from JSON
+ *     description: Imports database from JSON. Only available for in-memory and D1 databases. Requires backup permission.
+ *     tags:
+ *       - System
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Successfully imported database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       500:
+ *         description: Failed to restore database
+ * 
  * @param router The router
  * @param env The environment variables
  */
