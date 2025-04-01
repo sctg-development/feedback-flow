@@ -6,7 +6,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*","./get-openapi.ts"]
     },
 
     /* Bundler mode */
@@ -23,6 +23,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "./legacy.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

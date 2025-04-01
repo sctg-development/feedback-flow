@@ -13,6 +13,7 @@ import {
 } from "./components/auth0";
 import { siteConfig } from "./config/site";
 
+import { OpenAPI } from "@/components/openapi";
 import IndexPage from "@/pages/index";
 import ApiPage from "@/pages/api";
 import PricingPage from "@/pages/pricing";
@@ -52,6 +53,7 @@ function App() {
     <Suspense fallback={<SiteLoading />}>
       <Routes>
         <Route element={<IndexPage />} path="/" />
+        <Route element={<OpenAPI />} path="/docs" />
         <Route
           element={<AuthenticationGuard component={ApiPage} />}
           path="/api"

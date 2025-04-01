@@ -6,12 +6,13 @@
   "scripts": {
     "dev": "vite",
     "dev:env": "set -a && source ../.env && set +a && vite",
-    "build": "tsc && vite build",
+    "build": "npm run openapi && tsc && vite build",
     "build:env": "set -a && source ../.env && set +a && vite build",
     "lint": "eslint ./src/**/**/*.{ts,tsx} --fix",
     "wrangler": "cd cloudflare-fake-secured-api && npm run dev:env",
     "preview": "vite preview",
-    "update:heroui": "node --no-warnings --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"ts-node/esm\", pathToFileURL(\"./\"));' ./update-heroui.ts"
+    "update:heroui": "node --no-warnings --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"ts-node/esm\", pathToFileURL(\"./\"));' ./update-heroui.ts",
+    "openapi": "node --experimental-strip-types get-openapi.ts"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
@@ -45,6 +46,8 @@
     "react-dom": "^19.1.0",
     "react-i18next": "^15.4.1",
     "react-router-dom": "^7.4.1",
+    "swagger-jsdoc": "^7.0.0-rc.6",
+    "swagger-ui-react": "^5.20.2",
     "tailwind-variants": "^1.0.0",
     "tailwindcss": "^4.0.17"
   },
@@ -53,6 +56,7 @@
     "@types/node": "^22.13.16",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
+    "@types/swagger-ui-react": "^5.18.0",
     "@typescript-eslint/eslint-plugin": "^8.29.0",
     "@typescript-eslint/parser": "^8.29.0",
     "@vitejs/plugin-react": "^4.3.4",
