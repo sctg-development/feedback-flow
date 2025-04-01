@@ -20,6 +20,7 @@
     "@heroui/code": "^2.2.13-beta.1",
     "@heroui/date-picker": "^2.3.17-beta.2",
     "@heroui/dropdown": "^2.3.17-beta.2",
+    "@heroui/image": "^2.2.11-beta.1",
     "@heroui/input": "^2.4.17-beta.2",
     "@heroui/kbd": "^2.2.13-beta.1",
     "@heroui/link": "^2.2.14-beta.1",

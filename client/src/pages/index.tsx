@@ -34,6 +34,7 @@ import AddFeedbackModal from "@/components/modals/add-feedback-modal";
 import PublishFeedbackModal from "@/components/modals/publish-feedback-modal";
 import RefundPurchaseModal from "@/components/modals/refund-purchase-modal";
 import CreatePurchaseModal from "@/components/modals/create-purchase-modal";
+import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -58,6 +59,7 @@ export default function IndexPage() {
   const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [purchase, setPurchase] = useState({ purchaseId: "", amount: 0 });
+  const [screenshot, setScreenshot] = useState<string | null>(null);
 
   // Function to refresh the table
   const refreshTable = () => {
