@@ -22,6 +22,19 @@ const options = {
 
 const openApi = await swaggerJsdoc(options);
 
+openApi.components.securitySchemes = {
+  bearerAuth: {
+    type: "http",
+    scheme: "bearer",
+    bearerFormat: "JWT",
+  },
+};
+openApi.security = [
+  {
+    bearerAuth: [],
+  },
+];
+
 // Write the OpenAPI spec to a file public/openapi.json
 fs.writeFileSync(
   "./public/openapi.json",

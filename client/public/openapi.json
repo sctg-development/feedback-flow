@@ -1126,7 +1126,19 @@
           }
         }
       }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
     }
   },
-  "tags": []
+  "tags": [],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
 }
