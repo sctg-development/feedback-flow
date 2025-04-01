@@ -94,7 +94,7 @@ export const Navbar = () => {
         <AuthenticationGuardWithPermission
           permission={import.meta.env.ADMIN_PERMISSION}
         >
-          <NavbarItem key="administration-menu">
+          <NavbarItem key="administration-menu" className="hidden md:flex">
             <Dropdown>
               <DropdownTrigger>
                 <Button
