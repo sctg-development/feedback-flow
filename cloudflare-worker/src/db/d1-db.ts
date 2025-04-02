@@ -588,6 +588,18 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				limitToNotRefundedQuery = "AND refunded = 0";
 			}
 
+			const sortColumns = {
+				'date': 'date',
+				'order': 'order_number'
+			};
+			const orderValues = {
+				'asc': 'ASC',
+				'desc': 'DESC'
+			};
+
+			const sortColumn = sortColumns[sort as keyof typeof sortColumns] || 'date'; // protect against SQL injection
+			const orderDir = orderValues[order as keyof typeof orderValues] || 'DESC'; // protect against SQL injection
+
 			// Pagination logic
 			const offset = page && limit ? (page - 1) * limit : 0;
 
@@ -597,12 +609,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			const totalCount = countResults[0]?.count as number;
 			const preparedStatement = this.db
 				.prepare(
-					`SELECT * FROM purchase_status WHERE tester_uuid = ? ${limitToNotRefundedQuery} ORDER BY ${sort} ${order.toUpperCase()} LIMIT ? OFFSET ?`,
+					`SELECT * FROM purchase_status WHERE tester_uuid = ? ${limitToNotRefundedQuery} ORDER BY ${sortColumn} ${orderDir} LIMIT ? OFFSET ?`,
 				)
 				.bind(testerUuid, limit, offset);
 
 			const { results } = await preparedStatement.all();
-			
+
 			const mappedResults = results.map(
 				(row) =>
 					({
@@ -1089,50 +1101,6 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			"DELETE FROM refunds",
 		];
 
-		// Map the data to the database types
-		// const db_testers: d1_tester[] = testers.map((tester: Tester) => ({
-		// 	uuid: tester.uuid,
-		// 	name: tester.name,
-		// }));
-		// const db_idMappings: d1_id_mapping[] = ids.map((id: IdMapping) => ({
-		// 	id: id.id,
-		// 	tester_uuid: id.testerUuid,
-		// }));
-		// const db_purchases: d1_purchase[] = purchases.map((purchase: Purchase) => ({
-		// 	id: purchase.id,
-		// 	tester_uuid: purchase.testerUuid,
-		// 	date: purchase.date,
-		// 	order_number: purchase.order,
-		// 	description: purchase.description,
-		// 	amount: purchase.amount,
-		// 	screenshot: purchase.screenshot,
-		// 	refunded: purchase.refunded ? 1 : 0,
-		// }));
-		// const db_feedbacks: d1_feedback[] = feedbacks.map((feedback: Feedback) => ({
-		// 	purchase_id: feedback.purchase,
-		// 	date: feedback.date,
-		// 	feedback: feedback.feedback,
-		// }));
-		// const db_publications: d1_publication[] = publications.map(
-		// 	(publication: Publication) => ({
-		// 		purchase_id: publication.purchase,
-		// 		date: publication.date,
-		// 		screenshot: publication.screenshot,
-		// 	}),
-		// );
-		// const db_refunds: d1_refund[] = refunds.map((refund: Refund) => ({
-		// 	purchase_id: refund.purchase,
-		// 	date: refund.date,
-		// 	refund_date: refund.refundDate,
-		// 	amount: refund.amount,
-		// }));
-		// console.log("DB Testers:", db_testers);
-		// console.log("DB ID Mappings:", db_idMappings);
-		// console.log("DB Purchases:", db_purchases);
-		// console.log("DB Feedbacks:", db_feedbacks);
-		// console.log("DB Publications:", db_publications);
-		// console.log("DB Refunds:", db_refunds);
-
 		// Insert the data back into the database
 		const dbInsertStatements = [
 			`INSERT INTO testers (uuid, name) VALUES ${testers
@@ -1144,8 +1112,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			`INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount, screenshot, refunded) VALUES ${purchases
 				.map(
 					(purchase: Purchase) =>
-						`('${purchase.id}', '${purchase.testerUuid}', '${purchase.date}', '${purchase.order}', '${purchase.description}', ${purchase.amount}, '${purchase.screenshot}', ${
-							purchase.refunded ? 1 : 0
+						`('${purchase.id}', '${purchase.testerUuid}', '${purchase.date}', '${purchase.order}', '${purchase.description}', ${purchase.amount}, '${purchase.screenshot}', ${purchase.refunded ? 1 : 0
 						})`,
 				)
 				.join(", ")}`,
