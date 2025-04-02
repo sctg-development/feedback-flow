@@ -642,7 +642,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	 * /api/purchase/{id}:
 	 *   get:
 	 *     summary: Get purchase by ID
-	 *     description: Returns information about a specific purchase. Requires read permission.
+	 *     description: Returns information about a specific purchase own by a tester. Requires read permission.
 	 *     tags:
 	 *       - Purchases
 	 *     parameters:
