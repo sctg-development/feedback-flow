@@ -672,12 +672,15 @@ const purchaseRoutes = (router: Router, env: Env) => {
 		async (request) => {
 			const db = getDatabase(env);
 
-			const { id } = request.params;
+			const purchaseId = request.params.id;
+			const userId = router.jwtPayload.sub || "";
 
 			// Find purchase in the database
-			const purchase = await db.purchases.find((p) => p.id === id);
+			const purchase = await db.purchases.find(p => p.id === purchaseId);
 
-			if (!purchase) {
+			// Find tester by user ID
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
+			if (!purchase || purchase.testerUuid !== testerUuid) {
 				return new Response(
 					JSON.stringify({ success: false, error: "Purchase not found" }),
 					{
