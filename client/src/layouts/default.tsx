@@ -57,7 +57,7 @@ export default function DefaultLayout({
           isExternal
           className="flex items-center gap-1 text-current"
           href={siteConfig().links.sctg}
-          title={t("heroui-com-homepage")}
+          title={t("site-homepage")}
         >
           <span className="text-default-600">
             <Trans ns="base">powered-by</Trans>
