@@ -192,14 +192,24 @@ export class Router {
 		const { pathname } = url;
 
 		// Apply rate limiting
-		const { success } = await env.RATE_LIMITER.limit({ key: pathname });
+		const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+		const userId = this.jwtPayload.sub || "anonymous";
+		const endpoint = pathname;
+		const rateLimitKey = `${ip}:${userId}:${endpoint}`;
+		const { success } = await env.RATE_LIMITER.limit({ key: rateLimitKey });
 
 		if (!success) {
 			return new Response(
 				JSON.stringify(`429 Failure – rate limit exceeded for ${pathname}`),
 				{
 					status: 429,
-					headers: { ...this.corsHeaders },
+					headers: {
+						...this.corsHeaders, 
+						"X-RateLimit-Limit": "10",
+						"X-RateLimit-Remaining": "0",
+						"X-RateLimit-Reset": "60",
+						"Retry-After": "60",
+					},
 				},
 			);
 		}
