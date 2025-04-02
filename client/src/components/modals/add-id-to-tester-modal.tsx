@@ -174,7 +174,7 @@ export default function AddIdToTester({
                 label={t("oauth-id")}
                 labelPlacement="outside"
                 name="oauthId"
-                pattern="^[a-zA-Z0-9]{4,30}\|[a-zA-Z0-9]{4,30}$"
+                pattern="^[a-zA-Z0-9_-]+\|[a-zA-Z0-9_-]{4,64}$"
                 placeholder={t("enter-the-oauth-id")}
                 type="text"
                 value={oauthId}
