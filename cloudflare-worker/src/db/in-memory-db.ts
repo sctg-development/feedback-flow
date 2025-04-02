@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
 
-import { DATABASESCHEMA, FeedbackFlowDB, PurchaseStatus } from "./db";
+import { DATABASESCHEMA, FeedbackFlowDB, PurchaseStatus, PurchaseStatusResponse } from "./db";
 
 /**
  * In-memory database class for testing purposes
@@ -380,7 +380,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			limit?: number,
 			sort?: string,
 			order?: string,
-		): Promise<PurchaseStatus[]> => {
+		): Promise<PurchaseStatusResponse> => {
 			if (!limitToNotRefunded) {
 				limitToNotRefunded = false; // Default to false
 			}
@@ -420,7 +420,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			);
 
 			// Build the status for each purchase
-			const result = testerPurchases
+			let globalResult = testerPurchases
 				.map((purchase) => {
 					// Check for related feedback, publication, and refund
 					const hasFeedback = this.data.feedbacks.find(
@@ -450,7 +450,13 @@ export class InMemoryDB implements FeedbackFlowDB {
 						publicationScreenshot: hasPublication?.screenshot,
 						purchaseSreenshot: purchase.screenshot,
 					} as PurchaseStatus;
-				})
+				});
+
+				// Filter out refunded purchases if requested
+			if (limitToNotRefunded) {
+				globalResult =  globalResult.filter((purchase) => !purchase.refunded);
+			}
+				const result = globalResult
 				.slice(offset, offset + limit)
 				.sort((a, b) => {
 					if (sort === "date") {
@@ -468,13 +474,22 @@ export class InMemoryDB implements FeedbackFlowDB {
 					}
 				});
 
-			// Filter out refunded purchases if requested
-			if (limitToNotRefunded) {
-				return result.filter((purchase) => !purchase.refunded);
-			}
-
-			return result;
-		},
+			// Construct the response object with pagination info
+			const pageInfo = {
+				totalCount: globalResult.length,
+				totalPages: Math.ceil(globalResult.length / limit),
+				currentPage: page,
+				hasNextPage: page < Math.ceil(globalResult.length / limit),
+				hasPreviousPage: page > 1,
+				nextPage: page < Math.ceil(globalResult.length / limit) ? page + 1 : null,
+				previousPage: page > 1 ? page - 1 : null,
+			};
+			const response: PurchaseStatusResponse = {
+				results: result,
+				pageInfo,
+			};
+			return response;
+	}
 	};
 
 	/**

@@ -41,6 +41,7 @@ import {
 	PublicationsRepository,
 	PurchasesRepository,
 	PurchaseStatus,
+	PurchaseStatusResponse,
 	RefundsRepository,
 	TestersRepository,
 } from "./db";
@@ -550,7 +551,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			limit?: number,
 			sort?: string,
 			order?: string,
-		): Promise<PurchaseStatus[]> => {
+		): Promise<PurchaseStatusResponse> => {
 			if (!limitToNotRefunded) {
 				limitToNotRefunded = false; // Default to false
 			}
@@ -590,6 +591,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			// Pagination logic
 			const offset = page && limit ? (page - 1) * limit : 0;
 
+			const countQuery = `SELECT COUNT(*) as count FROM purchase_status WHERE tester_uuid = ? ${limitToNotRefundedQuery}`;
+			const countStatement = this.db.prepare(countQuery).bind(testerUuid);
+			const { results: countResults } = await countStatement.all();
+			const totalCount = countResults[0]?.count as number;
 			const preparedStatement = this.db
 				.prepare(
 					`SELECT * FROM purchase_status WHERE tester_uuid = ? ${limitToNotRefundedQuery} ORDER BY ${sort} ${order.toUpperCase()} LIMIT ? OFFSET ?`,
@@ -597,8 +602,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				.bind(testerUuid, limit, offset);
 
 			const { results } = await preparedStatement.all();
-
-			return results.map(
+			
+			const mappedResults = results.map(
 				(row) =>
 					({
 						purchase: row.id as string,
@@ -615,6 +620,27 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 						purchaseScreenshot: row.purchase_screenshot as string,
 					}) as PurchaseStatus,
 			);
+			// Add pagination info to the result
+			const totalPages = Math.ceil(totalCount / limit);
+			const currentPage = page;
+			const hasNextPage = currentPage < totalPages;
+			const hasPreviousPage = currentPage > 1;
+			const nextPage = hasNextPage ? currentPage + 1 : null;
+			const previousPage = hasPreviousPage ? currentPage - 1 : null;
+			const pageInfo = {
+				totalCount,
+				totalPages,
+				currentPage,
+				hasNextPage,
+				hasPreviousPage,
+				nextPage,
+				previousPage,
+			};
+			// Return the results and pagination info
+			return {
+				results: mappedResults,
+				pageInfo,
+			} as PurchaseStatusResponse;
 		},
 	};
 

@@ -1115,9 +1115,9 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				return new Response(
 					JSON.stringify({
 						success: true,
-						data: purchases,
-						total: purchases.length,
-						page,
+						data: purchases.results,
+						total: purchases.pageInfo.totalCount,
+						page: purchases.pageInfo.currentPage,
 						limit,
 					}),
 					{

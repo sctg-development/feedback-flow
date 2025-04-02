@@ -293,7 +293,7 @@ export default function IndexPage() {
                     if (item.hasPublication) {
                       setScreenshot(item.publicationScreenshot);
                     }
-                  }
+                  },
                 },
                 {
                   field: "refunded",
@@ -309,6 +309,7 @@ export default function IndexPage() {
                 },
               ]}
               dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status?limitToNotRefunded=${toggleAllPurchases ? "false" : "true"}`}
+              defaultPageSize={10}
               defaultSortField="date"
               defaultSortOrder="desc"
               permission={import.meta.env.READ_PERMISSION}

@@ -48,6 +48,7 @@ export interface DATABASESCHEMA {
 	refunds: Refund[];
 }
 
+export interface PurchaseStatusResponse { results: PurchaseStatus[]; pageInfo: { totalCount: number; totalPages: number; currentPage: number; hasNextPage: boolean; hasPreviousPage: boolean; nextPage: number | null; previousPage: number | null; }; }
 export interface PurchaseStatus {
 	purchase: string;
 	testerUuid: string;
@@ -182,7 +183,7 @@ export interface PurchasesRepository {
 		limit?: number,
 		sort?: string,
 		order?: string,
-	): Promise<PurchaseStatus[]>;
+	): Promise<PurchaseStatusResponse>;
 }
 
 export interface FeedbacksRepository {
