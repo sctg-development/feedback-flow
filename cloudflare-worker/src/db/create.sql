@@ -67,11 +67,6 @@ CREATE TABLE purchases (
     FOREIGN KEY (tester_uuid) REFERENCES testers(uuid) ON DELETE CASCADE
 );
 
--- Index pour les recherches d'achats par testeur
-CREATE INDEX idx_purchases_tester_uuid ON purchases(tester_uuid);
--- Index pour les recherches d'achats remboursés/non-remboursés
-CREATE INDEX idx_purchases_refunded ON purchases(refunded);
-
 -- Table des feedbacks
 CREATE TABLE feedbacks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,6 +97,25 @@ CREATE TABLE refunds (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE
 );
+
+-- Index pour les recherches d'achats par testeur
+CREATE INDEX idx_purchases_tester_uuid ON purchases(tester_uuid);
+-- Index pour les recherches d'achats remboursés/non-remboursés
+CREATE INDEX idx_purchases_refunded ON purchases(refunded);
+
+-- Pour optimiser les requêtes de tri
+CREATE INDEX idx_purchases_date ON purchases(date);
+CREATE INDEX idx_purchases_order_number ON purchases(order_number);
+
+-- Pour optimiser les jointures dans les vues
+CREATE INDEX idx_feedbacks_purchase_id ON feedbacks(purchase_id);
+CREATE INDEX idx_publications_purchase_id ON publications(purchase_id);
+CREATE INDEX idx_refunds_purchase_id ON refunds(purchase_id);
+
+-- Index composites pour les cas d'utilisation courants
+CREATE INDEX idx_purchases_tester_refunded ON purchases(tester_uuid, refunded);
+CREATE INDEX idx_purchases_tester_date ON purchases(tester_uuid, date);
+CREATE INDEX idx_purchases_tester_order ON purchases(tester_uuid, order_number);
 
 -- Trigger pour mettre à jour le statut "refunded" d'un achat après l'ajout d'un remboursement
 CREATE TRIGGER update_purchase_refunded_status
