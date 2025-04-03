@@ -537,20 +537,20 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	 * @openapi
 	 * /api/purchase/{purchaseId}:
 	 *   delete:
-	 *    summary: Delete a purchase by ID
-	 *    description: Deletes a purchase record by ID. Requires write permission.
-	 *    tags:
+	 *     summary: Delete a purchase by ID
+	 *     description: Deletes a purchase record. Requires write permission.
+	 *     tags:
 	 *       - Purchases
-	 *    parameters:
-	 * 	     - name: purchaseId
-	 * 	       in: path
-	 * 	       required: true
-	 * 	       description: Purchase ID
-	 * 	       schema:
-	 * 	         type: string
-	 *   responses:
+	 *     parameters:
+	 *       - name: purchaseId
+	 *         in: path
+	 *         required: true
+	 *         description: Purchase ID
+	 *         schema:
+	 *           type: string
+	 *     responses:
 	 *       200:
-	 *         description: Successfully retrieved purchase info
+	 *         description: Purchase successfully deleted
 	 *         content:
 	 *           application/json:
 	 *             schema:
@@ -558,12 +558,11 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	 *               properties:
 	 *                 success:
 	 *                   type: boolean
-	 *                 data:
-	 *                   $ref: '#/components/schemas/Purchase'
+	 *                 message:
+	 *                   type: string
 	 *       404:
-	 *         description: Purchase not found
+	 *         description: Purchase not found or unauthorized request
 	 */
-
 	router.delete(
 		"/api/purchase/:purchaseId",
 		async (request) => {

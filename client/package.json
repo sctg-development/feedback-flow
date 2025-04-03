@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:env": "set -a && source ../.env && set +a && vite",
     "build": "npm run openapi && tsc && vite build",
-    "build:env": "set -a && source ../.env && set +a && vite build",
+    "build:env": "set -a && source ../.env && set +a && npm run openapi &&  vite build",
     "lint": "eslint ./src/**/**/*.{ts,tsx} --fix",
     "wrangler": "cd cloudflare-fake-secured-api && npm run dev:env",
     "preview": "vite preview",

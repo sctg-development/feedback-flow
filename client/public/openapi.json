@@ -243,6 +243,49 @@
         }
       }
     },
+    "/api/purchase/{purchaseId}": {
+      "delete": {
+        "summary": "Delete a purchase by ID",
+        "description": "Deletes a purchase record. Requires write permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "purchaseId",
+            "in": "path",
+            "required": true,
+            "description": "Purchase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase successfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Purchase not found or unauthorized request"
+          }
+        }
+      }
+    },
     "/api/purchase": {
       "post": {
         "summary": "Add a new purchase",
@@ -288,7 +331,7 @@
     "/api/purchase/{id}": {
       "get": {
         "summary": "Get purchase by ID",
-        "description": "Returns information about a specific purchase. Requires read permission.",
+        "description": "Returns information about a specific purchase own by a tester. Requires read permission.",
         "tags": [
           "Purchases"
         ],
