@@ -47,13 +47,13 @@
     "react-dom": "^19.1.0",
     "react-i18next": "^15.4.1",
     "react-router-dom": "^7.4.1",
-    "swagger-ui-react": "^5.20.3",
+    "swagger-ui-react": "^5.20.5",
     "tailwind-variants": "^1.0.0",
     "tailwindcss": "^4.1.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.1",
-    "@types/node": "^22.13.17",
+    "@types/node": "^22.14.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
     "@types/swagger-ui-react": "^5.18.0",
@@ -75,7 +75,7 @@
     "swagger-jsdoc": "^7.0.0-rc.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
-    "vite": "^6.2.4",
+    "vite": "^6.2.5",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }
