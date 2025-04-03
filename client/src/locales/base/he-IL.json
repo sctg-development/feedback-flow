@@ -151,5 +151,8 @@
   "oauth-id-format-hint": "רמז לתבנית זיהוי של Oauth",
   "please-enter-valid-oauth-id": "אנא הזן מזהה OAuth תקף",
   "api-server": "שרת API",
-  "click-to-see-the-screenshot": "לחץ כדי לראות את צילום המסך"
+  "click-to-see-the-screenshot": "לחץ כדי לראות את צילום המסך",
+  "add-a-feedback-to-this-purchase": "הוסף משוב לרכישה זו",
+  "cancel-this-purchase-and-return-the-item": "בטל רכישה זו והחזיר את הפריט",
+  "return-this-item": "להחזיר פריט זה"
 }

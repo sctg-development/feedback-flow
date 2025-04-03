@@ -35,6 +35,7 @@ import PublishFeedbackModal from "@/components/modals/publish-feedback-modal";
 import RefundPurchaseModal from "@/components/modals/refund-purchase-modal";
 import CreatePurchaseModal from "@/components/modals/create-purchase-modal";
 import { ScreenshotModal } from "@/components/modals/screenshot-modal";
+import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -90,13 +91,16 @@ export default function IndexPage() {
     if (!item.hasFeedback) {
       return (
         <div className="flex gap-2">
-          <Button
-            color="primary"
-            size="md"
-            onPress={() => handleCreateFeedback(item.purchase, item.amount)}
-          >
-            {t("create-feedback")}
-          </Button>
+          <ButtonAddFeedbackOrReturn
+            onAction={(key) => {
+              if (key === "feedback") {
+                handleCreateFeedback(item.purchase, item.amount);
+              } else if (key === "return") {
+                // Appellez ici la fonction pour gérer les retours
+                handleReturnItem(item.purchase, item.amount);
+              }
+            }}
+          />
         </div>
       );
     }
@@ -187,6 +191,17 @@ export default function IndexPage() {
         </div>
       );
     }
+  };
+
+  /**
+   * Handles opening the return modal for a specific purchase
+   *
+   * @param {string} purchaseId - The ID of the purchase to return
+   * @param {number} amount - The purchase amount
+   */
+  const handleReturnItem = (purchaseId: string, amount: number) => {
+    setPurchase({ purchaseId, amount });
+    window.alert("This feature is not implemented yet.");
   };
 
   /**

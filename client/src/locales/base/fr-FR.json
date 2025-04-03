@@ -151,5 +151,8 @@
   "oauth-id-format-hint": "Indice de format d'identification OAuth",
   "please-enter-valid-oauth-id": "Veuillez saisir un identifiant OAuth valide",
   "api-server": "Serveur API",
-  "click-to-see-the-screenshot": "Cliquez pour voir la capture d'écran"
+  "click-to-see-the-screenshot": "Cliquez pour voir la capture d'écran",
+  "add-a-feedback-to-this-purchase": "Ajouter une rétroaction à cet achat",
+  "cancel-this-purchase-and-return-the-item": "Annuler cet achat et retourner l'article",
+  "return-this-item": "Retourner cet article"
 }

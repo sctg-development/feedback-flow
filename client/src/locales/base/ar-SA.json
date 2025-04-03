@@ -151,5 +151,8 @@
   "oauth-id-format-hint": "تلميح تنسيق معرف OAUTH",
   "please-enter-valid-oauth-id": "الرجاء إدخال معرف Oauth صالح",
   "api-server": "خادم API",
-  "click-to-see-the-screenshot": "انقر لرؤية لقطة الشاشة"
+  "click-to-see-the-screenshot": "انقر لرؤية لقطة الشاشة",
+  "add-a-feedback-to-this-purchase": "أضف ملاحظات إلى هذا الشراء",
+  "cancel-this-purchase-and-return-the-item": "إلغاء هذا الشراء وإرجاع العنصر",
+  "return-this-item": "إرجاع هذا العنصر"
 }

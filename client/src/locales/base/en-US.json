@@ -151,5 +151,8 @@
   "add-oauth-id-to": "Add OAuth Id",
   "oauth-id-format-hint": "Oauth Id Format Hint",
   "api-server": "API server",
-  "click-to-see-the-screenshot": "Click to see the screenshot"
+  "click-to-see-the-screenshot": "Click to see the screenshot",
+  "return-this-item": "Return this item",
+  "add-a-feedback-to-this-purchase": "Add a feedback to this purchase",
+  "cancel-this-purchase-and-return-the-item": "Cancel this purchase and return the item"
 }
