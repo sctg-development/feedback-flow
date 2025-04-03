@@ -150,5 +150,6 @@
   "oauth-id-added-successfully": "מזהה Oauth הוסיף בהצלחה",
   "oauth-id-format-hint": "רמז לתבנית זיהוי של Oauth",
   "please-enter-valid-oauth-id": "אנא הזן מזהה OAuth תקף",
-  "api-server": "שרת API"
+  "api-server": "שרת API",
+  "click-to-see-the-screenshot": "לחץ כדי לראות את צילום המסך"
 }

@@ -36,6 +36,7 @@ import {
 import { Pagination, PaginationProps } from "@heroui/pagination";
 import { Spinner } from "@heroui/spinner";
 import { clsx } from "@heroui/shared-utils";
+import { Tooltip } from "@heroui/tooltip";
 
 import { title as titleStyle } from "@/components/primitives";
 import {
@@ -91,6 +92,11 @@ export interface ColumnDefinition {
    * @returns {void}
    */
   onCellAction?: (item: any) => void;
+  /**
+   * Optional string to show as tooltip on cell hover (overrides the render function)
+   *
+   */
+  cellTooltip?: string;
 }
 
 /**
@@ -641,9 +647,20 @@ export default function PaginatedTable({
                         : undefined
                     }
                   >
-                    {column.render
-                      ? column.render(item)
-                      : renderCellValue(item, column.field)}
+                    {column.cellTooltip ? (
+                      <Tooltip content={column.cellTooltip}>
+                        {column.render
+                          ? column.render(item)
+                          : renderCellValue(item, column.field)}
+                      </Tooltip>
+                    ) : (
+                      // If no tooltip, render the cell value directly
+                      <>
+                        {column.render
+                          ? column.render(item)
+                          : renderCellValue(item, column.field)}
+                      </>
+                    )}
                   </TableCell>
                 ))}
               </TableRow>

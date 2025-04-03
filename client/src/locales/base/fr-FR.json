@@ -150,5 +150,6 @@
   "oauth-id-added-successfully": "OAuth ID a ajouté avec succès",
   "oauth-id-format-hint": "Indice de format d'identification OAuth",
   "please-enter-valid-oauth-id": "Veuillez saisir un identifiant OAuth valide",
-  "api-server": "Serveur API"
+  "api-server": "Serveur API",
+  "click-to-see-the-screenshot": "Cliquez pour voir la capture d'écran"
 }

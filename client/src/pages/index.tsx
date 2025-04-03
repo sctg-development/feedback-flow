@@ -265,6 +265,7 @@ export default function IndexPage() {
                   field: "description",
                   label: t("description"),
                   sortable: false,
+                  cellTooltip: t("click-to-see-the-screenshot"),
                   onCellAction: (item) => {
                     setScreenshot(item.purchaseScreenshot);
                   },
@@ -287,6 +288,7 @@ export default function IndexPage() {
                   field: "hasPublication",
                   label: t("hasPublication"),
                   sortable: false,
+                  cellTooltip: t("click-to-see-the-screenshot"),
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                   onCellAction: (item) => {

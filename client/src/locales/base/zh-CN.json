@@ -150,5 +150,6 @@
   "oauth-id-added-successfully": "Oauth ID成功添加了",
   "oauth-id-format-hint": "OAuth ID格式提示",
   "please-enter-valid-oauth-id": "请输入有效的OAuth ID",
-  "api-server": "API服务器"
+  "api-server": "API服务器",
+  "click-to-see-the-screenshot": "点击查看屏幕截图"
 }
