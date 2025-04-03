@@ -154,5 +154,8 @@
   "click-to-see-the-screenshot": "انقر لرؤية لقطة الشاشة",
   "add-a-feedback-to-this-purchase": "أضف ملاحظات إلى هذا الشراء",
   "cancel-this-purchase-and-return-the-item": "إلغاء هذا الشراء وإرجاع العنصر",
-  "return-this-item": "إرجاع هذا العنصر"
+  "return-this-item": "إرجاع هذا العنصر",
+  "are-you-sure-you-want-to-return-this-item": "هل أنت متأكد أنك تريد إرجاع هذا العنصر؟",
+  "confirm": "يتأكد",
+  "return-item": "العنصر الإرجاع"
 }

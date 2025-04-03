@@ -154,5 +154,8 @@
   "click-to-see-the-screenshot": "לחץ כדי לראות את צילום המסך",
   "add-a-feedback-to-this-purchase": "הוסף משוב לרכישה זו",
   "cancel-this-purchase-and-return-the-item": "בטל רכישה זו והחזיר את הפריט",
-  "return-this-item": "להחזיר פריט זה"
+  "return-this-item": "להחזיר פריט זה",
+  "are-you-sure-you-want-to-return-this-item": "האם אתה בטוח שאתה רוצה להחזיר את הפריט הזה?",
+  "confirm": "לְאַשֵׁר",
+  "return-item": "פריט החזר"
 }

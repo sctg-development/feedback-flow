@@ -154,5 +154,8 @@
   "click-to-see-the-screenshot": "Click to see the screenshot",
   "return-this-item": "Return this item",
   "add-a-feedback-to-this-purchase": "Add a feedback to this purchase",
-  "cancel-this-purchase-and-return-the-item": "Cancel this purchase and return the item"
+  "cancel-this-purchase-and-return-the-item": "Cancel this purchase and return the item",
+  "return-item": "Return item",
+  "are-you-sure-you-want-to-return-this-item": "Are you sure you want to return this item ?",
+  "confirm": "Confirm"
 }

@@ -151,5 +151,11 @@
   "oauth-id-format-hint": "OAuth ID格式提示",
   "please-enter-valid-oauth-id": "请输入有效的OAuth ID",
   "api-server": "API服务器",
-  "click-to-see-the-screenshot": "点击查看屏幕截图"
+  "click-to-see-the-screenshot": "点击查看屏幕截图",
+  "add-a-feedback-to-this-purchase": "在此购买中添加反馈",
+  "are-you-sure-you-want-to-return-this-item": "您确定要退还此项目吗？",
+  "cancel-this-purchase-and-return-the-item": "取消此购买并退货",
+  "confirm": "确认",
+  "return-item": "返回项目",
+  "return-this-item": "返回此项目"
 }

@@ -154,5 +154,8 @@
   "click-to-see-the-screenshot": "Haga clic para ver la captura de pantalla",
   "add-a-feedback-to-this-purchase": "Agregue un comentario a esta compra",
   "cancel-this-purchase-and-return-the-item": "Cancelar esta compra y devolver el artículo",
-  "return-this-item": "Devuelve este artículo"
+  "return-this-item": "Devuelve este artículo",
+  "are-you-sure-you-want-to-return-this-item": "¿Estás seguro de que quieres devolver este artículo?",
+  "confirm": "Confirmar",
+  "return-item": "Artículo de devolución"
 }

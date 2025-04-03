@@ -384,6 +384,41 @@ export const postJsonToSecuredApi = async (
 };
 
 /**
+ * Execute a DELETE request to a secured API endpoint using Auth0 token authentication.
+ * Handles the token acquisition and authorization header setup automatically.
+ * @param {string} url - The URL of the secured API endpoint to delete data from
+ * @param {GetAccessTokenFunction} getAccessTokenFunction - Function to retrieve an access token, typically Auth0's getAccessTokenSilently
+ * @returns {Promise<any>} Promise resolving to the JSON response from the API
+ */
+export const deleteJsonFromSecuredApi = async (
+  url: string,
+  getAccessTokenFunction: GetAccessTokenFunction,
+) => {
+  try {
+    const accessToken = await getAccessTokenFunction({
+      authorizationParams: {
+        audience: import.meta.env.AUTH0_AUDIENCE,
+        scope: import.meta.env.AUTH0_SCOPE,
+      },
+    });
+    const apiResponse = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await apiResponse.json();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    throw error;
+  }
+};
+
+
+/**
  * Checks if the user has a specific permission.
  * @param permission - The permission to check for
  * @param {GetAccessTokenFunction} getAccessTokenFunction - Function to retrieve an access token, typically Auth0's getAccessTokenSilently

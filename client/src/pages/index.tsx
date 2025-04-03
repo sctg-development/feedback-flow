@@ -36,6 +36,7 @@ import RefundPurchaseModal from "@/components/modals/refund-purchase-modal";
 import CreatePurchaseModal from "@/components/modals/create-purchase-modal";
 import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
+import ReturnPurchaseModal from "@/components/modals/return-purchase";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -53,14 +54,15 @@ import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-retur
 export default function IndexPage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth0();
-  const [createNewPurchase, setCreateNewPurchase] = useState(false);
-  const [refundPurchases, setRefundPurchases] = useState(false);
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
+  const [createNewPurchase, setCreateNewPurchase] = useState(false);
   const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
-  const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [purchase, setPurchase] = useState({ purchaseId: "", amount: 0 });
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refundPurchases, setRefundPurchases] = useState(false);
+  const [returnPurchase, setReturnPurchase] = useState(false);
   const [screenshot, setScreenshot] = useState<string | null>(null);
+  const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
 
   // Function to refresh the table
   const refreshTable = () => {
@@ -195,13 +197,17 @@ export default function IndexPage() {
 
   /**
    * Handles opening the return modal for a specific purchase
+   * Show a confirmation Modal to confirm the return
+   * and then call the API to directly set the purchase as refunded
+   * the refund amount is set to the purchase amount
+   * the date is set to the current date
    *
    * @param {string} purchaseId - The ID of the purchase to return
    * @param {number} amount - The purchase amount
    */
   const handleReturnItem = (purchaseId: string, amount: number) => {
     setPurchase({ purchaseId, amount });
-    window.alert("This feature is not implemented yet.");
+    setReturnPurchase(true);
   };
 
   /**
@@ -389,6 +395,17 @@ export default function IndexPage() {
           isOpen={!!screenshot}
           screenshot={screenshot}
           onClose={() => setScreenshot(null)}
+        />
+      )}
+
+      {/* Return Modal */}
+      {returnPurchase && (
+        <ReturnPurchaseModal
+          children={undefined}
+          isOpen={returnPurchase}
+          purchaseId={purchase.purchaseId}
+          onClose={() => setReturnPurchase(false)}
+          onSuccess={refreshTable}
         />
       )}
     </DefaultLayout>
