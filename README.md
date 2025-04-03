@@ -224,7 +224,8 @@ In the root of the repository, run the following command:
 ## Screenshots
 
 Main page  
-<img width="1244" alt="main" src="https://github.com/user-attachments/assets/ecbf3f10-f040-4b59-bba5-4507d8cb83aa" />  
+<img width="1275" alt="main" src="https://github.com/user-attachments/assets/190dc406-27da-473d-bc2f-3c2e555661f7" />
+
 
 Add a purchase  
 <img width="1235" alt="add-purchase" src="https://github.com/user-attachments/assets/ca78fd8d-cae5-42ac-a7dc-b2be6662262a" />  
