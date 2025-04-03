@@ -163,6 +163,7 @@ export interface TestersRepository {
 export interface PurchasesRepository {
 	find(fn: (purchase: Purchase) => boolean): Promise<Purchase | undefined>;
 	filter(fn: (purchase: Purchase) => boolean): Promise<Purchase[]>;
+	delete(id: string): Promise<boolean>;
 	put(testerUuid: string, newPurchase: Purchase): Promise<string>;
 	update(id: string, updates: Partial<Purchase>): Promise<boolean>;
 	getAll(): Promise<Purchase[]>;

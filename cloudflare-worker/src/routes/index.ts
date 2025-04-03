@@ -535,6 +535,82 @@ const testerRoutes = (router: Router, env: Env) => {
 const purchaseRoutes = (router: Router, env: Env) => {
 	/**
 	 * @openapi
+	 * /api/purchase/{purchaseId}:
+	 *   delete:
+	 *    summary: Delete a purchase by ID
+	 *    description: Deletes a purchase record by ID. Requires write permission.
+	 *    tags:
+	 *       - Purchases
+	 *    parameters:
+	 * 	     - name: purchaseId
+	 * 	       in: path
+	 * 	       required: true
+	 * 	       description: Purchase ID
+	 * 	       schema:
+	 * 	         type: string
+	 *   responses:
+	 *       200:
+	 *         description: Successfully retrieved purchase info
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   $ref: '#/components/schemas/Purchase'
+	 *       404:
+	 *         description: Purchase not found
+	 */
+
+	router.delete(
+		"/api/purchase/:purchaseId",
+		async (request) => {
+			const db = getDatabase(env);
+
+			const purchaseId = request.params.purchaseId;
+			const userId = router.jwtPayload.sub || "";
+
+			// Find purchase in the database
+			const purchase = await db.purchases.find(p => p.id === purchaseId);
+
+			// Find tester by user ID
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
+			if (!purchase || purchase.testerUuid !== testerUuid) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Purchase not found" }),
+					{
+						status: 404,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+
+			await db.purchases.delete(purchaseId);
+
+			return new Response(
+				JSON.stringify({
+					success: true,
+					message: "Purchase deleted successfully",
+				}),
+				{
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				},
+			);
+		},
+		env.WRITE_PERMISSION,
+	);
+	
+	/**
+	 * @openapi
 	 * /api/purchase:
 	 *   post:
 	 *     summary: Add a new purchase

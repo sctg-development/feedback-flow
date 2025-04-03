@@ -311,6 +311,16 @@ export class InMemoryDB implements FeedbackFlowDB {
 		find: async (fn: (purchase: Purchase) => boolean) =>
 			this.data.purchases.find(fn),
 
+		delete: async (id: string) => {
+			const index = this.data.purchases.findIndex(
+				(purchase) => purchase.id === id,
+			);
+			if (index >= 0) {
+				this.data.purchases.splice(index, 1);
+				return true;
+			}
+			return false;
+		},
 		/**
 		 * Filter purchases based on the provided condition
 		 * @param {function} fn - Predicate function to filter purchases

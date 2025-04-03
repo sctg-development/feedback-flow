@@ -59,7 +59,7 @@ let testerUuid: string;
 let purchaseId: string;
 let purchaseItIdNoFeedback: string;
 let purchaseItNotRefundedId: string;
-
+let purchaseIdWithScreenshot: string;
 // HTTP client with authorization
 const api = {
   post: async (path: string, data: any) => {
@@ -76,6 +76,18 @@ const api = {
   },
   get: async (path: string) => {
     return axios.get(`${API_BASE_URL}${path}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AUTH0_TOKEN}`
+      },
+      validateStatus: function (status) {
+        return status < 500; // The request resolves as long as the response code is
+        // less than 500
+      }
+    });
+  },
+  delete: async (path: string) => {
+    return axios.delete(`${API_BASE_URL}${path}`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${AUTH0_TOKEN}`
@@ -488,4 +500,40 @@ describe('Feedback Flow API', () => {
       }
     }
   });
+  test('220. Create a purchase with a screenshot', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
+      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      description: 'Test product purchase with screenshot',
+      amount: 99.99,
+      screenshot: testImageBase64
+    };
+
+    const response = await api.post('/purchase', purchase);
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBeDefined();
+
+    purchaseIdWithScreenshot = response.data.id;
+    console.log(`Created purchase with ID: ${purchaseIdWithScreenshot}`);
+  });
+  test('230. Should delete the purchase with a screenshot', async () => {
+    // count the number of purchases before deletion
+    const countResponse = await api.get('/purchase-status');
+    expect(countResponse.status).toBe(200);
+    expect(countResponse.data.success).toBe(true);
+    const initialCount = countResponse.data.data.length;
+    const response = await api.delete(`/purchase/${purchaseIdWithScreenshot}`);
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.message).toBe('Purchase deleted successfully');
+    // count the number of purchases after deletion
+    const countResponseAfter = await api.get('/purchase-status');
+    expect(countResponseAfter.status).toBe(200);
+    expect(countResponseAfter.data.success).toBe(true); 
+    const finalCount = countResponseAfter.data.data.length;
+    expect(finalCount).toBe(initialCount - 1);
+  }
+  );
 });

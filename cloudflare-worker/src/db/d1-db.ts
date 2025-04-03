@@ -424,6 +424,15 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 			return purchases.find(fn);
 		},
+		
+		delete: async (id: string): Promise<boolean> => {
+			const result = await this.db
+				.prepare("DELETE FROM purchases WHERE id = ?")
+				.bind(id)
+				.run();
+
+			return result.success;
+		},
 
 		filter: async (
 			fn: (purchase: Purchase) => boolean,
