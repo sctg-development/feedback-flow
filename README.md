@@ -226,12 +226,11 @@ In the root of the repository, run the following command:
 Main page  
 <img width="1275" alt="main" src="https://github.com/user-attachments/assets/190dc406-27da-473d-bc2f-3c2e555661f7" />
 
-
 Add a purchase  
-<img width="1235" alt="add-purchase" src="https://github.com/user-attachments/assets/ca78fd8d-cae5-42ac-a7dc-b2be6662262a" />  
+<img width="572" alt="new" src="https://github.com/user-attachments/assets/bd285ec9-6d40-4c60-abe2-218b440c1e4c" />
 
 Add a feedback  
-<img width="468" alt="add-feedback" src="https://github.com/user-attachments/assets/b28d28e5-a782-40e6-9daa-3f48447a1c30" />  
+<img width="595" alt="feed" src="https://github.com/user-attachments/assets/f7b7719d-1c81-43e6-bec2-74cea15d6424" />
 
 Publish feedback  
 <img width="477" alt="publish-feedback" src="https://github.com/user-attachments/assets/c128ad7c-48fe-4d7d-9866-82b5a376c293" />  
@@ -241,4 +240,7 @@ Add a refund
 
 Add a new user (Admin menu, dark mode)  
 <img width="1043" alt="add-user" src="https://github.com/user-attachments/assets/bded224e-e8eb-494d-bd06-cdf4754a62e7" />  
+
+API  
+<img width="1124" alt="image" src="https://github.com/user-attachments/assets/cb2d57f5-d18c-481b-ba22-ee3455fbb044" />
 
