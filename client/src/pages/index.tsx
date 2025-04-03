@@ -244,21 +244,21 @@ export default function IndexPage() {
                   field: "purchase",
                   label: t("purchase"),
                   sortable: false,
-                  className: "hidden lg:table-cell",
+                  className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                 },
                 {
                   field: "date",
                   label: t("date"),
                   sortable: true,
-                  className: "hidden lg:table-cell",
+                  className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                 },
                 {
                   field: "order",
                   label: t("order"),
                   sortable: true,
-                  className: "hidden lg:table-cell",
+                  className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                 },
                 {
@@ -273,21 +273,21 @@ export default function IndexPage() {
                   field: "amount",
                   label: t("amount"),
                   sortable: false,
-                  className: "hidden lg:table-cell",
+                  className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                 },
                 {
                   field: "hasFeedback",
                   label: t("hasFeedback"),
                   sortable: false,
-                  className: "hidden lg:table-cell",
+                  className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                 },
                 {
                   field: "hasPublication",
                   label: t("hasPublication"),
                   sortable: false,
-                  className: "hidden lg:table-cell",
+                  className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                   onCellAction: (item) => {
                     if (item.hasPublication) {
@@ -299,7 +299,7 @@ export default function IndexPage() {
                   field: "refunded",
                   label: t("refunded"),
                   sortable: false,
-                  className: "hidden lg:table-cell",
+                  className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                 },
                 {
