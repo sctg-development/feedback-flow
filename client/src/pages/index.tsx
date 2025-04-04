@@ -37,6 +37,7 @@ import CreatePurchaseModal from "@/components/modals/create-purchase-modal";
 import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
+import { PurchaseStatus } from "@/types/db";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -86,7 +87,7 @@ export default function IndexPage() {
    * @param {number} item.amount - The purchase amount
    * @returns {JSX.Element} The rendered action column content
    */
-  const renderAtionColumn = (item: any) => {
+  const renderActionColumn = (item: PurchaseStatus) => {
     if (item.refunded) {
       return <span className="text-green-500">{t("refunded")}</span>;
     }
@@ -328,7 +329,7 @@ export default function IndexPage() {
                 {
                   field: "actions",
                   label: t("actions"),
-                  render: (item) => renderAtionColumn(item),
+                  render: (item) => renderActionColumn(item),
                 },
               ]}
               dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status?limitToNotRefunded=${toggleAllPurchases ? "false" : "true"}`}
