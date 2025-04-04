@@ -41,6 +41,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@heroui/dropdown";
+import React from "react";
 
 import { I18nIcon, LanguageSwitch } from "./language-switch";
 import {
@@ -54,7 +55,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { ChevronDownIcon, GithubIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
-export const Navbar = () => {
+export const Navbar = React.memo(() => {
   const { t } = useTranslation();
 
   return (
@@ -185,4 +186,4 @@ export const Navbar = () => {
       </NavbarMenu>
     </HeroUINavbar>
   );
-};
+});
