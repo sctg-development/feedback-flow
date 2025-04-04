@@ -47,6 +47,8 @@ interface Purchase {
 // Test configuration
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8787';
 const AUTH0_TOKEN = process.env.AUTH0_TOKEN || '';
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || '';
+const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE || '';
 
 if (!AUTH0_TOKEN) {
   throw new Error('AUTH0_TOKEN environment variable is required');
@@ -106,9 +108,24 @@ const testImageBase64 = "data:image/webp;base64,UklGRuI6AABXRUJQVlA4WAoAAAAgAAAA
 describe('Feedback Flow API', () => {
   beforeAll(async () => {
     // Extract the user ID (sub) from the JWT token
-    const decodedToken = jose.decodeJwt(AUTH0_TOKEN);
-    testerId = decodedToken.sub as string;
-    expirationDate = new Date((decodedToken.exp || 0) * 1000);
+    const JWKS = jose.createRemoteJWKSet(
+      new URL(
+        `https://${AUTH0_DOMAIN}/.well-known/jwks.json`,
+      ),
+    );
+    const joseResult = await jose.jwtVerify(AUTH0_TOKEN, JWKS, {
+			issuer: `https://${AUTH0_DOMAIN}/`,
+			audience: AUTH0_AUDIENCE,
+		});
+    if (!joseResult) {
+      console.error('Failed to verify JWT token');
+      process.exit(1);
+    }
+
+    const payload = joseResult.payload as jose.JWTPayload;
+
+    testerId = payload.sub as string;
+    expirationDate = new Date((payload.exp || 0) * 1000);
 
     console.log(`Using Auth0 user ID: ${testerId} expiring on ${expirationDate}`);
     if (expirationDate < new Date()) {
