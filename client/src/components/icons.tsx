@@ -250,28 +250,6 @@ export const SearchIcon = (props: IconSvgProps) => (
   </svg>
 );
 
-export const ChevronDown = (props: IconSvgProps) => {
-  return (
-    <svg
-      fill="none"
-      height={props.size || props.height || 24}
-      viewBox="0 0 24 24"
-      width={props.size || props.width || 24}
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path
-        d="m19.92 8.95-6.52 6.52c-.77.77-2.03.77-2.8 0L4.08 8.95"
-        stroke={props.color || "currentColor"}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeMiterlimit={10}
-        strokeWidth={1.5}
-      />
-    </svg>
-  );
-};
-
 export const DownloadIcon = (props: IconSvgProps) => {
   return (
     <svg
@@ -292,18 +270,25 @@ export const DownloadIcon = (props: IconSvgProps) => {
   );
 };
 
-export const PasteIcon = (props: IconSvgProps) => {
+export const PasteIcon = ({
+  size,
+  width = 18,
+  height = 18,
+  color = "currentColor",
+  ...props
+}: IconSvgProps) => {
   return (
     <svg
       fill="none"
-      height={props.size || props.height || 18}
-      stroke="currentColor"
+      height={size || height}
+      stroke={color}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="2"
       viewBox="0 0 24 24"
-      width={props.size || props.width || 18}
+      width={size || width}
       xmlns="http://www.w3.org/2000/svg"
+      {...props}
     >
       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
       <rect height="4" rx="1" ry="1" width="8" x="8" y="2" />

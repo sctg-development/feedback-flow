@@ -51,7 +51,7 @@ import {
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { ChevronDown, GithubIcon } from "@/components/icons";
+import { ChevronDownIcon, GithubIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
 export const Navbar = () => {
@@ -104,7 +104,7 @@ export const Navbar = () => {
                   )}
                   variant="light"
                 >
-                  {t("Administration")} <ChevronDown />
+                  {t("Administration")} <ChevronDownIcon />
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
