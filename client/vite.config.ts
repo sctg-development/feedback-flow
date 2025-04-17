@@ -93,6 +93,9 @@ export default defineConfig({
     "import.meta.env.DB_MAX_IMAGE_SIZE": JSON.stringify(
       process.env.DB_MAX_IMAGE_SIZE,
     ),
+    "import.meta.env.AMAZON_BASE_URL": JSON.stringify(
+      process.env.AMAZON_BASE_URL,
+    ),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss()],
   build: {

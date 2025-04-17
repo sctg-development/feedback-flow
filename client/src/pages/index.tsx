@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
 import { EditIcon } from "@heroui/shared-icons";
+import { Link } from "react-router-dom";
 
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
@@ -282,6 +283,15 @@ export default function IndexPage() {
                   sortable: true,
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
+                  render: (item) => {
+                    return (
+                      <Link
+                        to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
+                      >
+                        {item.order}
+                      </Link>
+                    );
+                  },
                 },
                 {
                   field: "description",

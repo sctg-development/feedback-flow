@@ -53,6 +53,7 @@ jobs:
           export ADMIN_PERMISSION="${{ vars.ADMIN_PERMISSION }}"
           export BACKUP_PERMISSION="${{ vars.BACKUP_PERMISSION }}"
           export DB_MAX_IMAGE_SIZE="${{ vars.DB_MAX_IMAGE_SIZE }}"
+          export AMAZON_BASE_URL="${{ vars.AMAZON_BASE_URL }}"
           npx vite build --base=/${{ github.event.repository.name }}
 
       - name: Upload pages artifact
