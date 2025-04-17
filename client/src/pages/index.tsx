@@ -286,6 +286,7 @@ export default function IndexPage() {
                   render: (item) => {
                     return (
                       <Link
+                        target="_blank"
                         to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
                       >
                         {item.order}
