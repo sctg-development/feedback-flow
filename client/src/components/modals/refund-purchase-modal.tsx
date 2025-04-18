@@ -28,7 +28,7 @@ import {
 } from "@heroui/modal";
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
 import { DatePicker } from "@heroui/date-picker";
 import { addToast } from "@heroui/toast";
 import { NumberInput } from "@heroui/number-input";
@@ -49,7 +49,9 @@ export default function RefundPurchaseModal({
   const { getAccessTokenSilently } = useAuth0();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [amount, setAmount] = useState<number>(defaultAmount);
-  const [refundDate, setRefundDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(
+    today(getLocalTimeZone()),
+  );
   const formRef = useRef<HTMLFormElement>(null);
   const refundDatePickerRef = useRef<HTMLInputElement>(null);
 
@@ -57,9 +59,6 @@ export default function RefundPurchaseModal({
     const formData = new FormData(e.target as HTMLFormElement);
     const amount = parseFloat(formData.get("amount") as string);
     const dateValue = formData.get("refundDate") as string;
-
-    setRefundDate(dateValue || null);
-    e.preventDefault();
 
     // Validation
     if (amount <= 0) {
@@ -73,7 +72,7 @@ export default function RefundPurchaseModal({
       return;
     }
 
-    if (!refundDate) {
+    if (!selectedDate) {
       addToast({
         title: t("error"),
         description: t("please-select-refund-date"),
@@ -87,6 +86,7 @@ export default function RefundPurchaseModal({
     setIsSubmitting(true);
 
     try {
+      const refundDate = selectedDate.toDate("UTC").toISOString().split("T")[0];
       // Use the selected date or today
       const date = new Date().toISOString().split("T")[0];
       const data = {
@@ -136,14 +136,13 @@ export default function RefundPurchaseModal({
     }
   };
 
-  //   const resetForm = () => {
-  //     setAmount(defaultAmount);
-  //     setSelectedDate(null);
-  //     setRefundDate(null);
-  //     if (formRef.current) {
-  //       formRef.current.reset();
-  //     }
-  //   };
+  const resetForm = () => {
+    setAmount(defaultAmount);
+    setSelectedDate(today(getLocalTimeZone()));
+    if (formRef.current) {
+      formRef.current.reset();
+    }
+  };
 
   return (
     <Modal
@@ -187,14 +186,14 @@ export default function RefundPurchaseModal({
             </div>
 
             <div className="flex justify-end gap-2 mt-4">
-              {/* <Button
+              <Button
                 color="secondary"
                 disabled={isSubmitting}
                 type="button"
                 onPress={resetForm}
               >
                 {t("reset")}
-              </Button> */}
+              </Button>
               <Button
                 color="danger"
                 disabled={isSubmitting}
