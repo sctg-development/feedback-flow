@@ -85,68 +85,93 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 
 ### Tester Management
 
-- **POST `/api/tester`** - Add a tester to the database (their ID is automatically generated with a UUID) - needs admin:api permission
-  - Request: `{name /* tester's name */: string, ids /* OAuth2 identifiers */: string[]|string}`
-  - Response: `{success: boolean, uuid /* tester's account UUID */: string}`
+- **GET `/api/testers`** - Retrieve all testers with pagination - requires admin:api permission
+  - Optional parameters: `?page=1&limit=10&sort=name&order=asc`
+  - Response: `{success: boolean, data: [{uuid: string, name: string, ids: string[]}], total: number, page: number, limit: number}`
 
-- **POST `/api/tester/ids`** - Add an ID to the authenticated tester - needs admin:api permission
-  - Request: `{name /* tester's name */: string, id /* additional identifier */: string}`
+- **POST `/api/tester`** - Add a tester to the database (their ID is automatically generated with a UUID) - requires admin:api permission
+  - Request: `{name: string, ids: string[]|string}`
+  - Response: `{success: boolean, uuid: string}`
+
+- **POST `/api/tester/ids`** - Add an ID to the authenticated tester - requires admin:api permission
+  - Request: `{name: string, id: string}`
   - Response: `{success: boolean, name: string, ids: [string]}`
 
-- **GET `/api/tester`** - Get information about the authenticated tester - needs admin:api permission
-  - Response: `{success: boolean, data: {uuid: string, nom: string, ids: [string]}}`
+- **GET `/api/tester`** - Get information about the authenticated tester - requires admin:api permission
+  - Response: `{success: boolean, data: {uuid: string, name: string, ids: [string]}}`
 
 ### Purchase Management
 
-- **POST `/api/purchase`** - Add a purchase to the database - needs write:api permission
-  - Request: `{date /* purchase date in YYYY-MM-DD format */: string, order /* order number */: string, description /* description of the item */: string, amount /* purchase amount */: number, screenshot /* webp image with the largest side < 1024px, base64 encoded, max 1MB */: string}`
-  - Response: `{success: boolean, id /* purchase UUID */: string}`
+- **POST `/api/purchase`** - Add a purchase to the database - requires write:api permission
+  - Request: `{date: string, order: string, description: string, amount: number, screenshot: string}`
+  - Response: `{success: boolean, id: string}`
 
-- **GET `/api/purchase/:id`** - Get information about a specific purchase - needs read:api permission
+- **GET `/api/purchase/:id`** - Get information about a specific purchase - requires read:api permission
   - Response: `{success: boolean, data: {id: string, date: string, order: string, description: string, amount: number, screenshot: string}}`
 
-- **GET `/api/purchase`** - Get a list of the authenticated tester's purchases - needs read:api permission
+- **DELETE `/api/purchase/:purchaseId`** - Delete a purchase by ID - requires write:api permission
+  - Response: `{success: boolean, message: string}`
+
+- **GET `/api/purchase`** - Get a list of the authenticated tester's purchases - requires read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
   - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
 
-- **GET `/api/purchases/not-refunded`** - Get a list of the authenticated tester's not-refunded purchases - needs read:api permission
+- **GET `/api/purchases/not-refunded`** - Get a list of the authenticated tester's not-refunded purchases - requires read:api permission
+  - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
+  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
+
+- **GET `/api/purchases/refunded`** - Get a list of the authenticated tester's refunded purchases - requires read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
   - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
   
-- **GET `/api/purchases/refunded`** - Get a list of the authenticated tester's refunded purchases - needs read:api permission
-  - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
-  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
+- **GET `/api/purchase-status`** - Get the status of all purchases with feedback/publication/refund status - requires read:api permission
+  - Optional parameters: `?page=1&limit=10&sort=date&order=desc&limitToNotRefunded=false`
+  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number, refunded: boolean, has_feedback: boolean, has_publication: boolean, has_refund: boolean}], total: number, page: number, limit: number}`
 
 ### Feedback Management
 
-- **POST `/api/feedback`** - Add feedback to the database - needs write:api permission
-  - Request: `{date /* format YYYY-MM-DD */: string, purchase /* purchase UUID */: string, feedback /* optional feedback left */: string}`
+- **POST `/api/feedback`** - Add feedback to the database - requires write:api permission
+  - Request: `{date: string, purchase: string, feedback: string}`
   - Response: `{success: boolean, id: string}`
 
-- **POST `/api/publish`** - Record the publication of feedback - needs write:api permission
-  - Request: `{date /* format YYYY-MM-DD */: string, purchase /* purchase UUID */: string, screenshot /* webp image with the largest side < 1024px, base64 encoded, max 1MB */: string}`
+- **GET `/api/feedback/:id`** - Get information about specific feedback - requires read:api permission
+  - Response: `{success: boolean, data: {date: string, purchase: string, feedback: string}}`
+
+- **POST `/api/publish`** - Record the publication of feedback - requires write:api permission
+  - Request: `{date: string, purchase: string, screenshot: string}`
   - Response: `{success: boolean, id: string}`
 
-- **GET `/api/publish/:id`** - Get information about a specific publication - needs read:api permission
+- **GET `/api/publish/:id`** - Get information about a specific publication - requires read:api permission
   - Response: `{success: boolean, data: {date: string, purchase: string, screenshot: string}}`
 
 ### Refund Management
 
-- **POST `/api/refund`** - Record a refund - needs write:api permission
-  - Request: `{date /* recording date in YYYY-MM-DD format */: string, purchase /* purchase UUID */: string, refunddate /* refund date in YYYY-MM-DD format */: string, amount /* refunded amount */: number}`
+- **POST `/api/refund`** - Record a refund - requires write:api permission
+  - Request: `{date: string, purchase: string, refundDate: string, amount: number, transactionId?: string}`
   - Response: `{success: boolean, id: string}`
 
-- **GET `/api/refund/:id`** - Get information about a specific refund - needs read:api permission
-  - Response: `{success: boolean, data: {date: string, purchase: string, refunddate: string, amount: number}}`
+- **GET `/api/refund/:id`** - Get information about a specific refund - requires read:api permission
+  - Response: `{success: boolean, data: {date: string, purchase: string, refundDate: string, amount: number, transactionId?: string}}`
 
 ### Database Management
 
-- **GET `/api/backup/json`** - Backup the database - needs backup:api permission
+- **GET `/api/backup/json`** - Backup the database - requires backup:api permission
   - Response: `{success: boolean, data: {backup: string}}`
 
-- **POST `/api/backup/json`** - Restore the database - needs backup:api permission
-  - Request: `{backup /* backup string */: string}`
+- **POST `/api/backup/json`** - Restore the database - requires backup:api permission
+  - Request: `{backup: string}`
   - Response: `{success: boolean}`
+
+### System Debug Endpoints
+
+- **GET `/api/__d1/schema`** - Get database table names - requires admin:api permission
+  - Response: `{tables: string[], timestamp: string}`
+
+- **GET `/api/__d1/schema_version`** - Get database schema version - requires admin:api permission
+  - Response: `{version: {version: number, description: string}, timestamp: string}`
+
+- **GET `/api/__d1/schema_migrations`** - Execute database schema migrations - requires admin:api permission
+  - Response: `{migrations: string[], timestamp: string}`
 
 ## Development
 
@@ -244,4 +269,5 @@ Add a new user (Admin menu, dark mode)
 
 API  
 <img width="1124" alt="image" src="https://github.com/user-attachments/assets/cb2d57f5-d18c-481b-ba22-ee3455fbb044" />
+````
 
