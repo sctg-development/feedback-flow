@@ -2020,7 +2020,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						timestamp: new Date().toISOString()
 					}, null, 2), {
 						status: 200,
-						headers: { "Content-Type": "application/json" }
+						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
 					});
 				} catch (error) {
 					return new Response(JSON.stringify({
@@ -2028,7 +2028,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						stack: error instanceof Error ? error.stack : undefined
 					}, null, 2), {
 						status: 500,
-						headers: { "Content-Type": "application/json" }
+						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
 					});
 				}
 			}
@@ -2120,7 +2120,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						timestamp: new Date().toISOString()
 					}, null, 2), {
 						status: 200,
-						headers: { "Content-Type": "application/json" }
+						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
 					});
 				} catch (error) {
 					return new Response(JSON.stringify({
@@ -2128,7 +2128,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						stack: error instanceof Error ? error.stack : undefined
 					}, null, 2), {
 						status: 500,
-						headers: { "Content-Type": "application/json" }
+						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
 					});
 				}
 			}
@@ -2212,7 +2212,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						timestamp: new Date().toISOString()
 					}, null, 2), {
 						status: 200,
-						headers: { "Content-Type": "application/json" }
+						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
 					});
 				} catch (error) {
 					return new Response(JSON.stringify({
@@ -2220,7 +2220,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						stack: error instanceof Error ? error.stack : undefined
 					}, null, 2), {
 						status: 500,
-						headers: { "Content-Type": "application/json" }
+						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
 					});
 				}
 			}
