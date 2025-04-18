@@ -26,12 +26,21 @@
 PRAGMA foreign_keys = ON;
 
 -- Drop tables if they already exist (for reset)
-DROP TABLE IF EXISTS refunds;
+DROP TABLE IF EXISTS schema_version;
 DROP TABLE IF EXISTS publications;
 DROP TABLE IF EXISTS feedbacks;
 DROP TABLE IF EXISTS purchases;
 DROP TABLE IF EXISTS id_mappings;
 DROP TABLE IF EXISTS testers;
+DROP TABLE IF EXISTS refunds;
+
+-- Create schema version table to track database migrations
+CREATE TABLE schema_version (
+    id INTEGER PRIMARY KEY CHECK (id = 1), -- Only allow one row
+    version INTEGER NOT NULL,              -- Current schema version
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    description TEXT NOT NULL              -- Description of this version
+);
 
 -- Testers table
 CREATE TABLE testers (
@@ -94,6 +103,7 @@ CREATE TABLE refunds (
     date TEXT NOT NULL, -- Format YYYY-MM-DD (registration date)
     refund_date TEXT NOT NULL, -- Format YYYY-MM-DD (effective refund date)
     amount REAL NOT NULL,
+    transaction_id TEXT, -- Optional transaction ID for refund
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE
 );
@@ -180,3 +190,6 @@ FROM
     LEFT JOIN refunds r ON p.id = r.purchase_id
 GROUP BY t.uuid;
 
+-- Insert initial schema version (or update if exists)
+INSERT  INTO schema_version (id, version, description) 
+VALUES (1, 1, 'Initial schema with transactionId support for refunds');

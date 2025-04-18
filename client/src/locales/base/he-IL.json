@@ -157,5 +157,7 @@
   "return-this-item": "להחזיר פריט זה",
   "are-you-sure-you-want-to-return-this-item": "האם אתה בטוח שאתה רוצה להחזיר את הפריט הזה?",
   "confirm": "לְאַשֵׁר",
-  "return-item": "פריט החזר"
+  "return-item": "פריט החזר",
+  "optional-transaction-id": "מזהה עסקה אופציונלי",
+  "transaction-id": "מזהה עסקה"
 }

@@ -157,5 +157,7 @@
   "return-this-item": "Retourner cet article",
   "are-you-sure-you-want-to-return-this-item": "Êtes-vous sûr de vouloir retourner cet article?",
   "confirm": "Confirmer",
-  "return-item": "Retourner un achat"
+  "return-item": "Retourner un achat",
+  "optional-transaction-id": "ID de transaction facultatif",
+  "transaction-id": "ID de transaction"
 }

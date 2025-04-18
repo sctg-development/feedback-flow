@@ -80,6 +80,7 @@ export interface Refund {
 	refundDate: string;
 	amount: number;
 	created_at?: string;
+	transactionId?: string; // Optional transaction ID for refund
 }
 
 // Complete mock database structure
@@ -184,6 +185,7 @@ export interface RefundCreateRequest {
 	purchase: string;
 	refundDate: string;
 	amount: number;
+	transactionId?: string; // Ajout du nouveau champ optionnel
 }
 
 // Success response pattern

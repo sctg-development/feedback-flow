@@ -157,5 +157,7 @@
   "return-this-item": "إرجاع هذا العنصر",
   "are-you-sure-you-want-to-return-this-item": "هل أنت متأكد أنك تريد إرجاع هذا العنصر؟",
   "confirm": "يتأكد",
-  "return-item": "العنصر الإرجاع"
+  "return-item": "العنصر الإرجاع",
+  "optional-transaction-id": "معرف المعاملة الاختياري",
+  "transaction-id": "معرف المعاملة"
 }

@@ -157,5 +157,7 @@
   "cancel-this-purchase-and-return-the-item": "取消此购买并退货",
   "confirm": "确认",
   "return-item": "返回项目",
-  "return-this-item": "返回此项目"
+  "return-this-item": "返回此项目",
+  "optional-transaction-id": "可选交易ID",
+  "transaction-id": "事务ID"
 }

@@ -10,6 +10,15 @@
 	"observability": {
 		"enabled": true
 	},
+	"rules": [
+		{
+			"type": "Text",
+			"globs": [
+				"**/*.sql"
+			],
+			"fallthrough": true
+		}
+	],
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -35,12 +44,12 @@
 		],
 	},
 	"d1_databases": [
-    {
-      "binding": "FeedbackFlowDB",
-      "database_name": "feedbackflow-db",
-      "database_id": "de52ab35-cd4d-4b2b-866a-f6cb372fc1fa"
-    }
-  ]
+		{
+			"binding": "FeedbackFlowDB",
+			"database_name": "feedbackflow-db",
+			"database_id": "de52ab35-cd4d-4b2b-866a-f6cb372fc1fa"
+		}
+	]
 	// ],
 	/**
 	 * Environment Variables

@@ -119,7 +119,13 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	constructor(bindings: D1Database) {
 		this.db = bindings;
-		// Initialize the Cloudflare D1 database connection
+		this.runMigrations().then(() => {
+			console.log("Database migrations completed");
+		}).catch((error) => {
+			console.error("Error running migrations:", error);
+		}).finally(() => {
+			console.log("Database connection initialized");
+		});
 	}
 
 	/**
@@ -424,7 +430,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 			return purchases.find(fn);
 		},
-		
+
 		delete: async (id: string): Promise<boolean> => {
 			const result = await this.db
 				.prepare("DELETE FROM purchases WHERE id = ?")
@@ -780,6 +786,18 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		 */
 		put: async (testerId: string, newRefund: Refund): Promise<string> => {
 			try {
+
+				const tester = await this.idMappings.getTesterUuid(testerId);
+				const purchases = await this.db.prepare(
+					"SELECT * FROM purchases WHERE id = ? AND tester_uuid = ?"
+				)
+					.bind(newRefund.purchase, tester)
+					.all();
+
+				if (purchases.results.length === 0) {
+					throw new Error("Purchase not found or not owned by this tester");
+				}
+
 				// Start a transaction to ensure atomicity of operations
 				// (either all operations succeed or none do)
 				// TODO: D1 database does not support transactions, so we need to find an alternative
@@ -789,15 +807,15 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				await this.db
 					.prepare(
 						`
-            INSERT INTO refunds (purchase_id, date, refund_date, amount)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO refunds (purchase_id, date, refund_date, amount, transaction_id) 
+         VALUES (?, ?, ?, ?, ?)
           `,
 					)
 					.bind(
 						newRefund.purchase,
 						newRefund.date,
 						newRefund.refundDate,
-						newRefund.amount,
+						newRefund.amount, newRefund.transactionId || null
 					)
 					.run();
 
@@ -945,7 +963,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		const { results } = await this.db
 			.prepare(
 				`
-        SELECT purchase_id as purchase, date, refund_date as refundDate, amount
+        SELECT purchase_id as purchase, date, refund_date as refundDate, amount, transaction_id
         FROM refunds
       `,
 			)
@@ -956,6 +974,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			date: row.date as string,
 			refundDate: row.refundDate as string,
 			amount: row.amount as number,
+			transactionId: row.transaction_id as string,
 		}));
 	}
 
@@ -1166,5 +1185,69 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			console.error("Error during batch insert:", error);
 			throw new Error("Error during batch insert");
 		}
+	}
+	async checkSchemaVersion(): Promise<{ version: number; description: string }> {
+		if (!this.db) {
+			console.error("Database connection is not initialized");
+			return { version: 0, description: 'Database connection not initialized' };
+		}
+		const tables = await this.getTableNames();
+		if (!tables.includes("schema_version")) {
+			console.error("Schema version table not found");
+			return { version: 0, description: 'Schema version table not found' };
+		}
+		const statement = await this.db
+			.prepare("SELECT version, description FROM schema_version WHERE id=1")
+			.bind()
+			.first();
+		if (statement) {
+			return {
+				version: statement.version as number,
+				description: statement.description as string,
+			};
+		}
+		return { version: 99, description: 'TODO' };
+	}
+
+	async runMigrations(): Promise<string[]> {
+		const messages: string[] = [];
+		const version = await this.checkSchemaVersion();
+
+		// If the schema version is less than 1, run the migration to version 1
+		if (version.version < 1) {
+			try {
+				// Get the SQL migration script
+				const migrationSQLModule = await import('./migrations/v1_add_transaction_id.sql');
+				const migrationSQL = migrationSQLModule.default;
+				await this.db.exec(migrationSQL);
+				messages.push(`Upgraded schema from version ${version.version} to version 1`);
+			} catch (error) {
+				messages.push(`Migration error: ${(error as Error).message}`);
+			}
+		} else {
+			messages.push(`Schema is up to date (version ${version.version})`);
+		}
+
+		return messages;
+	}
+	async getSchemaVersion(): Promise<{ version: number; description: string }> {
+		// Check if the table exists
+		const tables = await this.getTableNames();
+		if (!tables.includes("schema_version")) {
+			console.error("Schema version table not found");
+			return { version: 0, description: 'Schema version table not found' };
+		}
+		const statement = await this.db
+			.prepare("SELECT version, description FROM schema_version")
+			.bind()
+			.first();
+		return { version: statement?.version as number, description: statement?.description as string };
+	}
+	async getTableNames(): Promise<string[]> {
+		const statement = await this.db
+			.prepare("SELECT name FROM sqlite_master WHERE type='table'")
+			.all();
+
+		return statement.results.map((row) => row.name as string);
 	}
 }

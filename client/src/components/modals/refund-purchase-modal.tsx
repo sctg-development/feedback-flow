@@ -34,6 +34,7 @@ import { addToast } from "@heroui/toast";
 import { NumberInput } from "@heroui/number-input";
 
 import { postJsonToSecuredApi } from "../auth0";
+import { Input } from "@heroui/input";
 
 export default function RefundPurchaseModal({
   purchaseId,
@@ -52,13 +53,14 @@ export default function RefundPurchaseModal({
   const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(
     today(getLocalTimeZone()),
   );
+  const [transactionId, setTransactionId] = useState<string>('');
   const formRef = useRef<HTMLFormElement>(null);
   const refundDatePickerRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     const formData = new FormData(e.target as HTMLFormElement);
     const amount = parseFloat(formData.get("amount") as string);
-    const dateValue = formData.get("refundDate") as string;
+    const transactionId = formData.get("transactionId") as string;
 
     // Validation
     if (amount <= 0) {
@@ -94,6 +96,7 @@ export default function RefundPurchaseModal({
         purchase: purchaseId,
         refundDate,
         amount,
+        transactionId: transactionId || undefined,
       };
 
       const response = await postJsonToSecuredApi(
@@ -184,7 +187,15 @@ export default function RefundPurchaseModal({
                 />
               </I18nProvider>
             </div>
-
+            <div className="mb-4 w-full">
+              <Input
+                label={t("transaction-id")}
+                name="transactionId"
+                placeholder={t("optional-transaction-id")}
+                value={transactionId}
+                onChange={(e) => setTransactionId(e.target.value)}
+              />
+            </div>
             <div className="flex justify-end gap-2 mt-4">
               <Button
                 color="secondary"
