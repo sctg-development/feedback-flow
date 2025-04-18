@@ -1382,7 +1382,8 @@
           "date",
           "purchase",
           "refundDate",
-          "amount"
+          "amount",
+          "transactionId"
         ],
         "properties": {
           "date": {
@@ -1417,6 +1418,9 @@
           },
           "amount": {
             "type": "number"
+          },
+          "transactionId": {
+            "type": "string"
           }
         }
       }
