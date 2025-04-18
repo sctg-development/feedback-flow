@@ -543,6 +543,76 @@
         }
       }
     },
+    "/api/purchases/refunded-amount": {
+      "get": {
+        "summary": "Get total amount of refunded purchases",
+        "description": "Returns the total amount of refunded purchases for the authenticated user. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved total refunded amount",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Total refunded amount",
+                      "example": 123.45
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchases/not-refunded-amount": {
+      "get": {
+        "summary": "Get total amount of non-refunded purchases",
+        "description": "Returns the total amount of non-refunded purchases for the authenticated user. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved total non-refunded amount",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Total non-refunded amount",
+                      "example": 456.78
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
     "/api/purchase-status": {
       "get": {
         "summary": "Get purchase status with pagination",
