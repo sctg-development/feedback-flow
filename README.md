@@ -81,6 +81,9 @@ Authentication is handled by Auth0. The system is provided by the template. It i
 
 ## REST API
 
+A Swagger ui is automatically generated for the API. It is available at `/docs`. The API is secured with Auth0. The API uses the same authentication process as the application. The API requires a JWT token to be sent in the `Authorization` header of each request. The token must be prefixed with `Bearer`.  
+For easily adding the token, simply click on your name in the footer of the application. A modal will open with the token. Copy the token with the supplied button and paste it in the `Authorization` field in Swagger. The token is valid for 24 hours. The API uses the same permissions as the application. The API uses the same database as the application.  
+
 The REST API exchanges all objects in JSON format. The API provides the following endpoints:
 
 ### Tester Management
