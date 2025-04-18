@@ -1798,6 +1798,7 @@ const refundRoutes = (router: Router, env: Env) => {
  *         - purchase
  *         - refundDate
  *         - amount
+ *         - transactionId
  *       properties:
  *         date:
  *           type: string
@@ -1822,6 +1823,8 @@ const refundRoutes = (router: Router, env: Env) => {
  *           format: date-time
  *         amount:
  *           type: number
+ *         transactionId:
+ *           type: string
  */
 
 /**
