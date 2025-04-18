@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
--- Activation du mode strict SQLite et des clés étrangères
+-- Enable SQLite strict mode and foreign keys
 PRAGMA foreign_keys = ON;
 
--- Suppression des tables si elles existent déjà (pour réinitialisation)
+-- Drop tables if they already exist (for reset)
 DROP TABLE IF EXISTS refunds;
 DROP TABLE IF EXISTS publications;
 DROP TABLE IF EXISTS feedbacks;
@@ -33,7 +33,7 @@ DROP TABLE IF EXISTS purchases;
 DROP TABLE IF EXISTS id_mappings;
 DROP TABLE IF EXISTS testers;
 
--- Table des testeurs
+-- Testers table
 CREATE TABLE testers (
     uuid TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE testers (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table de mapping des IDs OAuth avec les testeurs (relation 1:N)
+-- OAuth ID mapping table with testers (1:N relationship)
 CREATE TABLE id_mappings (
     id TEXT PRIMARY KEY,
     tester_uuid TEXT NOT NULL,
@@ -49,10 +49,10 @@ CREATE TABLE id_mappings (
     FOREIGN KEY (tester_uuid) REFERENCES testers(uuid) ON DELETE CASCADE
 );
 
--- Index pour accélérer les recherches de testeur par UUID
+-- Index to speed up tester searches by UUID
 CREATE INDEX idx_id_mappings_tester_uuid ON id_mappings(tester_uuid);
 
--- Table des achats
+-- Purchases table
 CREATE TABLE purchases (
     id TEXT PRIMARY KEY,
     tester_uuid TEXT NOT NULL,
@@ -67,78 +67,78 @@ CREATE TABLE purchases (
     FOREIGN KEY (tester_uuid) REFERENCES testers(uuid) ON DELETE CASCADE
 );
 
--- Table des feedbacks
+-- Feedbacks table
 CREATE TABLE feedbacks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    purchase_id TEXT NOT NULL UNIQUE, -- Relation 1:1 avec purchase
+    purchase_id TEXT NOT NULL UNIQUE, -- 1:1 relationship with purchase
     date TEXT NOT NULL, -- Format YYYY-MM-DD
     feedback TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE
 );
 
--- Table des publications
+-- Publications table
 CREATE TABLE publications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    purchase_id TEXT NOT NULL UNIQUE, -- Relation 1:1 avec purchase
+    purchase_id TEXT NOT NULL UNIQUE, -- 1:1 relationship with purchase
     date TEXT NOT NULL, -- Format YYYY-MM-DD
     screenshot TEXT NOT NULL, -- Base64 encoded image
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE
 );
 
--- Table des remboursements
+-- Refunds table
 CREATE TABLE refunds (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    purchase_id TEXT NOT NULL UNIQUE, -- Relation 1:1 avec purchase
-    date TEXT NOT NULL, -- Format YYYY-MM-DD (date d'enregistrement)
-    refund_date TEXT NOT NULL, -- Format YYYY-MM-DD (date effective du remboursement)
+    purchase_id TEXT NOT NULL UNIQUE, -- 1:1 relationship with purchase
+    date TEXT NOT NULL, -- Format YYYY-MM-DD (registration date)
+    refund_date TEXT NOT NULL, -- Format YYYY-MM-DD (effective refund date)
     amount REAL NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE
 );
 
--- Index pour les recherches d'achats par testeur
+-- Index for searching purchases by tester
 CREATE INDEX idx_purchases_tester_uuid ON purchases(tester_uuid);
--- Index pour les recherches d'achats remboursés/non-remboursés
+-- Index for searching refunded/non-refunded purchases
 CREATE INDEX idx_purchases_refunded ON purchases(refunded);
 
--- Pour optimiser les requêtes de tri
+-- To optimize sorting queries
 CREATE INDEX idx_purchases_date ON purchases(date);
 CREATE INDEX idx_purchases_order_number ON purchases(order_number);
 
--- Pour optimiser les jointures dans les vues
+-- To optimize joins in views
 CREATE INDEX idx_feedbacks_purchase_id ON feedbacks(purchase_id);
 CREATE INDEX idx_publications_purchase_id ON publications(purchase_id);
 CREATE INDEX idx_refunds_purchase_id ON refunds(purchase_id);
 
--- Index composites pour les cas d'utilisation courants
+-- Composite indexes for common use cases
 CREATE INDEX idx_purchases_tester_refunded ON purchases(tester_uuid, refunded);
 CREATE INDEX idx_purchases_tester_date ON purchases(tester_uuid, date);
 CREATE INDEX idx_purchases_tester_order ON purchases(tester_uuid, order_number);
 
--- Trigger pour mettre à jour le statut "refunded" d'un achat après l'ajout d'un remboursement
+-- Trigger to update the "refunded" status of a purchase after adding a refund
 CREATE TRIGGER update_purchase_refunded_status
 AFTER INSERT ON refunds
 BEGIN
     UPDATE purchases SET refunded = 1, updated_at = CURRENT_TIMESTAMP WHERE id = NEW.purchase_id;
 END;
 
--- Trigger pour mettre à jour le timestamp lors de la modification d'un testeur
+-- Trigger to update the timestamp when modifying a tester
 CREATE TRIGGER update_tester_timestamp
 AFTER UPDATE ON testers
 BEGIN
     UPDATE testers SET updated_at = CURRENT_TIMESTAMP WHERE uuid = NEW.uuid;
 END;
 
--- Trigger pour mettre à jour le timestamp lors de la modification d'un achat
+-- Trigger to update the timestamp when modifying a purchase
 CREATE TRIGGER update_purchase_timestamp
 AFTER UPDATE ON purchases
 BEGIN
     UPDATE purchases SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 END;
 
--- Vue pour obtenir facilement les achats avec leur statut de feedback, publication et remboursement
+-- View to easily get purchases with their feedback, publication, and refund status
 DROP VIEW IF EXISTS purchase_status;
 CREATE VIEW purchase_status AS
 SELECT 
@@ -160,7 +160,7 @@ FROM
     LEFT JOIN publications pub ON p.id = pub.purchase_id
     LEFT JOIN refunds r ON p.id = r.purchase_id;
 
--- Vue pour obtenir des statistiques par testeur
+-- View to get statistics by tester
 DROP VIEW IF EXISTS tester_statistics;
 CREATE VIEW tester_statistics AS
 SELECT 
