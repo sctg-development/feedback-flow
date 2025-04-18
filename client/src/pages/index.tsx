@@ -39,6 +39,7 @@ import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { PurchaseStatus } from "@/types/db";
+import { getJsonFromSecuredApi } from "@/components/auth0";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -55,9 +56,11 @@ import { PurchaseStatus } from "@/types/db";
  */
 export default function IndexPage() {
   const { t } = useTranslation();
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
   const [createNewPurchase, setCreateNewPurchase] = useState(false);
+  const [notRefundedAmount, setNotRefundedAmount] = useState(0);
+  const [refundedAmount, setRefundedAmount] = useState(0);
   const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
   const [purchase, setPurchase] = useState({ purchaseId: "", amount: 0 });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -157,6 +160,15 @@ export default function IndexPage() {
     };
 
     if (toggleAllPurchases) {
+      getJsonFromSecuredApi(
+        `${import.meta.env.API_BASE_URL}/purchases/refunded-amount`,
+        getAccessTokenSilently,
+      ).then((data) => {
+        if (data.success) {
+          setRefundedAmount(data.amount);
+        }
+      });
+
       return (
         <div className="flex flex-col sm:flex-row justify-between items-center w-full">
           <Button
@@ -164,7 +176,7 @@ export default function IndexPage() {
             variant="light"
             onPress={handleToggleAllPurchases}
           >
-            {t("purchases-refunded")}
+            {t("purchases-refunded")}&nbsp;{refundedAmount + notRefundedAmount}€
           </Button>
           <Button
             color="primary"
@@ -176,6 +188,15 @@ export default function IndexPage() {
         </div>
       );
     } else {
+      getJsonFromSecuredApi(
+        `${import.meta.env.API_BASE_URL}/purchases/not-refunded-amount`,
+        getAccessTokenSilently,
+      ).then((data) => {
+        if (data.success) {
+          setNotRefundedAmount(data.amount);
+        }
+      });
+
       return (
         <div className="flex flex-col sm:flex-row  justify-between items-center w-full">
           <Button
@@ -183,7 +204,7 @@ export default function IndexPage() {
             variant="light"
             onPress={handleToggleAllPurchases}
           >
-            {t("purchases-not-refunded")}
+            {t("purchases-not-refunded")}&nbsp;{notRefundedAmount}€
           </Button>
           <Button
             color="primary"
