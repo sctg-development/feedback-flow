@@ -270,7 +270,8 @@ describe('Feedback Flow API', () => {
       date: today, // record date
       purchase: purchaseId,
       refundDate: today, // Same day refund for testing
-      amount: 29.99
+      amount: 29.99,
+      transactionId: `REFUND-${uuidv4().substring(0, 8)}`,
     });
 
     expect(response.status).toBe(201);
