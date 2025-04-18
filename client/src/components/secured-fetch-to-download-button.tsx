@@ -19,12 +19,9 @@ import React, { useState } from "react";
 import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
 import { Spinner } from "@heroui/spinner"; // Assuming you have a spinner component
-import { useAuth0 } from "@auth0/auth0-react";
 
-import {
-  AuthenticationGuardWithPermission,
-  getJsonFromSecuredApi,
-} from "./auth0";
+import { useSecuredApi } from "./auth0";
+import { AuthenticationGuardWithPermission } from "./auth0";
 import { DownloadIcon } from "./icons";
 
 interface FetchToDownloadProps {
@@ -86,7 +83,7 @@ export const FetchToDownload: React.FC<FetchToDownloadProps> = ({
 
   className = "text-sm font-normal text-default-600 bg-default-100",
 }) => {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getJson } = useSecuredApi();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<any>(null);
   const [downloadDate, setDownloadDate] = useState<string | null>(null);
@@ -98,10 +95,7 @@ export const FetchToDownload: React.FC<FetchToDownloadProps> = ({
     setError(null);
 
     try {
-      const responseData = await getJsonFromSecuredApi(
-        url,
-        getAccessTokenSilently,
-      );
+      const responseData = await getJson(url);
 
       setData(responseData);
       setDownloadDate(new Date().toISOString());

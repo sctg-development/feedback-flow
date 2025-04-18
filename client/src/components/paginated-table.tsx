@@ -41,7 +41,7 @@ import { Tooltip } from "@heroui/tooltip";
 import { title as titleStyle } from "@/components/primitives";
 import {
   AuthenticationGuardWithPermission,
-  getJsonFromSecuredApi,
+  useSecuredApi,
 } from "@/components/auth0";
 import { OrderCriteria } from "@/types/data";
 
@@ -413,7 +413,8 @@ export default function PaginatedTable({
   refreshTrigger,
 }: PaginatedTableProps) {
   const { t } = useTranslation();
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated } = useAuth0();
+  const { getJson } = useSecuredApi();
 
   /** Array of data items to display in the table */
   const [items, setItems] = useState<any[]>([]);
@@ -477,10 +478,7 @@ export default function PaginatedTable({
         url.searchParams.append("order", order);
       }
 
-      const response = await getJsonFromSecuredApi(
-        url.toString(),
-        getAccessTokenSilently,
-      );
+      const response = await getJson(url.toString());
 
       if (isSuccessfulResponse(response)) {
         // Vérifier que chaque élément a une propriété correspondant à rowKey

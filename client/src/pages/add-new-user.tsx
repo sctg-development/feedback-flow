@@ -27,6 +27,7 @@ import DefaultLayout from "@/layouts/default";
 import {
   AuthenticationGuardWithPermission,
   postJsonToSecuredApi,
+  useSecuredApi,
 } from "@/components/auth0";
 import PaginatedTable from "@/components/paginated-table";
 import AddIdToTester from "@/components/modals/add-id-to-tester-modal";
@@ -44,7 +45,7 @@ import AddIdToTester from "@/components/modals/add-id-to-tester-modal";
  */
 export default function AddNewUser() {
   const { t } = useTranslation();
-  const { getAccessTokenSilently } = useAuth0();
+  const { postJson } = useSecuredApi();
   const [refreshKey, setRefreshKey] = useState(0);
   const [isAddIdModalOpen, setIsAddIdModalOpen] = useState(false);
   const [selectedTester, setSelectedTester] = useState<{
@@ -70,10 +71,9 @@ export default function AddNewUser() {
     const ids = [data["oauthId"] as string];
     const name = data["name"] as string;
 
-    const apiResponse = (await postJsonToSecuredApi(
+    const apiResponse = (await postJson(
       `${import.meta.env.API_BASE_URL}/tester`,
-      { name, ids },
-      getAccessTokenSilently,
+      { name, ids }
     )) as TesterCreateResponse;
 
     if (apiResponse && apiResponse.success) {

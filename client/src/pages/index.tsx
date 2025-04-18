@@ -39,7 +39,7 @@ import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { PurchaseStatus } from "@/types/db";
-import { getJsonFromSecuredApi } from "@/components/auth0";
+import { getJsonFromSecuredApi, useSecuredApi } from "@/components/auth0";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -56,7 +56,8 @@ import { getJsonFromSecuredApi } from "@/components/auth0";
  */
 export default function IndexPage() {
   const { t } = useTranslation();
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const { getJson } = useSecuredApi();
+  const { isAuthenticated } = useAuth0();
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
   const [createNewPurchase, setCreateNewPurchase] = useState(false);
   const [notRefundedAmount, setNotRefundedAmount] = useState(0);
@@ -160,9 +161,8 @@ export default function IndexPage() {
     };
 
     if (toggleAllPurchases) {
-      getJsonFromSecuredApi(
-        `${import.meta.env.API_BASE_URL}/purchases/refunded-amount`,
-        getAccessTokenSilently,
+      getJson(
+        `${import.meta.env.API_BASE_URL}/purchases/refunded-amount`
       ).then((data) => {
         if (data.success) {
           setRefundedAmount(data.amount);
@@ -188,9 +188,8 @@ export default function IndexPage() {
         </div>
       );
     } else {
-      getJsonFromSecuredApi(
+      getJson(
         `${import.meta.env.API_BASE_URL}/purchases/not-refunded-amount`,
-        getAccessTokenSilently,
       ).then((data) => {
         if (data.success) {
           setNotRefundedAmount(data.amount);

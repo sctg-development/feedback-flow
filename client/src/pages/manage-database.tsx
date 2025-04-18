@@ -25,19 +25,18 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
-import { useAuth0 } from "@auth0/auth0-react";
 
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { ProtectedFetchToDownload } from "@/components/secured-fetch-to-download-button";
 import FileUpload from "@/components/file-upload/file-upload";
-import { postJsonToSecuredApi } from "@/components/auth0";
+import { useSecuredApi } from "@/components/auth0";
 import Panel from "@/components/panel";
 
 export default function ManageDatabasePage() {
   const { t } = useTranslation();
+  const { postJson } = useSecuredApi();
   const [fileUpload, setFileUpload] = useState<File | null>(null);
-  const { getAccessTokenSilently } = useAuth0();
   const [restoreDatabaseResult, setRestoreDatabaseResult] = useState<
     any | null
   >(null);
@@ -78,10 +77,9 @@ export default function ManageDatabasePage() {
 
           // Vous pouvez ajouter ici une validation de la structure du JSON
 
-          const ret = await postJsonToSecuredApi(
+          const ret = await postJson(
             `${import.meta.env.API_BASE_URL}/backup/json`,
             parsedData,
-            getAccessTokenSilently,
           );
 
           setRestoreDatabaseResult(ret);

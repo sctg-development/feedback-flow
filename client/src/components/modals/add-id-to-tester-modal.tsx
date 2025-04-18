@@ -18,7 +18,6 @@
 /* eslint-disable no-console */
 import { FormEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   Modal,
   ModalBody,
@@ -31,7 +30,7 @@ import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 import { addToast } from "@heroui/toast";
 
-import { postJsonToSecuredApi } from "../auth0";
+import { useSecuredApi } from "../auth0";
 
 /**
  * Modal component for adding an OAuth ID to an existing tester
@@ -61,7 +60,7 @@ export default function AddIdToTester({
   onSuccess?: () => void;
 } & ModalProps) {
   const { t } = useTranslation();
-  const { getAccessTokenSilently } = useAuth0();
+  const { postJson } = useSecuredApi();
   const [oauthId, setOauthId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -96,10 +95,9 @@ export default function AddIdToTester({
         id: oauthId.trim(),
       };
 
-      const response = await postJsonToSecuredApi(
+      const response = await postJson(
         `${import.meta.env.API_BASE_URL}/tester/ids`,
         data,
-        getAccessTokenSilently,
       );
 
       if (response.success) {

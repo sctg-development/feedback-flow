@@ -18,7 +18,6 @@
 import { FormEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { I18nProvider } from "@react-aria/i18n";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   Modal,
   ModalBody,
@@ -32,9 +31,9 @@ import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
 import { DatePicker } from "@heroui/date-picker";
 import { addToast } from "@heroui/toast";
 import { NumberInput } from "@heroui/number-input";
-
-import { postJsonToSecuredApi } from "../auth0";
 import { Input } from "@heroui/input";
+
+import { useSecuredApi } from "../auth0";
 
 export default function RefundPurchaseModal({
   purchaseId,
@@ -47,13 +46,13 @@ export default function RefundPurchaseModal({
   onSuccess?: () => void;
 } & ModalProps) {
   const { t, i18n } = useTranslation();
-  const { getAccessTokenSilently } = useAuth0();
+  const { postJson } = useSecuredApi();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [amount, setAmount] = useState<number>(defaultAmount);
   const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(
     today(getLocalTimeZone()),
   );
-  const [transactionId, setTransactionId] = useState<string>('');
+  const [transactionId, setTransactionId] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
   const refundDatePickerRef = useRef<HTMLInputElement>(null);
 
@@ -99,10 +98,9 @@ export default function RefundPurchaseModal({
         transactionId: transactionId || undefined,
       };
 
-      const response = await postJsonToSecuredApi(
+      const response = await postJson(
         `${import.meta.env.API_BASE_URL}/refund`,
-        data,
-        getAccessTokenSilently,
+        data
       );
 
       if (response.success) {

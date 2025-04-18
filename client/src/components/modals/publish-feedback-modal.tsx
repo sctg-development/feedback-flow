@@ -18,7 +18,6 @@
 import { FormEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { I18nProvider } from "@react-aria/i18n";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   Modal,
   ModalBody,
@@ -32,7 +31,7 @@ import { getLocalTimeZone, today } from "@internationalized/date";
 import { DatePicker } from "@heroui/date-picker";
 import { addToast } from "@heroui/toast";
 
-import { postJsonToSecuredApi } from "../auth0";
+import { useSecuredApi } from "../auth0";
 
 import { ImageUpload } from "@/components/image-upload";
 
@@ -45,7 +44,7 @@ export default function PublishFeedbackModal({
   onSuccess?: () => void;
 } & ModalProps) {
   const { t, i18n } = useTranslation();
-  const { getAccessTokenSilently } = useAuth0();
+  const { postJson } = useSecuredApi();
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -105,10 +104,9 @@ export default function PublishFeedbackModal({
         screenshot,
       };
 
-      const response = await postJsonToSecuredApi(
+      const response = await postJson(
         `${import.meta.env.API_BASE_URL}/publish`,
         data,
-        getAccessTokenSilently,
       );
 
       if (response.success) {

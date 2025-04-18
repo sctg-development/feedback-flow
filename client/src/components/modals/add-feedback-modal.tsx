@@ -24,7 +24,6 @@ import {
 } from "@heroui/modal";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
-import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
 import { DatePicker } from "@heroui/date-picker";
 import { Form } from "@heroui/form";
@@ -33,7 +32,7 @@ import { Textarea } from "@heroui/input";
 import { useTranslation } from "react-i18next";
 import { FormEvent, useState } from "react";
 
-import { postJsonToSecuredApi } from "../auth0";
+import { useSecuredApi } from "../auth0";
 
 /**
  * Constructs a modal for adding feedback.
@@ -62,7 +61,7 @@ export default function AddFeedbackModal({
   purchaseId: string;
   onSuccess?: () => void;
 } & ModalProps) {
-  const { getAccessTokenSilently } = useAuth0();
+  const { postJson } = useSecuredApi();
   const { t, i18n } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -88,11 +87,7 @@ export default function AddFeedbackModal({
       const url = `${import.meta.env.API_BASE_URL}/feedback`;
 
       // Call the function to send the feedback to the server
-      const result = await postJsonToSecuredApi(
-        url,
-        data,
-        getAccessTokenSilently,
-      );
+      const result = await postJson(url, data);
 
       if (result && result.success) {
         addToast({

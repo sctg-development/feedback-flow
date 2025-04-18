@@ -17,7 +17,6 @@
  */
 import { FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   Modal,
   ModalBody,
@@ -30,7 +29,7 @@ import { Form } from "@heroui/form";
 import { Button } from "@heroui/button";
 import { addToast } from "@heroui/toast";
 
-import { deleteJsonFromSecuredApi } from "../auth0";
+import { useSecuredApi } from "../auth0";
 
 export default function ReturnPurchaseModal({
   purchaseId,
@@ -42,7 +41,7 @@ export default function ReturnPurchaseModal({
   onSuccess?: () => void;
 } & ModalProps) {
   const { t } = useTranslation();
-  const { getAccessTokenSilently } = useAuth0();
+  const { deleteJson } = useSecuredApi();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -53,9 +52,8 @@ export default function ReturnPurchaseModal({
     try {
       // Use the selected date or today
 
-      const response = await deleteJsonFromSecuredApi(
+      const response = await deleteJson(
         `${import.meta.env.API_BASE_URL}/purchase/${purchaseId}`,
-        getAccessTokenSilently,
       );
 
       if (response.success) {
