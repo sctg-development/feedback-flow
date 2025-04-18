@@ -479,7 +479,14 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 	  
 			return { results: purchases, totalCount };
 		},
-		
+		refundedAmount: async (testerUuid: string): Promise<number> => {
+			const { results } = await this.db
+				.prepare("SELECT SUM(amount) as total FROM purchases WHERE tester_uuid = ? AND refunded = 1")
+				.bind(testerUuid)
+				.all();
+
+			return results[0]?.total as number || 0;
+		},
 		notRefunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
@@ -526,6 +533,14 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			}));
 	  
 			return { results: purchases, totalCount };
+		},
+		notRefundedAmount: async (testerUuid: string): Promise<number> => {
+			const { results } = await this.db
+				.prepare("SELECT SUM(amount) as total FROM purchases WHERE tester_uuid = ? AND refunded = 0")
+				.bind(testerUuid)
+				.all();
+
+			return results[0]?.total as number || 0;
 		},
 		delete: async (id: string): Promise<boolean> => {
 			const result = await this.db

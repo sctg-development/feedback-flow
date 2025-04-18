@@ -345,6 +345,13 @@ export class InMemoryDB implements FeedbackFlowDB {
 			return { results: paginatedPurchases, totalCount };
 		},
 		
+		refundedAmount: async (testerUuid: string): Promise<number> => {
+			const refunded = await this.purchases.refunded(testerUuid);
+			const totalAmount = refunded.results.reduce((acc, purchase) => {
+				return acc + purchase.amount;
+			}, 0);
+			return totalAmount;
+		},
 		notRefunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
@@ -378,7 +385,13 @@ export class InMemoryDB implements FeedbackFlowDB {
 			
 			return { results: paginatedPurchases, totalCount };
 		},
-		
+		notRefundedAmount: async (testerUuid: string): Promise<number> => {
+			const notRefunded = await this.purchases.notRefunded(testerUuid);
+			const totalAmount = notRefunded.results.reduce((acc, purchase) => {
+				return acc + purchase.amount;
+			}, 0);
+			return totalAmount;
+		},
 		delete: async (id: string) => {
 			const index = this.data.purchases.findIndex(
 				(purchase) => purchase.id === id,

@@ -176,7 +176,9 @@ export interface PurchasesRepository {
 	find(fn: (purchase: Purchase) => boolean): Promise<Purchase | undefined>;
 	filter(fn: (purchase: Purchase) => boolean): Promise<Purchase[]>;
 	refunded(testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>>;
+	refundedAmount(testerUuid: string): Promise<number>;
 	notRefunded(testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>>;
+	notRefundedAmount(testerUuid: string): Promise<number>;
 	delete(id: string): Promise<boolean>;
 	put(testerUuid: string, newPurchase: Purchase): Promise<string>;
 	update(id: string, updates: Partial<Purchase>): Promise<boolean>;
