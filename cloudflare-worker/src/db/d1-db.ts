@@ -322,7 +322,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					}
 
 					// Add new IDs
-					// Utilisation de INSERT OR IGNORE pour éviter les erreurs si l'ID existe déjà
+						// Use INSERT OR IGNORE to avoid errors if the ID already exists
 					for (const id of newTester.ids) {
 						await this.db
 							.prepare(
@@ -612,6 +612,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 			if (updates.refunded !== undefined) {
 				updateFields.push("refunded = ?");
+				// Convert boolean to 0/1 for D1/SQLite
 				params.push(updates.refunded ? 1 : 0); // Conversion du booléen en 0/1 pour D1/SQLite
 			}
 
@@ -1259,6 +1260,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				)
 				.join(", ")}`,
 		];
+		// Execute global statements
 		const globalStatements = [
 			dbCleanupStatements,
 			...dbInsertStatements,

@@ -292,7 +292,7 @@ let dbInstance: FeedbackFlowDB | null = null;
  */
 export function getDatabase(env: Env): FeedbackFlowDB {
 	if (dbInstance === null) {
-		// Initialiser la base de données en fonction de env.DB_BACKEND
+		 // Initialize the database based on env.DB_BACKEND
 		dbInstance =
 			env.DB_BACKEND !== "memory"
 				? (new CloudflareD1DB(env.FeedbackFlowDB) as FeedbackFlowDB)
