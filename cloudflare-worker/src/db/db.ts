@@ -36,6 +36,13 @@ import {
 import { CloudflareD1DB } from "./d1-db";
 import { InMemoryDB } from "./in-memory-db";
 
+export const DEFAULT_PAGINATION = {
+	page: 1,
+	limit: 10,
+	sort: "date",
+	order: "desc",
+};
+
 /**
  * Interface for database structure
  */
@@ -158,11 +165,18 @@ export interface TestersRepository {
 	addIds(uuid: string, ids: string[]): Promise<string[] | undefined>;
 }
 
+export interface PaginatedResult<T> {
+	results: T[];
+	totalCount: number;
+}
+
 // Convertir également PurchasesRepository, FeedbacksRepository, PublicationsRepository, RefundsRepository
 // de manière similaire (toutes les méthodes retournent des Promises)
 export interface PurchasesRepository {
 	find(fn: (purchase: Purchase) => boolean): Promise<Purchase | undefined>;
 	filter(fn: (purchase: Purchase) => boolean): Promise<Purchase[]>;
+	refunded(testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>>;
+	notRefunded(testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>>;
 	delete(id: string): Promise<boolean>;
 	put(testerUuid: string, newPurchase: Purchase): Promise<string>;
 	update(id: string, updates: Partial<Purchase>): Promise<boolean>;

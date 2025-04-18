@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
 
-import { DATABASESCHEMA, FeedbackFlowDB, PurchaseStatus, PurchaseStatusResponse } from "./db";
+import { DATABASESCHEMA, DEFAULT_PAGINATION, FeedbackFlowDB, PaginatedResult, PurchaseStatus, PurchaseStatusResponse } from "./db";
 
 /**
  * In-memory database class for testing purposes
@@ -311,6 +311,74 @@ export class InMemoryDB implements FeedbackFlowDB {
 		find: async (fn: (purchase: Purchase) => boolean) =>
 			this.data.purchases.find(fn),
 
+		refunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
+			if (!pagination) {
+				pagination = DEFAULT_PAGINATION;
+			}
+			
+			// Filter the purchases by tester and refunded status
+			const filteredPurchases = this.data.purchases.filter(
+				(p) => p.testerUuid === testerUuid && p.refunded
+			);
+			
+			const totalCount = filteredPurchases.length;
+			
+			// Sort the filtered purchases
+			const sortedPurchases = [...filteredPurchases].sort((a, b) => {
+				if (pagination!.sort === "date") {
+					return pagination!.order === "asc"
+						? new Date(a.date).getTime() - new Date(b.date).getTime()
+						: new Date(b.date).getTime() - new Date(a.date).getTime();
+				} else {
+					return pagination!.order === "asc"
+						? a.order.localeCompare(b.order)
+						: b.order.localeCompare(a.order);
+				}
+			});
+			
+			// Apply pagination
+			const paginatedPurchases = sortedPurchases.slice(
+				(pagination.page - 1) * pagination.limit, 
+				pagination.page * pagination.limit
+			);
+			
+			return { results: paginatedPurchases, totalCount };
+		},
+		
+		notRefunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
+			if (!pagination) {
+				pagination = DEFAULT_PAGINATION;
+			}
+			
+			// Filter the purchases by tester and not refunded status
+			const filteredPurchases = this.data.purchases.filter(
+				(p) => p.testerUuid === testerUuid && !p.refunded
+			);
+			
+			const totalCount = filteredPurchases.length;
+			
+			// Sort the filtered purchases
+			const sortedPurchases = [...filteredPurchases].sort((a, b) => {
+				if (pagination!.sort === "date") {
+					return pagination!.order === "asc"
+						? new Date(a.date).getTime() - new Date(b.date).getTime()
+						: new Date(b.date).getTime() - new Date(a.date).getTime();
+				} else {
+					return pagination!.order === "asc"
+						? a.order.localeCompare(b.order)
+						: b.order.localeCompare(a.order);
+				}
+			});
+			
+			// Apply pagination
+			const paginatedPurchases = sortedPurchases.slice(
+				(pagination.page - 1) * pagination.limit, 
+				pagination.page * pagination.limit
+			);
+			
+			return { results: paginatedPurchases, totalCount };
+		},
+		
 		delete: async (id: string) => {
 			const index = this.data.purchases.findIndex(
 				(purchase) => purchase.id === id,

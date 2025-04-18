@@ -103,7 +103,7 @@ const testerRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/testers",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 			const url = new URL(request.url);
 			const page = parseInt(url.searchParams.get("page") || "1");
 			const limit = parseInt(url.searchParams.get("limit") || "10");
@@ -188,7 +188,7 @@ const testerRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/tester",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			try {
 				const { name, ids: _ids } =
@@ -325,7 +325,7 @@ const testerRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/tester/ids",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			try {
 				const testerId = router.jwtPayload.sub;
@@ -476,7 +476,7 @@ const testerRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/tester",
 		async () => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			// Get user ID from authenticated user
 			const userId = router.jwtPayload.sub;
@@ -566,7 +566,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.delete(
 		"/api/purchase/:purchaseId",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			const purchaseId = request.params.purchaseId;
 			const userId = router.jwtPayload.sub || "";
@@ -640,7 +640,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/purchase",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			try {
 				const data = (await request.json()) as PurchaseCreateRequest;
@@ -745,7 +745,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/purchase/:id",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			const purchaseId = request.params.id;
 			const userId = router.jwtPayload.sub || "";
@@ -852,7 +852,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/purchases/not-refunded",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 			const url = new URL(request.url);
 			const page = parseInt(url.searchParams.get("page") || "1");
 			const limit = parseInt(url.searchParams.get("limit") || "10");
@@ -867,9 +867,9 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			}
 
 			// Find tester by user ID
-			const tester = await db.testers.find((t) => t.ids.includes(userId || ""));
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
 
-			if (!tester) {
+			if (!testerUuid) {
 				return new Response(
 					JSON.stringify({ success: false, error: "Unauthorized" }),
 					{
@@ -883,33 +883,17 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			}
 
 			// Filter purchases by tester and non-refunded status
-			const purchases = await db.purchases.filter(
-				(p) => p.testerUuid === tester.uuid && !p.refunded,
-			);
+			const pagination = {
+				page,
+				limit,
+				sort,
+				order,
+			};
 
-			// Ensure sort is a valid key
-			const sortKey = purchaseAllowedSortKeys.includes(
-				sort as PurchaseSortCriteria,
-			)
-				? (sort as PurchaseSortCriteria)
-				: "date";
-
-			// Apply sorting
-			const sortedPurchases = [...purchases].sort((a, b) => {
-				if (order === "asc") {
-					return a[sortKey] > b[sortKey] ? 1 : -1;
-				} else {
-					return a[sortKey] < b[sortKey] ? 1 : -1;
-				}
-			});
-
-			// Apply pagination
-			const start = (page - 1) * limit;
-			const end = start + limit;
-			const paginatedPurchases = sortedPurchases.slice(start, end);
+			const { results: purchases, totalCount } = await db.purchases.notRefunded(testerUuid, pagination);
 
 			// Format response without screenshots
-			const formattedPurchases = paginatedPurchases.map((p) => ({
+			const formattedPurchases = purchases.map((p) => ({
 				id: p.id,
 				date: p.date,
 				order: p.order,
@@ -922,7 +906,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				JSON.stringify({
 					success: true,
 					data: formattedPurchases,
-					total: purchases.length,
+					total: totalCount,
 					page,
 					limit,
 				}),
@@ -998,7 +982,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/purchases/refunded",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 			const url = new URL(request.url);
 			const page = parseInt(url.searchParams.get("page") || "1");
 			const limit = parseInt(url.searchParams.get("limit") || "10");
@@ -1013,9 +997,9 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			}
 
 			// Find tester by user ID
-			const tester = await db.testers.find((t) => t.ids.includes(userId || ""));
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
 
-			if (!tester) {
+			if (!testerUuid) {
 				return new Response(
 					JSON.stringify({ success: false, error: "Unauthorized" }),
 					{
@@ -1028,34 +1012,17 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				);
 			}
 
-			// Filter purchases by tester and refunded status
-			const purchases = await db.purchases.filter(
-				(p) => p.testerUuid === tester.uuid && p.refunded,
-			);
+			const pagination = {
+				page,
+				limit,
+				sort,
+				order,
+			  };
 
-			// Ensure sort is a valid key
-			const sortKey = purchaseAllowedSortKeys.includes(
-				sort as PurchaseSortCriteria,
-			)
-				? (sort as PurchaseSortCriteria)
-				: "date";
+			const { results: purchases, totalCount } = await db.purchases.refunded(testerUuid, pagination);
 
-			// Apply sorting
-			const sortedPurchases = [...purchases].sort((a, b) => {
-				if (order === "asc") {
-					return a[sortKey] > b[sortKey] ? 1 : -1;
-				} else {
-					return a[sortKey] < b[sortKey] ? 1 : -1;
-				}
-			});
-
-			// Apply pagination
-			const start = (page - 1) * limit;
-			const end = start + limit;
-			const paginatedPurchases = sortedPurchases.slice(start, end);
-
-			// Format response without screenshots
-			const formattedPurchases = paginatedPurchases.map((p) => ({
+			// Format response without screenshots for better performance
+			const formattedPurchases = purchases.map((p) => ({
 				id: p.id,
 				date: p.date,
 				order: p.order,
@@ -1151,7 +1118,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/purchase-status",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 			const url = new URL(request.url);
 			const limitToNotRefunded =
 				url.searchParams.get("limitToNotRefunded") === "true";
@@ -1262,7 +1229,7 @@ const feedbackRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/feedback",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			try {
 				const { date, purchase, feedback } =
@@ -1348,7 +1315,7 @@ const feedbackRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/publish",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			try {
 				const { date, purchase, screenshot } =
@@ -1434,7 +1401,7 @@ const feedbackRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/publish/:id",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 			const { id } = request.params;
 
 			// Find publication in the database
@@ -1509,7 +1476,7 @@ const refundRoutes = (router: Router, env: Env) => {
 	router.post(
 		"/api/refund",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 
 			try {
 				const { date, purchase, refundDate, amount, transactionId } =
@@ -1604,7 +1571,7 @@ const refundRoutes = (router: Router, env: Env) => {
 	router.get(
 		"/api/refund/:id",
 		async (request) => {
-			const db = await getDatabase(env);
+			const db = getDatabase(env);
 			const { id } = request.params;
 
 			// Find refund in the database
@@ -1871,7 +1838,7 @@ const refundRoutes = (router: Router, env: Env) => {
  * @param env The environment variables
  */
 export const setupRoutes = async (router: Router, env: Env) => {
-	const db = await getDatabase(env);
+	const db = getDatabase(env);
 
 	testerRoutes(router, env);
 	purchaseRoutes(router, env);
@@ -1944,7 +1911,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 		 * 	"publications",
 		 * 	"refunds",
 		 * 	"schema_version"
- 		 *  ],
+			 *  ],
 		 *   "timestamp": "2025-04-18T11:35:40.537Z"
 		 * }
 		 */
@@ -2023,7 +1990,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						timestamp: new Date().toISOString()
 					}, null, 2), {
 						status: 200,
-						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
+						headers: { ...router.corsHeaders, "Content-Type": "application/json" }
 					});
 				} catch (error) {
 					return new Response(JSON.stringify({
@@ -2031,7 +1998,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						stack: error instanceof Error ? error.stack : undefined
 					}, null, 2), {
 						status: 500,
-						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
+						headers: { ...router.corsHeaders, "Content-Type": "application/json" }
 					});
 				}
 			}
@@ -2043,10 +2010,10 @@ export const setupRoutes = async (router: Router, env: Env) => {
 		 * Debug endpoint to get the database schema version
 		 * return a json object like
 		 * {
- 		 *  "version": {
+			 *  "version": {
 		 * 	"version": 1,
 		 * 	"description": "Added transaction_id to refunds"
- 		 *  },
+			 *  },
 		 *   "timestamp": "2025-04-18T11:36:40.414Z"
 		 * }
 		 */
@@ -2123,7 +2090,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						timestamp: new Date().toISOString()
 					}, null, 2), {
 						status: 200,
-						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
+						headers: { ...router.corsHeaders, "Content-Type": "application/json" }
 					});
 				} catch (error) {
 					return new Response(JSON.stringify({
@@ -2131,7 +2098,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						stack: error instanceof Error ? error.stack : undefined
 					}, null, 2), {
 						status: 500,
-						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
+						headers: { ...router.corsHeaders, "Content-Type": "application/json" }
 					});
 				}
 			}
@@ -2215,7 +2182,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						timestamp: new Date().toISOString()
 					}, null, 2), {
 						status: 200,
-						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
+						headers: { ...router.corsHeaders, "Content-Type": "application/json" }
 					});
 				} catch (error) {
 					return new Response(JSON.stringify({
@@ -2223,7 +2190,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 						stack: error instanceof Error ? error.stack : undefined
 					}, null, 2), {
 						status: 500,
-						headers: { ...router.corsHeaders,"Content-Type": "application/json" }
+						headers: { ...router.corsHeaders, "Content-Type": "application/json" }
 					});
 				}
 			}

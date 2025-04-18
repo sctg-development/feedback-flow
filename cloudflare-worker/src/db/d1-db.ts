@@ -35,9 +35,11 @@ import {
 } from "../types/data";
 
 import {
+	DEFAULT_PAGINATION,
 	FeedbackFlowDB,
 	FeedbacksRepository,
 	IdMappingsRepository,
+	PaginatedResult,
 	PublicationsRepository,
 	PurchasesRepository,
 	PurchaseStatus,
@@ -430,7 +432,101 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 			return purchases.find(fn);
 		},
-
+		refunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
+			if (!pagination) {
+				pagination = DEFAULT_PAGINATION;
+			}
+			
+			// First, get the total count
+			const countResult = await this.db
+				.prepare("SELECT COUNT(*) as count FROM purchases WHERE tester_uuid = ? AND refunded = 1")
+				.bind(testerUuid)
+				.first();
+			
+			const totalCount = countResult?.count as number || 0;
+			
+			// Determine sort field and direction
+			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
+			const sortDirection = pagination.order.toUpperCase();
+			
+			// Get paginated results
+			const { results } = await this.db
+				.prepare(
+					`SELECT * FROM purchases 
+					 WHERE tester_uuid = ? AND refunded = 1 
+					 ORDER BY ${sortColumn} ${sortDirection}
+					 LIMIT ? OFFSET ?`
+				)
+				.bind(
+					testerUuid, 
+					pagination.limit, 
+					(pagination.page - 1) * pagination.limit
+				)
+				.all();
+	  
+			// Map database results to Purchase objects
+			const purchases = results.map((row) => ({
+				id: row.id as string,
+				testerUuid: row.tester_uuid as string,
+				date: row.date as string,
+				order: row.order_number as string,
+				description: row.description as string,
+				amount: row.amount as number,
+				screenshot: row.screenshot as string,
+				refunded: Boolean(row.refunded),
+				transactionId: row.transaction_id as string,
+			}));
+	  
+			return { results: purchases, totalCount };
+		},
+		
+		notRefunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
+			if (!pagination) {
+				pagination = DEFAULT_PAGINATION;
+			}
+			
+			// First, get the total count
+			const countResult = await this.db
+				.prepare("SELECT COUNT(*) as count FROM purchases WHERE tester_uuid = ? AND refunded = 0")
+				.bind(testerUuid)
+				.first();
+			
+			const totalCount = countResult?.count as number || 0;
+			
+			// Determine sort field and direction
+			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
+			const sortDirection = pagination.order.toUpperCase();
+			
+			// Get paginated results
+			const { results } = await this.db
+				.prepare(
+					`SELECT * FROM purchases 
+					 WHERE tester_uuid = ? AND refunded = 0 
+					 ORDER BY ${sortColumn} ${sortDirection}
+					 LIMIT ? OFFSET ?`
+				)
+				.bind(
+					testerUuid, 
+					pagination.limit, 
+					(pagination.page - 1) * pagination.limit
+				)
+				.all();
+	  
+			// Map database results to Purchase objects
+			const purchases = results.map((row) => ({
+				id: row.id as string,
+				testerUuid: row.tester_uuid as string,
+				date: row.date as string,
+				order: row.order_number as string,
+				description: row.description as string,
+				amount: row.amount as number,
+				screenshot: row.screenshot as string,
+				refunded: Boolean(row.refunded),
+				transactionId: row.transaction_id as string,
+			}));
+	  
+			return { results: purchases, totalCount };
+		},
 		delete: async (id: string): Promise<boolean> => {
 			const result = await this.db
 				.prepare("DELETE FROM purchases WHERE id = ?")
