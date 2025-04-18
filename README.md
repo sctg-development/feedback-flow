@@ -130,6 +130,12 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 - **GET `/api/purchase-status`** - Get the status of all purchases with feedback/publication/refund status - requires read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc&limitToNotRefunded=false`
   - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number, refunded: boolean, has_feedback: boolean, has_publication: boolean, has_refund: boolean}], total: number, page: number, limit: number}`
+  
+- **GET `/api/purchases/refunded-amount`** - Get total amount of refunded purchases - requires read:api permission
+  - Response: `{success: boolean, amount: number}`
+
+- **GET `/api/purchases/not-refunded-amount`** - Get total amount of non-refunded purchases - requires read:api permission
+  - Response: `{success: boolean, amount: number}`
 
 ### Feedback Management
 

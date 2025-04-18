@@ -554,4 +554,20 @@ describe('Feedback Flow API', () => {
     expect(finalCount).toBe(initialCount - 1);
   }
   );
+  test('240. Should check the total not refunded amount', async () => {
+    const response = await api.get('/purchases/not-refunded-amount');
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.amount).toBeDefined();
+    expect(response.data.amount).toBe(279.96); // Only the non-refunded purchase
+  }
+  );
+  test('250. Should check the total refunded amount', async () => {
+    const response = await api.get('/purchases/refunded-amount');
+    expect(response.status).toBe(200); // Only the refunded purchase
+    expect(response.data.success).toBe(true);
+    expect(response.data.amount).toBeDefined();
+    expect(response.data.amount).toBe(29.99); // Only the refunded purchase
+  }
+  );
 });

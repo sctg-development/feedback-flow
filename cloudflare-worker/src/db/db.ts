@@ -173,15 +173,60 @@ export interface PaginatedResult<T> {
 // Convertir également PurchasesRepository, FeedbacksRepository, PublicationsRepository, RefundsRepository
 // de manière similaire (toutes les méthodes retournent des Promises)
 export interface PurchasesRepository {
+	/**
+	 * Find a purchase that matches the provided condition
+	 * @param fn Predicate function to filter purchases
+	 */
 	find(fn: (purchase: Purchase) => boolean): Promise<Purchase | undefined>;
+	/**
+	 * Filter purchases based on the provided condition
+	 * @param fn Predicate function to filter purchases
+	 */
 	filter(fn: (purchase: Purchase) => boolean): Promise<Purchase[]>;
+	/**
+	 * Add or update a purchase in the database
+	 * @param newPurchase The purchase object to add or update
+	 */
 	refunded(testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>>;
+	/**
+	 * Get the total number of refunded purchases for a tester
+	 * @param testerUuid UUID of the tester
+	 */
 	refundedAmount(testerUuid: string): Promise<number>;
+	/**
+	 * Get all purchases for a tester that are not refunded
+	 * @param testerUuid UUID of the tester
+	 * @param pagination Optional pagination parameters
+	 */
 	notRefunded(testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>>;
+	/**
+	 * Get the total number of purchases for a tester that are not refunded
+	 * @param testerUuid UUID of the tester
+	 */
 	notRefundedAmount(testerUuid: string): Promise<number>;
+	/**
+	 * Get all purchases for a tester
+	 * @param testerUuid UUID of the tester
+	 * @param pagination Optional pagination parameters
+	 */
 	delete(id: string): Promise<boolean>;
+	/**
+	 * Add a new purchase for a tester
+	 * @param testerUuid UUID of the tester
+	 * @param newPurchase The purchase object to add
+	 */
 	put(testerUuid: string, newPurchase: Purchase): Promise<string>;
+	/**
+	 * Update an existing purchase
+	 * @param id The ID of the purchase to update
+	 * @param updates The updates to apply to the purchase
+	 */
 	update(id: string, updates: Partial<Purchase>): Promise<boolean>;
+	/**
+	 * Get all purchases for a tester
+	 * @param testerUuid UUID of the tester
+	 * @param pagination Optional pagination parameters
+	 */
 	getAll(): Promise<Purchase[]>;
 
 	/**
