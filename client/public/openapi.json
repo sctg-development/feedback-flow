@@ -457,6 +457,125 @@
         }
       }
     },
+    "/api/purchases/ready-to-refund": {
+      "get": {
+        "summary": "Get purchases ready for refund",
+        "description": "Returns a paginated list of purchases that are not refunded but have feedback and are ready for refund. Includes feedback data with each purchase. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort field",
+            "schema": {
+              "type": "string",
+              "default": "date"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchases ready for refund",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "order": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "refunded": {
+                            "type": "boolean"
+                          },
+                          "amount": {
+                            "type": "number"
+                          },
+                          "feedback": {
+                            "type": "string",
+                            "description": "Feedback content provided by the tester"
+                          },
+                          "feedbackDate": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Date when the feedback was submitted"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/api/purchases/refunded": {
       "get": {
         "summary": "Get refunded purchases",
@@ -1053,12 +1172,10 @@
                   "type": "object",
                   "properties": {
                     "error": {
-                      "type": "string",
-                      "description": "Error message"
+                      "type": "string"
                     },
                     "stack": {
-                      "type": "string",
-                      "description": "Error stack trace (if available)"
+                      "type": "string"
                     }
                   }
                 }
@@ -1139,12 +1256,10 @@
                   "type": "object",
                   "properties": {
                     "error": {
-                      "type": "string",
-                      "description": "Error message"
+                      "type": "string"
                     },
                     "stack": {
-                      "type": "string",
-                      "description": "Error stack trace (if available)"
+                      "type": "string"
                     }
                   }
                 }
@@ -1217,12 +1332,10 @@
                   "type": "object",
                   "properties": {
                     "error": {
-                      "type": "string",
-                      "description": "Error message"
+                      "type": "string"
                     },
                     "stack": {
-                      "type": "string",
-                      "description": "Error stack trace (if available)"
+                      "type": "string"
                     }
                   }
                 }

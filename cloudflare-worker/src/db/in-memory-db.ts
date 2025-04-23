@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
 
-import { DATABASESCHEMA, DEFAULT_PAGINATION, FeedbackFlowDB, PaginatedResult, PurchaseStatus, PurchaseStatusResponse } from "./db";
+import { DATABASESCHEMA, DEFAULT_PAGINATION, FeedbackFlowDB, PaginatedResult, PurchaseStatus, PurchaseStatusResponse, PurchaseWithFeedback } from "./db";
 
 /**
  * In-memory database class for testing purposes
@@ -315,14 +315,14 @@ export class InMemoryDB implements FeedbackFlowDB {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
-			
+
 			// Filter the purchases by tester and refunded status
 			const filteredPurchases = this.data.purchases.filter(
 				(p) => p.testerUuid === testerUuid && p.refunded
 			);
-			
+
 			const totalCount = filteredPurchases.length;
-			
+
 			// Sort the filtered purchases
 			const sortedPurchases = [...filteredPurchases].sort((a, b) => {
 				if (pagination!.sort === "date") {
@@ -335,16 +335,16 @@ export class InMemoryDB implements FeedbackFlowDB {
 						: b.order.localeCompare(a.order);
 				}
 			});
-			
+
 			// Apply pagination
 			const paginatedPurchases = sortedPurchases.slice(
-				(pagination.page - 1) * pagination.limit, 
+				(pagination.page - 1) * pagination.limit,
 				pagination.page * pagination.limit
 			);
-			
+
 			return { results: paginatedPurchases, totalCount };
 		},
-		
+
 		refundedAmount: async (testerUuid: string): Promise<number> => {
 			const refunded = await this.purchases.refunded(testerUuid);
 			const totalAmount = refunded.results.reduce((acc, purchase) => {
@@ -356,14 +356,14 @@ export class InMemoryDB implements FeedbackFlowDB {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
-			
+
 			// Filter the purchases by tester and not refunded status
 			const filteredPurchases = this.data.purchases.filter(
 				(p) => p.testerUuid === testerUuid && !p.refunded
 			);
-			
+
 			const totalCount = filteredPurchases.length;
-			
+
 			// Sort the filtered purchases
 			const sortedPurchases = [...filteredPurchases].sort((a, b) => {
 				if (pagination!.sort === "date") {
@@ -376,13 +376,75 @@ export class InMemoryDB implements FeedbackFlowDB {
 						: b.order.localeCompare(a.order);
 				}
 			});
-			
+
 			// Apply pagination
 			const paginatedPurchases = sortedPurchases.slice(
-				(pagination.page - 1) * pagination.limit, 
+				(pagination.page - 1) * pagination.limit,
 				pagination.page * pagination.limit
 			);
-			
+
+			return { results: paginatedPurchases, totalCount };
+		},
+		/**
+		 * Get all purchases for a tester ready for refund (not refunded, with feedback AND publication)
+		 * @param testerUuid UUID of the tester
+		 * @param pagination Optional pagination parameters
+		 */
+		readyForRefund: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<PurchaseWithFeedback>> => {
+			if (!pagination) {
+				pagination = DEFAULT_PAGINATION;
+			}
+
+			// Filter the purchases by:
+			// 1. Belonging to this tester
+			// 2. Not yet refunded
+			// 3. Having feedback
+			// 4. Having publication (this is what was missing before)
+			const filteredPurchases = this.data.purchases.filter(
+				(p) => p.testerUuid === testerUuid && 
+					!p.refunded && 
+					this.data.feedbacks.some((feedback) => feedback.purchase === p.id) &&
+					this.data.publications.some((publication) => publication.purchase === p.id)
+			);
+
+			const totalCount = filteredPurchases.length;
+
+			// Enhance purchase objects with feedback and publication data
+			const enhancedPurchases = filteredPurchases.map(purchase => {
+				// Find the feedback for this purchase
+				const feedback = this.data.feedbacks.find(f => f.purchase === purchase.id);
+				
+				// Find the publication for this purchase
+				const publication = this.data.publications.find(p => p.purchase === purchase.id);
+				
+				return {
+					...purchase,
+					feedback: feedback?.feedback || "",
+					feedbackDate: feedback?.date || "",
+					publicationScreenshot: publication?.screenshot,
+					publicationDate: publication?.date
+				} as PurchaseWithFeedback;
+			});
+
+			// Sort the filtered purchases
+			const sortedPurchases = [...enhancedPurchases].sort((a, b) => {
+				if (pagination!.sort === "date") {
+					return pagination!.order === "asc"
+						? new Date(a.date).getTime() - new Date(b.date).getTime()
+						: new Date(b.date).getTime() - new Date(a.date).getTime();
+				} else {
+					return pagination!.order === "asc"
+						? a.order.localeCompare(b.order)
+						: b.order.localeCompare(a.order);
+				}
+			});
+
+			// Apply pagination
+			const paginatedPurchases = sortedPurchases.slice(
+				(pagination.page - 1) * pagination.limit,
+				pagination.page * pagination.limit
+			);
+
 			return { results: paginatedPurchases, totalCount };
 		},
 		notRefundedAmount: async (testerUuid: string): Promise<number> => {
@@ -543,11 +605,11 @@ export class InMemoryDB implements FeedbackFlowDB {
 					} as PurchaseStatus;
 				});
 
-				// Filter out refunded purchases if requested
+			// Filter out refunded purchases if requested
 			if (limitToNotRefunded) {
-				globalResult =  globalResult.filter((purchase) => !purchase.refunded);
+				globalResult = globalResult.filter((purchase) => !purchase.refunded);
 			}
-				const result = globalResult
+			const result = globalResult
 				.slice(offset, offset + limit)
 				.sort((a, b) => {
 					if (sort === "date") {
@@ -580,7 +642,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 				pageInfo,
 			};
 			return response;
-	}
+		}
 	};
 
 	/**

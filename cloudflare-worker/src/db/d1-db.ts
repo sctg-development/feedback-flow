@@ -44,6 +44,7 @@ import {
 	PurchasesRepository,
 	PurchaseStatus,
 	PurchaseStatusResponse,
+	PurchaseWithFeedback,
 	RefundsRepository,
 	TestersRepository,
 } from "./db";
@@ -534,6 +535,79 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 	  
 			return { results: purchases, totalCount };
 		},
+		/**
+		 * Get all purchases for a tester ready for refund (not refunded, with both feedback AND publication)
+		 * @param testerUuid UUID of the tester
+		 * @param pagination Optional pagination parameters
+		 */
+		readyForRefund: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<PurchaseWithFeedback>> => {
+			if (!pagination) {
+				pagination = DEFAULT_PAGINATION;
+			}
+			
+			// First, get the total count of purchases meeting all criteria:
+			// 1. Belonging to this tester
+			// 2. Not refunded
+			// 3. Having feedback
+			// 4. Having publication
+			const countResult = await this.db
+				.prepare(`
+					SELECT COUNT(*) as count 
+					FROM purchases p
+					WHERE p.tester_uuid = ? 
+					  AND p.refunded = 0
+					  AND p.id IN (SELECT purchase_id FROM feedbacks)
+					  AND p.id IN (SELECT purchase_id FROM publications)
+				`)
+				.bind(testerUuid)
+				.first();
+			
+			const totalCount = countResult?.count as number || 0;
+			
+			// Determine sort field and direction
+			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
+			const sortDirection = pagination.order.toUpperCase();
+			
+			// Get paginated results with feedback AND publication data using JOINs
+			const { results } = await this.db
+				.prepare(
+					`SELECT 
+						p.id, p.tester_uuid, p.date, p.order_number, p.description, 
+						p.amount, p.screenshot, p.refunded, 
+						f.feedback, f.date as feedback_date,
+						pb.screenshot as publication_screenshot, pb.date as publication_date
+					 FROM purchases p
+					 INNER JOIN feedbacks f ON p.id = f.purchase_id 
+					 INNER JOIN publications pb ON p.id = pb.purchase_id
+					 WHERE p.tester_uuid = ? AND p.refunded = 0 
+					 ORDER BY p.${sortColumn} ${sortDirection}
+					 LIMIT ? OFFSET ?`
+				)
+				.bind(
+					testerUuid, 
+					pagination.limit, 
+					(pagination.page - 1) * pagination.limit
+				)
+				.all();
+	
+			// Map database results to PurchaseWithFeedback objects
+			const purchases = results.map((row) => ({
+				id: row.id as string,
+				testerUuid: row.tester_uuid as string,
+				date: row.date as string,
+				order: row.order_number as string,
+				description: row.description as string,
+				amount: row.amount as number,
+				screenshot: row.screenshot as string,
+				refunded: Boolean(row.refunded),
+				feedback: row.feedback as string,
+				feedbackDate: row.feedback_date as string,
+				publicationScreenshot: row.publication_screenshot as string,
+				publicationDate: row.publication_date as string,
+			}));
+	
+			return { results: purchases, totalCount };
+		},
 		notRefundedAmount: async (testerUuid: string): Promise<number> => {
 			const { results } = await this.db
 				.prepare("SELECT SUM(amount) as total FROM purchases WHERE tester_uuid = ? AND refunded = 0")
@@ -853,11 +927,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
           VALUES (?, ?, ?)
         `,
 				)
-				.bind(
-					newPublication.purchase,
-					newPublication.date,
-					newPublication.screenshot,
-				)
+				.bind(newPublication.purchase, newPublication.date, newPublication.screenshot)
 				.run();
 
 			return newPublication.purchase;

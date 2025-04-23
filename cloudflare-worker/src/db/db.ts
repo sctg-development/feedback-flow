@@ -170,6 +170,29 @@ export interface PaginatedResult<T> {
 	totalCount: number;
 }
 
+// Define PurchaseWithFeedback type that extends Purchase with feedback and publication data
+export interface PurchaseWithFeedback extends Purchase {
+	/**
+	 * The feedback content associated with this purchase
+	 */
+	feedback: string;
+	
+	/**
+	 * The date when the feedback was submitted
+	 */
+	feedbackDate: string;
+	
+	/**
+	 * The publication screenshot, if available
+	 */
+	publicationScreenshot?: string;
+	
+	/**
+	 * The date when the feedback was published, if available
+	 */
+	publicationDate?: string;
+}
+
 // Convertir également PurchasesRepository, FeedbacksRepository, PublicationsRepository, RefundsRepository
 // de manière similaire (toutes les méthodes retournent des Promises)
 export interface PurchasesRepository {
@@ -199,6 +222,15 @@ export interface PurchasesRepository {
 	 * @param pagination Optional pagination parameters
 	 */
 	notRefunded(testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>>;
+	/**
+	 * Get all purchases for a tester ready for refund (not refunded and with feedback)
+	 * @param testerUuid UUID of the tester
+	 * @param pagination Optional pagination parameters
+	 */
+	readyForRefund(
+		testerUuid: string,
+		pagination?: typeof DEFAULT_PAGINATION,
+	): Promise<PaginatedResult<PurchaseWithFeedback>>;
 	/**
 	 * Get the total number of purchases for a tester that are not refunded
 	 * @param testerUuid UUID of the tester

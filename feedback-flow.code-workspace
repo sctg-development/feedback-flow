@@ -42,6 +42,7 @@
     },
     "terminal.integrated.env.osx": {
       "PROJECT_ROOT": "${workspaceFolder}/../"
-    }
+    },
+    "dependi.npm.lockFileEnabled": false
   }
 }
