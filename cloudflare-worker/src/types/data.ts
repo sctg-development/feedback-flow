@@ -223,7 +223,11 @@ export const testerAllowedSortKeys = ["uuid", "name"] as const;
 export type TesterSortCriteria = (typeof testerAllowedSortKeys)[number];
 
 /**
- * Represents a purchase that is ready for refund with feedback and publication data
+ * Represents a purchase that is ready for refund with complete feedback and publication data
+ * A purchase is considered "ready for refund" when it:
+ * 1. Has not been refunded yet (refunded === false)
+ * 2. Has an associated feedback (feedback is present)
+ * 3. Has been published (publicationScreenShot is present)
  */
 export interface ReadyForRefundPurchase {
   /**
@@ -232,52 +236,53 @@ export interface ReadyForRefundPurchase {
   id: string;
 
   /**
-   * Date when the purchase was made
+   * ISO date string when the purchase was made
    */
   date: string;
 
   /**
-   * Order number or identifier
+   * Order number or identifier for the purchase
    */
   order: string;
 
   /**
-   * Description of the purchased item
+   * Description of the purchased item or service
    */
   description: string;
 
   /**
    * Whether the purchase has been refunded
+   * Should be false for purchases in the "ready for refund" list
    */
   refunded: boolean;
 
   /**
-   * Amount of the purchase
+   * Amount of the purchase in the default currency
    */
   amount: number;
 
   /**
-   * Feedback content provided by the tester
-   */
-  feedback: string;
-
-  /**
-   * Screenshot of the purchase
+   * Screenshot of the purchase receipt, stored as a base64 data URL
    */
   screenshot: string;
 
   /**
-   * Date when the feedback was submitted
+   * Feedback content provided by the tester for this purchase
+   */
+  feedback: string;
+
+  /**
+   * ISO date string when the feedback was submitted
    */
   feedbackDate: string;
 
   /**
-   * Date when the feedback was published
+   * ISO date string when the feedback was published
    */
   publicationDate?: string;
 
   /**
-   * Screenshot of the published feedback
+   * Screenshot of the published feedback, stored as a base64 data URL
    */
   publicationScreenShot?: string;
 }

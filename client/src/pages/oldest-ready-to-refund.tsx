@@ -88,16 +88,42 @@ function convertWebpToPng(base64DataUrl: string | undefined): Promise<string> {
   });
 }
 
+/**
+ * Component that displays the oldest purchases ready for refund in a PDF viewer
+ * The PDF displays purchase details and screenshots for each purchase that has both feedback and publication
+ * but hasn't been refunded yet, sorted by date (oldest first)
+ *
+ * @returns {JSX.Element} The rendered OldestReadyToRefundPage component
+ */
 export default function OldestReadyToRefundPage() {
   const { t } = useTranslation();
+
+  /**
+   * State containing purchases that are ready for refund (have feedback and publication but not refunded)
+   * @type {ReadyForRefundPurchase[]}
+   */
   const [readyToRefund, setReadyToRefund] = useState(
     [] as ReadyForRefundPurchase[],
   );
+
+  /**
+   * Maximum number of purchases to display in the PDF
+   * @type {number}
+   */
   const [maxReadyToRefund, setMaxReadyToRefund] = useState(
     MAX_OLDEST_READY_TO_REFUND,
   );
 
   const { getJson } = useSecuredApi();
+
+  /**
+   * Fetches purchases that are ready for refund from the API
+   * Retrieves a list of purchases that have both feedback and publication but aren't refunded yet
+   * Orders them by date (ascending) and limits to the specified maximum count
+   *
+   * @async
+   * @returns {Promise<void>}
+   */
   const fetchReadyToRefund = async () => {
     try {
       const response = await getJson(
@@ -106,7 +132,6 @@ export default function OldestReadyToRefundPage() {
 
       if (response.success) {
         setReadyToRefund(response.data);
-        //console.log("Ready to refund purchases:", response.data);
       } else {
         // eslint-disable-next-line no-console
         console.error("Error fetching data:", JSON.stringify(response));
@@ -117,18 +142,24 @@ export default function OldestReadyToRefundPage() {
     }
   };
 
+  /**
+   * Effect hook that fetches ready-to-refund purchases when the component mounts
+   */
   useEffect(() => {
     fetchReadyToRefund();
   }, []);
 
   return (
     <DefaultLayout>
+      {/* Page title and description */}
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>{t("oldest-ready-to-refund")}</h1>
           <p>{t("oldest-ready-to-refund-description")}</p>
         </div>
       </section>
+
+      {/* Control for adjusting the maximum number of displayed purchases */}
       <div className="flex w-full mb-4 items-left">
         <NumberInput
           className="w-52"
@@ -142,6 +173,8 @@ export default function OldestReadyToRefundPage() {
           }
         />
       </div>
+
+      {/* PDF viewer section displaying purchase details */}
       <section className="flex flex-col items-center justify-center min-w-full lg:min-w-2xl">
         {readyToRefund && readyToRefund.length > 0 ? (
           <PDFViewer className="w-full h-screen">
@@ -156,6 +189,7 @@ export default function OldestReadyToRefundPage() {
               subject="Oldest ready to refund"
               title="Oldest ready to refund"
             >
+              {/* Create a PDF page for each purchase */}
               {readyToRefund.map((purchase) => (
                 <Page
                   key={purchase.id}
@@ -179,10 +213,12 @@ export default function OldestReadyToRefundPage() {
                     <Text style={{ fontSize: "12" }}>
                       {`Amount: ${purchase.amount}`} €
                     </Text>
+                    {/* Display purchase screenshot */}
                     <PDFImage
                       src={convertWebpToPng(purchase.screenshot)}
                       style={{ width: "50%", height: "auto" }}
                     />
+                    {/* Display publication screenshot */}
                     <PDFImage
                       src={convertWebpToPng(purchase.publicationScreenShot)}
                       style={{ width: "50%", height: "auto" }}
