@@ -164,5 +164,6 @@
   "oldest-ready-to-refund-pdf": "Más antiguo listo para reembolsar (PDF)",
   "oldest-ready-to-refund": "Compras más antiguas listas para el reembolso",
   "oldest-ready-to-refund-description": "Genere un PDF para las 10 compras más antiguas listas para ser reembolsadas",
-  "loading": "Cargando…"
+  "loading": "Cargando…",
+  "max-number-of-items": "Número máximo de artículos"
 }

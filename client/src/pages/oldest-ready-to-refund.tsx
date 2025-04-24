@@ -307,6 +307,7 @@ export default function OldestReadyToRefundPage() {
           <NumberInput
             className="w-52"
             defaultValue={MAX_OLDEST_READY_TO_REFUND}
+            label={t("max-number-of-items")}
             maxValue={100}
             minValue={1}
             placeholder="Max number of items"

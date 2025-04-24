@@ -164,5 +164,6 @@
   "oldest-ready-to-refund-pdf": "הוותיק ביותר מוכן להחזר (PDF)",
   "oldest-ready-to-refund": "רכישות ישנות ביותר מוכנות להחזר",
   "oldest-ready-to-refund-description": "צור PDF עבור 10 הרכישות העתיקות ביותר שמוכנות להחזיר",
-  "loading": "טְעִינָה…"
+  "loading": "טְעִינָה…",
+  "max-number-of-items": "מספר מקסימום של פריטים"
 }
