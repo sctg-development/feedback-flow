@@ -38,6 +38,8 @@ import DefaultLayout from "@/layouts/default";
 import { ReadyForRefundPurchase } from "@/types/data";
 
 const MAX_OLDEST_READY_TO_REFUND = 10;
+const ORDER = "asc";
+
 
 /** Function for converting a webp base64 image url ( data:image/webp;base64,… )to a base64 image containing the image converted to png
  * @param {string} base64DataUrl - The base64 data URL ( data:image/webp;base64,… ) of the webp image
@@ -84,7 +86,7 @@ export default function OldestReadyToRefundPage() {
   const fetchReadyToRefund = async () => {
     try {
       const response = await getJson(
-        `${import.meta.env.API_BASE_URL}/purchases/ready-to-refund?limit=${MAX_OLDEST_READY_TO_REFUND}`,
+        `${import.meta.env.API_BASE_URL}/purchases/ready-to-refund?limit=${MAX_OLDEST_READY_TO_REFUND}&order=${ORDER}`,
       );
 
       if (response.success) {
