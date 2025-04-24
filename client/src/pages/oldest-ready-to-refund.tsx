@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Image as PDFImage,
   Page,
@@ -30,6 +30,7 @@ import {
   Text,
   View,
   Document,
+  StyleSheet,
 } from "@react-pdf/renderer";
 import { NumberInput } from "@heroui/number-input";
 
@@ -38,9 +39,12 @@ import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { ReadyForRefundPurchase } from "@/types/data";
 
+// Constants
 const MAX_OLDEST_READY_TO_REFUND = 10;
 const ORDER = "asc";
-const styles = {
+
+// PDF styles using StyleSheet for better organization
+const styles = StyleSheet.create({
   pageNumber: {
     position: "absolute",
     fontSize: 8,
@@ -50,22 +54,45 @@ const styles = {
     textAlign: "center",
     color: "grey",
   },
-};
+  page: {
+    padding: 10,
+  },
+  titleText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  standardText: {
+    fontSize: 12,
+    marginBottom: 3,
+  },
+  image: {
+    width: "50%",
+    height: "auto",
+    marginVertical: 5,
+  },
+  purchaseView: {
+    marginBottom: 10,
+  },
+});
 
-/** Function for converting a webp base64 image url ( data:image/webp;base64,… )to a base64 image containing the image converted to png
- * @param {string} base64DataUrl - The base64 data URL ( data:image/webp;base64,… ) of the webp image
- * @returns {Promise<string>} - A promise that resolves to a base64 image url ( data:image/webp;base64,… ) containing the png converted of the webp image
+/**
+ * Function for converting a webp base64 image url to a png base64 image
+ * @param {string} base64DataUrl - The base64 data URL of the webp image
+ * @returns {Promise<string>} - A promise that resolves to a base64 image url containing the png conversion
  */
-function convertWebpToPng(base64DataUrl: string | undefined): Promise<string> {
+const convertWebpToPng = (
+  base64DataUrl: string | undefined,
+): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (!base64DataUrl) {
       reject(new Error("No base64 data URL provided"));
 
       return;
     }
+
     const img = new Image();
 
-    img.src = base64DataUrl;
     img.onload = () => {
       const canvas = document.createElement("canvas");
 
@@ -82,138 +109,187 @@ function convertWebpToPng(base64DataUrl: string | undefined): Promise<string> {
         reject(new Error("Failed to get canvas context"));
       }
     };
+
     img.onerror = (error) => {
       reject(error);
     };
+
+    img.src = base64DataUrl;
   });
-}
+};
 
 /**
- * Component that displays the oldest purchases ready for refund in a PDF viewer
- * The PDF displays purchase details and screenshots for each purchase that has both feedback and publication
- * but hasn't been refunded yet, sorted by date (oldest first)
- *
- * @returns {JSX.Element} The rendered OldestReadyToRefundPage component
+ * Component for rendering PDF content with precalculated image conversions
+ * Separating this component helps with performance and code organization
  */
-export default function oldestReadyToRefundPage() {
+const PurchasePdfDocument = ({
+  purchases,
+  convertedImages,
+}: {
+  purchases: ReadyForRefundPurchase[];
+  convertedImages: Record<string, string>;
+}) => {
   const { t } = useTranslation();
 
-  /**
-   * State containing purchases that are ready for refund (have feedback and publication but not refunded)
-   * @type {ReadyForRefundPurchase[]}
-   */
-  const [readyToRefund, setReadyToRefund] = useState(
-    [] as ReadyForRefundPurchase[],
-  );
+  if (purchases.length === 0) {
+    return <p>{t("no-data-available")}</p>;
+  }
 
-  /**
-   * Maximum number of purchases to display in the PDF
-   * @type {number}
-   */
+  return (
+    <PDFViewer className="w-full h-screen">
+      <Document
+        author="Ronan LE MEILLAT"
+        creationDate={new Date()}
+        creator="SCTG - Feedback Flow"
+        keywords="SCTG, Feedback Flow, Refund"
+        language="en"
+        subject="Oldest ready to refund"
+        title="Oldest ready to refund"
+      >
+        {purchases.map((purchase) => (
+          <Page
+            key={purchase.id}
+            dpi={72}
+            size={[446, 632]}
+            style={styles.page}
+          >
+            <View style={styles.purchaseView}>
+              <Text style={styles.titleText}>{`Order: ${purchase.order}`}</Text>
+              <Text
+                style={styles.standardText}
+              >{`Date: ${purchase.date}`}</Text>
+              <Text
+                style={styles.standardText}
+              >{`Description: ${purchase.description}`}</Text>
+              <Text
+                style={styles.standardText}
+              >{`Refunded: ${purchase.refunded}`}</Text>
+              <Text style={styles.standardText}>
+                {`Amount: ${purchase.amount}`} €
+              </Text>
+
+              {/* Display purchase screenshot if available */}
+              {convertedImages[`screenshot_${purchase.id}`] && (
+                <PDFImage
+                  src={convertedImages[`screenshot_${purchase.id}`]}
+                  style={styles.image}
+                />
+              )}
+
+              {/* Display publication screenshot if available */}
+              {convertedImages[`publication_${purchase.id}`] && (
+                <PDFImage
+                  src={convertedImages[`publication_${purchase.id}`]}
+                  style={styles.image}
+                />
+              )}
+            </View>
+            <Text
+              fixed
+              render={({ pageNumber, totalPages }) =>
+                `${pageNumber} / ${totalPages}`
+              }
+              style={styles.pageNumber}
+            />
+          </Page>
+        ))}
+      </Document>
+    </PDFViewer>
+  );
+};
+
+/**
+ * Main component that displays the oldest purchases ready for refund in a PDF viewer
+ * The PDF displays purchase details and screenshots for each purchase that has both
+ * feedback and publication but hasn't been refunded yet, sorted by date (oldest first)
+ */
+export default function OldestReadyToRefundPage() {
+  const { t } = useTranslation();
+  const { getJson } = useSecuredApi();
+
+  // State management
+  const [readyToRefund, setReadyToRefund] = useState<ReadyForRefundPurchase[]>(
+    [],
+  );
   const [maxReadyToRefund, setMaxReadyToRefund] = useState(
     MAX_OLDEST_READY_TO_REFUND,
   );
-
-  const { getJson } = useSecuredApi();
+  const [isLoading, setIsLoading] = useState(true);
+  const [convertedImages, setConvertedImages] = useState<
+    Record<string, string>
+  >({});
+  const [error, setError] = useState<string | null>(null);
 
   /**
-   * Fetches purchases that are ready for refund from the API
-   * Retrieves a list of purchases that have both feedback and publication but aren't refunded yet
-   * Orders them by date (ascending) and limits to the specified maximum count
-   *
-   * @async
-   * @returns {Promise<void>}
+   * Fetches purchases that are ready for refund and converts their images
+   * Memoized to prevent unnecessary re-creation on renders
    */
-  const fetchReadyToRefund = async () => {
+  const fetchReadyToRefund = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
     try {
+      // Fetch data from API
       const response = await getJson(
         `${import.meta.env.API_BASE_URL}/purchases/ready-to-refund?limit=${maxReadyToRefund}&order=${ORDER}`,
       );
 
-      if (response.success) {
-        setReadyToRefund(response.data);
-      } else {
-        // eslint-disable-next-line no-console
-        console.error("Error fetching data:", JSON.stringify(response));
+      if (!response.success) {
+        throw new Error(response.error || "Unknown error occurred");
       }
-    } catch (error) {
+
+      setReadyToRefund(response.data as ReadyForRefundPurchase[]);
+
+      // Convert images in parallel for better performance
+      const imagePromises: Array<Promise<[string, string]>> = [];
+
+      (response.data as ReadyForRefundPurchase[]).forEach((purchase) => {
+        if (purchase.screenshot) {
+          imagePromises.push(
+            convertWebpToPng(purchase.screenshot).then((converted) => [
+              `screenshot_${purchase.id}`,
+              converted,
+            ]),
+          );
+        }
+
+        if (purchase.publicationScreenShot) {
+          imagePromises.push(
+            convertWebpToPng(purchase.publicationScreenShot).then(
+              (converted) => [`publication_${purchase.id}`, converted],
+            ),
+          );
+        }
+      });
+
+      // Wait for all image conversions to complete
+      const convertedImageEntries = await Promise.allSettled(imagePromises);
+
+      // Process results, including only successful conversions
+      const newConvertedImages: Record<string, string> = {};
+
+      convertedImageEntries.forEach((result) => {
+        if (result.status === "fulfilled") {
+          const [key, value] = result.value;
+
+          newConvertedImages[key] = value;
+        }
+      });
+
+      setConvertedImages(newConvertedImages);
+    } catch (err) {
       // eslint-disable-next-line no-console
-      console.error("Error fetching data:", error);
+      console.error("Error fetching or processing data:", err);
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [getJson, maxReadyToRefund]);
 
-  const PdfDocument = () => {
-    if (readyToRefund.length === 0) {
-      return <p>{t("no-data-available")}</p>;
-    }
-
-    return (
-      <PDFViewer className="w-full h-screen">
-        <Document
-          author="Ronan LE MEILLAT"
-          creationDate={new Date()}
-          creator="SCTG - Feedback Flow"
-          keywords="SCTG, Feedback Flow, Refund"
-          language="en"
-          modificationDate={new Date()}
-          producer="SCTG - Feedback Flow"
-          subject="Oldest ready to refund"
-          title="Oldest ready to refund"
-        >
-          {readyToRefund.map((purchase) => (
-            <Page
-              key={purchase.id}
-              dpi={72}
-              size={[446, 632]}
-              style={{ padding: "10px" }}
-            >
-              <View key={purchase.id}>
-                <Text
-                  style={{ fontSize: "14", fontWeight: "bold" }}
-                >{`Order: ${purchase.order}`}</Text>
-                <Text
-                  style={{ fontSize: "12" }}
-                >{`Date: ${purchase.date}`}</Text>
-                <Text
-                  style={{ fontSize: "12" }}
-                >{`Description: ${purchase.description}`}</Text>
-                <Text
-                  style={{ fontSize: "12" }}
-                >{`Refunded: ${purchase.refunded}`}</Text>
-                <Text style={{ fontSize: "12" }}>
-                  {`Amount: ${purchase.amount}`} €
-                </Text>
-                {/* Display purchase screenshot */}
-                <PDFImage
-                  src={convertWebpToPng(purchase.screenshot)}
-                  style={{ width: "50%", height: "auto" }}
-                />
-                {/* Display publication screenshot */}
-                <PDFImage
-                  src={convertWebpToPng(purchase.publicationScreenShot)}
-                  style={{ width: "50%", height: "auto" }}
-                />
-              </View>
-              <Text
-                fixed
-                render={({ pageNumber, totalPages }) =>
-                  `${pageNumber} / ${totalPages}`
-                }
-                style={styles.pageNumber as any}
-              />
-            </Page>
-          ))}
-        </Document>
-      </PDFViewer>
-    );
-  };
-
-  /**
-   * Effect hook that fetches ready-to-refund purchases when the component mounts
-   */
+  // Fetch data when component mounts or when max items changes
   useEffect(() => {
     fetchReadyToRefund();
-  }, [maxReadyToRefund]);
+  }, [fetchReadyToRefund]);
 
   return (
     <DefaultLayout>
@@ -225,24 +301,53 @@ export default function oldestReadyToRefundPage() {
         </div>
       </section>
 
-      {/* Control for adjusting the maximum number of displayed purchases */}
-      <div className="flex w-full mb-4 items-left">
-        <NumberInput
-          className="w-52"
-          defaultValue={MAX_OLDEST_READY_TO_REFUND}
-          maxValue={100}
-          minValue={1}
-          placeholder="Max number of items"
-          step={1}
-          onValueChange={(value: number) =>
-            setMaxReadyToRefund(Math.round(value))
-          }
-        />
-      </div>
+      {/* Controls section */}
+      <section className="flex flex-col gap-4 mb-4">
+        <div className="flex w-full items-left">
+          <NumberInput
+            className="w-52"
+            defaultValue={MAX_OLDEST_READY_TO_REFUND}
+            maxValue={100}
+            minValue={1}
+            placeholder="Max number of items"
+            step={1}
+            onValueChange={(value: number) =>
+              setMaxReadyToRefund(Math.round(value))
+            }
+          />
+        </div>
 
-      {/* PDF viewer section displaying purchase details */}
+        {/* Reload button */}
+        <div className="flex">
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            disabled={isLoading}
+            onClick={() => fetchReadyToRefund()}
+          >
+            {isLoading ? t("loading") : t("reload")}
+          </button>
+        </div>
+      </section>
+
+      {/* Error message display */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p>
+            {t("error")}: {error}
+          </p>
+        </div>
+      )}
+
+      {/* PDF viewer section */}
       <section className="flex flex-col items-center justify-center min-w-full lg:min-w-2xl">
-        <PdfDocument />
+        {isLoading ? (
+          <p>{t("loading")}</p>
+        ) : (
+          <PurchasePdfDocument
+            convertedImages={convertedImages}
+            purchases={readyToRefund}
+          />
+        )}
       </section>
     </DefaultLayout>
   );
