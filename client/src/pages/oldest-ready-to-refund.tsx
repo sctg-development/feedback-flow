@@ -147,7 +147,7 @@ export default function OldestReadyToRefundPage() {
    */
   useEffect(() => {
     fetchReadyToRefund();
-  }, []);
+  }, [maxReadyToRefund]);
 
   return (
     <DefaultLayout>
