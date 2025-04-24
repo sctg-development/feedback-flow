@@ -39,7 +39,17 @@ import { ReadyForRefundPurchase } from "@/types/data";
 
 const MAX_OLDEST_READY_TO_REFUND = 10;
 const ORDER = "asc";
-
+const styles = {
+  pageNumber: {
+    position: "absolute",
+    fontSize: 8,
+    bottom: 30,
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    color: "grey",
+  },
+};
 
 /** Function for converting a webp base64 image url ( data:image/webp;base64,… )to a base64 image containing the image converted to png
  * @param {string} base64DataUrl - The base64 data URL ( data:image/webp;base64,… ) of the webp image
@@ -119,13 +129,22 @@ export default function OldestReadyToRefundPage() {
           <PDFViewer className="w-full h-screen">
             <Document
               author="Ronan LE MEILLAT"
+              creationDate={new Date()}
               creator="SCTG - Feedback Flow"
               keywords="SCTG, Feedback Flow, Refund"
               language="en"
+              modificationDate={new Date()}
+              producer="SCTG - Feedback Flow"
+              subject="Oldest ready to refund"
               title="Oldest ready to refund"
             >
               {readyToRefund.map((purchase) => (
-                <Page key={purchase.id} size="A4" style={{ padding: "10px" }}>
+                <Page
+                  key={purchase.id}
+                  dpi={72}
+                  size={[446, 632]}
+                  style={{ padding: "10px" }}
+                >
                   <View key={purchase.id}>
                     <Text
                       style={{ fontSize: "14", fontWeight: "bold" }}
@@ -139,9 +158,9 @@ export default function OldestReadyToRefundPage() {
                     <Text
                       style={{ fontSize: "12" }}
                     >{`Refunded: ${purchase.refunded}`}</Text>
-                    <Text
-                      style={{ fontSize: "12" }}
-                    >{`Amount: ${purchase.amount}`}</Text>
+                    <Text style={{ fontSize: "12" }}>
+                      {`Amount: ${purchase.amount}`} €
+                    </Text>
                     <PDFImage
                       src={convertWebpToPng(purchase.screenshot)}
                       style={{ width: "50%", height: "auto" }}
@@ -151,6 +170,13 @@ export default function OldestReadyToRefundPage() {
                       style={{ width: "50%", height: "auto" }}
                     />
                   </View>
+                  <Text
+                    fixed
+                    render={({ pageNumber, totalPages }) =>
+                      `${pageNumber} / ${totalPages}`
+                    }
+                    style={styles.pageNumber as any}
+                  />
                 </Page>
               ))}
             </Document>
