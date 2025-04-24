@@ -92,37 +92,39 @@ export const Navbar = React.memo(() => {
             </AuthenticationGuardWithPermission>
           ))}
         </div>
-        <NavbarItem key="utilities-menu" className="hidden md:flex">
-          <Dropdown>
-            <DropdownTrigger>
-              <Button
-                className={clsx(
-                  linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
-                )}
-                variant="light"
-              >
-                {t("utilities")} <ChevronDownIcon />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu>
-              {siteConfig().utilitiesMenuItems.map((item) => (
-                <DropdownItem key={item.href} textValue={item.label}>
-                  <Link
-                    className={clsx(
-                      linkStyles({ color: "foreground" }),
-                      "data-[active=true]:text-primary data-[active=true]:font-medium",
-                    )}
-                    color="foreground"
-                    href={item.href}
-                  >
-                    {item.label}
-                  </Link>
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-        </NavbarItem>
+        <AuthenticationGuardWithPermission permission={import.meta.env.READ_PERMISSION}>
+          <NavbarItem key="utilities-menu" className="hidden md:flex">
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  className={clsx(
+                    linkStyles({ color: "foreground" }),
+                    "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  )}
+                  variant="light"
+                >
+                  {t("utilities")} <ChevronDownIcon />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu>
+                {siteConfig().utilitiesMenuItems.map((item) => (
+                  <DropdownItem key={item.href} textValue={item.label}>
+                    <Link
+                      className={clsx(
+                        linkStyles({ color: "foreground" }),
+                        "data-[active=true]:text-primary data-[active=true]:font-medium",
+                      )}
+                      color="foreground"
+                      href={item.href}
+                    >
+                      {item.label}
+                    </Link>
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </NavbarItem>
+        </AuthenticationGuardWithPermission>
         <AuthenticationGuardWithPermission
           permission={import.meta.env.ADMIN_PERMISSION}
         >
@@ -177,6 +179,7 @@ export const Navbar = React.memo(() => {
         </NavbarItem>
       </NavbarContent>
 
+{/* Mobile Navbar */}
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
         <Link isExternal href={siteConfig().links.github}>
           <GithubIcon className="text-default-500" />
@@ -196,6 +199,18 @@ export const Navbar = React.memo(() => {
               <Link color="primary" href={item.href} size="lg">
                 {item.label}
               </Link>
+            </NavbarMenuItem>
+          ))}
+          {siteConfig().utilitiesMenuItems.map((item, index) => (
+            <NavbarMenuItem key={`${item}-${index}`}>
+              <AuthenticationGuardWithPermission
+                fallback={<span className="line-through">{item.label}</span>}
+                permission={item.permission}
+              >
+                <Link color="foreground" href={item.href}>
+                  {item.label}
+                </Link>
+              </AuthenticationGuardWithPermission>
             </NavbarMenuItem>
           ))}
           {siteConfig().apiMenuItems.map((item, index) => (
