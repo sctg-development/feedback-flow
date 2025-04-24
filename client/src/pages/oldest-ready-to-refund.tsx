@@ -26,10 +26,10 @@ import { useEffect, useState } from "react";
 import {
   Image as PDFImage,
   Page,
+  PDFViewer,
   Text,
   View,
   Document,
-  PDFViewer,
 } from "@react-pdf/renderer";
 import { NumberInput } from "@heroui/number-input";
 
@@ -142,6 +142,72 @@ export default function oldestReadyToRefundPage() {
     }
   };
 
+  const PdfDocument = () => {
+    if (readyToRefund.length === 0) {
+      return <p>{t("no-data-available")}</p>;
+    }
+
+    return (
+      <PDFViewer className="w-full h-screen">
+        <Document
+          author="Ronan LE MEILLAT"
+          creationDate={new Date()}
+          creator="SCTG - Feedback Flow"
+          keywords="SCTG, Feedback Flow, Refund"
+          language="en"
+          modificationDate={new Date()}
+          producer="SCTG - Feedback Flow"
+          subject="Oldest ready to refund"
+          title="Oldest ready to refund"
+        >
+          {readyToRefund.map((purchase) => (
+            <Page
+              key={purchase.id}
+              dpi={72}
+              size={[446, 632]}
+              style={{ padding: "10px" }}
+            >
+              <View key={purchase.id}>
+                <Text
+                  style={{ fontSize: "14", fontWeight: "bold" }}
+                >{`Order: ${purchase.order}`}</Text>
+                <Text
+                  style={{ fontSize: "12" }}
+                >{`Date: ${purchase.date}`}</Text>
+                <Text
+                  style={{ fontSize: "12" }}
+                >{`Description: ${purchase.description}`}</Text>
+                <Text
+                  style={{ fontSize: "12" }}
+                >{`Refunded: ${purchase.refunded}`}</Text>
+                <Text style={{ fontSize: "12" }}>
+                  {`Amount: ${purchase.amount}`} €
+                </Text>
+                {/* Display purchase screenshot */}
+                <PDFImage
+                  src={convertWebpToPng(purchase.screenshot)}
+                  style={{ width: "50%", height: "auto" }}
+                />
+                {/* Display publication screenshot */}
+                <PDFImage
+                  src={convertWebpToPng(purchase.publicationScreenShot)}
+                  style={{ width: "50%", height: "auto" }}
+                />
+              </View>
+              <Text
+                fixed
+                render={({ pageNumber, totalPages }) =>
+                  `${pageNumber} / ${totalPages}`
+                }
+                style={styles.pageNumber as any}
+              />
+            </Page>
+          ))}
+        </Document>
+      </PDFViewer>
+    );
+  };
+
   /**
    * Effect hook that fetches ready-to-refund purchases when the component mounts
    */
@@ -176,68 +242,7 @@ export default function oldestReadyToRefundPage() {
 
       {/* PDF viewer section displaying purchase details */}
       <section className="flex flex-col items-center justify-center min-w-full lg:min-w-2xl">
-        {readyToRefund && readyToRefund.length > 0 ? (
-          <PDFViewer className="w-full h-screen">
-            <Document
-              author="Ronan LE MEILLAT"
-              creationDate={new Date()}
-              creator="SCTG - Feedback Flow"
-              keywords="SCTG, Feedback Flow, Refund"
-              language="en"
-              modificationDate={new Date()}
-              producer="SCTG - Feedback Flow"
-              subject="Oldest ready to refund"
-              title="Oldest ready to refund"
-            >
-              {/* Create a PDF page for each purchase */}
-              {readyToRefund.map((purchase) => (
-                <Page
-                  key={purchase.id}
-                  dpi={72}
-                  size={[446, 632]}
-                  style={{ padding: "10px" }}
-                >
-                  <View key={purchase.id}>
-                    <Text
-                      style={{ fontSize: "14", fontWeight: "bold" }}
-                    >{`Order: ${purchase.order}`}</Text>
-                    <Text
-                      style={{ fontSize: "12" }}
-                    >{`Date: ${purchase.date}`}</Text>
-                    <Text
-                      style={{ fontSize: "12" }}
-                    >{`Description: ${purchase.description}`}</Text>
-                    <Text
-                      style={{ fontSize: "12" }}
-                    >{`Refunded: ${purchase.refunded}`}</Text>
-                    <Text style={{ fontSize: "12" }}>
-                      {`Amount: ${purchase.amount}`} €
-                    </Text>
-                    {/* Display purchase screenshot */}
-                    <PDFImage
-                      src={convertWebpToPng(purchase.screenshot)}
-                      style={{ width: "50%", height: "auto" }}
-                    />
-                    {/* Display publication screenshot */}
-                    <PDFImage
-                      src={convertWebpToPng(purchase.publicationScreenShot)}
-                      style={{ width: "50%", height: "auto" }}
-                    />
-                  </View>
-                  <Text
-                    fixed
-                    render={({ pageNumber, totalPages }) =>
-                      `${pageNumber} / ${totalPages}`
-                    }
-                    style={styles.pageNumber as any}
-                  />
-                </Page>
-              ))}
-            </Document>
-          </PDFViewer>
-        ) : (
-          <p>{t("no-data-available")}</p>
-        )}
+        <PdfDocument />
       </section>
     </DefaultLayout>
   );
