@@ -31,6 +31,7 @@ import {
   Document,
   PDFViewer,
 } from "@react-pdf/renderer";
+import { NumberInput } from "@heroui/number-input";
 
 import { useSecuredApi } from "@/components/auth0";
 import { title } from "@/components/primitives";
@@ -92,11 +93,15 @@ export default function OldestReadyToRefundPage() {
   const [readyToRefund, setReadyToRefund] = useState(
     [] as ReadyForRefundPurchase[],
   );
+  const [maxReadyToRefund, setMaxReadyToRefund] = useState(
+    MAX_OLDEST_READY_TO_REFUND,
+  );
+
   const { getJson } = useSecuredApi();
   const fetchReadyToRefund = async () => {
     try {
       const response = await getJson(
-        `${import.meta.env.API_BASE_URL}/purchases/ready-to-refund?limit=${MAX_OLDEST_READY_TO_REFUND}&order=${ORDER}`,
+        `${import.meta.env.API_BASE_URL}/purchases/ready-to-refund?limit=${maxReadyToRefund}&order=${ORDER}`,
       );
 
       if (response.success) {
@@ -124,6 +129,19 @@ export default function OldestReadyToRefundPage() {
           <p>{t("oldest-ready-to-refund-description")}</p>
         </div>
       </section>
+      <div className="flex w-full mb-4 items-left">
+        <NumberInput
+          className="w-52"
+          defaultValue={MAX_OLDEST_READY_TO_REFUND}
+          maxValue={100}
+          minValue={1}
+          placeholder="Max number of items"
+          step={1}
+          onValueChange={(value: number) =>
+            setMaxReadyToRefund(Math.round(value))
+          }
+        />
+      </div>
       <section className="flex flex-col items-center justify-center min-w-full lg:min-w-2xl">
         {readyToRefund && readyToRefund.length > 0 ? (
           <PDFViewer className="w-full h-screen">
