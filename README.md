@@ -270,6 +270,9 @@ Add a feedback
 Publish feedback  
 <img width="477" alt="publish-feedback" src="https://github.com/user-attachments/assets/c128ad7c-48fe-4d7d-9866-82b5a376c293" />  
 
+Generate a PDF report for purchases ready to refund
+<img width="1379" alt="sreen" src="https://github.com/user-attachments/assets/e2ee801a-fb9b-43db-85ab-f531944ac863" />
+
 Add a refund  
 <img width="462" alt="refund" src="https://github.com/user-attachments/assets/b91764a4-121a-4d43-b924-35c5b2e88a27" />  
 
