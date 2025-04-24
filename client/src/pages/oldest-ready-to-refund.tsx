@@ -115,12 +115,18 @@ export default function OldestReadyToRefundPage() {
       <section className="flex flex-col items-center justify-center min-w-full lg:min-w-2xl">
         {readyToRefund && readyToRefund.length > 0 ? (
           <PDFViewer className="w-full h-screen">
-            <Document>
+            <Document
+              author="Ronan LE MEILLAT"
+              creator="SCTG - Feedback Flow"
+              keywords="SCTG, Feedback Flow, Refund"
+              language="en"
+              title="Oldest ready to refund"
+            >
               {readyToRefund.map((purchase) => (
-                <Page size="A4">
+                <Page key={purchase.id} size="A4" style={{ padding: "10px" }}>
                   <View key={purchase.id}>
                     <Text
-                      style={{ fontSize: "14" }}
+                      style={{ fontSize: "14", fontWeight: "bold" }}
                     >{`Order: ${purchase.order}`}</Text>
                     <Text
                       style={{ fontSize: "12" }}
