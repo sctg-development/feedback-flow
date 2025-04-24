@@ -162,5 +162,6 @@
   "transaction-id": "ID de transaction",
   "utilities": "Utilitaires",
   "oldest-ready-to-refund-pdf": "Les plus anciens prêts à être remboursés (PDF)",
-  "oldest-ready-to-refund": "Les plus anciens achats prêts à être remboursés"
+  "oldest-ready-to-refund": "Les plus anciens achats prêts à être remboursés",
+  "oldest-ready-to-refund-description": "Générez un PDF pour les 10 plus anciens achats prêts à être remboursés"
 }

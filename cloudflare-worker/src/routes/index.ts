@@ -34,6 +34,7 @@ import {
 	testerAllowedSortKeys,
 	TesterSortCriteria,
 	PurchaseSortCriteria,
+	ReadyForRefundPurchase,
 } from "../types/data";
 import { InMemoryDB } from "../db/in-memory-db";
 import { getDatabase } from "../db/db";
@@ -1051,7 +1052,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			const { results: purchases, totalCount } = await db.purchases.readyForRefund(testerUuid, pagination);
 
 			// Format response with enhanced data including feedback
-			const formattedPurchases = purchases.map((p) => ({
+			const formattedPurchases:ReadyForRefundPurchase[] = purchases.map((p) => ({
 				id: p.id,
 				date: p.date,
 				order: p.order,

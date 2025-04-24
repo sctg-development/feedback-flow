@@ -162,5 +162,6 @@
   "optional-transaction-id": "Optional transaction Id",
   "utilities": "Utilities",
   "oldest-ready-to-refund-pdf": "Oldest ready to refund (PDF)",
-  "oldest-ready-to-refund": "Oldest purchases ready for refund"
+  "oldest-ready-to-refund": "Oldest purchases ready for refund",
+  "oldest-ready-to-refund-description": "Generate a PDF for the 10 oldest purchases ready to be refunded"
 }

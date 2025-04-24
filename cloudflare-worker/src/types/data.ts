@@ -221,3 +221,58 @@ export type PurchaseSortCriteria = (typeof purchaseAllowedSortKeys)[number];
 // Define valid sort keys for testers
 export const testerAllowedSortKeys = ["uuid", "name"] as const;
 export type TesterSortCriteria = (typeof testerAllowedSortKeys)[number];
+
+/**
+ * Represents a purchase that is ready for refund with feedback and publication data
+ */
+export interface ReadyForRefundPurchase {
+	/**
+	 * Unique identifier of the purchase
+	 */
+	id: string;
+	
+	/**
+	 * Date when the purchase was made
+	 */
+	date: string;
+	
+	/**
+	 * Order number or identifier
+	 */
+	order: string;
+	
+	/**
+	 * Description of the purchased item
+	 */
+	description: string;
+	
+	/**
+	 * Whether the purchase has been refunded
+	 */
+	refunded: boolean;
+	
+	/**
+	 * Amount of the purchase
+	 */
+	amount: number;
+	
+	/**
+	 * Feedback content provided by the tester
+	 */
+	feedback: string;
+	
+	/**
+	 * Date when the feedback was submitted
+	 */
+	feedbackDate: string;
+	
+	/**
+	 * Date when the feedback was published
+	 */
+	publicationDate?: string;
+	
+	/**
+	 * Screenshot of the published feedback
+	 */
+	publicationScreenShot?: string;
+  }
