@@ -284,12 +284,12 @@ export default function OldestReadyToRefundPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [getJson, maxReadyToRefund]);
+  }, [maxReadyToRefund]);
 
   // Fetch data when component mounts or when max items changes
   useEffect(() => {
     fetchReadyToRefund();
-  }, [fetchReadyToRefund]);
+  }, [maxReadyToRefund]);
 
   return (
     <DefaultLayout>
@@ -315,17 +315,16 @@ export default function OldestReadyToRefundPage() {
               setMaxReadyToRefund(Math.round(value))
             }
           />
-        </div>
-
-        {/* Reload button */}
-        <div className="flex">
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            disabled={isLoading}
-            onClick={() => fetchReadyToRefund()}
-          >
-            {isLoading ? t("loading") : t("reload")}
-          </button>
+          {/* Reload button */}
+          <div className="flex items-center justify-center">
+            <button
+              className="mx-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              disabled={isLoading}
+              onClick={() => fetchReadyToRefund()}
+            >
+              {isLoading ? t("loading") : t("reload")}
+            </button>
+          </div>
         </div>
       </section>
 

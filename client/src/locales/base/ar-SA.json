@@ -163,5 +163,6 @@
   "utilities": "المرافق",
   "oldest-ready-to-refund-pdf": "أقدم استعداد لاسترداد الأموال (PDF)",
   "oldest-ready-to-refund": "أقدم عمليات الشراء جاهزة لاسترداد الأموال",
-  "oldest-ready-to-refund-description": "قم بإنشاء ملف PDF لأقدم 10 عمليات شراء جاهزة لاستردادها"
+  "oldest-ready-to-refund-description": "قم بإنشاء ملف PDF لأقدم 10 عمليات شراء جاهزة لاستردادها",
+  "loading": "تحميل…"
 }
