@@ -1059,6 +1059,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				description: p.description,
 				refunded: p.refunded,
 				amount: p.amount,
+				screenshot: p.screenshot,
 				// Include the feedback data that we now have available
 				feedback: p.feedback,
 				feedbackDate: p.feedbackDate,

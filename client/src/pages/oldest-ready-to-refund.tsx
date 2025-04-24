@@ -89,6 +89,7 @@ export default function OldestReadyToRefundPage() {
 
       if (response.success) {
         setReadyToRefund(response.data);
+        //console.log("Ready to refund purchases:", response.data);
       } else {
         // eslint-disable-next-line no-console
         console.error("Error fetching data:", JSON.stringify(response));
@@ -115,24 +116,35 @@ export default function OldestReadyToRefundPage() {
         {readyToRefund && readyToRefund.length > 0 ? (
           <PDFViewer className="w-full h-screen">
             <Document>
-              <Page size="A4">
-                <View>
-                  {readyToRefund.map((purchase) => (
-                    <View key={purchase.id}>
-                      <Text>{`ID: ${purchase.id}`}</Text>
-                      <Text>{`Date: ${purchase.date}`}</Text>
-                      <Text>{`Order: ${purchase.order}`}</Text>
-                      <Text>{`Description: ${purchase.description}`}</Text>
-                      <Text>{`Refunded: ${purchase.refunded}`}</Text>
-                      <Text>{`Amount: ${purchase.amount}`}</Text>
-                      <PDFImage
-                        src={convertWebpToPng(purchase.publicationScreenShot)}
-                        style={{ width: "50%", height: "auto" }}
-                      />
-                    </View>
-                  ))}
-                </View>
-              </Page>
+              {readyToRefund.map((purchase) => (
+                <Page size="A4">
+                  <View key={purchase.id}>
+                    <Text
+                      style={{ fontSize: "14" }}
+                    >{`Order: ${purchase.order}`}</Text>
+                    <Text
+                      style={{ fontSize: "12" }}
+                    >{`Date: ${purchase.date}`}</Text>
+                    <Text
+                      style={{ fontSize: "12" }}
+                    >{`Description: ${purchase.description}`}</Text>
+                    <Text
+                      style={{ fontSize: "12" }}
+                    >{`Refunded: ${purchase.refunded}`}</Text>
+                    <Text
+                      style={{ fontSize: "12" }}
+                    >{`Amount: ${purchase.amount}`}</Text>
+                    <PDFImage
+                      src={convertWebpToPng(purchase.screenshot)}
+                      style={{ width: "50%", height: "auto" }}
+                    />
+                    <PDFImage
+                      src={convertWebpToPng(purchase.publicationScreenShot)}
+                      style={{ width: "50%", height: "auto" }}
+                    />
+                  </View>
+                </Page>
+              ))}
             </Document>
           </PDFViewer>
         ) : (
