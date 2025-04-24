@@ -95,7 +95,7 @@ function convertWebpToPng(base64DataUrl: string | undefined): Promise<string> {
  *
  * @returns {JSX.Element} The rendered OldestReadyToRefundPage component
  */
-export default function OldestReadyToRefundPage() {
+export default function oldestReadyToRefundPage() {
   const { t } = useTranslation();
 
   /**

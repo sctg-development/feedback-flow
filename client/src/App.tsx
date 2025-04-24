@@ -16,7 +16,7 @@ import { siteConfig } from "./config/site";
 import IndexPage from "@/pages/index";
 import ApiPage from "@/pages/api";
 import PricingPage from "@/pages/pricing";
-import OldestReadyToRefundPage from "@/pages/oldest-ready-to-refund";
+import oldestReadyToRefundPage from "@/pages/oldest-ready-to-refund";
 import AboutPage from "@/pages/about";
 
 function App() {
@@ -62,7 +62,7 @@ function App() {
           path="/pricing"
         />
         <Route
-          element={<AuthenticationGuard component={OldestReadyToRefundPage} />}
+          element={<AuthenticationGuard component={oldestReadyToRefundPage} />}
           path="/ready-to-refund-pdf"
         />
         <Route element={<AboutPage />} path="/about" />
