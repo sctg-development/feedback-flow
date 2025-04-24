@@ -16,7 +16,7 @@ import { siteConfig } from "./config/site";
 import IndexPage from "@/pages/index";
 import ApiPage from "@/pages/api";
 import PricingPage from "@/pages/pricing";
-import BlogPage from "@/pages/blog";
+import OldestReadyToRefundPage from "@/pages/oldest-ready-to-refund";
 import AboutPage from "@/pages/about";
 
 function App() {
@@ -62,8 +62,8 @@ function App() {
           path="/pricing"
         />
         <Route
-          element={<AuthenticationGuard component={BlogPage} />}
-          path="/blog"
+          element={<AuthenticationGuard component={OldestReadyToRefundPage} />}
+          path="/ready-to-refund-pdf"
         />
         <Route element={<AboutPage />} path="/about" />
         {siteConfig().apiMenuItems.map((item) => {

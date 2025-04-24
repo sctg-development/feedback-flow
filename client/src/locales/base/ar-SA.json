@@ -159,5 +159,8 @@
   "confirm": "يتأكد",
   "return-item": "العنصر الإرجاع",
   "optional-transaction-id": "معرف المعاملة الاختياري",
-  "transaction-id": "معرف المعاملة"
+  "transaction-id": "معرف المعاملة",
+  "utilities": "المرافق",
+  "oldest-ready-to-refund-pdf": "أقدم استعداد لاسترداد الأموال (PDF)",
+  "oldest-ready-to-refund": "أقدم عمليات الشراء جاهزة لاسترداد الأموال"
 }

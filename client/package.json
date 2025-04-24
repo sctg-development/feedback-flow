@@ -37,6 +37,7 @@
     "@heroui/toast": "^2.0.8-beta.2",
     "@heroui/tooltip": "^2.2.15-beta.2",
     "@react-aria/visually-hidden": "3.8.22",
+    "@react-pdf/renderer": "^4.3.0",
     "@react-types/shared": "^3.29.0",
     "@tailwindcss/postcss": "^4.1.4",
     "framer-motion": "^12.8.0",

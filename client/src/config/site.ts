@@ -19,8 +19,8 @@ export const siteConfig = () => {
         href: "/",
       },
       // {
-      //   label: i18next.t("api"),
-      //   href: "/api",
+      //   label: i18next.t("utilities"),
+      //   href: "/utilities",
       // },
       // {
       //   label: i18next.t("pricing"),
@@ -34,6 +34,13 @@ export const siteConfig = () => {
       //   label: i18next.t("about"),
       //   href: "/about",
       // },
+    ],
+    utilitiesMenuItems: [
+      {
+        label: i18next.t("oldest-ready-to-refund-pdf"),
+        href: "/ready-to-refund-pdf",
+        permission: import.meta.env.READ_PERMISSION,
+      },
     ],
     navMenuItems: [
       {

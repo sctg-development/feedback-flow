@@ -159,5 +159,8 @@
   "confirm": "Confirmar",
   "return-item": "Artículo de devolución",
   "optional-transaction-id": "ID de transacción opcional",
-  "transaction-id": "ID de transacción"
+  "transaction-id": "ID de transacción",
+  "utilities": "Utilidades",
+  "oldest-ready-to-refund-pdf": "Más antiguo listo para reembolsar (PDF)",
+  "oldest-ready-to-refund": "Compras más antiguas listas para el reembolso"
 }

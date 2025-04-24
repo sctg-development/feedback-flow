@@ -159,5 +159,8 @@
   "return-item": "返回项目",
   "return-this-item": "返回此项目",
   "optional-transaction-id": "可选交易ID",
-  "transaction-id": "事务ID"
+  "transaction-id": "事务ID",
+  "utilities": "公用事业",
+  "oldest-ready-to-refund-pdf": "最古老的准备退款（PDF）",
+  "oldest-ready-to-refund": "最古老的购买准备退款"
 }

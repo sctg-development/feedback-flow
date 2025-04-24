@@ -159,5 +159,8 @@
   "confirm": "לְאַשֵׁר",
   "return-item": "פריט החזר",
   "optional-transaction-id": "מזהה עסקה אופציונלי",
-  "transaction-id": "מזהה עסקה"
+  "transaction-id": "מזהה עסקה",
+  "utilities": "כלי עזר",
+  "oldest-ready-to-refund-pdf": "הוותיק ביותר מוכן להחזר (PDF)",
+  "oldest-ready-to-refund": "רכישות ישנות ביותר מוכנות להחזר"
 }
