@@ -40,21 +40,21 @@
     "@react-pdf/renderer": "^4.3.0",
     "@react-types/shared": "^3.29.0",
     "@tailwindcss/postcss": "^4.1.4",
-    "framer-motion": "^12.8.0",
+    "framer-motion": "^12.9.2",
     "i18next": "^25.0.1",
     "i18next-http-backend": "^3.0.2",
     "jose": "^6.0.10",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^15.5.1",
-    "react-router-dom": "^7.5.1",
+    "react-router-dom": "^7.5.2",
     "swagger-ui-react": "^5.21.0",
     "tailwind-variants": "^1.0.0",
     "tailwindcss": "^4.1.4"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.4",
-    "@types/node": "^22.14.1",
+    "@types/node": "^22.15.2",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@types/swagger-ui-react": "^5.18.0",
@@ -76,7 +76,7 @@
     "swagger-jsdoc": "^7.0.0-rc.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "vite": "^6.3.2",
+    "vite": "^6.3.3",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }
