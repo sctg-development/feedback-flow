@@ -70,6 +70,7 @@ CREATE TABLE purchases (
     description TEXT NOT NULL,
     amount REAL NOT NULL,
     screenshot TEXT NOT NULL, -- Base64 encoded image
+    screenshot_summary TEXT,  -- Optional text summary of the screenshot
     refunded BOOLEAN DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -161,6 +162,7 @@ SELECT
     p.refunded,
     pub.screenshot as publication_screenshot,
     p.screenshot as purchase_screenshot,
+    p.screenshot_summary,
     CASE WHEN f.id IS NOT NULL THEN 1 ELSE 0 END as has_feedback,
     CASE WHEN pub.id IS NOT NULL THEN 1 ELSE 0 END as has_publication,
     CASE WHEN r.id IS NOT NULL THEN 1 ELSE 0 END as has_refund

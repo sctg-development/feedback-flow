@@ -1,0 +1,4 @@
+ALTER TABLE purchases ADD COLUMN screenshot_summary TEXT;
+DROP VIEW IF EXISTS purchase_status;
+CREATE VIEW purchase_status AS SELECT p.id, p.tester_uuid, p.date, p.order_number, p.description, p.amount, p.refunded, pub.screenshot as publication_screenshot, p.screenshot as purchase_screenshot, p.screenshot_summary, CASE WHEN f.id IS NOT NULL THEN 1 ELSE 0 END as has_feedback, CASE WHEN pub.id IS NOT NULL THEN 1 ELSE 0 END as has_publication, CASE WHEN r.id IS NOT NULL THEN 1 ELSE 0 END as has_refund FROM purchases p LEFT JOIN feedbacks f ON p.id = f.purchase_id LEFT JOIN publications pub ON p.id = pub.purchase_id LEFT JOIN refunds r ON p.id = r.purchase_id;
+UPDATE schema_version SET version = 2, last_updated = CURRENT_TIMESTAMP, description = 'Added screenshot_summary field to purchases' WHERE id = 1;

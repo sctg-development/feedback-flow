@@ -39,7 +39,7 @@ import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { PurchaseStatus } from "@/types/db";
-import { getJsonFromSecuredApi, useSecuredApi } from "@/components/auth0";
+import { useSecuredApi } from "@/components/auth0";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -161,13 +161,13 @@ export default function IndexPage() {
     };
 
     if (toggleAllPurchases) {
-      getJson(
-        `${import.meta.env.API_BASE_URL}/purchases/refunded-amount`
-      ).then((data) => {
-        if (data.success) {
-          setRefundedAmount(data.amount);
-        }
-      });
+      getJson(`${import.meta.env.API_BASE_URL}/purchases/refunded-amount`).then(
+        (data) => {
+          if (data.success) {
+            setRefundedAmount(data.amount);
+          }
+        },
+      );
 
       return (
         <div className="flex flex-col sm:flex-row justify-between items-center w-full">

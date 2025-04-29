@@ -69,6 +69,9 @@ export default function CreatePurchaseModal({
   const { t, i18n } = useTranslation();
   const { postJson } = useSecuredApi();
   const [screenshot, setScreenshot] = useState<string | null>(null);
+  const [screenshotSummary, setScreenshotSummary] = useState<string | null>(
+    null,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<string>("");
@@ -77,32 +80,32 @@ export default function CreatePurchaseModal({
   const formRef = useRef<HTMLFormElement>(null);
 
   /**
-   * Handles file upload change events from the ImageUpload component
-   * Sets the screenshot state to the base64 data of the uploaded image
+   * Creates a handler for file upload changes
+   * Returns a function that sets the provided state to the base64 data of the uploaded image
    *
-   * @param {File[]} _files - Array of uploaded files (not used directly)
-   * @param {{ original: File; converted: string; }[] | undefined} dataUrls -
-   *        Array of objects containing the original files and their data URL conversions
+   * @param {Function} setStateCallback - State setter function to update with the image data
+   * @returns {Function} Handler function for the ImageUpload component
    */
-  const handleFileChange = (
-    _files: File[],
-    dataUrls:
-      | {
-          original: File;
-          converted: string;
-        }[]
-      | undefined,
-  ) => {
-    if (dataUrls && dataUrls.length > 0) {
-      // Extract the base64 part of the data URL
-      const base64String = dataUrls[0].converted;
+  const createImageUploadHandler =
+    (setStateCallback: (value: string | null) => void) =>
+    (
+      _files: File[],
+      dataUrls: { original: File; converted: string }[] | undefined,
+    ) => {
+      if (dataUrls && dataUrls.length > 0) {
+        // Extract the base64 part of the data URL
+        const base64String = dataUrls[0].converted;
 
-      setScreenshot(base64String);
-    } else {
-      setScreenshot(null);
-    }
-  };
+        setStateCallback(base64String);
+      } else {
+        setStateCallback(null);
+      }
+    };
 
+  // Create handlers for both screenshot and screenshot summary
+  const handleFileScreenshotChange = createImageUploadHandler(setScreenshot);
+  const handleFileScreenshotSummaryChange =
+    createImageUploadHandler(setScreenshotSummary);
   /**
    * Handles date selection events from the DatePicker component
    * Converts the selected date to a string format and updates state
@@ -184,6 +187,7 @@ export default function CreatePurchaseModal({
         description,
         amount,
         screenshot,
+        screenshotSummary,
       };
 
       const response = await postJson(
@@ -232,6 +236,7 @@ export default function CreatePurchaseModal({
    */
   const resetForm = () => {
     setScreenshot(null);
+    setScreenshotSummary(null);
     setSelectedDate(null);
     setOrderNumber("");
     setDescription("");
@@ -320,13 +325,33 @@ export default function CreatePurchaseModal({
                 previewSize={120}
                 resetButtonText={t("reset")}
                 webpQuality={0.7}
-                onChange={handleFileChange}
+                onChange={handleFileScreenshotChange}
               />
               {!screenshot && (
                 <p className="text-xs text-muted-foreground mt-2">
                   {t("receipt-screenshot-required")}
                 </p>
               )}
+            </div>
+            <div className="mb-4">
+              <p className="mb-2 text-sm font-medium">
+                {t("receipt-screenshot_summary")}
+              </p>
+              <ImageUpload
+                convertToWebp
+                limitSize
+                showPasteButton
+                accept="image/png, image/jpeg, image/webp, image/gif"
+                browseButtonText={t("browse")}
+                dragDropZoneText={t("drop-your-receipt-here")}
+                maxDimension={800}
+                maxFileSize={4 * 1024 * 1024} // 4MB max
+                pasteButtonText={t("paste")}
+                previewSize={120}
+                resetButtonText={t("reset")}
+                webpQuality={0.7}
+                onChange={handleFileScreenshotSummaryChange}
+              />
             </div>
 
             <div className="flex justify-end gap-2 mt-4">

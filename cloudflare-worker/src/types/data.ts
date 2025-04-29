@@ -53,6 +53,10 @@ export interface Purchase {
   screenshot: string;
   testerUuid: string;
   refunded: boolean;
+  /**
+   * Optional text summary of the screenshot contents
+   */
+  screenshotSummary?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -166,6 +170,10 @@ export interface PurchaseCreateRequest {
   description: string;
   amount: number;
   screenshot: string;
+  /**
+   * Optional text summary of the screenshot contents
+   */
+  screenshotSummary?: string;
 }
 
 export interface FeedbackCreateRequest {

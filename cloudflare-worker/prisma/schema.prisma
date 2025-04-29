@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Database Models
+
+model Tester {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  uuid      String     @unique
+  name      String
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  
+  // Relationships
+  idMappings IdMapping[]
+  purchases  Purchase[]
+
+  @@map("testers")
+}
+
+model IdMapping {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  oauthId   String @unique @map("id")
+  testerUuid String
+  createdAt  DateTime @default(now()) @map("created_at")
+  
+  // Relationships
+  tester     Tester   @relation(fields: [testerUuid], references: [uuid], onDelete: Cascade)
+
+  @@map("id_mappings")
+  @@index([testerUuid])
+}
+
+model Purchase {
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  purchaseId        String       @unique
+  testerUuid        String
+  date              DateTime
+  orderNumber       String       @map("order")
+  description       String
+  amount            Float
+  screenshot        String
+  screenshotSummary String?      @map("screenshot_summary")
+  refunded          Boolean      @default(false)
+  transactionId     String?
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  
+  // Relationships
+  tester            Tester       @relation(fields: [testerUuid], references: [uuid], onDelete: Cascade)
+  feedback          Feedback?
+  publication       Publication?
+  refund            Refund?
+
+  @@map("purchases")
+  @@index([testerUuid])
+  @@index([refunded])
+  @@index([testerUuid, refunded])
+}
+
+model Feedback {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  purchaseId String   @unique
+  date       DateTime
+  feedback   String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  
+  // Relationships
+  purchase   Purchase  @relation(fields: [purchaseId], references: [purchaseId], onDelete: Cascade)
+
+  @@map("feedbacks")
+}
+
+model Publication {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  purchaseId String   @unique
+  date       DateTime
+  screenshot String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  
+  // Relationships
+  purchase   Purchase  @relation(fields: [purchaseId], references: [purchaseId], onDelete: Cascade)
+
+  @@map("publications")
+}
+
+model Refund {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  purchaseId  String   @unique
+  date        DateTime
+  refundDate  DateTime
+  amount      Float
+  transactionId String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  
+  // Relationships
+  purchase    Purchase  @relation(fields: [purchaseId], references: [purchaseId], onDelete: Cascade)
+
+  @@map("refunds")
+}
+
+model SchemaVersion {
+  id           Int      @id @default(1) @map("_id")
+  version      Int
+  lastUpdated  DateTime @default(now()) @map("last_updated")
+  description  String
+  
+  @@map("schema_version")
+}

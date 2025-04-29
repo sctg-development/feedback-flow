@@ -549,6 +549,15 @@
                             "type": "string",
                             "format": "date",
                             "description": "Date when the feedback was submitted"
+                          },
+                          "publicationDate": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Date when the purchase was published"
+                          },
+                          "publicationScreenShot": {
+                            "type": "string",
+                            "description": "Screenshot of the publication"
                           }
                         }
                       }

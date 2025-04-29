@@ -66,6 +66,7 @@ type d1_purchase = {
 	description: string; // Description of the purchase map to `description`
 	amount: number; // Amount of the purchase map to `amount`
 	screenshot: string; // Screenshot of the purchase map to `screenshot`
+	screenshot_summary?: string; // Summary of the screenshot map to `screenshotSummary`
 	refunded: number; // Refunded status of the purchase map to `refunded`
 };
 type d1_feedback = {
@@ -644,8 +645,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				.prepare(
 					`
           INSERT INTO purchases 
-          (id, tester_uuid, date, order_number, description, amount, screenshot, refunded)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          (id, tester_uuid, date, order_number, description, amount, screenshot, screenshot_summary, refunded)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
 				)
 				.bind(
@@ -656,6 +657,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					newPurchase.description,
 					newPurchase.amount,
 					newPurchase.screenshot,
+					newPurchase.screenshotSummary || null,
 					newPurchase.refunded ? 1 : 0,
 				)
 				.run();
@@ -697,6 +699,11 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			if (updates.screenshot !== undefined) {
 				updateFields.push("screenshot = ?");
 				params.push(updates.screenshot);
+			}
+			
+			if (updates.screenshotSummary !== undefined) {
+				updateFields.push("screenshot_summary = ?");
+				params.push(updates.screenshotSummary);
 			}
 
 			if (updates.refunded !== undefined) {
@@ -831,6 +838,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 						hasRefund: Boolean(row.has_refund),
 						publicationScreenshot: row.publication_screenshot as string,
 						purchaseScreenshot: row.purchase_screenshot as string,
+						screenshotSummary: row.screenshot_summary as string,
 					}) as PurchaseStatus,
 			);
 			// Add pagination info to the result
@@ -1079,7 +1087,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
           order_number as "order", 
           description, 
           amount, 
-          screenshot, 
+          screenshot,
+		  screenshot_summary as screenshotSummary,
           refunded
         FROM purchases
       `,
@@ -1094,6 +1103,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			description: row.description as string,
 			amount: row.amount as number,
 			screenshot: row.screenshot as string,
+			screenshotSummary: row.screenshotSummary as string,
 			refunded: Boolean(row.refunded),
 		}));
 	}
@@ -1396,22 +1406,33 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		const messages: string[] = [];
 		const version = await this.checkSchemaVersion();
 
-		// If the schema version is less than 1, run the migration to version 1
-		if (version.version < 1) {
+			// Run migrations sequentially based on current schema version
 			try {
-				// Get the SQL migration script
-				const migrationSQLModule = await import('./migrations/v1_add_transaction_id.sql');
-				const migrationSQL = migrationSQLModule.default;
-				await this.db.exec(migrationSQL);
-				messages.push(`Upgraded schema from version ${version.version} to version 1`);
+				// Migration to version 1 if needed
+				if (version.version < 1) {
+					const migrationSQLModule = await import('./migrations/v1_add_transaction_id.sql');
+					const migrationSQL = migrationSQLModule.default;
+					await this.db.exec(migrationSQL);
+					messages.push(`Upgraded schema from version ${version.version} to version 1`);
+				}
+		
+				// Migration to version 2 if needed (only if already at version 1)
+				if (version.version === 1) {
+					const migrationSQLModule = await import('./migrations/v2_add_screenshot_summary.sql');
+					const migrationSQL = migrationSQLModule.default;
+					await this.db.exec(migrationSQL);
+					messages.push('Upgraded schema from version 1 to version 2');
+				}
+		
+				// If schema is already up to date
+				if (version.version >= 2) {
+					messages.push(`Schema is up to date (version ${version.version})`);
+				}
 			} catch (error) {
 				messages.push(`Migration error: ${(error as Error).message}`);
 			}
-		} else {
-			messages.push(`Schema is up to date (version ${version.version})`);
-		}
-
-		return messages;
+		
+			return messages;
 	}
 	async getSchemaVersion(): Promise<{ version: number; description: string }> {
 		// Check if the table exists

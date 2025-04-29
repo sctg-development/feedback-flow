@@ -601,7 +601,8 @@ export class InMemoryDB implements FeedbackFlowDB {
 						hasPublication: hasPublication !== undefined,
 						hasRefund: hasRefund !== undefined,
 						publicationScreenshot: hasPublication?.screenshot,
-						purchaseSreenshot: purchase.screenshot,
+						purchaseScreenshot: purchase.screenshot,
+						screenshotSummary: purchase.screenshotSummary,
 					} as PurchaseStatus;
 				});
 

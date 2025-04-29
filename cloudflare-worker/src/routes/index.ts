@@ -991,13 +991,13 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	 *                         type: string
 	 *                         format: date
 	 *                         description: Date when the feedback was submitted
-	 * 					 	 publicationDate:
-	 * 					 	   type: string
-	 * 					 	   format: date
-	 * 					 	   description: Date when the purchase was published
-	 * 					 	 publicationScreenShot:
-	 * 					 	   type: string
-	 * 					 	   description: Screenshot of the publication
+	 *                       publicationDate:
+	 *                         type: string
+	 *                         format: date
+	 *                         description: Date when the purchase was published
+	 *                       publicationScreenShot:
+	 *                         type: string
+	 *                         description: Screenshot of the publication
 	 *                 total:
 	 *                   type: integer
 	 *                 page:

@@ -165,5 +165,6 @@
   "oldest-ready-to-refund": "最古老的购买准备退款",
   "oldest-ready-to-refund-description": "为准备退款的10个最古老的购买生成PDF",
   "loading": "加载中…",
-  "max-number-of-items": "最大项目数"
+  "max-number-of-items": "最大项目数",
+  "receipt-screenshot_summary": "收据摘要屏幕截图（可选）"
 }
