@@ -4,7 +4,7 @@ import swaggerJsdoc from "swagger-jsdoc";
 
 const options = {
   encoding: "utf8",
-  failOnErrors: true, // Whether or not to throw when parsing errors. Defaults to false.
+  failOnErrors: false, // Whether or not to throw when parsing errors. Defaults to false.
   format: "json",
   info: {
     title: "Feedback Flow API",
