@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { ReactNode, useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
@@ -67,8 +67,100 @@ export default function IndexPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [refundPurchases, setRefundPurchases] = useState(false);
   const [returnPurchase, setReturnPurchase] = useState(false);
-  const [screenshot, setScreenshot] = useState<string | null>(null);
+  const [screenshot, setScreenshot] = useState<string | string[] | null>(null);
   const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
+
+  // Add state for title data
+  const [titleData, setTitleData] = useState({
+    notRefundedAmount: 0,
+    refundedAmount: 0,
+  });
+
+  // Load amounts when toggle changes or table refreshes
+  useEffect(() => {
+    if (toggleAllPurchases) {
+      // Load refunded amounts
+      getJson(`${import.meta.env.API_BASE_URL}/purchases/refunded-amount`).then(
+        (data) => {
+          if (data.success) {
+            setTitleData((prev) => ({
+              ...prev,
+              refundedAmount: data.amount,
+            }));
+          }
+        },
+      );
+    } else {
+      // Load not refunded amounts
+      getJson(
+        `${import.meta.env.API_BASE_URL}/purchases/not-refunded-amount`,
+      ).then((data) => {
+        if (data.success) {
+          setTitleData((prev) => ({
+            ...prev,
+            notRefundedAmount: data.amount,
+          }));
+        }
+      });
+    }
+  }, [toggleAllPurchases, refreshTrigger]);
+
+  // Memoize the title component to prevent unnecessary re-renders
+  const memoizedTitle = useMemo(() => {
+    // When the user clicks on the title, it will toggle all purchases
+    const handleToggleAllPurchases = () => {
+      setToggleAllPurchases(!toggleAllPurchases);
+    };
+
+    if (toggleAllPurchases) {
+      return (
+        <div className="flex flex-col sm:flex-row justify-between items-center w-full">
+          <Button
+            className="text-3xl font-bold max-w-screen"
+            variant="light"
+            onPress={handleToggleAllPurchases}
+          >
+            {t("purchases-refunded")}&nbsp;
+            {titleData.refundedAmount + titleData.notRefundedAmount}€
+          </Button>
+          <Button
+            color="primary"
+            startContent={<EditIcon />}
+            onPress={() => setCreateNewPurchase(true)}
+          >
+            {t("new-purchase")}
+          </Button>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex flex-col sm:flex-row justify-between items-center w-full">
+          <Button
+            className="flex text-3xl font-bold max-w-screen"
+            variant="light"
+            onPress={handleToggleAllPurchases}
+          >
+            {t("purchases-not-refunded")}&nbsp;{titleData.notRefundedAmount}€
+          </Button>
+          <Button
+            color="primary"
+            startContent={<EditIcon />}
+            onPress={() => setCreateNewPurchase(true)}
+          >
+            {t("new-purchase")}
+          </Button>
+        </div>
+      );
+    }
+  }, [
+    toggleAllPurchases,
+    titleData.notRefundedAmount,
+    titleData.refundedAmount,
+    t,
+  ]);
+
+  // Use a callback to pass the memoized title
+  const getTitleComponent = () => memoizedTitle;
 
   // Function to refresh the table
   const refreshTable = () => {
@@ -141,80 +233,6 @@ export default function IndexPage() {
     }
 
     return <span className="text-red-500">Unknown</span>;
-  };
-
-  /**
-   * Renders the table title with toggle functionality and create button
-   *
-   * The title changes based on the current filter state:
-   * - "Purchases Not Refunded" when showing only non-refunded purchases
-   * - "Purchases Refunded" when showing all purchases
-   *
-   * Clicking the title toggles between these two views
-   *
-   * @returns {ReactNode} The rendered title element
-   */
-  const renderTitle: () => ReactNode = () => {
-    // When the use click on the title, it will toggle all purchases
-    const handleToggleAllPurchases = () => {
-      setToggleAllPurchases(!toggleAllPurchases);
-    };
-
-    if (toggleAllPurchases) {
-      getJson(`${import.meta.env.API_BASE_URL}/purchases/refunded-amount`).then(
-        (data) => {
-          if (data.success) {
-            setRefundedAmount(data.amount);
-          }
-        },
-      );
-
-      return (
-        <div className="flex flex-col sm:flex-row justify-between items-center w-full">
-          <Button
-            className="text-3xl font-bold max-w-screen"
-            variant="light"
-            onPress={handleToggleAllPurchases}
-          >
-            {t("purchases-refunded")}&nbsp;{refundedAmount + notRefundedAmount}€
-          </Button>
-          <Button
-            color="primary"
-            startContent={<EditIcon />}
-            onPress={() => setCreateNewPurchase(true)}
-          >
-            {t("new-purchase")}
-          </Button>
-        </div>
-      );
-    } else {
-      getJson(
-        `${import.meta.env.API_BASE_URL}/purchases/not-refunded-amount`,
-      ).then((data) => {
-        if (data.success) {
-          setNotRefundedAmount(data.amount);
-        }
-      });
-
-      return (
-        <div className="flex flex-col sm:flex-row  justify-between items-center w-full">
-          <Button
-            className="flex text-3xl font-bold max-w-screen"
-            variant="light"
-            onPress={handleToggleAllPurchases}
-          >
-            {t("purchases-not-refunded")}&nbsp;{notRefundedAmount}€
-          </Button>
-          <Button
-            color="primary"
-            startContent={<EditIcon />}
-            onPress={() => setCreateNewPurchase(true)}
-          >
-            {t("new-purchase")}
-          </Button>
-        </div>
-      );
-    }
   };
 
   /**
@@ -320,7 +338,12 @@ export default function IndexPage() {
                   sortable: false,
                   cellTooltip: t("click-to-see-the-screenshot"),
                   onCellAction: (item) => {
-                    setScreenshot(item.purchaseScreenshot);
+                    item.screenshotSummary
+                      ? setScreenshot([
+                          item.purchaseScreenshot,
+                          item.screenshotSummary,
+                        ])
+                      : setScreenshot(item.purchaseScreenshot);
                   },
                 },
                 {
@@ -370,7 +393,7 @@ export default function IndexPage() {
               permission={import.meta.env.READ_PERMISSION}
               refreshTrigger={refreshTrigger}
               rowKey="purchase"
-              title={() => renderTitle()}
+              title={getTitleComponent}
             />
           </div>
         )}

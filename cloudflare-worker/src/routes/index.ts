@@ -645,7 +645,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 
 			try {
 				const data = (await request.json()) as PurchaseCreateRequest;
-				const { date, order, description, amount, screenshot } = data;
+				const { date, order, description, amount, screenshot, screenshotSummary } = data;
 
 				// Validate required fields
 				if (
@@ -689,6 +689,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 							description,
 							amount,
 							screenshot,
+							screenshotSummary,
 							testerUuid,
 							refunded: false,
 						})

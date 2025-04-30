@@ -26,13 +26,24 @@ export const ScreenshotModal = ({
   screenshot,
   ...props
 }: {
-  screenshot: string;
+  screenshot: string | string[];
 } & ModalProps) => {
+  const screenshotArray = Array.isArray(screenshot) ? screenshot : [screenshot];
+
   return (
     <Modal {...props}>
       <ModalContent>
         <ModalBody>
-          <Image alt="Screenshot" className="w-full" src={screenshot} />
+          <div className="flex flex-col gap-4 sm:flex-row sm:gap-8">
+            {screenshotArray.map((screenshot, index) => (
+              <Image
+                key={index}
+                alt={`Screenshot ${index + 1}`}
+                className="w-full"
+                src={screenshot}
+              />
+            ))}
+          </div>
         </ModalBody>
       </ModalContent>
     </Modal>
