@@ -18,13 +18,13 @@
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.8.22",
-		"@cloudflare/workers-types": "^4.20250426.0",
+		"@cloudflare/vitest-pool-workers": "^0.8.23",
+		"@cloudflare/workers-types": "^4.20250430.0",
 		"@jest/globals": "^29.7.0",
 		"@types/jest": "^29.5.14",
-		"@types/node": "^22.15.2",
-		"@typescript-eslint/eslint-plugin": "^8.31.0",
-		"@typescript-eslint/parser": "^8.31.0",
+		"@types/node": "^22.15.3",
+		"@typescript-eslint/eslint-plugin": "^8.31.1",
+		"@typescript-eslint/parser": "^8.31.1",
 		"axios": "^1.9.0",
 		"dotenv": "^16.5.0",
 		"eslint": "^9.25.1",
@@ -39,7 +39,7 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^5.8.3",
 		"vitest": "~3.1.2",
-		"wrangler": "^4.13.2"
+		"wrangler": "^4.14.0"
 	},
 	"dependencies": {
 		"jose": "^6.0.10",
