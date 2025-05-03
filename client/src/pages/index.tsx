@@ -60,8 +60,6 @@ export default function IndexPage() {
   const { isAuthenticated } = useAuth0();
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
   const [createNewPurchase, setCreateNewPurchase] = useState(false);
-  const [notRefundedAmount, setNotRefundedAmount] = useState(0);
-  const [refundedAmount, setRefundedAmount] = useState(0);
   const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
   const [purchase, setPurchase] = useState({ purchaseId: "", amount: 0 });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
