@@ -41,6 +41,52 @@ export type PackageJson = {
 const packageJson: PackageJson = _package;
 
 /**
+ * Vite plugin to add an inline helper script for Github Pages
+ * Github Pages does not support SPAs, if user hits refresh on a SPA
+ * it will return a 404 error. This plugin adds this script to the index.html after
+ * the opening head tag.
+ *   <script type="text/javascript">
+ *     // Single Page Apps for GitHub Pages
+ *     // MIT License
+ *     // https://github.com/rafgraph/spa-github-pages
+ *     (function(l) {
+ *       if (l.search[1] === '/' ) {
+ *         var decoded = l.search.slice(1).split('&').map(function(s) { 
+ *           return s.replace(/~and~/g, '&')
+ *         }).join('?');
+ *         window.history.replaceState(null, null,
+ *             l.pathname.slice(0, -1) + decoded + l.hash
+ *         );
+ *       }
+ *     }(window.location))
+ *   </script>
+ */
+const githubPagesPlugin = {
+  name: "github-pages-plugin",
+  transformIndexHtml(html: string) {
+    return html.replace(
+      /<head>/,
+      `<head>
+      <script type="text/javascript">
+        // Single Page Apps Helper for GitHub Pages
+        // MIT License
+        // https://github.com/rafgraph/spa-github-pages
+        (function(l) {
+          if (l.search[1] === '/' ) {
+            var decoded = l.search.slice(1).split('&').map(function(s) { 
+              return s.replace(/~and~/g, '&')
+            }).join('?');
+            window.history.replaceState(null, null,
+                l.pathname.slice(0, -1) + decoded + l.hash
+            );
+          }
+        }(window.location))
+      </script>`,
+    );
+  },
+};
+
+/**
  * Extract dependencies with a specific vendor prefix
  *
  * @param packageJson - The package.json object
@@ -98,7 +144,7 @@ export default defineConfig({
       process.env.AMAZON_BASE_URL,
     ),
   },
-  plugins: [react(), tsconfigPaths(), tailwindcss()],
+  plugins: [react(), tsconfigPaths(), tailwindcss(), githubPagesPlugin],
   build: {
     // Inline assets smaller than 1KB
     // This is for demonstration purposes only

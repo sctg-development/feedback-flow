@@ -16,7 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import { useTranslation } from "react-i18next";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useState, FormEvent } from "react";
 import { Form } from "@heroui/form";
 import { Button } from "@heroui/button";
@@ -26,7 +25,6 @@ import { TesterCreateResponse } from "@/types/data";
 import DefaultLayout from "@/layouts/default";
 import {
   AuthenticationGuardWithPermission,
-  postJsonToSecuredApi,
   useSecuredApi,
 } from "@/components/auth0";
 import PaginatedTable from "@/components/paginated-table";
