@@ -12,6 +12,7 @@ import {
   LogoutButton,
 } from "./components/auth0";
 import { siteConfig } from "./config/site";
+import { PageNotFound } from "./pages/404";
 
 import IndexPage from "@/pages/index";
 import ApiPage from "@/pages/api";
@@ -82,6 +83,7 @@ function App() {
             />
           );
         })}
+        <Route element={<PageNotFound />} path="*" />
       </Routes>
     </Suspense>
   );

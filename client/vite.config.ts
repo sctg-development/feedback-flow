@@ -1,4 +1,9 @@
 /* global process */
+import type { ResolvedConfig } from "vite";
+
+import { resolve } from "node:path";
+import { writeFileSync } from "node:fs";
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -51,7 +56,7 @@ const packageJson: PackageJson = _package;
  *     // https://github.com/rafgraph/spa-github-pages
  *     (function(l) {
  *       if (l.search[1] === '/' ) {
- *         var decoded = l.search.slice(1).split('&').map(function(s) { 
+ *         var decoded = l.search.slice(1).split('&').map(function(s) {
  *           return s.replace(/~and~/g, '&')
  *         }).join('?');
  *         window.history.replaceState(null, null,
@@ -60,13 +65,57 @@ const packageJson: PackageJson = _package;
  *       }
  *     }(window.location))
  *   </script>
+ * This plugin also creates a 404.html file in the dist directory
+ * with the required script to handle the window.location.replace
+ * and redirect to the correct URL.
  */
+let _viteConfig: ResolvedConfig;
 const githubPagesPlugin = {
   name: "github-pages-plugin",
   transformIndexHtml(html: string) {
-    return html.replace(
-      /<head>/,
-      `<head>
+    if (_viteConfig.base.includes("github.io")) {
+      // If the base URL is a GitHub Pages URL, add the script
+      const distPath = resolve(_viteConfig.root, _viteConfig.build.outDir);
+      const urlBase = new URL(_viteConfig.base);
+      const urlPath = urlBase.pathname;
+      const pathSegmentsToKeep = urlPath.split("/").length - 2;
+      const fileContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Not Found</title>
+    <script type="text/javascript">
+        // Single Page Apps for GitHub Pages
+        // MIT License
+        // https://github.com/rafgraph/spa-github-pages
+        var pathSegmentsToKeep = ${pathSegmentsToKeep}; // Number of path segments to keep in the URL (1 keeps the repo name)
+
+        var l = window.location;
+        l.replace(
+            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+            l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+            l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+            l.hash
+        );
+
+    </script>
+</head>
+<body>
+</body>
+</html>`;
+      const filePath = resolve(distPath, "404.html");
+
+      // eslint-disable-next-line no-console
+      console.warn(`\nCreating 404.html in ${filePath} for GitHub Pages`);
+
+      // Write the file to the dist directory
+      writeFileSync(filePath, fileContent);
+
+      return html.replace(
+        /<head>/,
+        `<head>
       <script type="text/javascript">
         // Single Page Apps Helper for GitHub Pages
         // MIT License
@@ -82,7 +131,17 @@ const githubPagesPlugin = {
           }
         }(window.location))
       </script>`,
+      );
+    }
+    // eslint-disable-next-line no-console
+    console.warn(
+      `\nDon't use GitHub Pages? Remove the githubPagesPlugin plugin from vite.config.ts`,
     );
+
+    return html;
+  },
+  configResolved(resolvedConfig: ResolvedConfig) {
+    _viteConfig = resolvedConfig;
   },
 };
 
