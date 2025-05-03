@@ -73,13 +73,9 @@ let _viteConfig: ResolvedConfig;
 const githubPagesPlugin = {
   name: "github-pages-plugin",
   transformIndexHtml(html: string) {
-    if (_viteConfig.base.includes("github.io")) {
-      // If the base URL is a GitHub Pages URL, add the script
-      const distPath = resolve(_viteConfig.root, _viteConfig.build.outDir);
-      const urlBase = new URL(_viteConfig.base);
-      const urlPath = urlBase.pathname;
-      const pathSegmentsToKeep = urlPath.split("/").length - 2;
-      const fileContent = `<!DOCTYPE html>
+    const distPath = resolve(_viteConfig.root, _viteConfig.build.outDir);
+    const pathSegmentsToKeep = _viteConfig.base.split("/").length - 2;
+    const fileContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -105,17 +101,17 @@ const githubPagesPlugin = {
 <body>
 </body>
 </html>`;
-      const filePath = resolve(distPath, "404.html");
+    const filePath = resolve(distPath, "404.html");
 
-      // eslint-disable-next-line no-console
-      console.warn(`\nCreating 404.html in ${filePath} for GitHub Pages`);
+    // eslint-disable-next-line no-console
+    console.warn(`\nCreating 404.html in ${filePath} for GitHub Pages`);
 
-      // Write the file to the dist directory
-      writeFileSync(filePath, fileContent);
+    // Write the file to the dist directory
+    writeFileSync(filePath, fileContent);
 
-      return html.replace(
-        /<head>/,
-        `<head>
+    return html.replace(
+      /<head>/,
+      `<head>
       <script type="text/javascript">
         // Single Page Apps Helper for GitHub Pages
         // MIT License
@@ -131,14 +127,7 @@ const githubPagesPlugin = {
           }
         }(window.location))
       </script>`,
-      );
-    }
-    // eslint-disable-next-line no-console
-    console.warn(
-      `\nDon't use GitHub Pages? Remove the githubPagesPlugin plugin from vite.config.ts`,
     );
-
-    return html;
   },
   configResolved(resolvedConfig: ResolvedConfig) {
     _viteConfig = resolvedConfig;
