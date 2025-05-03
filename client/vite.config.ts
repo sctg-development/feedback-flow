@@ -1,13 +1,10 @@
 /* global process */
-import type { ResolvedConfig } from "vite";
-
-import { resolve } from "node:path";
-import { writeFileSync } from "node:fs";
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
+import { githubPagesSpa } from "@sctg/vite-plugin-github-pages-spa";
 
 import _package from "./package.json" with { type: "json" };
 
@@ -44,95 +41,6 @@ export type PackageJson = {
 };
 
 const packageJson: PackageJson = _package;
-
-/**
- * Vite plugin to add an inline helper script for Github Pages
- * Github Pages does not support SPAs, if user hits refresh on a SPA
- * it will return a 404 error. This plugin adds this script to the index.html after
- * the opening head tag.
- *   <script type="text/javascript">
- *     // Single Page Apps for GitHub Pages
- *     // MIT License
- *     // https://github.com/rafgraph/spa-github-pages
- *     (function(l) {
- *       if (l.search[1] === '/' ) {
- *         var decoded = l.search.slice(1).split('&').map(function(s) {
- *           return s.replace(/~and~/g, '&')
- *         }).join('?');
- *         window.history.replaceState(null, null,
- *             l.pathname.slice(0, -1) + decoded + l.hash
- *         );
- *       }
- *     }(window.location))
- *   </script>
- * This plugin also creates a 404.html file in the dist directory
- * with the required script to handle the window.location.replace
- * and redirect to the correct URL.
- */
-let _viteConfig: ResolvedConfig;
-const githubPagesPlugin = {
-  name: "github-pages-plugin",
-  transformIndexHtml(html: string) {
-    const distPath = resolve(_viteConfig.root, _viteConfig.build.outDir);
-    const pathSegmentsToKeep = _viteConfig.base.split("/").length - 2;
-    const fileContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Not Found</title>
-    <script type="text/javascript">
-        // Single Page Apps for GitHub Pages
-        // MIT License
-        // https://github.com/rafgraph/spa-github-pages
-        var pathSegmentsToKeep = ${pathSegmentsToKeep}; // Number of path segments to keep in the URL (1 keeps the repo name)
-
-        var l = window.location;
-        l.replace(
-            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-            l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-            l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-            l.hash
-        );
-
-    </script>
-</head>
-<body>
-</body>
-</html>`;
-    const filePath = resolve(distPath, "404.html");
-
-    // eslint-disable-next-line no-console
-    console.warn(`\nCreating 404.html in ${filePath} for GitHub Pages`);
-
-    // Write the file to the dist directory
-    writeFileSync(filePath, fileContent);
-
-    return html.replace(
-      /<head>/,
-      `<head>
-      <script type="text/javascript">
-        // Single Page Apps Helper for GitHub Pages
-        // MIT License
-        // https://github.com/rafgraph/spa-github-pages
-        (function(l) {
-          if (l.search[1] === '/' ) {
-            var decoded = l.search.slice(1).split('&').map(function(s) { 
-              return s.replace(/~and~/g, '&')
-            }).join('?');
-            window.history.replaceState(null, null,
-                l.pathname.slice(0, -1) + decoded + l.hash
-            );
-          }
-        }(window.location))
-      </script>`,
-    );
-  },
-  configResolved(resolvedConfig: ResolvedConfig) {
-    _viteConfig = resolvedConfig;
-  },
-};
 
 /**
  * Extract dependencies with a specific vendor prefix
@@ -192,7 +100,7 @@ export default defineConfig({
       process.env.AMAZON_BASE_URL,
     ),
   },
-  plugins: [react(), tsconfigPaths(), tailwindcss(), githubPagesPlugin],
+  plugins: [react(), tsconfigPaths(), tailwindcss(), githubPagesSpa()],
   build: {
     // Inline assets smaller than 1KB
     // This is for demonstration purposes only
