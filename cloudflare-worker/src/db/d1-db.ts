@@ -451,7 +451,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			// Determine sort field and direction
 			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
 			const sortDirection = pagination.order.toUpperCase();
-			
+			// if pagination.limit <= 0 return all results
+			if (pagination.limit <= 0) {
+				pagination.limit = totalCount;
+			}
 			// Get paginated results
 			const { results } = await this.db
 				.prepare(

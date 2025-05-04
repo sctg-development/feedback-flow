@@ -335,7 +335,10 @@ export class InMemoryDB implements FeedbackFlowDB {
 						: b.order.localeCompare(a.order);
 				}
 			});
-
+			// If pagination.limit is <= 0, return all results
+			if (pagination.limit <= 0) {
+				return { results: sortedPurchases, totalCount };
+			}
 			// Apply pagination
 			const paginatedPurchases = sortedPurchases.slice(
 				(pagination.page - 1) * pagination.limit,
