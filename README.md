@@ -262,7 +262,8 @@ Main page
 <img width="1275" alt="main" src="https://github.com/user-attachments/assets/190dc406-27da-473d-bc2f-3c2e555661f7" />
 
 Main page (user with read-only permissions)
-<img width="1290" alt="image" src="https://github.com/user-attachments/assets/1f4cb58f-9edd-4728-b7a2-7bc39263df27" />
+![image](https://github.com/user-attachments/assets/551489d2-750e-4ba5-b8c8-2656b2a7aa39)
+
 
 
 Add a purchase  
