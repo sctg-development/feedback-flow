@@ -294,3 +294,25 @@ export interface ReadyForRefundPurchase {
    */
   publicationScreenShot?: string;
 }
+
+export interface RefundDelayResponse {
+  success: boolean;
+  data: RefundDelayData[];
+  averageDelayInDays: number;
+}
+
+export interface RefundDelayData {
+  purchaseId: string;
+  purchaseAmount: number;
+  refundAmount: number;
+  delayInDays: number;
+  purchaseDate: Date;
+  refundDate: Date;
+}
+
+export interface RefundBalanceResponse {
+  success: boolean;
+  purchasedAmount: number;
+  refundedAmount: number;
+  balance: number;
+}
