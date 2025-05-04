@@ -1051,6 +1051,119 @@
         }
       }
     },
+    "/api/stats/refund-balance": {
+      "get": {
+        "summary": "Get refund balance statistics",
+        "description": "Returns the difference between the total purchase amount of refunded purchases and the total refund amount. Requires read permission.",
+        "tags": [
+          "Statistics"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved refund balance statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "purchasedAmount": {
+                      "type": "number",
+                      "description": "Total amount of refunded purchases",
+                      "example": 123.45
+                    },
+                    "refundedAmount": {
+                      "type": "number",
+                      "description": "Total amount of refunds",
+                      "example": 120
+                    },
+                    "balance": {
+                      "type": "number",
+                      "description": "Difference between purchased and refunded amounts (negative means refunded more than purchased)",
+                      "example": 3.45
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/stats/refund-delay": {
+      "get": {
+        "summary": "Get refund delay statistics",
+        "description": "Returns statistics about the delay between purchase and refund dates. Requires read permission.",
+        "tags": [
+          "Statistics"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved refund delay statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "purchaseId": {
+                            "type": "string"
+                          },
+                          "purchaseAmount": {
+                            "type": "number"
+                          },
+                          "refundAmount": {
+                            "type": "number"
+                          },
+                          "delayInDays": {
+                            "type": "number"
+                          },
+                          "purchaseDate": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "refundDate": {
+                            "type": "string",
+                            "format": "date"
+                          }
+                        }
+                      }
+                    },
+                    "averageDelayInDays": {
+                      "type": "number",
+                      "description": "Average delay between purchase and refund in days"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/api/backup/json": {
       "get": {
         "summary": "Backup database to JSON",

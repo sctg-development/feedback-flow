@@ -1959,6 +1959,277 @@ const refundRoutes = (router: Router, env: Env) => {
 	);
 };
 
+// Statistics API Routes
+const statsRoutes = (router: Router, env: Env) => {
+	/**
+	 * @openapi
+	 * /api/stats/refund-balance:
+	 *   get:
+	 *     summary: Get refund balance statistics
+	 *     description: Returns the difference between the total purchase amount of refunded purchases and the total refund amount. Requires read permission.
+	 *     tags:
+	 *       - Statistics
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved refund balance statistics
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                   example: true
+	 *                 purchasedAmount:
+	 *                   type: number
+	 *                   description: Total amount of refunded purchases
+	 *                   example: 123.45
+	 *                 refundedAmount:
+	 *                   type: number
+	 *                   description: Total amount of refunds
+	 *                   example: 120.00
+	 *                 balance:
+	 *                   type: number
+	 *                   description: Difference between purchased and refunded amounts (negative means refunded more than purchased)
+	 *                   example: 3.45
+	 *       403:
+	 *         description: Unauthorized request
+	 *       500:
+	 *         description: Server error
+	 */
+	router.get(
+		"/api/stats/refund-balance",
+		async () => {
+			const db = getDatabase(env);
+			
+			// Get user ID from authenticated user
+			const userId = router.jwtPayload.sub;
+			
+			if (!userId) {
+				return router.handleUnauthorizedRequest();
+			}
+			
+			// Find tester by user ID
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
+			
+			if (!testerUuid) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Unauthorized" }),
+					{
+						status: 403,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+			
+			try {
+				// Get refunded purchases (we need their IDs and amounts)
+				const { results: refundedPurchases } = await db.purchases.refunded(testerUuid, { page: 1, limit: 0, sort: "date", order: "desc" });
+				
+				// Calculate total amount of refunded purchases
+				const purchasedAmount = refundedPurchases.reduce((total, purchase) => total + purchase.amount, 0);
+				
+				// Get all refunds for the user
+				const allRefunds = await db.refunds.getAll();
+				
+				// Filter refunds for purchases made by this user
+				const userRefunds = allRefunds.filter((refund) => {
+					// Check if this refund is for a purchase in the refundedPurchases list
+					return refundedPurchases.some(purchase => purchase.id === refund.purchase);
+				});
+				
+				// Calculate total refunded amount
+				const refundedAmount = userRefunds.reduce((total, refund) => total + refund.amount, 0);
+				
+				// Calculate the balance (difference)
+				const balance = purchasedAmount - refundedAmount;
+				
+				return new Response(
+					JSON.stringify({
+						success: true,
+						purchasedAmount,
+						refundedAmount,
+						balance,
+					}),
+					{
+						status: 200,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			} catch (error) {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: `Error calculating refund balance: ${(error as Error).message}`,
+					}),
+					{
+						status: 500,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+		},
+		env.READ_PERMISSION,
+	);
+
+	/**
+	 * @openapi
+	 * /api/stats/refund-delay:
+	 *   get:
+	 *     summary: Get refund delay statistics
+	 *     description: Returns statistics about the delay between purchase and refund dates. Requires read permission.
+	 *     tags:
+	 *       - Statistics
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved refund delay statistics
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                   example: true
+	 *                 data:
+	 *                   type: array
+	 *                   items:
+	 *                     type: object
+	 *                     properties:
+	 *                       purchaseId:
+	 *                         type: string
+	 *                       purchaseAmount:
+	 *                         type: number
+	 *                       refundAmount:
+	 *                         type: number
+	 *                       delayInDays:
+	 *                         type: number
+	 *                       purchaseDate:
+	 *                         type: string
+	 *                         format: date
+	 *                       refundDate:
+	 *                         type: string
+	 *                         format: date
+	 *                 averageDelayInDays:
+	 *                   type: number
+	 *                   description: Average delay between purchase and refund in days
+	 *       403:
+	 *         description: Unauthorized request
+	 *       500:
+	 *         description: Server error
+	 */
+	router.get(
+		"/api/stats/refund-delay",
+		async () => {
+			const db = getDatabase(env);
+			
+			// Get user ID from authenticated user
+			const userId = router.jwtPayload.sub;
+			
+			if (!userId) {
+				return router.handleUnauthorizedRequest();
+			}
+			
+			// Find tester by user ID
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
+			
+			if (!testerUuid) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Unauthorized" }),
+					{
+						status: 403,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+			
+			try {
+				// Get refunded purchases (we need their IDs, dates and amounts)
+				const { results: refundedPurchases } = await db.purchases.refunded(testerUuid, { page: 1, limit: 0, sort: "date", order: "desc" });
+				
+				// Get all refunds for the user
+				const allRefunds = await db.refunds.getAll();
+				
+				// Create delay statistics by matching purchases with their refunds
+				const delayStats = [];
+				let totalDelayDays = 0;
+				
+				for (const purchase of refundedPurchases) {
+					const refund = allRefunds.find(r => r.purchase === purchase.id);
+					
+					if (refund) {
+						// Calculate delay in days
+						const purchaseDate = new Date(purchase.date);
+						const refundDate = new Date(refund.refundDate);
+						
+						// Calculate the difference in days
+						const diffTime = refundDate.getTime() - purchaseDate.getTime();
+						const delayInDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+						
+						totalDelayDays += delayInDays;
+						
+						delayStats.push({
+							purchaseId: purchase.id,
+							purchaseAmount: purchase.amount,
+							refundAmount: refund.amount,
+							delayInDays,
+							purchaseDate: purchase.date,
+							refundDate: refund.refundDate
+						});
+					}
+				}
+				
+				// Calculate average delay
+				const averageDelayInDays = delayStats.length > 0 
+					? Number((totalDelayDays / delayStats.length).toFixed(2)) 
+					: 0;
+				
+				return new Response(
+					JSON.stringify({
+						success: true,
+						data: delayStats,
+						averageDelayInDays,
+					}),
+					{
+						status: 200,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			} catch (error) {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: `Error calculating refund delays: ${(error as Error).message}`,
+					}),
+					{
+						status: 500,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+		},
+		env.READ_PERMISSION,
+	);
+};
+
 /**
  * @openapi
  * components:
@@ -2189,6 +2460,7 @@ export const setupRoutes = async (router: Router, env: Env) => {
 	purchaseRoutes(router, env);
 	feedbackRoutes(router, env);
 	refundRoutes(router, env);
+	statsRoutes(router, env);
 
 	if (db instanceof InMemoryDB || db instanceof CloudflareD1DB) {
 		router.get(
