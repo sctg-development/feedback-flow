@@ -100,7 +100,7 @@ export default function RefundPurchaseModal({
 
       const response = await postJson(
         `${import.meta.env.API_BASE_URL}/refund`,
-        data
+        data,
       );
 
       if (response.success) {

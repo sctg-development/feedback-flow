@@ -173,7 +173,9 @@ export default function PublishFeedbackModal({
                 accept="image/png, image/jpeg, image/webp, image/gif"
                 browseButtonText={t("browse")}
                 dragDropZoneText={t("drop-your-image-here")}
-                maxDimension={800}
+                maxDimension={parseInt(
+                  import.meta.env.DB_MAX_IMAGE_SIZE || "800",
+                )}
                 maxFileSize={4 * 1024 * 1024} // 4MB max
                 pasteButtonText={t("paste")}
                 previewSize={120}

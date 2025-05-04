@@ -24,7 +24,7 @@ export default function DocsPage() {
             browseButtonText={t("browse")}
             className="rounded p-1 my-4"
             dragDropZoneText={t("drop-your-image-here")}
-            maxDimension={800}
+            maxDimension={parseInt(import.meta.env.DB_MAX_IMAGE_SIZE || "800")}
             maxFileSize={10 * 1024 * 1024} // 10MB max
             pasteButtonText={t("paste")}
             previewSize={120}
