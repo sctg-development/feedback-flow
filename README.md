@@ -224,6 +224,7 @@ AMAZON_BASE_URL="https://www.amazon.fr/gp/your-account/order-details?orderID="
 DB_BACKEND=memory # or d1
 DB_MAX_IMAGE_SIZE=640
 AUTH0_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnaXRodWJ8MTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwicGVybWlzc2lvbnMiOiJyZWFkOmFwaSB3cml0ZTphcGkgYWRtaW46YXBpIGJhY2t1cDphcGkifQ.m1URdlBbuHa9_e3xN2MEMnkGm3ISbVBAuW7fWgL7fms"
+STATISTICS_LIMIT=100 # number of purchases to uses in the statistics
 ```
 
 ### Run the Application

@@ -167,5 +167,7 @@
   "loading": "Cargando…",
   "max-number-of-items": "Número máximo de artículos",
   "receipt-screenshot_summary": "Captura de pantalla de resumen de recibo (opcional)",
-  "read-only": "Solo lectura"
+  "read-only": "Solo lectura",
+  "statistics": "Estadística",
+  "coming-soon": "Muy pronto…"
 }

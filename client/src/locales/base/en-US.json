@@ -167,5 +167,7 @@
   "loading": "Loading…",
   "max-number-of-items": "Max number of items",
   "receipt-screenshot_summary": "Receipt summary screenshot (optional)",
-  "read-only": "Read only"
+  "read-only": "Read only",
+  "statistics": "Statistics",
+  "coming-soon": "Coming soon…"
 }

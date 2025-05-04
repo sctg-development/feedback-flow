@@ -167,5 +167,7 @@
   "loading": "加载中…",
   "max-number-of-items": "最大项目数",
   "receipt-screenshot_summary": "收据摘要屏幕截图（可选）",
-  "read-only": "只读"
+  "read-only": "只读",
+  "statistics": "统计数据",
+  "coming-soon": "即将推出…"
 }

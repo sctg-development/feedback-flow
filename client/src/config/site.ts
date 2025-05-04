@@ -3,7 +3,9 @@ export type SiteConfig = typeof siteConfig;
 import i18next from "../i18n";
 
 import AddNewUser from "@/pages/add-new-user";
+import OldestReadyToRefundPage from "@/pages/oldest-ready-to-refund";
 import ManageDatabasePage from "@/pages/manage-database";
+import StatsPage from "@/pages/stats";
 
 export const siteConfig = () => {
   const t = i18next.t;
@@ -40,7 +42,14 @@ export const siteConfig = () => {
         label: i18next.t("oldest-ready-to-refund-pdf"),
         href: "/ready-to-refund-pdf",
         permission: import.meta.env.READ_PERMISSION,
+        component: OldestReadyToRefundPage,
       },
+      {
+        label: i18next.t('statistics'),
+        href: "/stats",
+        permission: import.meta.env.READ_PERMISSION,
+        component: StatsPage,
+      }
     ],
     navMenuItems: [
       {

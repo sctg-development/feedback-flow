@@ -2027,7 +2027,7 @@ const statsRoutes = (router: Router, env: Env) => {
 			
 			try {
 				// Get refunded purchases (we need their IDs and amounts)
-				const { results: refundedPurchases } = await db.purchases.refunded(testerUuid, { page: 1, limit: 0, sort: "date", order: "desc" });
+				const { results: refundedPurchases } = await db.purchases.refunded(testerUuid, { page: 1, limit: parseInt(env.STATISTICS_LIMIT || "100"), sort: "date", order: "desc" });
 				
 				// Calculate total amount of refunded purchases
 				const purchasedAmount = refundedPurchases.reduce((total, purchase) => total + purchase.amount, 0);
@@ -2157,7 +2157,7 @@ const statsRoutes = (router: Router, env: Env) => {
 			
 			try {
 				// Get refunded purchases (we need their IDs, dates and amounts)
-				const { results: refundedPurchases } = await db.purchases.refunded(testerUuid, { page: 1, limit: 0, sort: "date", order: "desc" });
+				const { results: refundedPurchases } = await db.purchases.refunded(testerUuid, { page: 1, limit: parseInt(env.STATISTICS_LIMIT || "100"), sort: "date", order: "desc" });
 				
 				// Get all refunds for the user
 				const allRefunds = await db.refunds.getAll();

@@ -17,8 +17,6 @@ import { PageNotFound } from "./pages/404";
 import IndexPage from "@/pages/index";
 import ApiPage from "@/pages/api";
 import PricingPage from "@/pages/pricing";
-import OldestReadyToRefundPage from "@/pages/oldest-ready-to-refund";
-import AboutPage from "@/pages/about";
 
 function App() {
   const { isLoading, error } = useAuth0();
@@ -62,11 +60,22 @@ function App() {
           element={<AuthenticationGuard component={PricingPage} />}
           path="/pricing"
         />
-        <Route
-          element={<AuthenticationGuard component={OldestReadyToRefundPage} />}
-          path="/ready-to-refund-pdf"
-        />
-        <Route element={<AboutPage />} path="/about" />
+        {siteConfig().utilitiesMenuItems.map((item) => {
+          // Check if item.component exists
+          const Component = item.component;
+
+          return (
+            <Route
+              key={item.href}
+              element={
+                <AuthenticationGuardWithPermission permission={item.permission}>
+                  {Component ? <Component /> : null}
+                </AuthenticationGuardWithPermission>
+              }
+              path={item.href}
+            />
+          );
+        })}
         {siteConfig().apiMenuItems.map((item) => {
           // Check if item.component exists
           const Component = item.component;
