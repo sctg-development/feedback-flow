@@ -56,7 +56,7 @@ import { useSecuredApi } from "@/components/auth0";
  */
 export default function IndexPage() {
   const { t } = useTranslation();
-  const { getJson } = useSecuredApi();
+  const { getJson, hasPermission } = useSecuredApi();
   const { isAuthenticated } = useAuth0();
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
   const [createNewPurchase, setCreateNewPurchase] = useState(false);
@@ -67,7 +67,20 @@ export default function IndexPage() {
   const [returnPurchase, setReturnPurchase] = useState(false);
   const [screenshot, setScreenshot] = useState<string | string[] | null>(null);
   const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
+  const [hasWritePermission, setHasWritePermission] = useState<boolean | null>(
+    null,
+  );
 
+  // Get write permissions on component mount
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const canWrite = await hasPermission(import.meta.env.WRITE_PERMISSION);
+
+      setHasWritePermission(canWrite);
+    };
+
+    checkPermissions();
+  }, [hasPermission]);
   // Add state for title data
   const [titleData, setTitleData] = useState({
     notRefundedAmount: 0,
@@ -110,36 +123,25 @@ export default function IndexPage() {
       setToggleAllPurchases(!toggleAllPurchases);
     };
 
-    if (toggleAllPurchases) {
-      return (
-        <div className="flex flex-col sm:flex-row justify-between items-center w-full">
-          <Button
-            className="text-3xl font-bold max-w-screen"
-            variant="light"
-            onPress={handleToggleAllPurchases}
-          >
-            {t("purchases-refunded")}&nbsp;
-            {titleData.refundedAmount + titleData.notRefundedAmount}€
-          </Button>
-          <Button
-            color="primary"
-            startContent={<EditIcon />}
-            onPress={() => setCreateNewPurchase(true)}
-          >
-            {t("new-purchase")}
-          </Button>
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex flex-col sm:flex-row justify-between items-center w-full">
-          <Button
-            className="flex text-3xl font-bold max-w-screen"
-            variant="light"
-            onPress={handleToggleAllPurchases}
-          >
-            {t("purchases-not-refunded")}&nbsp;{titleData.notRefundedAmount}€
-          </Button>
+    // Determine the title text and amount based on toggle state
+    const titleText = toggleAllPurchases
+      ? t("purchases-refunded")
+      : t("purchases-not-refunded");
+
+    const amountValue = toggleAllPurchases
+      ? titleData.refundedAmount + titleData.notRefundedAmount
+      : titleData.notRefundedAmount;
+
+    return (
+      <div className="flex flex-col sm:flex-row justify-between items-center w-full">
+        <Button
+          className="text-3xl font-bold max-w-screen"
+          variant="light"
+          onPress={handleToggleAllPurchases}
+        >
+          {titleText}&nbsp;{amountValue}€
+        </Button>
+        {hasWritePermission && (
           <Button
             color="primary"
             startContent={<EditIcon />}
@@ -147,9 +149,9 @@ export default function IndexPage() {
           >
             {t("new-purchase")}
           </Button>
-        </div>
-      );
-    }
+        )}
+      </div>
+    );
   }, [
     toggleAllPurchases,
     titleData.notRefundedAmount,
@@ -183,10 +185,16 @@ export default function IndexPage() {
    * @returns {JSX.Element} The rendered action column content
    */
   const renderActionColumn = (item: PurchaseStatus) => {
+    // Early return if permissions are still loading
+    if (hasWritePermission === null) {
+      return <span className="text-gray-400">{t("loading")}</span>;
+    }
+
     if (item.refunded) {
       return <span className="text-green-500">{t("refunded")}</span>;
     }
-    if (!item.hasFeedback) {
+
+    if (!item.hasFeedback && hasWritePermission) {
       return (
         <div className="flex gap-2">
           <ButtonAddFeedbackOrReturn
@@ -194,7 +202,6 @@ export default function IndexPage() {
               if (key === "feedback") {
                 handleCreateFeedback(item.purchase, item.amount);
               } else if (key === "return") {
-                // Appellez ici la fonction pour gérer les retours
                 handleReturnItem(item.purchase, item.amount);
               }
             }}
@@ -202,7 +209,8 @@ export default function IndexPage() {
         </div>
       );
     }
-    if (item.hasFeedback && !item.hasPublication) {
+
+    if (item.hasFeedback && !item.hasPublication && hasWritePermission) {
       return (
         <div className="flex gap-2">
           <Button
@@ -216,7 +224,8 @@ export default function IndexPage() {
         </div>
       );
     }
-    if (item.hasFeedback && item.hasPublication) {
+
+    if (item.hasFeedback && item.hasPublication && hasWritePermission) {
       return (
         <div className="flex gap-2">
           <Button
@@ -230,7 +239,7 @@ export default function IndexPage() {
       );
     }
 
-    return <span className="text-red-500">Unknown</span>;
+    return <span className="text-red-500">{t("read-only")}</span>;
   };
 
   /**

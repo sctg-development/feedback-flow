@@ -166,5 +166,6 @@
   "oldest-ready-to-refund-description": "Générez un PDF pour les 10 plus anciens achats prêts à être remboursés",
   "loading": "Chargement…",
   "max-number-of-items": "Nombre maximal d'articles",
-  "receipt-screenshot_summary": "Capture d'écran du résumé de la réception (facultatif)"
+  "receipt-screenshot_summary": "Capture d'écran du résumé de la réception (facultatif)",
+  "read-only": "Lecture seule"
 }

@@ -166,5 +166,6 @@
   "oldest-ready-to-refund-description": "Generate a PDF for the 10 oldest purchases ready to be refunded",
   "loading": "Loading…",
   "max-number-of-items": "Max number of items",
-  "receipt-screenshot_summary": "Receipt summary screenshot (optional)"
+  "receipt-screenshot_summary": "Receipt summary screenshot (optional)",
+  "read-only": "Read only"
 }

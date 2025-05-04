@@ -166,5 +166,6 @@
   "oldest-ready-to-refund-description": "Genere un PDF para las 10 compras más antiguas listas para ser reembolsadas",
   "loading": "Cargando…",
   "max-number-of-items": "Número máximo de artículos",
-  "receipt-screenshot_summary": "Captura de pantalla de resumen de recibo (opcional)"
+  "receipt-screenshot_summary": "Captura de pantalla de resumen de recibo (opcional)",
+  "read-only": "Solo lectura"
 }

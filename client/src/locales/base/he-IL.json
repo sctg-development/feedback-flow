@@ -166,5 +166,6 @@
   "oldest-ready-to-refund-description": "צור PDF עבור 10 הרכישות העתיקות ביותר שמוכנות להחזיר",
   "loading": "טְעִינָה…",
   "max-number-of-items": "מספר מקסימום של פריטים",
-  "receipt-screenshot_summary": "צילום מסך של סיכום קבלה (אופציונלי)"
+  "receipt-screenshot_summary": "צילום מסך של סיכום קבלה (אופציונלי)",
+  "read-only": "קרא רק"
 }
