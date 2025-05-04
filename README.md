@@ -261,6 +261,10 @@ In the root of the repository, run the following command:
 Main page  
 <img width="1275" alt="main" src="https://github.com/user-attachments/assets/190dc406-27da-473d-bc2f-3c2e555661f7" />
 
+Main page (user with read-only permissions)
+<img width="1290" alt="image" src="https://github.com/user-attachments/assets/1f4cb58f-9edd-4728-b7a2-7bc39263df27" />
+
+
 Add a purchase  
 <img width="572" alt="new" src="https://github.com/user-attachments/assets/bd285ec9-6d40-4c60-abe2-218b440c1e4c" />
 
