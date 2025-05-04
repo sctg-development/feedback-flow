@@ -84,6 +84,7 @@ type d1_refund = {
 	date: string; // Date of the refund map to `date`
 	refund_date: string; // Refund date map to `refundDate`
 	amount: number; // Amount of the refund map to `amount`
+	transaction_id?: string; // Transaction ID of the refund map to `transactionId`
 };
 type d1_internal = {
 	d1_testers: d1_tester[];
@@ -1242,6 +1243,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			description: row.description as string,
 			amount: row.amount as number,
 			screenshot: row.screenshot as string,
+			screenshotSummary: row.screenshot_summary as string,
 			refunded: Boolean(row.refunded),
 		}));
 		const feedbacks: Feedback[] = db_feedbacks.map((row) => ({
@@ -1259,6 +1261,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			date: row.date as string,
 			refundDate: row.refund_date as string,
 			amount: row.amount as number,
+			transactionId: row.transaction_id as string,
 		}));
 		// Create a backup object
 		const backup = {
@@ -1312,64 +1315,104 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		}
 		const { testers, ids, purchases, feedbacks, publications, refunds } =
 			backup;
-		const dbCleanupStatements = [
-			"DELETE FROM testers",
-			"DELETE FROM id_mappings",
-			"DELETE FROM purchases",
-			"DELETE FROM feedbacks",
-			"DELETE FROM publications",
-			"DELETE FROM refunds",
+		const dbCleanupStatements:D1PreparedStatement[] = [
+			this.db.prepare("DELETE FROM testers"),
+			this.db.prepare("DELETE FROM id_mappings"),
+			this.db.prepare("DELETE FROM purchases"),
+			this.db.prepare("DELETE FROM feedbacks"),
+			this.db.prepare("DELETE FROM publications"),
+			this.db.prepare("DELETE FROM refunds"),
 		];
 
 		// Insert the data back into the database
+		const dbTestersInsertStatement:D1PreparedStatement[] = [];
+		testers.forEach((tester: Tester) => {
+			dbTestersInsertStatement.push(
+			this.db.prepare("INSERT INTO testers (uuid, name) VALUES (?, ?)").bind(tester.uuid, tester.name),
+			);
+			tester.ids.forEach((id) => {
+				dbTestersInsertStatement.push(
+					this.db.prepare(
+						"INSERT INTO id_mappings (id, tester_uuid) VALUES (?, ?)").bind(id, tester.uuid)
+				);
+			});
+		});
+		const dbPurchasesStatement:D1PreparedStatement[] = [];
+		purchases.forEach((purchase: Purchase) => {
+			dbPurchasesStatement.push(
+				this.db.prepare(
+					`INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount, screenshot, screenshot_summary, refunded) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				).bind(
+					purchase.id,
+					purchase.testerUuid,
+					purchase.date,
+					purchase.order,
+					purchase.description,
+					purchase.amount,
+					purchase.screenshot,
+					purchase.screenshotSummary || null,
+					purchase.refunded ? 1 : 0,
+				),
+			);
+		});
+		const dbFeedbacksStatement:D1PreparedStatement[] = [];
+		feedbacks.forEach((feedback: Feedback) => {
+			dbFeedbacksStatement.push(
+				this.db.prepare(
+					`INSERT INTO feedbacks (purchase_id, date, feedback) VALUES (?, ?, ?)`,
+				).bind(feedback.purchase, feedback.date, feedback.feedback),
+			);
+		});
+		const dbPublicationsStatement:D1PreparedStatement[] = [];
+		publications.forEach((publication: Publication) => {
+			dbPublicationsStatement.push(
+				this.db.prepare(
+					`INSERT INTO publications (purchase_id, date, screenshot) VALUES (?, ?, ?)`,
+				).bind(publication.purchase, publication.date, publication.screenshot),
+			);
+		});
+
+		const dbRefundsStatement:D1PreparedStatement[]= [];
+		refunds.forEach((refund: Refund) => {
+			dbRefundsStatement.push(
+				this.db.prepare(
+					`INSERT INTO refunds (purchase_id, date, refund_date, amount, transaction_id) VALUES (?, ?, ?, ?, ?)`,
+				).bind(
+					refund.purchase,
+					refund.date,
+					refund.refundDate,
+					refund.amount,
+					refund.transactionId || null,
+				),
+			);
+		});
 		const dbInsertStatements = [
-			`INSERT INTO testers (uuid, name) VALUES ${testers
-				.map((tester: Tester) => `('${tester.uuid}', '${tester.name}')`)
-				.join(", ")}`,
-			`INSERT INTO id_mappings (id, tester_uuid) VALUES ${ids
-				.map((id: IdMapping) => `('${id.id}', '${id.testerUuid}')`)
-				.join(", ")}`,
-			`INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount, screenshot, refunded) VALUES ${purchases
-				.map(
-					(purchase: Purchase) =>
-						`('${purchase.id}', '${purchase.testerUuid}', '${purchase.date}', '${purchase.order}', '${purchase.description}', ${purchase.amount}, '${purchase.screenshot}', ${purchase.refunded ? 1 : 0
-						})`,
-				)
-				.join(", ")}`,
-			`INSERT INTO feedbacks (purchase_id, date, feedback) VALUES ${feedbacks
-				.map(
-					(feedback: Feedback) =>
-						`('${feedback.purchase}', '${feedback.date}', '${feedback.feedback}')`,
-				)
-				.join(", ")}`,
-			`INSERT INTO publications (purchase_id, date, screenshot) VALUES ${publications
-				.map(
-					(publication: Publication) =>
-						`('${publication.purchase}', '${publication.date}', '${publication.screenshot}')`,
-				)
-				.join(", ")}`,
-			`INSERT INTO refunds (purchase_id, date, refund_date, amount) VALUES ${refunds
-				.map(
-					(refund: Refund) =>
-						`('${refund.purchase}', '${refund.date}', '${refund.refundDate}', ${refund.amount})`,
-				)
-				.join(", ")}`,
-		];
+			dbTestersInsertStatement,
+			dbPurchasesStatement,
+			dbFeedbacksStatement,
+			dbPublicationsStatement,
+			dbRefundsStatement,
+		].flat();
 		// Execute global statements
 		const globalStatements = [
 			dbCleanupStatements,
-			...dbInsertStatements,
+			dbInsertStatements,
 		].flat();
-		const preparedStatements = globalStatements.map((stmt) =>
-			this.db.prepare(stmt),
-		);
 
 		try {
 			console.log("Executing batch insert...");
+			console.log(globalStatements);
 			const result = await this.db.batch(
-				preparedStatements.map((stmt) => stmt.bind()),
+				globalStatements
 			);
 
+			// Code for executing each statement in the batch useful for debugging
+			// const result:D1Result[] = [];
+			// for (const statement of globalStatements) {
+			// 	console.log("Executing statement:", statement);
+			// 	const res = await statement.run();
+			// 	result.push(res);
+			// }
 			return {
 				success: result.map((r) => r.success).every((r) => r),
 				message: JSON.stringify(result),
