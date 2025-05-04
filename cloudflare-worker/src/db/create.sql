@@ -194,4 +194,4 @@ GROUP BY t.uuid;
 
 -- Insert initial schema version (or update if exists)
 INSERT  INTO schema_version (id, version, description) 
-VALUES (1, 1, 'Initial schema with transactionId support for refunds');
+VALUES (1, 2, 'Initial schema with transactionId support for refunds and screenshot summary');
