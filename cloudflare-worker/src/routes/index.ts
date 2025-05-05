@@ -2044,8 +2044,8 @@ const statsRoutes = (router: Router, env: Env) => {
 				// Calculate total refunded amount
 				const refundedAmount = userRefunds.reduce((total, refund) => total + refund.amount, 0);
 				
-				// Calculate the balance (difference)
-				const balance = purchasedAmount - refundedAmount;
+				// Calculate the balance (difference) credit/debit credit means that the user has refunded more than they purchased
+				const balance = refundedAmount - purchasedAmount ;
 				
 				return new Response(
 					JSON.stringify({
