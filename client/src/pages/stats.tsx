@@ -7,6 +7,8 @@ import { Divider } from "@heroui/divider";
 import DefaultLayout from "@/layouts/default";
 import { useSecuredApi } from "@/components/auth0";
 import {
+  PurchasesStatisticsData,
+  PurchaseStatisticsResponse,
   RefundBalanceResponse,
   RefundDelayData,
   RefundDelayResponse,
@@ -21,6 +23,9 @@ export default function StatsPage() {
   const [refundBalance, setRefundBalance] = useState(0);
   const [refundedAmount, setRefundedAmount] = useState(0);
   const [purchasedAmount, setPurchasedAmount] = useState(0);
+  const [purchasesStatistics, setPurchasesStatistics] = useState(
+    {} as PurchasesStatisticsData,
+  );
   const [averageDelayInDays, setAverageDelayInDays] = useState(0);
   const [refundDelay, setRefundDelay] = useState([] as RefundDelayData[]);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,6 +78,30 @@ export default function StatsPage() {
             prevError
               ? `${prevError}, and failed to load refund delay data`
               : "Failed to load refund delay data",
+          );
+
+          return false;
+        }),
+
+      // Load /api/stats/purchases which returns a PurchasesStatisticsResponse
+      getJson(`${import.meta.env.API_BASE_URL}/stats/purchases`)
+        .then((_response) => {
+          const response = _response as PurchaseStatisticsResponse;
+
+          if (response.success) {
+            setPurchasesStatistics(response.data);
+
+            return true;
+          }
+
+          return false;
+        })
+        .catch((error) => {
+          console.error("Error fetching purchases stats:", error);
+          setError((prevError) =>
+            prevError
+              ? `${prevError}, and failed to load purchases statistics`
+              : "Failed to load purchases statistics",
           );
 
           return false;
@@ -140,7 +169,7 @@ export default function StatsPage() {
                   <p>{purchasedAmount.toFixed(2)} €</p>
                 </div>
                 <div>
-                  <p className="text-sm text-default-500">
+                  <p className="text-sm text-default-500 lowercase">
                     {t("total-refunds")}
                   </p>
                   <p>{refundedAmount.toFixed(2)} €</p>
@@ -151,14 +180,20 @@ export default function StatsPage() {
                 <div className="flex justify-between text-xs mb-1">
                   <span>{t("refund-progress")}</span>
                   <span>
-                    {Math.round((refundedAmount / purchasedAmount) * 100)}%
+                    {Math.round(
+                      (1 -
+                        purchasesStatistics.totalNotRefundedAmount /
+                          purchasesStatistics.totalPurchaseAmount) *
+                        100,
+                    )}
+                    %
                   </span>
                 </div>
                 <div className="w-full bg-default-100 rounded-full h-2.5">
                   <div
                     className="bg-primary h-2.5 rounded-full"
                     style={{
-                      width: `${(refundedAmount / purchasedAmount) * 100}%`,
+                      width: `${(1 - purchasesStatistics.totalNotRefundedAmount / purchasesStatistics.totalPurchaseAmount) * 100}%`,
                     }}
                   />
                 </div>
@@ -241,6 +276,30 @@ export default function StatsPage() {
                         ...refundDelay.map((item) => item.refundAmount),
                       ).toFixed(2)}{" "}
                       €
+                    </p>
+                  ) : (
+                    <p>-</p>
+                  )}
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-sm text-default-500 lowercase">
+                    {t("outstanding-amount")}
+                  </p>
+                  {purchasesStatistics.totalNotRefundedAmount > 0 ? (
+                    <p>
+                      {purchasesStatistics.totalNotRefundedAmount.toFixed(2)} €
+                    </p>
+                  ) : (
+                    <p>-</p>
+                  )}
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-sm text-default-500 lowercase">
+                    {t("total-purchases")}
+                  </p>
+                  {purchasesStatistics.totalPurchaseAmount > 0 ? (
+                    <p>
+                      {purchasesStatistics.totalPurchaseAmount.toFixed(2)} €
                     </p>
                   ) : (
                     <p>-</p>

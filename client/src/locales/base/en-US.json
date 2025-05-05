@@ -188,7 +188,7 @@
   "refund-balance": "refund balance",
   "total-purchases": "total purchases",
   "total-refunds": "total refunds",
-  "refund-progress": "refund progress",
+  "refund-progress": "refund progress (nb not refunded / nb purchases)",
   "average-refund-delay": "average refund delay",
   "based-on-count": "based on count",
   "delay-target": "delay target",
@@ -196,5 +196,6 @@
   "latest-refund": "latest refund",
   "largest-refund": "largest refund",
   "refund-delay-details": "refund delay details",
-  "difference": "difference"
+  "difference": "difference",
+  "outstanding-amount": "outstanding amount"
 }

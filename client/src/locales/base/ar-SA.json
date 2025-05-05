@@ -192,9 +192,10 @@
   "refund-delay-chart": "استرداد الرسم البياني تأخير",
   "refund-delay-days": "تأخير استرداد الأموال (أيام)",
   "refund-delay-details": "تفاصيل التأخير استرداد المبلغ",
-  "refund-progress": "استرداد التقدم",
+  "refund-progress": "التقدم المتردد (NB لم يتم استرداد / مشتريات NB)",
   "statistics-dashboard": "إحصائيات لوحة القيادة",
   "total-purchases": "إجمالي عمليات الشراء",
   "total-refunds": "المبالغ المستردة الكلية",
-  "total-refunds-count": "إجمالي عدد المبالغ المستردة"
+  "total-refunds-count": "إجمالي عدد المبالغ المستردة",
+  "outstanding-amount": "المبلغ المتميز"
 }

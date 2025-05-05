@@ -192,9 +192,10 @@
   "refund-delay-chart": "退款延迟图",
   "refund-delay-days": "退款延迟（天）",
   "refund-delay-details": "退款延迟详细信息",
-  "refund-progress": "退款进展",
+  "refund-progress": "退款进度（NB不退款 / NB购买）",
   "statistics-dashboard": "统计仪表板",
   "total-purchases": "总购买",
   "total-refunds": "总退款",
-  "total-refunds-count": "总退款数量"
+  "total-refunds-count": "总退款数量",
+  "outstanding-amount": "未偿还的金额"
 }

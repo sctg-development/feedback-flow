@@ -192,9 +192,10 @@
   "refund-delay-chart": "Gráfico de retraso de reembolso",
   "refund-delay-days": "Retraso de reembolso (días)",
   "refund-delay-details": "Detalles de retraso de reembolso",
-  "refund-progress": "reembolso del progreso",
+  "refund-progress": "Progreso de reembolso (compras no reembolsadas / NB)",
   "statistics-dashboard": "Panel de estadísticas",
   "total-purchases": "compras totales",
   "total-refunds": "reembolsos totales",
-  "total-refunds-count": "Cuento total de reembolsos"
+  "total-refunds-count": "Cuento total de reembolsos",
+  "outstanding-amount": "monto excepcional"
 }

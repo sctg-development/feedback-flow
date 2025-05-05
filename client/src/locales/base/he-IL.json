@@ -192,9 +192,10 @@
   "refund-delay-chart": "תרשים עיכוב החזר",
   "refund-delay-days": "עיכוב החזר (ימים)",
   "refund-delay-details": "פרטי עיכוב החזר",
-  "refund-progress": "החזר התקדמות",
+  "refund-progress": "התקדמות החזר (NB לא הוחזר / רכישות NB)",
   "statistics-dashboard": "לוח המחוונים הסטטיסטי",
   "total-purchases": "סה\"כ רכישות",
   "total-refunds": "סה\"כ החזרים כספיים",
-  "total-refunds-count": "סך ההחזרים הספורים"
+  "total-refunds-count": "סך ההחזרים הספורים",
+  "outstanding-amount": "סכום יוצא מן הכלל"
 }
