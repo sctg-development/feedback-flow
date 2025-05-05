@@ -135,7 +135,7 @@ export default function AddFeedbackModal({
                 defaultValue={today(getLocalTimeZone()).subtract({ days: 1 })}
                 label={t("select-date")}
                 maxValue={today(getLocalTimeZone())}
-                minValue={today(getLocalTimeZone()).add({ months: -1 })}
+                minValue={today(getLocalTimeZone()).add({ months: -12 })}
                 name="date"
               />
             </I18nProvider>
