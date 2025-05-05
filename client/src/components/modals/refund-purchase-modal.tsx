@@ -180,7 +180,7 @@ export default function RefundPurchaseModal({
                   defaultValue={today(getLocalTimeZone())}
                   label={t("refund-date")}
                   maxValue={today(getLocalTimeZone()).add({ days: 10 })}
-                  minValue={today(getLocalTimeZone()).add({ days: -30 })}
+                  minValue={today(getLocalTimeZone()).add({ months: -12 })}
                   name="refundDate"
                 />
               </I18nProvider>
