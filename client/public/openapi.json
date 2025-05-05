@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Feedback Flow API",
-    "version": "1.2.0"
+    "version": "1.3.0"
   },
   "paths": {
     "/api/testers": {
@@ -1160,6 +1160,53 @@
           },
           "500": {
             "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/stats/purchases": {
+      "get": {
+        "summary": "Get purchase statistics",
+        "description": "Returns purchase statistics for the authenticated user. Requires read permission.",
+        "tags": [
+          "Statistics"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchase statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "totalPurchases": {
+                          "type": "integer",
+                          "example": 10
+                        },
+                        "totalRefundedPurchases": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "totalRefundedAmount": {
+                          "type": "number",
+                          "example": 50
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
           }
         }
       }

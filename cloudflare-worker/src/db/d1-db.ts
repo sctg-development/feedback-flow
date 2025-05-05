@@ -30,6 +30,7 @@ import {
 	IdMapping,
 	Publication,
 	Purchase,
+	PurchasesStatisticsData,
 	Refund,
 	Tester,
 } from "../types/data";
@@ -866,6 +867,38 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				results: mappedResults,
 				pageInfo,
 			} as PurchaseStatusResponse;
+		},
+		/**
+		 * Get some statistics of purchases for a tester
+		 * @param testerUuid UUID of the tester
+		 * @returns Promise<PurchasesStatisticsData> Statistics data for the tester's purchases
+		 */
+		getPurchaseStatistics: async (
+			testerUuid: string,
+		): Promise<PurchasesStatisticsData> => {
+			const { results } = await this.db
+				.prepare(
+					`SELECT 
+						SUM(CASE WHEN refunded = 1 THEN 1 ELSE 0 END) as nb_refunded,
+						SUM(CASE WHEN refunded = 0 THEN 1 ELSE 0 END) as nb_not_refunded,
+						SUM(CASE WHEN refunded = 0 AND id IN (SELECT purchase_id FROM feedbacks) AND id IN (SELECT purchase_id FROM publications) THEN 1 ELSE 0 END) as nb_ready_for_refund,
+						COUNT(*) as nb_total,
+						SUM(CASE WHEN refunded = 1 THEN amount ELSE 0 END) as total_refunded_amount,
+						SUM(CASE WHEN refunded = 0 THEN amount ELSE 0 END) as total_not_refunded_amount,
+						SUM(amount) as total_amount
+					FROM purchases WHERE tester_uuid = ?`
+				).bind(testerUuid)
+				.all();
+			const stats = results[0];
+			return {
+				nbRefunded: stats.nb_refunded as number,
+				nbNotRefunded: stats.nb_not_refunded as number,
+				nbReadyForRefund: stats.nb_ready_for_refund as number,
+				nbTotal: stats.nb_total as number,
+				totalRefundedAmount: stats.total_refunded_amount as number,
+				totalNotRefundedAmount: stats.total_not_refunded_amount as number,
+				totalPurchaseAmount: stats.total_amount as number,
+			} as PurchasesStatisticsData;
 		},
 	};
 

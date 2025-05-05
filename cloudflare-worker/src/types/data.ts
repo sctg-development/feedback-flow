@@ -316,3 +316,19 @@ export interface RefundBalanceResponse {
   refundedAmount: number;
   balance: number;
 }
+
+export interface PurchasesStatisticsData {
+  nbRefunded: number;
+  nbNotRefunded: number;
+  nbReadyForRefund: number;
+  nbTotal: number;
+  totalRefundedAmount: number;
+  totalNotRefundedAmount: number;
+  totalPurchaseAmount: number;
+}
+
+export interface PurchaseStatisticsResponse {
+  success: boolean;
+  data: PurchasesStatisticsData;
+  error?: string;
+}

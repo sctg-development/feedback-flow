@@ -26,7 +26,7 @@
 
 import { v4 as uuidv4 } from "uuid";
 
-import { Feedback, Publication, Purchase, Refund, Tester } from "../types/data";
+import { Feedback, Publication, Purchase, Refund, Tester, PurchasesStatisticsData } from "../types/data";
 
 import { DATABASESCHEMA, DEFAULT_PAGINATION, FeedbackFlowDB, PaginatedResult, PurchaseStatus, PurchaseStatusResponse, PurchaseWithFeedback } from "./db";
 
@@ -646,6 +646,51 @@ export class InMemoryDB implements FeedbackFlowDB {
 				pageInfo,
 			};
 			return response;
+		},
+		/**
+		 * Get statistics about purchases
+		 * @param testerUuid UUID of the tester
+		 * @returns {PurchasesStatisticsData} Statistics data for the tester's purchases
+		 */
+		getPurchaseStatistics: async (testerUuid: string): Promise<PurchasesStatisticsData> => {
+			const purchases = this.data.purchases.filter(
+				(purchase) => purchase.testerUuid === testerUuid,
+			);
+
+			const totalAmount = purchases.reduce((acc, purchase) => {
+				return acc + purchase.amount;
+			}, 0);
+
+			const nbRefunded = purchases.filter((p) => p.refunded).length;
+			const nbNotRefunded = purchases.filter((p) => !p.refunded).length;
+			const nbReadyForRefund = purchases.filter(
+				(p) =>
+					!p.refunded &&
+					this.data.feedbacks.some((feedback) => feedback.purchase === p.id) &&
+					this.data.publications.some(
+						(publication) => publication.purchase === p.id,
+					),
+			).length;
+			const nbTotal = purchases.length;
+			const totalRefundedAmount = purchases
+				.filter((p) => p.refunded)
+				.reduce((acc, purchase) => {
+					return acc + purchase.amount;
+				}, 0);
+			const totalNotRefundedAmount = purchases
+				.filter((p) => !p.refunded)
+				.reduce((acc, purchase) => {
+					return acc + purchase.amount;
+				}, 0);
+			return {
+				nbRefunded,
+				nbNotRefunded,
+				nbReadyForRefund,
+				nbTotal,
+				totalRefundedAmount,
+				totalNotRefundedAmount,
+				totalPurchaseAmount: totalAmount,
+			} as PurchasesStatisticsData;
 		}
 	};
 

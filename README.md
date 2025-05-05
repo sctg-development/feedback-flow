@@ -126,6 +126,10 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 - **GET `/api/purchases/refunded`** - Get a list of the authenticated tester's refunded purchases - requires read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
   - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
+
+- **GET `/api/purchases/ready-to-refund`** - Get a list of purchases ready for refund (with feedback and publication) - requires read:api permission
+  - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
+  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number, feedback: string, feedbackDate: string, publicationDate: string, publicationScreenShot: string}], total: number, page: number, limit: number}`
   
 - **GET `/api/purchase-status`** - Get the status of all purchases with feedback/publication/refund status - requires read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc&limitToNotRefunded=false`
@@ -161,6 +165,17 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 
 - **GET `/api/refund/:id`** - Get information about a specific refund - requires read:api permission
   - Response: `{success: boolean, data: {date: string, purchase: string, refundDate: string, amount: number, transactionId?: string}}`
+
+### Statistics
+
+- **GET `/api/stats/refund-balance`** - Get balance between purchases and refunds - requires read:api permission
+  - Response: `{success: boolean, purchasedAmount: number, refundedAmount: number, balance: number}`
+
+- **GET `/api/stats/refund-delay`** - Get statistics about refund delays - requires read:api permission
+  - Response: `{success: boolean, data: [{purchaseId: string, purchaseAmount: number, refundAmount: number, delayInDays: number, purchaseDate: string, refundDate: string}], averageDelayInDays: number}`
+
+- **GET `/api/stats/purchases`** - Get purchase statistics overview - requires read:api permission
+  - Response: `{success: boolean, data: {totalPurchases: number, totalRefundedPurchases: number, totalRefundedAmount: number}}`
 
 ### Database Management
 
@@ -287,5 +302,5 @@ Add a new user (Admin menu, dark mode)
 
 API  
 <img width="1124" alt="image" src="https://github.com/user-attachments/assets/cb2d57f5-d18c-481b-ba22-ee3455fbb044" />
-````
+`````
 

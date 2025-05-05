@@ -2228,6 +2228,99 @@ const statsRoutes = (router: Router, env: Env) => {
 		},
 		env.READ_PERMISSION,
 	);
+	/**
+	 * @openapi
+	 * /api/stats/purchases:
+	 *   get:
+	 *     summary: Get purchase statistics
+	 *     description: Returns purchase statistics for the authenticated user. Requires read permission.
+	 *     tags:
+	 *       - Statistics
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved purchase statistics
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                   example: true
+	 *                 data:
+	 *                   type: object
+	 *                   properties:
+	 *                     totalPurchases:
+	 *                       type: integer
+	 *                       example: 10
+	 *                     totalRefundedPurchases:
+	 *                       type: integer
+	 *                       example: 2
+	 *                     totalRefundedAmount:
+	 *                       type: number
+	 *                       example: 50.00
+	 *       403:
+	 *         description: Unauthorized request
+	 */
+	router.get("/api/stats/purchases", async () => {
+		const db = getDatabase(env);
+			
+			// Get user ID from authenticated user
+			const userId = router.jwtPayload.sub;
+			
+			if (!userId) {
+				return router.handleUnauthorizedRequest();
+			}
+			
+			// Find tester by user ID
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
+			
+			if (!testerUuid) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Unauthorized" }),
+					{
+						status: 403,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+			try {
+				// Get purchase statistics
+				const purchaseStats = await db.purchases.getPurchaseStatistics(testerUuid);
+				
+				return new Response(
+					JSON.stringify({
+						success: true,
+						data: purchaseStats,
+					}),
+					{
+						status: 200,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			} catch (error) {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: `Error fetching purchase statistics: ${(error as Error).message}`,
+					}),
+					{
+						status: 500,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+
+	},env.READ_PERMISSION);
 };
 
 /**

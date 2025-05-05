@@ -29,6 +29,7 @@ import {
 	IdMapping,
 	Publication,
 	Purchase,
+	PurchasesStatisticsData,
 	Refund,
 	Tester,
 } from "../types/data";
@@ -279,6 +280,14 @@ export interface PurchasesRepository {
 		sort?: string,
 		order?: string,
 	): Promise<PurchaseStatusResponse>;
+
+	/**
+	 * Get some statistics of purchases for a tester
+	 * @param testerUuid UUID of the tester
+	 * @returns Promise<PurchasesStatisticsData> Statistics data for the tester's purchases
+	 */
+	getPurchaseStatistics(
+		testerUuid: string): Promise<PurchasesStatisticsData>;
 }
 
 export interface FeedbacksRepository {
