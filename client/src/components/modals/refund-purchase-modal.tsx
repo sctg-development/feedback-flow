@@ -49,9 +49,7 @@ export default function RefundPurchaseModal({
   const { postJson } = useSecuredApi();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [amount, setAmount] = useState<number>(defaultAmount);
-  const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(
-    today(getLocalTimeZone()),
-  );
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [transactionId, setTransactionId] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
   const refundDatePickerRef = useRef<HTMLInputElement>(null);
@@ -87,7 +85,7 @@ export default function RefundPurchaseModal({
     setIsSubmitting(true);
 
     try {
-      const refundDate = selectedDate.toDate("UTC").toISOString().split("T")[0];
+      const refundDate = selectedDate || new Date().toISOString().split("T")[0];
       // Use the selected date or today
       const date = new Date().toISOString().split("T")[0];
       const data = {
@@ -137,9 +135,24 @@ export default function RefundPurchaseModal({
     }
   };
 
+  /**
+   * Handles date selection events from the DatePicker component
+   * Converts the selected date to a string format and updates state
+   *
+   * @param {any} date - The date object from the date picker
+   */
+  const handleDateChange = (date: any) => {
+    // Convert date to YYYY-MM-DD format
+    if (date) {
+      const formattedDate = date.toString();
+
+      setSelectedDate(formattedDate);
+    }
+  };
+
   const resetForm = () => {
     setAmount(defaultAmount);
-    setSelectedDate(today(getLocalTimeZone()));
+    setSelectedDate(null);
     if (formRef.current) {
       formRef.current.reset();
     }
@@ -182,6 +195,7 @@ export default function RefundPurchaseModal({
                   maxValue={today(getLocalTimeZone()).add({ days: 10 })}
                   minValue={today(getLocalTimeZone()).add({ months: -12 })}
                   name="refundDate"
+                  onChange={handleDateChange}
                 />
               </I18nProvider>
             </div>
