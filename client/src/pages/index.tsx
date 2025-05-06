@@ -129,8 +129,8 @@ export default function IndexPage() {
       : t("purchases-not-refunded");
 
     const amountValue = toggleAllPurchases
-      ? titleData.refundedAmount + titleData.notRefundedAmount
-      : titleData.notRefundedAmount;
+      ? (titleData.refundedAmount + titleData.notRefundedAmount).toFixed(2)
+      : titleData.notRefundedAmount.toFixed(2);
 
     return (
       <div className="flex flex-col sm:flex-row justify-between items-center w-full">
