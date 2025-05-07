@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { I18nProvider } from "@react-aria/i18n";
 import {
@@ -27,7 +27,7 @@ import {
 } from "@heroui/modal";
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
-import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import { DatePicker } from "@heroui/date-picker";
 import { addToast } from "@heroui/toast";
 import { NumberInput } from "@heroui/number-input";
@@ -53,6 +53,12 @@ export default function RefundPurchaseModal({
   const [transactionId, setTransactionId] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
   const refundDatePickerRef = useRef<HTMLInputElement>(null);
+
+  // Définir la date par défaut au chargement du composant
+  useEffect(() => {
+    // Initialiser la date sélectionnée avec la date du jour au format YYYY-MM-DD
+    setSelectedDate(today(getLocalTimeZone()).toString());
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     const formData = new FormData(e.target as HTMLFormElement);
