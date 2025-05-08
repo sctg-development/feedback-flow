@@ -107,6 +107,50 @@ export interface ColumnDefinition {
   cellCopyable?: boolean;
 }
 
+// Props for the TableCellContent component
+interface TableCellContentProps {
+  column: ColumnDefinition;
+  item: any;
+  renderCellValue: (item: any, field: string) => ReactNode;
+}
+
+/**
+ * Component to render the content of a table cell based on column configuration
+ * 
+ * Handles:
+ * - Custom rendering functions
+ * - Copy button for copyable cells
+ * - Tooltip wrapping
+ * - Default value rendering
+ */
+const TableCellContent = ({ column, item, renderCellValue }: TableCellContentProps) => {
+  // Common content rendering logic
+  const renderContent = () => {
+    if (column.render) {
+      return column.render(item);
+    } else if (column.cellCopyable) {
+      return (
+        <>
+          {renderCellValue(item, column.field)}
+          <CopyButton
+            className="bottom-0 left-0"
+            value={renderCellValue(item, column.field) as string | number}
+          />
+        </>
+      );
+    } else {
+      return renderCellValue(item, column.field);
+    }
+  };
+  
+  // Render with or without tooltip
+  if (column.cellTooltip) {
+    return <Tooltip content={column.cellTooltip}>{renderContent()}</Tooltip>;
+  } else {
+    return <>{renderContent()}</>;
+  }
+};
+
 /**
  * Props for the PaginatedTable component
  *
@@ -653,40 +697,11 @@ export default function PaginatedTable({
                         : undefined
                     }
                   >
-                    {column.cellTooltip ? (
-                      <Tooltip content={column.cellTooltip}>
-                        {column.render ? (
-                          column.render(item)
-                        ) : column.cellCopyable ? (
-                          <>
-                            {renderCellValue(item, column.field)}
-                            <CopyButton
-                              className="bottom-0 left-0"
-                              value={renderCellValue(item, column.field)}
-                            />
-                          </>
-                        ) : (
-                          renderCellValue(item, column.field)
-                        )}
-                      </Tooltip>
-                    ) : (
-                      // If no tooltip, render the cell value directly
-                      <>
-                        {column.render ? (
-                          column.render(item)
-                        ) : column.cellCopyable ? (
-                          <>
-                            {renderCellValue(item, column.field)}
-                            <CopyButton
-                              className="bottom-0 left-0"
-                              value={renderCellValue(item, column.field)}
-                            />
-                          </>
-                        ) : (
-                          renderCellValue(item, column.field)
-                        )}
-                      </>
-                    )}
+                    <TableCellContent
+                      column={column}
+                      item={item}
+                      renderCellValue={renderCellValue}
+                    />
                   </TableCell>
                 ))}
               </TableRow>
