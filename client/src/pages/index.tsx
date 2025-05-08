@@ -40,6 +40,7 @@ import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-retur
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { PurchaseStatus } from "@/types/db";
 import { useSecuredApi } from "@/components/auth0";
+import { CopyButton } from "@/components/copy-button";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -331,12 +332,17 @@ export default function IndexPage() {
                   headerClassName: "hidden md:table-cell",
                   render: (item) => {
                     return (
+                      <>
                       <Link
                         target="_blank"
                         to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
                       >
                         {item.order}
                       </Link>
+                      <CopyButton
+                        value={item.order}
+                        className="absolute top-0 right-0"/>
+                      </>
                     );
                   },
                 },
