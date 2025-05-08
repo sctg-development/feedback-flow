@@ -197,5 +197,9 @@
   "total-purchases": "إجمالي عمليات الشراء",
   "total-refunds": "المبالغ المستردة الكلية",
   "total-refunds-count": "إجمالي عدد المبالغ المستردة",
-  "outstanding-amount": "المبلغ المتميز"
+  "outstanding-amount": "المبلغ المتميز",
+  "no-value-to-copy": "لا قيمة للنسخ",
+  "failed-to-copy": "فشل في النسخ",
+  "copied": "نسخ",
+  "copy-to-clipboard": "نسخ إلى الحافظة"
 }

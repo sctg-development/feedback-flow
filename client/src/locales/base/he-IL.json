@@ -197,5 +197,9 @@
   "total-purchases": "סה\"כ רכישות",
   "total-refunds": "סה\"כ החזרים כספיים",
   "total-refunds-count": "סך ההחזרים הספורים",
-  "outstanding-amount": "סכום יוצא מן הכלל"
+  "outstanding-amount": "סכום יוצא מן הכלל",
+  "no-value-to-copy": "אין ערך להעתקה",
+  "failed-to-copy": "העתקה נכשלה",
+  "copied": "מוּעֲתָק",
+  "copy-to-clipboard": "העתק ללוח"
 }

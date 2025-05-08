@@ -197,5 +197,9 @@
   "total-purchases": "Achats totaux",
   "total-refunds": "remboursements totaux",
   "total-refunds-count": "Nombre de remboursements totaux",
-  "outstanding-amount": "encours"
+  "outstanding-amount": "encours",
+  "no-value-to-copy": "Aucune valeur à copier",
+  "failed-to-copy": "Échec de la copie",
+  "copied": "Copié",
+  "copy-to-clipboard": "Copier dans le presse-papiers"
 }

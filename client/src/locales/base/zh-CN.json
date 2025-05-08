@@ -197,5 +197,9 @@
   "total-purchases": "总购买",
   "total-refunds": "总退款",
   "total-refunds-count": "总退款数量",
-  "outstanding-amount": "未偿还的金额"
+  "outstanding-amount": "未偿还的金额",
+  "no-value-to-copy": "没有复制的价值",
+  "failed-to-copy": "无法复制",
+  "copied": "复制",
+  "copy-to-clipboard": "复制到剪贴板"
 }

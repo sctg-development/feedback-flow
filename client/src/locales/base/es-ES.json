@@ -197,5 +197,9 @@
   "total-purchases": "compras totales",
   "total-refunds": "reembolsos totales",
   "total-refunds-count": "Cuento total de reembolsos",
-  "outstanding-amount": "monto excepcional"
+  "outstanding-amount": "monto excepcional",
+  "no-value-to-copy": "No hay valor para copiar",
+  "failed-to-copy": "No se pudo copiar",
+  "copied": "Copiado",
+  "copy-to-clipboard": "Copiar al portapapeles"
 }

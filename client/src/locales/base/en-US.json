@@ -197,5 +197,10 @@
   "largest-refund": "largest refund",
   "refund-delay-details": "refund delay details",
   "difference": "difference",
-  "outstanding-amount": "outstanding amount"
+  "outstanding-amount": "outstanding amount",
+  "failed-to-copy": "Failed to copy",
+  "copied-to-clipboard": "Copied to clipboard",
+  "no-value-to-copy": "No value to copy",
+  "copied": "Copied",
+  "copy-to-clipboard": "Copy to clipboard"
 }
