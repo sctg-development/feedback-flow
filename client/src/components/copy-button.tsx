@@ -54,7 +54,7 @@ export const CopyButton = memo<CopyButtonProps>(
 
     return (
       <PreviewButton
-        className={className ?? "-top-1 left-0.5"}
+        className={className ?? "-bottom-0 left-0.5"}
         icon={icon}
         onPress={handleCopy}
         {...buttonProps}

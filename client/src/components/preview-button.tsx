@@ -35,7 +35,7 @@ export const PreviewButton = forwardRef<
     <Button
       ref={ref}
       isIconOnly
-      className={clsx("relative z-50 text-zinc-300 top-8", className)}
+      className={clsx("relative z-50 text-zinc-300", className)}
       size="sm"
       variant={props.variant ?? "light"}
       {...buttonProps}

@@ -661,6 +661,7 @@ export default function PaginatedTable({
                           <>
                             {renderCellValue(item, column.field)}
                             <CopyButton
+                              className="bottom-0 left-0"
                               value={renderCellValue(item, column.field)}
                             />
                           </>
@@ -677,6 +678,7 @@ export default function PaginatedTable({
                           <>
                             {renderCellValue(item, column.field)}
                             <CopyButton
+                              className="bottom-0 left-0"
                               value={renderCellValue(item, column.field)}
                             />
                           </>
