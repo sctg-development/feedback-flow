@@ -312,6 +312,7 @@ export default function IndexPage() {
                   field: "purchase",
                   label: t("purchase"),
                   sortable: false,
+                  cellCopyable: true,
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                 },

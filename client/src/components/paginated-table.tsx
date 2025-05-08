@@ -38,6 +38,8 @@ import { Spinner } from "@heroui/spinner";
 import { clsx } from "@heroui/shared-utils";
 import { Tooltip } from "@heroui/tooltip";
 
+import { CopyButton } from "./copy-button";
+
 import { title as titleStyle } from "@/components/primitives";
 import {
   AuthenticationGuardWithPermission,
@@ -97,6 +99,12 @@ export interface ColumnDefinition {
    *
    */
   cellTooltip?: string;
+  /**
+   * Optional cell has a clipboard icon to copy the value
+   * Can be used only if the cell is not a custom render function
+   * @default false
+   */
+  cellCopyable?: boolean;
 }
 
 /**
@@ -647,16 +655,34 @@ export default function PaginatedTable({
                   >
                     {column.cellTooltip ? (
                       <Tooltip content={column.cellTooltip}>
-                        {column.render
-                          ? column.render(item)
-                          : renderCellValue(item, column.field)}
+                        {column.render ? (
+                          column.render(item)
+                        ) : column.cellCopyable ? (
+                          <>
+                            {renderCellValue(item, column.field)}
+                            <CopyButton
+                              value={renderCellValue(item, column.field)}
+                            />
+                          </>
+                        ) : (
+                          renderCellValue(item, column.field)
+                        )}
                       </Tooltip>
                     ) : (
                       // If no tooltip, render the cell value directly
                       <>
-                        {column.render
-                          ? column.render(item)
-                          : renderCellValue(item, column.field)}
+                        {column.render ? (
+                          column.render(item)
+                        ) : column.cellCopyable ? (
+                          <>
+                            {renderCellValue(item, column.field)}
+                            <CopyButton
+                              value={renderCellValue(item, column.field)}
+                            />
+                          </>
+                        ) : (
+                          renderCellValue(item, column.field)
+                        )}
                       </>
                     )}
                   </TableCell>
