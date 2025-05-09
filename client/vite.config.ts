@@ -82,22 +82,22 @@ export default defineConfig({
     "import.meta.env.AUTH0_SCOPE": JSON.stringify(process.env.AUTH0_SCOPE),
     "import.meta.env.API_BASE_URL": JSON.stringify(process.env.API_BASE_URL),
     "import.meta.env.READ_PERMISSION": JSON.stringify(
-      process.env.READ_PERMISSION,
+      process.env.READ_PERMISSION || "read:api",
     ),
     "import.meta.env.WRITE_PERMISSION": JSON.stringify(
-      process.env.WRITE_PERMISSION,
+      process.env.WRITE_PERMISSION || "write:api",
     ),
     "import.meta.env.ADMIN_PERMISSION": JSON.stringify(
-      process.env.ADMIN_PERMISSION,
+      process.env.ADMIN_PERMISSION || "admin:api",
     ),
     "import.meta.env.BACKUP_PERMISSION": JSON.stringify(
-      process.env.BACKUP_PERMISSION,
+      process.env.BACKUP_PERMISSION || "backup:api",
     ),
     "import.meta.env.DB_MAX_IMAGE_SIZE": JSON.stringify(
-      process.env.DB_MAX_IMAGE_SIZE,
+      process.env.DB_MAX_IMAGE_SIZE || "1024",
     ),
     "import.meta.env.AMAZON_BASE_URL": JSON.stringify(
-      process.env.AMAZON_BASE_URL,
+      process.env.AMAZON_BASE_URL || "https://www.amazon.fr/gp/your-account/order-details?orderID=",
     ),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss(), githubPagesSpa()],
