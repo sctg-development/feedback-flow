@@ -1,12 +1,32 @@
-# Application Feedback Flow
+# Feedback Flow Application
 
-Feedback Flow is an application designed to manage the feedback from product testers.
+Feedback Flow is an application designed to help product testers manage their testing activities and feedback.
 
-This application is intended for product testers who wish to test a product and provide their opinion on it. The management of products offered by sellers is outside the scope of this application.
+This application is specifically built for individuals who participate in product testing programs (such as "Amazon's Testers Club"), where sellers offer free or discounted products in exchange for honest reviews. The management of the products offered by sellers is outside the scope of this application.
 
-The application allows the tester to manage their purchases, feedback, and refunds.
+## Star the project
 
-Thus, in case of a dispute with a seller, the tester can prove that they have indeed purchased the product and provided their opinion on it, and that this opinion has been published by the platform.
+**If you find this tool useful, please consider giving it a star! 🤩**
+
+## Who is this for?
+
+This application is designed for:
+
+- Product testers who regularly participate in testing programs
+- Individuals who need to track multiple product testing assignments
+- Users who want to maintain organized records of their purchases, feedback, and refunds
+- Testers who need to provide evidence of completed reviews to receive refunds
+
+The application is not intended for sellers or product managers. It is specifically tailored for testers who need to manage their testing activities and provide proof of their work.
+
+The application allows testers to:
+
+- Track their product purchases
+- Document their feedback
+- Provide proof of published reviews
+- Monitor refund status
+
+In case of any dispute with a seller, the tester can use this application to prove they have purchased the product, provided their opinion, and that this opinion has been published on the required platform.
 
 ## Template
 
@@ -26,18 +46,18 @@ The application is deployed on a CDN as a static SPA (Single Page Application). 
 
 ## Testing and Feedback Process
 
-The testing and feedback process is as follows:
+The standard product testing process managed by this application is:
 
-- The seller offers a product to a tester.
-- The tester purchases the product.
-- The tester provides the seller with a screenshot of the proof of purchase.
-- The tester tests the product.
-- The tester gives their opinion on the product.
-- The feedback is published on the feedback platform.
-- The tester provides a screenshot of the published feedback.
-- The seller refunds the tester.
+1. A seller offers a product to a tester (usually at a discount or for free)
+2. The tester purchases the product
+3. The tester provides the seller with a screenshot as proof of purchase
+4. The tester tests the product
+5. The tester writes and submits their honest opinion on the product
+6. The feedback is published on the specified platform (e.g., Amazon)
+7. The tester provides the seller with a screenshot of the published feedback
+8. The seller refunds the tester (fully or partially)
 
-There may be a delay between the purchase and the refund. Additionally, the refund amount may differ from the purchase amount. Therefore, the following information should be stored:
+There may be a delay between the purchase and the refund. Additionally, the refund amount may differ from the purchase amount, which is why the application tracks both values separately.
 
 ## Data to Store
 
@@ -239,6 +259,8 @@ CRYPTOKEN=any_random_string_to_encrypt_the_variables_in_the_repo
 AMAZON_BASE_URL="https://www.amazon.fr/gp/your-account/order-details?orderID="
 DB_BACKEND=memory # or d1
 DB_MAX_IMAGE_SIZE=640
+# This is the token you get from the application when you log in. It is used to authenticate the user with the API.
+# It is not required to be set in the .env file, but it is used in the tests to authenticate the user.
 AUTH0_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnaXRodWJ8MTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwicGVybWlzc2lvbnMiOiJyZWFkOmFwaSB3cml0ZTphcGkgYWRtaW46YXBpIGJhY2t1cDphcGkifQ.m1URdlBbuHa9_e3xN2MEMnkGm3ISbVBAuW7fWgL7fms"
 STATISTICS_LIMIT=100 # number of purchases to uses in the statistics
 ```
@@ -281,8 +303,6 @@ Main page
 Main page (user with read-only permissions)
 ![image](https://github.com/user-attachments/assets/551489d2-750e-4ba5-b8c8-2656b2a7aa39)
 
-
-
 Add a purchase  
 <img width="572" alt="new" src="https://github.com/user-attachments/assets/bd285ec9-6d40-4c60-abe2-218b440c1e4c" />
 
@@ -303,5 +323,6 @@ Add a new user (Admin menu, dark mode)
 
 API  
 <img width="1124" alt="image" src="https://github.com/user-attachments/assets/cb2d57f5-d18c-481b-ba22-ee3455fbb044" />
+
 `````
 
