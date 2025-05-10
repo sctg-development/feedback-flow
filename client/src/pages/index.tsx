@@ -41,6 +41,7 @@ import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { PurchaseStatus } from "@/types/db";
 import { useSecuredApi } from "@/components/auth0";
 import { CopyButton } from "@/components/copy-button";
+import { cleanAmazonOrderNumber } from "@/utilities/amazon";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -333,15 +334,17 @@ export default function IndexPage() {
                   render: (item) => {
                     return (
                       <>
-                      <Link
-                        target="_blank"
-                        to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
-                      >
-                        {item.order}
-                      </Link>
-                      <CopyButton
-                        value={item.order}
-                        className="absolute top-0 right-0"/>
+                        <Link
+                          className="text-blue-500 hover:underline break-keep"
+                          target="_blank"
+                          to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
+                        >
+                          {cleanAmazonOrderNumber(item.order)}
+                        </Link>
+                        <CopyButton
+                          className="absolute top-0 right-0"
+                          value={item.order}
+                        />
                       </>
                     );
                   },
