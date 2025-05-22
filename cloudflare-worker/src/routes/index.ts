@@ -2119,6 +2119,8 @@ const statsRoutes = (router: Router, env: Env) => {
 	 *                       refundDate:
 	 *                         type: string
 	 *                         format: date
+	 *                       order:
+	 *                         type: string
 	 *                 averageDelayInDays:
 	 *                   type: number
 	 *                   description: Average delay between purchase and refund in days
@@ -2186,7 +2188,8 @@ const statsRoutes = (router: Router, env: Env) => {
 							refundAmount: refund.amount,
 							delayInDays,
 							purchaseDate: purchase.date,
-							refundDate: refund.refundDate
+							refundDate: refund.refundDate,
+							order: purchase.order,
 						});
 					}
 				}

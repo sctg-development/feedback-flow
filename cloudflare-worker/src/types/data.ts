@@ -308,6 +308,7 @@ export interface RefundDelayData {
   delayInDays: number;
   purchaseDate: Date;
   refundDate: Date;
+  order: string;
 }
 
 export interface RefundBalanceResponse {

@@ -330,6 +330,7 @@ export default function StatsPage() {
                   <tr className="bg-default-100">
                     <th className="p-3 text-left">{t("purchase-date")}</th>
                     <th className="p-3 text-left">{t("refund-date")}</th>
+                    <th className="p-3 text-left">{t("order")}</th>
                     <th className="p-3 text-right">{t("purchase-amount")}</th>
                     <th className="p-3 text-right">{t("refund-amount")}</th>
                     <th className="p-3 text-right">{t("difference")}</th>
@@ -348,6 +349,7 @@ export default function StatsPage() {
                       <td className="p-3">
                         {new Date(item.refundDate).toLocaleDateString()}
                       </td>
+                      <td className="p-3">{item.order}</td>
                       <td className="p-3 text-right">
                         {item.purchaseAmount.toFixed(2)} €
                       </td>
