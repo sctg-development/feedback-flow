@@ -176,6 +176,18 @@ export interface PurchaseCreateRequest {
   screenshotSummary?: string;
 }
 
+export interface PurchaseUpdateRequest {
+  date?: string;
+  order?: string;
+  description?: string;
+  amount?: number;
+  screenshot?: string;
+  /**
+   * Optional text summary of the screenshot contents
+   */
+  screenshotSummary?: string;
+}
+
 export interface FeedbackCreateRequest {
   date: string;
   purchase: string;

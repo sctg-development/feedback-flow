@@ -62,6 +62,7 @@ let purchaseId: string;
 let purchaseItIdNoFeedback: string;
 let purchaseItNotRefundedId: string;
 let purchaseIdWithScreenshot: string;
+let purchaseIdForUpdate: string;
 // HTTP client with authorization
 const api = {
   post: async (path: string, data: any) => {
@@ -114,9 +115,9 @@ describe('Feedback Flow API', () => {
       ),
     );
     const joseResult = await jose.jwtVerify(AUTH0_TOKEN, JWKS, {
-			issuer: `https://${AUTH0_DOMAIN}/`,
-			audience: AUTH0_AUDIENCE,
-		});
+      issuer: `https://${AUTH0_DOMAIN}/`,
+      audience: AUTH0_AUDIENCE,
+    });
     if (!joseResult) {
       console.error('Failed to verify JWT token');
       process.exit(1);
@@ -549,7 +550,7 @@ describe('Feedback Flow API', () => {
     // count the number of purchases after deletion
     const countResponseAfter = await api.get('/purchase-status');
     expect(countResponseAfter.status).toBe(200);
-    expect(countResponseAfter.data.success).toBe(true); 
+    expect(countResponseAfter.data.success).toBe(true);
     const finalCount = countResponseAfter.data.data.length;
     expect(finalCount).toBe(initialCount - 1);
   }
@@ -570,4 +571,182 @@ describe('Feedback Flow API', () => {
     expect(response.data.amount).toBe(29.99); // Only the refunded purchase
   }
   );
+
+  test('260. Should create a purchase for update testing', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
+      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      description: 'Test product purchase for update',
+      amount: 99.99,
+      screenshot: testImageBase64
+    };
+
+    const response = await api.post('/purchase', purchase);
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBeDefined();
+
+    purchaseIdForUpdate = response.data.id;
+    console.log(`Created purchase for update with ID: ${purchaseIdForUpdate}`);
+  });
+
+  test('270. Should get the original purchase details', async () => {
+    const response = await api.get(`/purchase/${purchaseIdForUpdate}`);
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.data).toBeDefined();
+    expect(response.data.data.id).toBe(purchaseIdForUpdate);
+    expect(response.data.data.description).toBe('Test product purchase for update');
+    expect(response.data.data.amount).toBe(99.99);
+  });
+
+  test('280. Should update purchase description', async () => {
+    const updateData = {
+      description: 'Updated test product purchase description'
+    };
+
+    const response = await api.post(`/purchase/${purchaseIdForUpdate}`, updateData);
+
+    if (response.status !== 200) {
+      console.log('Update failed with status:', response.status);
+      console.log('Error response:', response.data);
+    }
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.message).toBe('Purchase updated successfully');
+
+    // Verify the update by fetching the purchase again
+    const getResponse = await api.get(`/purchase/${purchaseIdForUpdate}`);
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.data.success).toBe(true);
+    expect(getResponse.data.data.description).toBe('Updated test product purchase description');
+    expect(getResponse.data.data.amount).toBe(99.99); // Amount should remain unchanged
+  });
+
+  test('290. Should update purchase amount', async () => {
+    const updateData = {
+      amount: 149.99
+    };
+
+    const response = await api.post(`/purchase/${purchaseIdForUpdate}`, updateData);
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.message).toBe('Purchase updated successfully');
+
+    // Verify the update by fetching the purchase again
+    const getResponse = await api.get(`/purchase/${purchaseIdForUpdate}`);
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.data.success).toBe(true);
+    expect(getResponse.data.data.amount).toBe(149.99);
+    expect(getResponse.data.data.description).toBe('Updated test product purchase description'); // Description should remain unchanged
+  });
+
+  test('300. Should update multiple fields at once', async () => {
+    const updateData = {
+      description: 'Final updated description',
+      amount: 199.99,
+      order: `UPDATED-ORDER-${uuidv4().substring(0, 8)}`
+    };
+
+    const response = await api.post(`/purchase/${purchaseIdForUpdate}`, updateData);
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.message).toBe('Purchase updated successfully');
+
+    // Verify the update by fetching the purchase again
+    const getResponse = await api.get(`/purchase/${purchaseIdForUpdate}`);
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.data.success).toBe(true);
+    expect(getResponse.data.data.description).toBe('Final updated description');
+    expect(getResponse.data.data.amount).toBe(199.99);
+    expect(getResponse.data.data.order).toBe(updateData.order);
+  });
+
+  test('310. Should fail to update non-existent purchase', async () => {
+    const nonExistentId = `NON-EXISTENT-${uuidv4()}`;
+    const updateData = {
+      description: 'This should fail'
+    };
+
+    const response = await api.post(`/purchase/${nonExistentId}`, updateData);
+
+    expect(response.status).toBe(404);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toBe('Purchase not found');
+  });
+
+  test('320. Should fail to update purchase with no fields provided', async () => {
+    const updateData = {}; // Empty object
+
+    const response = await api.post(`/purchase/${purchaseIdForUpdate}`, updateData);
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toBe('No valid fields provided for update');
+  });
+
+  test('330. Should fail to update purchase with invalid fields', async () => {
+    const updateData = {
+      invalidField: 'This should be ignored'
+    };
+
+    const response = await api.post(`/purchase/${purchaseIdForUpdate}`, updateData);
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toBe('No valid fields provided for update');
+  });
+
+  test('340. Should update purchase date', async () => {
+    // Create a new purchase for this test to avoid rate limiting issues
+    const purchase: Purchase = {
+      date: '2024-01-01',
+      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      description: 'Test product for date update',
+      amount: 49.99,
+      screenshot: testImageBase64
+    };
+
+    const createResponse = await api.post('/purchase', purchase);
+    expect(createResponse.status).toBe(201);
+    const newPurchaseId = createResponse.data.id;
+
+    const newDate = '2024-12-25'; // Christmas 2024
+    const updateData = {
+      date: newDate
+    };
+
+    const response = await api.post(`/purchase/${newPurchaseId}`, updateData);
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.message).toBe('Purchase updated successfully');
+
+    // Verify the update by fetching the purchase again
+    const getResponse = await api.get(`/purchase/${newPurchaseId}`);
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.data.success).toBe(true);
+    expect(getResponse.data.data.date).toBe(newDate);
+
+    // Clean up by deleting the purchase
+    await api.delete(`/purchase/${newPurchaseId}`);
+  });
+
+  test('350. Should clean up by deleting the updated purchase', async () => {
+    const response = await api.delete(`/purchase/${purchaseIdForUpdate}`);
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.message).toBe('Purchase deleted successfully');
+
+    // Verify the purchase is deleted
+    const getResponse = await api.get(`/purchase/${purchaseIdForUpdate}`);
+    expect(getResponse.status).toBe(404);
+    expect(getResponse.data.success).toBe(false);
+    expect(getResponse.data.error).toBe('Purchase not found');
+  });
 });

@@ -326,7 +326,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					}
 
 					// Add new IDs
-						// Use INSERT OR IGNORE to avoid errors if the ID already exists
+					// Use INSERT OR IGNORE to avoid errors if the ID already exists
 					for (const id of newTester.ids) {
 						await this.db
 							.prepare(
@@ -440,15 +440,15 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
-			
+
 			// First, get the total count
 			const countResult = await this.db
 				.prepare("SELECT COUNT(*) as count FROM purchases WHERE tester_uuid = ? AND refunded = 1")
 				.bind(testerUuid)
 				.first();
-			
+
 			const totalCount = countResult?.count as number || 0;
-			
+
 			// Determine sort field and direction
 			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
 			const sortDirection = pagination.order.toUpperCase();
@@ -465,12 +465,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					 LIMIT ? OFFSET ?`
 				)
 				.bind(
-					testerUuid, 
-					pagination.limit, 
+					testerUuid,
+					pagination.limit,
 					(pagination.page - 1) * pagination.limit
 				)
 				.all();
-	  
+
 			// Map database results to Purchase objects
 			const purchases = results.map((row) => ({
 				id: row.id as string,
@@ -483,7 +483,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				refunded: Boolean(row.refunded),
 				transactionId: row.transaction_id as string,
 			}));
-	  
+
 			return { results: purchases, totalCount };
 		},
 		refundedAmount: async (testerUuid: string): Promise<number> => {
@@ -498,19 +498,19 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
-			
+
 			// First, get the total count
 			const countResult = await this.db
 				.prepare("SELECT COUNT(*) as count FROM purchases WHERE tester_uuid = ? AND refunded = 0")
 				.bind(testerUuid)
 				.first();
-			
+
 			const totalCount = countResult?.count as number || 0;
-			
+
 			// Determine sort field and direction
 			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
 			const sortDirection = pagination.order.toUpperCase();
-			
+
 			// Get paginated results
 			const { results } = await this.db
 				.prepare(
@@ -520,12 +520,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					 LIMIT ? OFFSET ?`
 				)
 				.bind(
-					testerUuid, 
-					pagination.limit, 
+					testerUuid,
+					pagination.limit,
 					(pagination.page - 1) * pagination.limit
 				)
 				.all();
-	  
+
 			// Map database results to Purchase objects
 			const purchases = results.map((row) => ({
 				id: row.id as string,
@@ -538,7 +538,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				refunded: Boolean(row.refunded),
 				transactionId: row.transaction_id as string,
 			}));
-	  
+
 			return { results: purchases, totalCount };
 		},
 		/**
@@ -550,7 +550,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
-			
+
 			// First, get the total count of purchases meeting all criteria:
 			// 1. Belonging to this tester
 			// 2. Not refunded
@@ -567,13 +567,13 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				`)
 				.bind(testerUuid)
 				.first();
-			
+
 			const totalCount = countResult?.count as number || 0;
-			
+
 			// Determine sort field and direction
 			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
 			const sortDirection = pagination.order.toUpperCase();
-			
+
 			// Get paginated results with feedback AND publication data using JOINs
 			const { results } = await this.db
 				.prepare(
@@ -590,12 +590,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					 LIMIT ? OFFSET ?`
 				)
 				.bind(
-					testerUuid, 
-					pagination.limit, 
+					testerUuid,
+					pagination.limit,
 					(pagination.page - 1) * pagination.limit
 				)
 				.all();
-	
+
 			// Map database results to PurchaseWithFeedback objects
 			const purchases = results.map((row) => ({
 				id: row.id as string,
@@ -611,7 +611,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				publicationScreenshot: row.publication_screenshot as string,
 				publicationDate: row.publication_date as string,
 			}));
-	
+
 			return { results: purchases, totalCount };
 		},
 		notRefundedAmount: async (testerUuid: string): Promise<number> => {
@@ -705,7 +705,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				updateFields.push("screenshot = ?");
 				params.push(updates.screenshot);
 			}
-			
+
 			if (updates.screenshotSummary !== undefined) {
 				updateFields.push("screenshot_summary = ?");
 				params.push(updates.screenshotSummary);
@@ -729,17 +729,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			const sql = `UPDATE purchases SET ${updateFields.join(", ")} WHERE id = ?`;
 
 			console.log("SQL:", sql);
+			console.log("Params:", params);
 
-			// Prepare the statement
-			const stmt = this.db.prepare(sql);
-
-			// Bind the parameters
-			params.forEach((param, index) => {
-				stmt.bind(index + 1, param);
-			});
-
-			// Execute the update
-			const result = await stmt.run();
+			// Execute the update with all parameters at once
+			const result = await this.db.prepare(sql).bind(...params).run();
 
 			return result.success;
 		},
@@ -1351,7 +1344,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		}
 		const { testers, ids, purchases, feedbacks, publications, refunds } =
 			backup;
-		const dbCleanupStatements:D1PreparedStatement[] = [
+		const dbCleanupStatements: D1PreparedStatement[] = [
 			this.db.prepare("DELETE FROM testers"),
 			this.db.prepare("DELETE FROM id_mappings"),
 			this.db.prepare("DELETE FROM purchases"),
@@ -1361,10 +1354,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		];
 
 		// Insert the data back into the database
-		const dbTestersInsertStatement:D1PreparedStatement[] = [];
+		const dbTestersInsertStatement: D1PreparedStatement[] = [];
 		testers.forEach((tester: Tester) => {
 			dbTestersInsertStatement.push(
-			this.db.prepare("INSERT INTO testers (uuid, name) VALUES (?, ?)").bind(tester.uuid, tester.name),
+				this.db.prepare("INSERT INTO testers (uuid, name) VALUES (?, ?)").bind(tester.uuid, tester.name),
 			);
 			tester.ids.forEach((id) => {
 				dbTestersInsertStatement.push(
@@ -1373,7 +1366,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				);
 			});
 		});
-		const dbPurchasesStatement:D1PreparedStatement[] = [];
+		const dbPurchasesStatement: D1PreparedStatement[] = [];
 		purchases.forEach((purchase: Purchase) => {
 			dbPurchasesStatement.push(
 				this.db.prepare(
@@ -1391,7 +1384,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				),
 			);
 		});
-		const dbFeedbacksStatement:D1PreparedStatement[] = [];
+		const dbFeedbacksStatement: D1PreparedStatement[] = [];
 		feedbacks.forEach((feedback: Feedback) => {
 			dbFeedbacksStatement.push(
 				this.db.prepare(
@@ -1399,7 +1392,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				).bind(feedback.purchase, feedback.date, feedback.feedback),
 			);
 		});
-		const dbPublicationsStatement:D1PreparedStatement[] = [];
+		const dbPublicationsStatement: D1PreparedStatement[] = [];
 		publications.forEach((publication: Publication) => {
 			dbPublicationsStatement.push(
 				this.db.prepare(
@@ -1408,7 +1401,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			);
 		});
 
-		const dbRefundsStatement:D1PreparedStatement[]= [];
+		const dbRefundsStatement: D1PreparedStatement[] = [];
 		refunds.forEach((refund: Refund) => {
 			dbRefundsStatement.push(
 				this.db.prepare(
@@ -1485,33 +1478,33 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		const messages: string[] = [];
 		const version = await this.checkSchemaVersion();
 
-			// Run migrations sequentially based on current schema version
-			try {
-				// Migration to version 1 if needed
-				if (version.version < 1) {
-					const migrationSQLModule = await import('./migrations/v1_add_transaction_id.sql');
-					const migrationSQL = migrationSQLModule.default;
-					await this.db.exec(migrationSQL);
-					messages.push(`Upgraded schema from version ${version.version} to version 1`);
-				}
-		
-				// Migration to version 2 if needed (only if already at version 1)
-				if (version.version === 1) {
-					const migrationSQLModule = await import('./migrations/v2_add_screenshot_summary.sql');
-					const migrationSQL = migrationSQLModule.default;
-					await this.db.exec(migrationSQL);
-					messages.push('Upgraded schema from version 1 to version 2');
-				}
-		
-				// If schema is already up to date
-				if (version.version >= 2) {
-					messages.push(`Schema is up to date (version ${version.version})`);
-				}
-			} catch (error) {
-				messages.push(`Migration error: ${(error as Error).message}`);
+		// Run migrations sequentially based on current schema version
+		try {
+			// Migration to version 1 if needed
+			if (version.version < 1) {
+				const migrationSQLModule = await import('./migrations/v1_add_transaction_id.sql');
+				const migrationSQL = migrationSQLModule.default;
+				await this.db.exec(migrationSQL);
+				messages.push(`Upgraded schema from version ${version.version} to version 1`);
 			}
-		
-			return messages;
+
+			// Migration to version 2 if needed (only if already at version 1)
+			if (version.version === 1) {
+				const migrationSQLModule = await import('./migrations/v2_add_screenshot_summary.sql');
+				const migrationSQL = migrationSQLModule.default;
+				await this.db.exec(migrationSQL);
+				messages.push('Upgraded schema from version 1 to version 2');
+			}
+
+			// If schema is already up to date
+			if (version.version >= 2) {
+				messages.push(`Schema is up to date (version ${version.version})`);
+			}
+		} catch (error) {
+			messages.push(`Migration error: ${(error as Error).message}`);
+		}
+
+		return messages;
 	}
 	async getSchemaVersion(): Promise<{ version: number; description: string }> {
 		// Check if the table exists

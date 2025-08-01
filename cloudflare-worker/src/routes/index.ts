@@ -26,7 +26,9 @@ import { v4 as uuidv4 } from "uuid";
 import {
 	FeedbackCreateRequest,
 	PublishCreateRequest,
+	Purchase,
 	PurchaseCreateRequest,
+	PurchaseUpdateRequest,
 	RefundCreateRequest,
 	TesterCreateRequest,
 	TesterIdAddRequest,
@@ -780,6 +782,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 						description: purchase.description,
 						amount: purchase.amount,
 						screenshot: purchase.screenshot,
+						screenshotSummary: purchase.screenshotSummary,
 					},
 				}),
 				{
@@ -1053,7 +1056,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			const { results: purchases, totalCount } = await db.purchases.readyForRefund(testerUuid, pagination);
 
 			// Format response with enhanced data including feedback
-			const formattedPurchases:ReadyForRefundPurchase[] = purchases.map((p) => ({
+			const formattedPurchases: ReadyForRefundPurchase[] = purchases.map((p) => ({
 				id: p.id,
 				date: p.date,
 				order: p.order,
@@ -1182,7 +1185,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				limit,
 				sort,
 				order,
-			  };
+			};
 
 			const { results: purchases, totalCount } = await db.purchases.refunded(testerUuid, pagination);
 
@@ -1243,69 +1246,69 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	 *         description: Unauthorized request
 	 */
 	router.get(
-	  "/api/purchases/refunded-amount",
-	  async () => {
-		const db = getDatabase(env);
-		
-		// Get user ID from authenticated user
-		const userId = router.jwtPayload.sub;
-		
-		if (!userId) {
-		  return router.handleUnauthorizedRequest();
-		}
-		
-		// Find tester by user ID
-		const testerUuid = await db.idMappings.getTesterUuid(userId);
-		
-		if (!testerUuid) {
-		  return new Response(
-			JSON.stringify({ success: false, error: "Unauthorized" }),
-			{
-			  status: 403,
-			  headers: {
-				...router.corsHeaders,
-				"Content-Type": "application/json",
-			  },
-			},
-		  );
-		}
-		
-		try {
-		  // Use the optimized function for getting total refunded amount
-		  const amount = await db.purchases.refundedAmount(testerUuid);
-		  
-		  return new Response(
-			JSON.stringify({
-			  success: true,
-			  amount,
-			}),
-			{
-			  status: 200,
-			  headers: {
-				...router.corsHeaders,
-				"Content-Type": "application/json",
-			  },
-			},
-		  );
-		} catch (error) {
-		  return new Response(
-			JSON.stringify({
-			  success: false,
-			  error: `Error fetching refunded amount: ${(error as Error).message}`,
-			}),
-			{
-			  status: 500,
-			  headers: {
-				...router.corsHeaders,
-				"Content-Type": "application/json",
-			  },
-			},
-		  );
-		}
-	  },
-	  env.READ_PERMISSION,
+		"/api/purchases/refunded-amount",
+		async () => {
+			const db = getDatabase(env);
+
+			// Get user ID from authenticated user
+			const userId = router.jwtPayload.sub;
+
+			if (!userId) {
+				return router.handleUnauthorizedRequest();
+			}
+
+			// Find tester by user ID
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
+
+			if (!testerUuid) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Unauthorized" }),
+					{
+						status: 403,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+
+			try {
+				// Use the optimized function for getting total refunded amount
+				const amount = await db.purchases.refundedAmount(testerUuid);
+
+				return new Response(
+					JSON.stringify({
+						success: true,
+						amount,
+					}),
+					{
+						status: 200,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			} catch (error) {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: `Error fetching refunded amount: ${(error as Error).message}`,
+					}),
+					{
+						status: 500,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+		},
+		env.READ_PERMISSION,
 	);
-	
+
 	/**
 	 * @openapi
 	 * /api/purchases/not-refunded-amount:
@@ -1333,67 +1336,67 @@ const purchaseRoutes = (router: Router, env: Env) => {
 	 *         description: Unauthorized request
 	 */
 	router.get(
-	  "/api/purchases/not-refunded-amount",
-	  async () => {
-		const db = getDatabase(env);
-		
-		// Get user ID from authenticated user
-		const userId = router.jwtPayload.sub;
-		
-		if (!userId) {
-		  return router.handleUnauthorizedRequest();
-		}
-		
-		// Find tester by user ID
-		const testerUuid = await db.idMappings.getTesterUuid(userId);
-		
-		if (!testerUuid) {
-		  return new Response(
-			JSON.stringify({ success: false, error: "Unauthorized" }),
-			{
-			  status: 403,
-			  headers: {
-				...router.corsHeaders,
-				"Content-Type": "application/json",
-			  },
-			},
-		  );
-		}
-		
-		try {
-		  // Use the optimized function for getting total non-refunded amount
-		  const amount = await db.purchases.notRefundedAmount(testerUuid);
-		  
-		  return new Response(
-			JSON.stringify({
-			  success: true,
-			  amount,
-			}),
-			{
-			  status: 200,
-			  headers: {
-				...router.corsHeaders,
-				"Content-Type": "application/json",
-			  },
-			},
-		  );
-		} catch (error) {
-		  return new Response(
-			JSON.stringify({
-			  success: false,
-			  error: `Error fetching non-refunded amount: ${(error as Error).message}`,
-			}),
-			{
-			  status: 500,
-			  headers: {
-				...router.corsHeaders,
-				"Content-Type": "application/json",
-			  },
-			},
-		  );
-		}
-	  },
-	  env.READ_PERMISSION,
+		"/api/purchases/not-refunded-amount",
+		async () => {
+			const db = getDatabase(env);
+
+			// Get user ID from authenticated user
+			const userId = router.jwtPayload.sub;
+
+			if (!userId) {
+				return router.handleUnauthorizedRequest();
+			}
+
+			// Find tester by user ID
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
+
+			if (!testerUuid) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Unauthorized" }),
+					{
+						status: 403,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+
+			try {
+				// Use the optimized function for getting total non-refunded amount
+				const amount = await db.purchases.notRefundedAmount(testerUuid);
+
+				return new Response(
+					JSON.stringify({
+						success: true,
+						amount,
+					}),
+					{
+						status: 200,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			} catch (error) {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: `Error fetching non-refunded amount: ${(error as Error).message}`,
+					}),
+					{
+						status: 500,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+		},
+		env.READ_PERMISSION,
 	);
 	/**
 	 * @openapi
@@ -1537,6 +1540,189 @@ const purchaseRoutes = (router: Router, env: Env) => {
 			}
 		},
 		env.READ_PERMISSION,
+	);
+
+	/**
+	 * @openapi
+	 * /api/purchase/{id}:
+	 *   post:
+	 *     summary: Update an existing purchase
+	 *     description: Updates an existing purchase record. Requires write permission.
+	 *     tags:
+	 *       - Purchases
+	 *     parameters:
+	 *       - name: id
+	 *         in: path
+	 *         required: true
+	 *         description: Purchase ID
+	 *         schema:
+	 *           type: string
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             type: object
+	 *             properties:
+	 *               date:
+	 *                 type: string
+	 *                 format: date-time
+	 *                 description: Purchase date
+	 *               order:
+	 *                 type: string
+	 *                 description: Order number
+	 *               description:
+	 *                 type: string
+	 *                 description: Purchase description
+	 *               amount:
+	 *                 type: number
+	 *                 description: Purchase amount
+	 *               screenshot:
+	 *                 type: string
+	 *                 description: Screenshot data (base64 encoded)
+	 *               screenshotSummary:
+	 *                 type: string
+	 *                 description: Optional screenshot summary
+	 *     responses:
+	 *       200:
+	 *         description: Purchase successfully updated
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 message:
+	 *                   type: string
+	 *       400:
+	 *         description: Invalid request or missing required fields
+	 *       403:
+	 *         description: Unauthorized - purchase not found or access denied
+	 *       404:
+	 *         description: Purchase not found
+	 */
+	router.post(
+		"/api/purchase/:id",
+		async (request) => {
+			const db = getDatabase(env);
+
+			const purchaseId = request.params.id;
+			const userId = router.jwtPayload.sub || "";
+
+			// Find the purchase first to verify ownership
+			const existingPurchase = await db.purchases.find(p => p.id === purchaseId);
+
+			if (!existingPurchase) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Purchase not found" }),
+					{
+						status: 404,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+
+			// Find tester by user ID and verify ownership
+			const testerUuid = await db.idMappings.getTesterUuid(userId);
+			if (!testerUuid || existingPurchase.testerUuid !== testerUuid) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Purchase not found or access denied" }),
+					{
+						status: 403,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+
+			try {
+				const body = (await request.json()) as PurchaseUpdateRequest;
+
+				// Prepare the updates object with only provided fields
+				const updates: Partial<Purchase> = {};
+
+				// Only include fields that are provided in the request body
+				if (body.date !== undefined) updates.date = body.date;
+				if (body.order !== undefined) updates.order = body.order;
+				if (body.description !== undefined) updates.description = body.description;
+				if (body.amount !== undefined) updates.amount = body.amount;
+				if (body.screenshot !== undefined) updates.screenshot = body.screenshot;
+				if (body.screenshotSummary !== undefined) updates.screenshotSummary = body.screenshotSummary;
+
+				// If no valid fields to update, return an error
+				if (Object.keys(updates).length === 0) {
+					return new Response(
+						JSON.stringify({
+							success: false,
+							error: "No valid fields provided for update"
+						}),
+						{
+							status: 400,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
+
+				// Perform the update
+				const updateResult = await db.purchases.update(purchaseId, updates);
+
+				if (updateResult) {
+					return new Response(
+						JSON.stringify({
+							success: true,
+							message: "Purchase updated successfully",
+						}),
+						{
+							status: 200,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				} else {
+					return new Response(
+						JSON.stringify({
+							success: false,
+							error: "Failed to update purchase"
+						}),
+						{
+							status: 500,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
+			} catch (error) {
+				console.error("Error updating purchase:", error);
+
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: `Invalid request: ${(error as Error).message}`,
+					}),
+					{
+						status: 400,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+		},
+		env.WRITE_PERMISSION,
 	);
 };
 
@@ -2001,17 +2187,17 @@ const statsRoutes = (router: Router, env: Env) => {
 		"/api/stats/refund-balance",
 		async () => {
 			const db = getDatabase(env);
-			
+
 			// Get user ID from authenticated user
 			const userId = router.jwtPayload.sub;
-			
+
 			if (!userId) {
 				return router.handleUnauthorizedRequest();
 			}
-			
+
 			// Find tester by user ID
 			const testerUuid = await db.idMappings.getTesterUuid(userId);
-			
+
 			if (!testerUuid) {
 				return new Response(
 					JSON.stringify({ success: false, error: "Unauthorized" }),
@@ -2024,29 +2210,29 @@ const statsRoutes = (router: Router, env: Env) => {
 					},
 				);
 			}
-			
+
 			try {
 				// Get refunded purchases (we need their IDs and amounts)
 				const { results: refundedPurchases } = await db.purchases.refunded(testerUuid, { page: 1, limit: parseInt(env.STATISTICS_LIMIT || "100"), sort: "date", order: "desc" });
-				
+
 				// Calculate total amount of refunded purchases
 				const purchasedAmount = refundedPurchases.reduce((total, purchase) => total + purchase.amount, 0);
-				
+
 				// Get all refunds for the user
 				const allRefunds = await db.refunds.getAll();
-				
+
 				// Filter refunds for purchases made by this user
 				const userRefunds = allRefunds.filter((refund) => {
 					// Check if this refund is for a purchase in the refundedPurchases list
 					return refundedPurchases.some(purchase => purchase.id === refund.purchase);
 				});
-				
+
 				// Calculate total refunded amount
 				const refundedAmount = userRefunds.reduce((total, refund) => total + refund.amount, 0);
-				
+
 				// Calculate the balance (difference) credit/debit credit means that the user has refunded more than they purchased
-				const balance = refundedAmount - purchasedAmount ;
-				
+				const balance = refundedAmount - purchasedAmount;
+
 				return new Response(
 					JSON.stringify({
 						success: true,
@@ -2133,17 +2319,17 @@ const statsRoutes = (router: Router, env: Env) => {
 		"/api/stats/refund-delay",
 		async () => {
 			const db = getDatabase(env);
-			
+
 			// Get user ID from authenticated user
 			const userId = router.jwtPayload.sub;
-			
+
 			if (!userId) {
 				return router.handleUnauthorizedRequest();
 			}
-			
+
 			// Find tester by user ID
 			const testerUuid = await db.idMappings.getTesterUuid(userId);
-			
+
 			if (!testerUuid) {
 				return new Response(
 					JSON.stringify({ success: false, error: "Unauthorized" }),
@@ -2156,32 +2342,32 @@ const statsRoutes = (router: Router, env: Env) => {
 					},
 				);
 			}
-			
+
 			try {
 				// Get refunded purchases (we need their IDs, dates and amounts)
 				const { results: refundedPurchases } = await db.purchases.refunded(testerUuid, { page: 1, limit: parseInt(env.STATISTICS_LIMIT || "100"), sort: "date", order: "desc" });
-				
+
 				// Get all refunds for the user
 				const allRefunds = await db.refunds.getAll();
-				
+
 				// Create delay statistics by matching purchases with their refunds
 				const delayStats = [];
 				let totalDelayDays = 0;
-				
+
 				for (const purchase of refundedPurchases) {
 					const refund = allRefunds.find(r => r.purchase === purchase.id);
-					
+
 					if (refund) {
 						// Calculate delay in days
 						const purchaseDate = new Date(purchase.date);
 						const refundDate = new Date(refund.refundDate);
-						
+
 						// Calculate the difference in days
 						const diffTime = refundDate.getTime() - purchaseDate.getTime();
 						const delayInDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-						
+
 						totalDelayDays += delayInDays;
-						
+
 						delayStats.push({
 							purchaseId: purchase.id,
 							purchaseAmount: purchase.amount,
@@ -2193,12 +2379,12 @@ const statsRoutes = (router: Router, env: Env) => {
 						});
 					}
 				}
-				
+
 				// Calculate average delay
-				const averageDelayInDays = delayStats.length > 0 
-					? Number((totalDelayDays / delayStats.length).toFixed(2)) 
+				const averageDelayInDays = delayStats.length > 0
+					? Number((totalDelayDays / delayStats.length).toFixed(2))
 					: 0;
-				
+
 				return new Response(
 					JSON.stringify({
 						success: true,
@@ -2267,63 +2453,63 @@ const statsRoutes = (router: Router, env: Env) => {
 	 */
 	router.get("/api/stats/purchases", async () => {
 		const db = getDatabase(env);
-			
-			// Get user ID from authenticated user
-			const userId = router.jwtPayload.sub;
-			
-			if (!userId) {
-				return router.handleUnauthorizedRequest();
-			}
-			
-			// Find tester by user ID
-			const testerUuid = await db.idMappings.getTesterUuid(userId);
-			
-			if (!testerUuid) {
-				return new Response(
-					JSON.stringify({ success: false, error: "Unauthorized" }),
-					{
-						status: 403,
-						headers: {
-							...router.corsHeaders,
-							"Content-Type": "application/json",
-						},
-					},
-				);
-			}
-			try {
-				// Get purchase statistics
-				const purchaseStats = await db.purchases.getPurchaseStatistics(testerUuid);
-				
-				return new Response(
-					JSON.stringify({
-						success: true,
-						data: purchaseStats,
-					}),
-					{
-						status: 200,
-						headers: {
-							...router.corsHeaders,
-							"Content-Type": "application/json",
-						},
-					},
-				);
-			} catch (error) {
-				return new Response(
-					JSON.stringify({
-						success: false,
-						error: `Error fetching purchase statistics: ${(error as Error).message}`,
-					}),
-					{
-						status: 500,
-						headers: {
-							...router.corsHeaders,
-							"Content-Type": "application/json",
-						},
-					},
-				);
-			}
 
-	},env.READ_PERMISSION);
+		// Get user ID from authenticated user
+		const userId = router.jwtPayload.sub;
+
+		if (!userId) {
+			return router.handleUnauthorizedRequest();
+		}
+
+		// Find tester by user ID
+		const testerUuid = await db.idMappings.getTesterUuid(userId);
+
+		if (!testerUuid) {
+			return new Response(
+				JSON.stringify({ success: false, error: "Unauthorized" }),
+				{
+					status: 403,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				},
+			);
+		}
+		try {
+			// Get purchase statistics
+			const purchaseStats = await db.purchases.getPurchaseStatistics(testerUuid);
+
+			return new Response(
+				JSON.stringify({
+					success: true,
+					data: purchaseStats,
+				}),
+				{
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				},
+			);
+		} catch (error) {
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: `Error fetching purchase statistics: ${(error as Error).message}`,
+				}),
+				{
+					status: 500,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				},
+			);
+		}
+
+	}, env.READ_PERMISSION);
 };
 
 /**

@@ -133,6 +133,10 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 - **GET `/api/purchase/:id`** - Get information about a specific purchase - requires read:api permission
   - Response: `{success: boolean, data: {id: string, date: string, order: string, description: string, amount: number, screenshot: string}}`
 
+- **POST `/api/purchase/:id`** - Update an existing purchase - requires write:api permission
+  - Request: `{date?: string, order?: string, description?: string, amount?: number, screenshot?: string, screenshotSummary?: string}`
+  - Response: `{success: boolean, message: string}`
+
 - **DELETE `/api/purchase/:purchaseId`** - Delete a purchase by ID - requires write:api permission
   - Response: `{success: boolean, message: string}`
 
