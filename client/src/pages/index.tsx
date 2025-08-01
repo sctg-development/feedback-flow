@@ -40,7 +40,7 @@ import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { PurchaseStatus } from "@/types/db";
-import { useSecuredApi } from "@/components/auth0";
+import { AuthenticationGuardWithPermission, useSecuredApi } from "@/components/auth0";
 import { CopyButton } from "@/components/copy-button";
 import { cleanAmazonOrderNumber } from "@/utilities/amazon";
 
@@ -341,9 +341,11 @@ export default function IndexPage() {
                             <CopyButton
                               value={item.purchase}
                             />
-                            <EditIcon onClick={() => handleEditPurchase(item.purchase)}
-                              className="group inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent transform-gpu data-[pressed=true]:scale-[0.97] cursor-pointer outline-hidden data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-tiny rounded-small px-0 transition-transform-colors-opacity motion-reduce:transition-none bg-transparent data-[hover=true]:bg-default/40 min-w-4 w-4 h-4 relative z-50 text-zinc-300 -bottom-0 left-2"
-                            />
+                            <AuthenticationGuardWithPermission permission={import.meta.env.ADMIN_PERMISSION}>
+                              <EditIcon onClick={() => handleEditPurchase(item.purchase)}
+                                className="group inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent transform-gpu data-[pressed=true]:scale-[0.97] cursor-pointer outline-hidden data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-tiny rounded-small px-0 transition-transform-colors-opacity motion-reduce:transition-none bg-transparent data-[hover=true]:bg-default/40 min-w-4 w-4 h-4 relative z-50 text-zinc-300 -bottom-0 left-2"
+                              />
+                            </AuthenticationGuardWithPermission>
                           </div>
                         </div>
                       </>
@@ -514,16 +516,18 @@ export default function IndexPage() {
       )}
       {/* Edit Purchase Modal */}
       {editPurchase && (
-        <EditPurchaseModal
-          children={undefined}
-          isOpen={editPurchase}
-          purchaseId={editPurchaseId}
-          onClose={() => {
-            setEditPurchase(false);
-            setEditPurchaseId("");
-          }}
-          onSuccess={refreshTable}
-        />
+        <AuthenticationGuardWithPermission permission={import.meta.env.ADMIN_PERMISSION}>
+          <EditPurchaseModal
+            children={undefined}
+            isOpen={editPurchase}
+            purchaseId={editPurchaseId}
+            onClose={() => {
+              setEditPurchase(false);
+              setEditPurchaseId("");
+            }}
+            onSuccess={refreshTable}
+          />
+        </AuthenticationGuardWithPermission>
       )}
     </DefaultLayout>
   );
