@@ -203,12 +203,13 @@
   "copied": "نسخ",
   "copy-to-clipboard": "نسخ إلى الحافظة",
   "edit-purchase": "تحرير الشراء",
-  "loading-purchase-data": "",
-  "purchase-updated-successfully": "",
-  "update-purchase": "",
-  "updating": ""
-}
-  "current-screenshot-summary": "",
-  "error-loading-purchase": "",
-  "error-updating-purchase": ""
+  "copied-to-clipboard": "نسخ إلى الحافظة",
+  "current-screenshot": "الشاشات الحالية",
+  "current-screenshot-summary": "ملخص لقطة الشاشة الحالية",
+  "error-loading-purchase": "خطأ تحميل الشراء",
+  "error-updating-purchase": "خطأ تحديث الشراء",
+  "loading-purchase-data": "تحميل بيانات الشراء",
+  "purchase-updated-successfully": "شراء تحديث بنجاح",
+  "update-purchase": "تحديث الشراء",
+  "updating": "التحديث"
 }

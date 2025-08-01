@@ -203,12 +203,13 @@
   "copied": "מוּעֲתָק",
   "copy-to-clipboard": "העתק ללוח",
   "edit-purchase": "ערוך רכישה",
-  "loading-purchase-data": "",
-  "purchase-updated-successfully": "",
-  "update-purchase": "",
-  "updating": ""
-}
--screenshot-summary": "",
-  "error-loading-purchase": "",
-  "error-updating-purchase": ""
+  "copied-to-clipboard": "מועתק ללוח",
+  "current-screenshot": "תצלום מסך נוכחי",
+  "current-screenshot-summary": "סיכום צילום מסך נוכחי",
+  "error-loading-purchase": "שגיאה בטעינת רכישה",
+  "error-updating-purchase": "שגיאה בעדכון הרכישה",
+  "loading-purchase-data": "טוען נתוני רכישה",
+  "purchase-updated-successfully": "רכישה מעודכנת בהצלחה",
+  "update-purchase": "עדכן רכישה",
+  "updating": "עִדכּוּן"
 }
