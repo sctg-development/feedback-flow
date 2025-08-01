@@ -369,6 +369,90 @@
             "description": "Purchase not found"
           }
         }
+      },
+      "post": {
+        "summary": "Update an existing purchase",
+        "description": "Updates an existing purchase record. Requires write permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Purchase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Purchase date"
+                  },
+                  "order": {
+                    "type": "string",
+                    "description": "Order number"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Purchase description"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Purchase amount"
+                  },
+                  "screenshot": {
+                    "type": "string",
+                    "description": "Screenshot data (base64 encoded)"
+                  },
+                  "screenshotSummary": {
+                    "type": "string",
+                    "description": "Optional screenshot summary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Purchase successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          },
+          "403": {
+            "description": "Unauthorized - purchase not found or access denied"
+          },
+          "404": {
+            "description": "Purchase not found"
+          }
+        }
       }
     },
     "/api/purchases/not-refunded": {
@@ -1142,6 +1226,9 @@
                           "refundDate": {
                             "type": "string",
                             "format": "date"
+                          },
+                          "order": {
+                            "type": "string"
                           }
                         }
                       }

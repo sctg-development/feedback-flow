@@ -201,5 +201,14 @@
   "no-value-to-copy": "אין ערך להעתקה",
   "failed-to-copy": "העתקה נכשלה",
   "copied": "מוּעֲתָק",
-  "copy-to-clipboard": "העתק ללוח"
+  "copy-to-clipboard": "העתק ללוח",
+  "edit-purchase": "ערוך רכישה",
+  "loading-purchase-data": "",
+  "purchase-updated-successfully": "",
+  "update-purchase": "",
+  "updating": ""
+}
+-screenshot-summary": "",
+  "error-loading-purchase": "",
+  "error-updating-purchase": ""
 }

@@ -201,5 +201,14 @@
   "no-value-to-copy": "لا قيمة للنسخ",
   "failed-to-copy": "فشل في النسخ",
   "copied": "نسخ",
-  "copy-to-clipboard": "نسخ إلى الحافظة"
+  "copy-to-clipboard": "نسخ إلى الحافظة",
+  "edit-purchase": "تحرير الشراء",
+  "loading-purchase-data": "",
+  "purchase-updated-successfully": "",
+  "update-purchase": "",
+  "updating": ""
+}
+  "current-screenshot-summary": "",
+  "error-loading-purchase": "",
+  "error-updating-purchase": ""
 }

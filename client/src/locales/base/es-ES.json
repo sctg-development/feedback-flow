@@ -201,5 +201,15 @@
   "no-value-to-copy": "No hay valor para copiar",
   "failed-to-copy": "No se pudo copiar",
   "copied": "Copiado",
-  "copy-to-clipboard": "Copiar al portapapeles"
+  "copy-to-clipboard": "Copiar al portapapeles",
+  "edit-purchase": "Editar compra",
+  "copied-to-clipboard": "Copiado al portapapeles",
+  "current-screenshot": "Pantallas de pantallas actuales",
+  "current-screenshot-summary": "Resumen actual de captura de pantalla",
+  "error-loading-purchase": "Error de carga de compra",
+  "error-updating-purchase": "Compra de actualización de errores",
+  "loading-purchase-data": "Cargando datos de compra",
+  "purchase-updated-successfully": "Compra actualizada con éxito",
+  "update-purchase": "Actualizar compra",
+  "updating": "Actualización"
 }

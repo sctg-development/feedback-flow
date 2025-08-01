@@ -201,5 +201,14 @@
   "no-value-to-copy": "没有复制的价值",
   "failed-to-copy": "无法复制",
   "copied": "复制",
-  "copy-to-clipboard": "复制到剪贴板"
+  "copy-to-clipboard": "复制到剪贴板",
+  "edit-purchase": "编辑购买",
+  "loading-purchase-data": "",
+  "purchase-updated-successfully": "",
+  "update-purchase": "",
+  "updating": ""
+}
+hot-summary": "",
+  "error-loading-purchase": "",
+  "error-updating-purchase": ""
 }

@@ -35,6 +35,7 @@ import AddFeedbackModal from "@/components/modals/add-feedback-modal";
 import PublishFeedbackModal from "@/components/modals/publish-feedback-modal";
 import RefundPurchaseModal from "@/components/modals/refund-purchase-modal";
 import CreatePurchaseModal from "@/components/modals/create-purchase-modal";
+import EditPurchaseModal from "@/components/modals/edit-purchase-modal";
 import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
@@ -64,6 +65,8 @@ export default function IndexPage() {
   const [createNewPurchase, setCreateNewPurchase] = useState(false);
   const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
   const [purchase, setPurchase] = useState({ purchaseId: "", amount: 0 });
+  const [editPurchase, setEditPurchase] = useState(false);
+  const [editPurchaseId, setEditPurchaseId] = useState<string>("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [refundPurchases, setRefundPurchases] = useState(false);
   const [returnPurchase, setReturnPurchase] = useState(false);
@@ -292,6 +295,16 @@ export default function IndexPage() {
     setPublishFeedbackPurchase(true);
   };
 
+  /**
+   * Handles editing a purchase by opening the edit purchase modal
+   *
+   * @param {string} purchaseId - The ID of the purchase to edit
+   */
+  const handleEditPurchase = (purchaseId: string) => {
+    setEditPurchaseId(purchaseId);
+    setEditPurchase(true);
+  };
+
   return (
     <DefaultLayout>
       <section
@@ -317,6 +330,25 @@ export default function IndexPage() {
                   cellCopyable: true,
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
+                  render: (item) => {
+                    return (
+                      <>
+                        <div className="flex items-center">
+                          <div>
+                            {item.purchase}
+                          </div>
+                          <div className="flex flex-col">
+                            <CopyButton
+                              value={item.purchase}
+                            />
+                            <EditIcon onClick={() => handleEditPurchase(item.purchase)}
+                              className="group inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent transform-gpu data-[pressed=true]:scale-[0.97] cursor-pointer outline-hidden data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-tiny rounded-small px-0 transition-transform-colors-opacity motion-reduce:transition-none bg-transparent data-[hover=true]:bg-default/40 min-w-4 w-4 h-4 relative z-50 text-zinc-300 -bottom-0 left-2"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    );
+                  },
                 },
                 {
                   field: "date",
@@ -357,9 +389,9 @@ export default function IndexPage() {
                   onCellAction: (item) => {
                     item.screenshotSummary
                       ? setScreenshot([
-                          item.purchaseScreenshot,
-                          item.screenshotSummary,
-                        ])
+                        item.purchaseScreenshot,
+                        item.screenshotSummary,
+                      ])
                       : setScreenshot(item.purchaseScreenshot);
                   },
                 },
@@ -477,6 +509,19 @@ export default function IndexPage() {
           isOpen={returnPurchase}
           purchaseId={purchase.purchaseId}
           onClose={() => setReturnPurchase(false)}
+          onSuccess={refreshTable}
+        />
+      )}
+      {/* Edit Purchase Modal */}
+      {editPurchase && (
+        <EditPurchaseModal
+          children={undefined}
+          isOpen={editPurchase}
+          purchaseId={editPurchaseId}
+          onClose={() => {
+            setEditPurchase(false);
+            setEditPurchaseId("");
+          }}
           onSuccess={refreshTable}
         />
       )}

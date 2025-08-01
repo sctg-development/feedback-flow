@@ -202,5 +202,14 @@
   "copied-to-clipboard": "Copied to clipboard",
   "no-value-to-copy": "No value to copy",
   "copied": "Copied",
-  "copy-to-clipboard": "Copy to clipboard"
+  "copy-to-clipboard": "Copy to clipboard",
+  "edit-purchase": "Edit purchase",
+  "current-screenshot": "Current screensshot",
+  "current-screenshot-summary": "Current screenshot summary",
+  "error-loading-purchase": "Error loading purchase",
+  "loading-purchase-data": "Loading purchase data",
+  "error-updating-purchase": "Error updating purchase",
+  "purchase-updated-successfully": "Purchase updated successfully",
+  "update-purchase": "Update purchase",
+  "updating": "Updating"
 }
