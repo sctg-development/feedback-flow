@@ -100,6 +100,83 @@ There may be a delay between the purchase and the refund. Additionally, the refu
 
 Authentication is handled by Auth0. The system is provided by the template. It is an OAuth 2.0 process that runs in the browser. The browser receives a JWT token, which it sends to the API. The API verifies the token and grants or denies access to the resource based on the permissions included in the token.
 
+## Test Data Generation
+
+To quickly populate your development environment with sample data, you can use the automated test data generation feature. This creates realistic test data including purchases, feedback, and refunds linked to your GitHub account.
+
+### Quick Setup
+
+Run the following command in the `cloudflare-worker` directory:
+
+```bash
+npm run d1:create && npm run d1:init && npm test
+```
+
+This command sequence will:
+1. **Create** the D1 database structure
+2. **Initialize** the database with required tables and schema
+3. **Run tests** that populate the database with sample data for your user
+
+### Authentication Setup
+
+Before generating test data, you need to link your GitHub account to the application:
+
+1. **Log in** to the application using your GitHub account at [http://localhost:5173](http://localhost:5173)
+2. **Copy your Auth0 token**:
+   - Click on your name in the application footer
+   - Copy the JWT token that appears in the modal
+3. **Get your GitHub user ID**:
+   - Hover over your name in the footer to see your user ID in a tooltip
+   - Note this ID for the `.env` configuration
+4. **Update your `.env` file** with the copied token and user ID
+5. **Restart the Cloudflare Worker** to apply the new configuration
+6. **Run the test command** to generate sample data
+
+### Environment Configuration
+
+Create a `.env` file in the root of the repository with the following structure:
+
+```bash
+# Auth0 Configuration (replace with your actual values)
+AUTH0_CLIENT_ID=your_actual_client_id_here
+AUTH0_CLIENT_SECRET=your_actual_client_secret_here
+AUTH0_DOMAIN=your-domain.eu.auth0.com
+AUTH0_SCOPE="openid profile email read:api write:api admin:api backup:api"
+AUTH0_AUDIENCE="http://localhost:8787/api"
+AUTH0_SUB="github|123456789" # Replace with your actual GitHub user ID
+
+# API Configuration
+API_BASE_URL=http://localhost:8787/api
+CORS_ORIGIN=http://localhost:5173
+
+# Permissions
+READ_PERMISSION=read:api
+WRITE_PERMISSION=write:api
+ADMIN_PERMISSION=admin:api
+BACKUP_PERMISSION=backup:api
+
+# Application Settings
+CRYPTOKEN="your_random_encryption_key_here"
+STATISTICS_LIMIT=100
+DB_BACKEND=d1
+DB_MAX_IMAGE_SIZE=640
+AMAZON_BASE_URL="https://www.amazon.fr/gp/your-account/order-details?orderID="
+
+# Authentication Token (copy from application after login)
+AUTH0_TOKEN="your_jwt_token_copied_from_application"
+```
+
+### What Test Data is Created
+
+The test suite generates:
+- **Sample purchases** with various dates, amounts, and order numbers
+- **Feedback entries** linked to purchases
+- **Publication records** with mock screenshots
+- **Refund transactions** to demonstrate the complete workflow
+- **Different purchase states** (pending, with feedback, published, refunded)
+
+This data allows you to immediately test all application features without manually creating entries.
+
 ## REST API
 
 A Swagger ui is automatically generated for the API. It is available at `/docs`. The API is secured with Auth0. The API uses the same authentication process as the application. The API requires a JWT token to be sent in the `Authorization` header of each request. The token must be prefixed with `Bearer`.  
@@ -133,7 +210,7 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 - **GET `/api/purchase/:id`** - Get information about a specific purchase - requires read:api permission
   - Response: `{success: boolean, data: {id: string, date: string, order: string, description: string, amount: number, screenshot: string}}`
 
-- **POST `/api/purchase/:id`** - Update an existing purchase - requires write:api permission
+- **POST `/api/purchase/:id`** - Update an existing purchase - requires admin:api permission
   - Request: `{date?: string, order?: string, description?: string, amount?: number, screenshot?: string, screenshotSummary?: string}`
   - Response: `{success: boolean, message: string}`
 
