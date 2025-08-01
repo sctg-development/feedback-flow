@@ -63,6 +63,16 @@ let purchaseItIdNoFeedback: string;
 let purchaseItNotRefundedId: string;
 let purchaseIdWithScreenshot: string;
 let purchaseIdForUpdate: string;
+
+// Generate a fake Amazon order ID
+// Amazon order IDs typically look like "123-1234567-1234567"
+const generateFakeAmazonOrderId = () => {
+  const part1 = Math.floor(Math.random() * 1000);
+  const part2 = Math.floor(Math.random() * 10000000);
+  const part3 = Math.floor(Math.random() * 10000000);
+  return `${part1}-${part2}-${part3}`;
+};
+
 // HTTP client with authorization
 const api = {
   post: async (path: string, data: any) => {
@@ -212,7 +222,7 @@ describe('Feedback Flow API', () => {
   test('70. Should create a purchase', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
-      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      order: generateFakeAmazonOrderId(),
       description: 'Test product purchase',
       amount: 29.99,
       screenshot: testImageBase64
@@ -327,7 +337,7 @@ describe('Feedback Flow API', () => {
   test('150. Should create a non-refunded purchase', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
-      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      order: generateFakeAmazonOrderId(),
       description: 'Test product purchase not refunded',
       amount: 49.99,
       screenshot: testImageBase64
@@ -358,7 +368,7 @@ describe('Feedback Flow API', () => {
   test('170. Should create a non-refunded purchase with no feedback', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
-      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      order: generateFakeAmazonOrderId(),
       description: 'Test product purchase no feedback',
       amount: 69.99,
       screenshot: testImageBase64
@@ -373,7 +383,7 @@ describe('Feedback Flow API', () => {
   test('180. Should create a purchase and add feedback but not publish it', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
-      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      order: generateFakeAmazonOrderId(),
       description: 'Test product purchase not published',
       amount: 89.99,
       screenshot: testImageBase64
@@ -401,7 +411,7 @@ describe('Feedback Flow API', () => {
   test('190. Should create a purchase, add feedback to it, publish the feedback but do not refund the purchase', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
-      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      order: generateFakeAmazonOrderId(),
       description: 'Test product purchase with feedback and publication',
       amount: 69.99,
       screenshot: testImageBase64
@@ -522,7 +532,7 @@ describe('Feedback Flow API', () => {
   test('220. Create a purchase with a screenshot', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
-      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      order: generateFakeAmazonOrderId(),
       description: 'Test product purchase with screenshot',
       amount: 99.99,
       screenshot: testImageBase64
@@ -575,7 +585,7 @@ describe('Feedback Flow API', () => {
   test('260. Should create a purchase for update testing', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
-      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      order: generateFakeAmazonOrderId(),
       description: 'Test product purchase for update',
       amount: 99.99,
       screenshot: testImageBase64
@@ -705,7 +715,7 @@ describe('Feedback Flow API', () => {
     // Create a new purchase for this test to avoid rate limiting issues
     const purchase: Purchase = {
       date: '2024-01-01',
-      order: `ORDER-${uuidv4().substring(0, 8)}`,
+      order: generateFakeAmazonOrderId(),
       description: 'Test product for date update',
       amount: 49.99,
       screenshot: testImageBase64
