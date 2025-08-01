@@ -1722,7 +1722,7 @@ const purchaseRoutes = (router: Router, env: Env) => {
 				);
 			}
 		},
-		env.WRITE_PERMISSION,
+		env.ADMIN_PERMISSION,
 	);
 };
 
