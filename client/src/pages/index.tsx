@@ -445,6 +445,22 @@ export default function IndexPage() {
               refreshTrigger={refreshTrigger}
               rowKey="purchase"
               title={getTitleComponent}
+              emptyContent={
+                <div className="text-center text-muted-foreground p-4">
+                  {t("no-data-available")}
+                  {hasWritePermission && (
+                    <div className="mt-4">
+                      <Button
+                        color="primary"
+                        startContent={<EditIcon />}
+                        onPress={() => setCreateNewPurchase(true)}
+                      >
+                        {t("new-purchase")}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              }
             />
           </div>
         )}
