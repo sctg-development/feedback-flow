@@ -53,7 +53,7 @@ export default function ManageDatabasePage() {
     }
 
     // Vérifier la taille
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 20 * 1024 * 1024) {
       // 10MB max
       return { valid: false, error: t("error-file-too-large") };
     }
