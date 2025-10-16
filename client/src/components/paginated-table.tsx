@@ -134,7 +134,7 @@ const TableCellContent = ({ column, item, renderCellValue }: TableCellContentPro
           {renderCellValue(item, column.field)}
           <CopyButton
             className="bottom-0 left-0"
-            value={renderCellValue(item, column.field) as string | number}
+            value={renderCellValue(item, column.field) as string}
           />
         </>
       );
@@ -142,7 +142,7 @@ const TableCellContent = ({ column, item, renderCellValue }: TableCellContentPro
       return renderCellValue(item, column.field);
     }
   };
-  
+
   // Render with or without tooltip
   if (column.cellTooltip) {
     return <Tooltip content={column.cellTooltip}>{renderContent()}</Tooltip>;
