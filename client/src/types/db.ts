@@ -1,1 +1,1 @@
-../../../cloudflare-worker/src/db/db.ts
+../../../cloudflare-worker/src/types/db-types.ts
