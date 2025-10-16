@@ -189,7 +189,7 @@ export default function RefundDelayChart({
                 label === t("purchase-amount") ||
                 label === t("refund-amount")
               ) {
-                return `${label}: ${value.toFixed(2)} €`;
+                return `${label}: ${(value || 0).toFixed(2)} €`;
               }
             }
 
