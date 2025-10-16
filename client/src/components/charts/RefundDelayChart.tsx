@@ -228,9 +228,9 @@ export default function RefundDelayChart({
         <div className="min-h-[400px]">
           {sortedData.length > 0 ? (
             chartType === "line" ? (
-              <Line data={chartData} options={chartOptions} />
+              <Line data={chartData} options={chartOptions as ChartOptions<"line">} />
             ) : (
-              <Bar data={chartData} options={chartOptions} />
+              <Bar data={chartData} options={chartOptions as ChartOptions<"bar">} />
             )
           ) : (
             <div className="flex justify-center items-center h-full">
