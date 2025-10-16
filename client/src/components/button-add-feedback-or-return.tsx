@@ -80,12 +80,12 @@ export default function ButtonAddFeedbackOrReturn({
 
   return (
     <ButtonGroup>
-      <Button color="primary" onPress={handleButtonClick}>
+      <Button color="primary" onPress={handleButtonClick} className="rounded-lg rounded-r-none">
         {labelsMap[selectedOptionValue]}
       </Button>
       <Dropdown placement="bottom-end">
         <DropdownTrigger>
-          <Button isIconOnly color="primary" variant="flat">
+          <Button isIconOnly color="primary" variant="flat" className="rounded-lg rounded-l-none">
             <ChevronDownIcon />
           </Button>
         </DropdownTrigger>
