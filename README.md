@@ -1,3 +1,5 @@
+![](https://tokei.rs/b1/github/sctg-development/feedback-flow?type=SQL,TypeScript,TSX,C&category=code)
+![](https://tokei.rs/b1/github/sctg-development/feedback-flow?type=TSX,SQL,TypeScript&category=comments)  
 # Feedback Flow Application
 
 Feedback Flow is an application designed to help product testers manage their testing activities and feedback.
