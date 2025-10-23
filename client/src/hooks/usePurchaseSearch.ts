@@ -72,7 +72,7 @@ export function usePurchaseSearch(
             // Set new timeout for debounced search
             debounceTimerRef.current = setTimeout(() => {
                 performSearch(query);
-            }, 300); // 300ms debounce
+            }, 500); // 500ms debounce
         },
         [performSearch]
     );

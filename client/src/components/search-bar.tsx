@@ -24,6 +24,7 @@
 
 import { Input } from "@heroui/input";
 import { Kbd } from "@heroui/kbd";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { SearchIcon } from "@/components/icons";
 import { usePurchaseSearch } from "@/hooks/usePurchaseSearch";
@@ -36,7 +37,12 @@ interface SearchBarProps {
 
 export const SearchBar = ({ onSearchResults }: SearchBarProps) => {
     const { t } = useTranslation();
-    const { setSearchResults, setSearchQuery } = useSearch();
+    const { setSearchResults, setSearchQuery, clearSearch: clearSearchContext } = useSearch();
+
+    // Clear search context when component mounts (only once)
+    useEffect(() => {
+        clearSearchContext();
+    }, []);
 
     const handleSearchResultsReceived = (results: string[]) => {
         setSearchResults(results);
@@ -74,7 +80,7 @@ export const SearchBar = ({ onSearchResults }: SearchBarProps) => {
                 labelPlacement="outside"
                 placeholder={`${t("search")}…`}
                 startContent={
-                    <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
+                    <SearchIcon className="text-base text-default-400 pointer-events-none shrink-0" />
                 }
                 type="search"
                 value={searchQuery}
