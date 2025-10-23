@@ -11,6 +11,10 @@
     {
       "name": "GitHub Actions",
       "path": "./.github"
+    },
+    {
+      "name": "Sensitive datas",
+      "path": "./_sensitive_datas"
     }
   ],
   "settings": {

@@ -99,6 +99,9 @@ export default defineConfig({
     "import.meta.env.AMAZON_BASE_URL": JSON.stringify(
       process.env.AMAZON_BASE_URL || "https://www.amazon.fr/gp/your-account/order-details?orderID=",
     ),
+    "import.meta.env.PAYPAL_TRANSACTION_BASE_URL": JSON.stringify(
+      process.env.PAYPAL_TRANSACTION_BASE_URL || "https://www.paypal.com/myaccount/activities/details/",
+    ),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss(), githubPagesSpa()],
   build: {
