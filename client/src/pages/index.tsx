@@ -433,11 +433,15 @@ export default function IndexPage() {
                   render: (item) => {
                     return item.refunded ? (
                       <>
-                        <Link
-                          className="text-blue-500 hover:underline break-keep"
-                          target="_blank"
-                          to={`${import.meta.env.PAYPAL_TRANSACTION_BASE_URL}${item.transactionId}`}>{t("yes")}
-                        </Link>
+                        {item.transactionId && item.transactionId.length >= 4 ? (
+                          <Link
+                            className="text-blue-500 hover:underline break-keep"
+                            target="_blank"
+                            to={`${import.meta.env.PAYPAL_TRANSACTION_BASE_URL}${item.transactionId}`}>{t("yes")}
+                          </Link>
+                        ) : (
+                          <span>{t("yes")}</span>
+                        )}
                       </>) :
                       <>{t("no")}</>;
                   }
