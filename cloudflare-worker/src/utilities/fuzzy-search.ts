@@ -111,7 +111,7 @@ export function calculateSimilarity(normalized1: string, normalized2: string): n
 export function fuzzyMatch(
     query: string,
     text: string,
-    threshold: number = 0.6,
+    threshold: number = 0.7,
 ): boolean {
     if (!query || !text) return false;
 
@@ -131,6 +131,7 @@ export function fuzzyMatch(
         for (const tWord of textWords) {
             const similarity = calculateSimilarity(qWord, tWord);
             if (similarity >= threshold) {
+                console.log(`Fuzzy match: "${qWord}" ~ "${tWord}" (score: ${similarity.toFixed(2)})`);
                 found = true;
                 break;
             }
