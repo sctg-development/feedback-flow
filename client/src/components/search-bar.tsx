@@ -24,18 +24,20 @@
 
 import { Input } from "@heroui/input";
 import { Kbd } from "@heroui/kbd";
+import { Button, ButtonGroup } from "@heroui/button";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { SearchIcon } from "@/components/icons";
+import { SearchIcon, TrashIcon } from "@/components/icons";
 import { usePurchaseSearch } from "@/hooks/usePurchaseSearch";
 import { useSearch } from "@/context/SearchContext";
 import { AuthenticationGuardWithPermission } from "./auth0";
 
 interface SearchBarProps {
     onSearchResults?: (results: string[]) => void;
+    onClear?: () => void;
 }
 
-export const SearchBar = ({ onSearchResults }: SearchBarProps) => {
+export const SearchBar = ({ onSearchResults, onClear }: SearchBarProps) => {
     const { t } = useTranslation();
     const { setSearchResults, setSearchQuery, clearSearch: clearSearchContext } = useSearch();
 
@@ -60,35 +62,49 @@ export const SearchBar = ({ onSearchResults }: SearchBarProps) => {
     const handleClear = () => {
         clearSearch();
         setSearchQuery("");
+        clearSearchContext();
+        onClear?.();
     };
 
     return (
         <AuthenticationGuardWithPermission
             key={`nav-search`}
             permission="search:api">
-            <Input
-                aria-label={t("search")}
-                classNames={{
-                    inputWrapper: "bg-default-100",
-                    input: "text-sm",
-                }}
-                endContent={
-                    <Kbd className="hidden lg:inline-block" keys={["command"]}>
-                        K
-                    </Kbd>
-                }
-                labelPlacement="outside"
-                placeholder={`${t("search")}…`}
-                startContent={
-                    <SearchIcon className="text-base text-default-400 pointer-events-none shrink-0" />
-                }
-                type="search"
-                value={searchQuery}
-                isDisabled={isSearching}
-                onChange={handleChange}
-                onClear={handleClear}
-                isClearable
-            />
+            <ButtonGroup>
+                <Input
+                    aria-label={t("search")}
+                    classNames={{
+                        inputWrapper: "bg-default-100 rounded-lg rounded-r-none rtl:rounded-lg rtl:rounded-l-none",
+                        input: "text-sm",
+                    }}
+                    endContent={
+                        <Kbd className="hidden lg:inline-block" keys={["command"]}>
+                            K
+                        </Kbd>
+                    }
+                    labelPlacement="outside"
+                    placeholder={`${t("search")}…`}
+                    startContent={
+                        <SearchIcon className="text-base text-default-400 pointer-events-none shrink-0" />
+                    }
+                    type="search"
+                    value={searchQuery}
+                    isDisabled={isSearching}
+                    onChange={handleChange}
+                    onClear={handleClear}
+                    isClearable
+                />
+                <Button
+                    isIconOnly
+                    color="default"
+                    variant="flat"
+                    className="rounded-lg rounded-l-none rtl:rounded-lg rtl:rounded-r-none"
+                    onPress={handleClear}
+                    title={t("reset")}
+                >
+                    <TrashIcon />
+                </Button>
+            </ButtonGroup>
         </AuthenticationGuardWithPermission>
     );
 };

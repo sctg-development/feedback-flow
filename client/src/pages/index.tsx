@@ -130,9 +130,8 @@ export default function IndexPage() {
 
   // Refresh table when search results change
   useEffect(() => {
-    if (searchResults.length > 0) {
-      setRefreshTrigger((prev) => prev + 1);
-    }
+    // Refresh when search results are added or cleared
+    setRefreshTrigger((prev) => prev + 1);
   }, [searchResults]);
 
   // Memoize the title component to prevent unnecessary re-renders
