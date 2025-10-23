@@ -17,7 +17,15 @@ const options = {
       version: "1.4.0",
     },
   }, // You can move properties from definition here if needed
-  apis: ["../cloudflare-worker/src/routes/index.ts"], // Path to the API docs
+  apis: [
+    "../cloudflare-worker/src/routes/index.ts",
+    "../cloudflare-worker/src/routes/testers/index.ts",
+    "../cloudflare-worker/src/routes/purchases/index.ts",
+    "../cloudflare-worker/src/routes/feedback/index.ts",
+    "../cloudflare-worker/src/routes/refunds/index.ts",
+    "../cloudflare-worker/src/routes/stats/index.ts",
+    "../cloudflare-worker/src/routes/system/index.ts",
+  ], // Path to the API docs
 };
 
 const openApi = await swaggerJsdoc(options);

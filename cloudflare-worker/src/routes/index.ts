@@ -260,7 +260,6 @@ const statsRoutes = (router: Router, env: Env) => {
 
 /**
  * Setup routes
- * @openapi
  * @param router The router
  * @param env The environment variables
  */
