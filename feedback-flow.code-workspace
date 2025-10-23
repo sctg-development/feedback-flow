@@ -15,6 +15,10 @@
     {
       "name": "Sensitive datas",
       "path": "./_sensitive_datas"
+    },
+    {
+      "name": "Root",
+      "path": "."
     }
   ],
   "settings": {

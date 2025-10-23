@@ -211,5 +211,8 @@
   "loading-purchase-data": "تحميل بيانات الشراء",
   "purchase-updated-successfully": "شراء تحديث بنجاح",
   "update-purchase": "تحديث الشراء",
-  "updating": "التحديث"
+  "updating": "التحديث",
+  "filter-by-days": "تصفية حسب الأيام",
+  "enter-number-of-days": "أدخل عدد الأيام",
+  "current-limit": "الحد الحالي"
 }

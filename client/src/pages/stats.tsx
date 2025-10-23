@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
 import { Divider } from "@heroui/divider";
+import { Button } from "@heroui/button";
 
 import DefaultLayout from "@/layouts/default";
 import { useSecuredApi } from "@/components/auth0";
@@ -32,21 +33,42 @@ export default function StatsPage() {
   const [refundDelay, setRefundDelay] = useState([] as RefundDelayData[]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [daysFilterInput, setDaysFilterInput] = useState<number | null>(null);
+  const [daysFilter, setDaysFilter] = useState<number | null>(null);
+  const [statsLimit, setStatsLimit] = useState<{ type: string; value: number } | null>(null);
+
+  // Debounce the days filter input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDaysFilter(daysFilterInput);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timer);
+  }, [daysFilterInput]);
 
   useEffect(() => {
     setIsLoading(true);
     setError(null);
 
+    // Build the refund-balance URL with optional parameters
+    let balanceUrl = `${import.meta.env.API_BASE_URL}/stats/refund-balance`;
+    if (daysFilter) {
+      balanceUrl += `?daysLimit=${daysFilter}`;
+    }
+
     Promise.all([
       // Load refund balance data
-      getJson(`${import.meta.env.API_BASE_URL}/stats/refund-balance`)
+      getJson(balanceUrl)
         .then((_response) => {
-          const response = _response as RefundBalanceResponse;
+          const response = _response as RefundBalanceResponse & { limit?: { type: string; value: number } };
 
           if (response.success) {
             setRefundBalance(response.balance);
             setRefundedAmount(response.refundedAmount);
             setPurchasedAmount(response.purchasedAmount);
+            if (response.limit) {
+              setStatsLimit(response.limit);
+            }
 
             return true;
           }
@@ -61,7 +83,7 @@ export default function StatsPage() {
         }),
 
       // Load refund delay data
-      getJson(`${import.meta.env.API_BASE_URL}/stats/refund-delay`)
+      getJson(`${import.meta.env.API_BASE_URL}/stats/refund-delay${daysFilter ? `?daysLimit=${daysFilter}` : ""}`)
         .then((_response) => {
           const response = _response as RefundDelayResponse;
 
@@ -111,7 +133,7 @@ export default function StatsPage() {
     ]).finally(() => {
       setIsLoading(false);
     });
-  }, []);
+  }, [daysFilter]);
 
   if (isLoading) {
     return (
@@ -142,6 +164,43 @@ export default function StatsPage() {
     <DefaultLayout>
       <section className="flex flex-col items-center justify-center gap-6 py-8 md:py-10">
         <h1 className="text-3xl font-bold">{t("statistics-dashboard")}</h1>
+
+        {/* Filter Controls */}
+        <div className="w-full max-w-5xl bg-card p-4 rounded-lg border border-default-200">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold">{t("filter-by-days")}</label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  placeholder={t("enter-number-of-days")}
+                  value={daysFilterInput || ""}
+                  onChange={(e) => setDaysFilterInput(e.target.value ? parseInt(e.target.value) : null)}
+                  className="px-3 py-2 border border-default-200 rounded-lg bg-default-100"
+                />
+                <Button
+                  color="primary"
+                  onPress={() => setDaysFilterInput(null)}
+                >
+                  {t("reset")}
+                </Button>
+              </div>
+            </div>
+            {statsLimit && (
+              <div className="text-sm text-default-500">
+                <span>{t("current-limit")}: </span>
+                <span className="font-semibold">
+                  {statsLimit.type === "days"
+                    ? `${statsLimit.value} ${t("days")}`
+                    : statsLimit.type === "purchases"
+                      ? `${statsLimit.value} ${t("purchases")}`
+                      : `${t("default")} (${statsLimit.value})`}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Summary Cards */}
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -330,6 +389,7 @@ export default function StatsPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-default-100">
+                    <th className="p-3 text-left">#</th>
                     <th className="p-3 text-left">{t("purchase-date")}</th>
                     <th className="p-3 text-left">{t("refund-date")}</th>
                     <th className="p-3 text-left">{t("order")}</th>
@@ -345,6 +405,7 @@ export default function StatsPage() {
                       key={item.purchaseId}
                       className={index % 2 === 0 ? "bg-white" : "bg-default-50"}
                     >
+                      <td className="p-3">{index + 1}</td>
                       <td className="p-3">
                         {new Date(item.purchaseDate).toLocaleDateString()}
                       </td>

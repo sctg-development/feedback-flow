@@ -105,6 +105,9 @@ export default defineConfig({
     "import.meta.env.PAYPAL_TRANSACTION_BASE_URL": JSON.stringify(
       process.env.PAYPAL_TRANSACTION_BASE_URL || "https://www.paypal.com/myaccount/activities/details/",
     ),
+    "import.meta.env.STATISTICS_LIMIT": JSON.stringify(
+      process.env.STATISTICS_LIMIT || "100",
+    ),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss(), githubPagesSpa()],
   build: {

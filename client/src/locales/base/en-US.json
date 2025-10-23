@@ -211,5 +211,8 @@
   "error-updating-purchase": "Error updating purchase",
   "purchase-updated-successfully": "Purchase updated successfully",
   "update-purchase": "Update purchase",
-  "updating": "Updating"
+  "updating": "Updating",
+  "filter-by-days": "Filter by days",
+  "enter-number-of-days": "Enter number of days",
+  "current-limit": "Current limit"
 }

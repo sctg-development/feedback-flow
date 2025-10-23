@@ -211,5 +211,8 @@
   "loading-purchase-data": "Cargando datos de compra",
   "purchase-updated-successfully": "Compra actualizada con éxito",
   "update-purchase": "Actualizar compra",
-  "updating": "Actualización"
+  "updating": "Actualización",
+  "filter-by-days": "Filtrar por días",
+  "enter-number-of-days": "Ingrese el número de días",
+  "current-limit": "Límite actual"
 }

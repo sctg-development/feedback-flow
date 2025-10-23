@@ -211,5 +211,8 @@
   "error-updating-purchase": "Erreur lors de la modification de l'achat",
   "updating": "Modification...",
   "update-purchase": "Modifier l'achat",
-  "copied-to-clipboard": "Copié dans le presse-papiers"
+  "copied-to-clipboard": "Copié dans le presse-papiers",
+  "filter-by-days": "Filtrer par jours",
+  "enter-number-of-days": "Entrez le nombre de jours",
+  "current-limit": "Limite actuelle"
 }

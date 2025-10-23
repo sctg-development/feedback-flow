@@ -211,5 +211,8 @@
   "loading-purchase-data": "טוען נתוני רכישה",
   "purchase-updated-successfully": "רכישה מעודכנת בהצלחה",
   "update-purchase": "עדכן רכישה",
-  "updating": "עִדכּוּן"
+  "updating": "עִדכּוּן",
+  "filter-by-days": "סנן לפי ימים",
+  "enter-number-of-days": "הזן את מספר הימים",
+  "current-limit": "הגבול הנוכחי"
 }

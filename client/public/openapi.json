@@ -1042,7 +1042,7 @@
     "/api/purchase/search": {
       "post": {
         "summary": "Search purchases using fuzzy matching",
-        "description": "Searches for purchases matching the query using fuzzy matching. Supports case-insensitive search, accent-insensitive search, and partial matches. Searches in purchase ID, order number, description, and amount.",
+        "description": "Searches for purchases matching the query using fuzzy matching. Supports case-insensitive search, accent-insensitive search, and partial matches. Searches in purchase ID, order number, description, and amount. Requires search permission.",
         "tags": [
           "Purchases"
         ],
@@ -1323,9 +1323,27 @@
     "/api/stats/refund-balance": {
       "get": {
         "summary": "Get refund balance statistics",
-        "description": "Returns the difference between the total purchase amount of refunded purchases and the total refund amount. Requires read permission.",
+        "description": "Returns the difference between the total purchase amount of refunded purchases and the total refund amount. Requires read permission. Optional parameters (daysLimit or purchaseLimit) require search:api permission.",
         "tags": [
           "Statistics"
+        ],
+        "parameters": [
+          {
+            "name": "daysLimit",
+            "in": "query",
+            "description": "Limit statistics to purchases from the last N days (requires search:api permission)",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "purchaseLimit",
+            "in": "query",
+            "description": "Limit statistics to the last N purchases (requires search:api permission)",
+            "schema": {
+              "type": "integer"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -1353,6 +1371,23 @@
                       "type": "number",
                       "description": "Difference between purchased and refunded amounts (negative means refunded more than purchased)",
                       "example": 3.45
+                    },
+                    "limit": {
+                      "type": "object",
+                      "description": "Applied limit information",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "default",
+                            "days",
+                            "purchases"
+                          ]
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      }
                     }
                   }
                 }
@@ -1371,9 +1406,19 @@
     "/api/stats/refund-delay": {
       "get": {
         "summary": "Get refund delay statistics",
-        "description": "Returns statistics about the delay between purchase and refund dates. Requires read permission.",
+        "description": "Returns statistics about the delay between purchase and refund dates. Requires read permission. Optional parameter (daysLimit) can filter to purchases from the last N days.",
         "tags": [
           "Statistics"
+        ],
+        "parameters": [
+          {
+            "name": "daysLimit",
+            "in": "query",
+            "description": "Limit statistics to purchases from the last N days",
+            "schema": {
+              "type": "integer"
+            }
+          }
         ],
         "responses": {
           "200": {

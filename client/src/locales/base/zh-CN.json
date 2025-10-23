@@ -211,5 +211,8 @@
   "loading-purchase-data": "加载购买数据",
   "purchase-updated-successfully": "购买成功更新",
   "update-purchase": "更新购买",
-  "updating": "更新"
+  "updating": "更新",
+  "filter-by-days": "按天数过滤",
+  "enter-number-of-days": "输入天数",
+  "current-limit": "当前限制"
 }
