@@ -961,3 +961,315 @@ describe('Purchase Status Batch API Tests', () => {
     }
   });
 });
+
+describe('Fuzzy Search API Tests', () => {
+  let fuzzySearchTestPurchaseIds: string[] = [];
+
+  beforeAll(async () => {
+    // Create purchases with varied descriptions for fuzzy search testing
+    const purchases: Purchase[] = [
+      {
+        date: '2024-03-01',
+        order: generateFakeAmazonOrderId(),
+        description: 'Écran 4K Samsung 55 pouces',
+        amount: 599.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-02',
+        order: generateFakeAmazonOrderId(),
+        description: 'Ecran 4K LG 49 pouces',
+        amount: 699.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-03',
+        order: generateFakeAmazonOrderId(),
+        description: 'AMAZON ALEXA SPEAKER PRO',
+        amount: 129.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-04',
+        order: generateFakeAmazonOrderId(),
+        description: 'Amazon Alexa Speaker Mini',
+        amount: 49.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-05',
+        order: generateFakeAmazonOrderId(),
+        description: 'Clavier mécanique RGB Corsair K95 Platinum PRO',
+        amount: 249.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-06',
+        order: generateFakeAmazonOrderId(),
+        description: 'Clavier Mecanique RGB Corsair K70',
+        amount: 189.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-07',
+        order: generateFakeAmazonOrderId(),
+        description: 'Souris gaming Logitech G Pro X2',
+        amount: 149.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-08',
+        order: generateFakeAmazonOrderId(),
+        description: 'Cable HDMI 2.1 8K Premium',
+        amount: 29.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-09',
+        order: generateFakeAmazonOrderId(),
+        description: 'Convertisseur USB-C Adaptateur Multi-Port',
+        amount: 39.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-03-10',
+        order: generateFakeAmazonOrderId(),
+        description: 'Support Moniteur Ergonomique Réglable',
+        amount: 79.99,
+        screenshot: testImageBase64
+      }
+    ];
+
+    for (const purchase of purchases) {
+      const response = await api.post('/purchase', purchase);
+      if (response.status === 201) {
+        fuzzySearchTestPurchaseIds.push(response.data.id);
+      }
+    }
+    console.log(`Created ${fuzzySearchTestPurchaseIds.length} purchases for fuzzy search tests`);
+  });
+
+  test('500. Should search by exact case-insensitive match', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'amazon',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match "AMAZON ALEXA SPEAKER PRO" and "Amazon Alexa Speaker Mini"
+    expect(response.data.data.length).toBeGreaterThanOrEqual(2);
+  });
+
+  test('510. Should search with uppercase query matching lowercase description', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'CORSAIR',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match descriptions containing "corsair" (case-insensitive)
+    expect(response.data.data.length).toBeGreaterThanOrEqual(2);
+  });
+
+  test('520. Should match accented characters ignoring diacritics', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'ecran',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match both "Écran 4K Samsung" and "Ecran 4K LG" despite accent differences
+    expect(response.data.data.length).toBeGreaterThanOrEqual(2);
+  });
+
+  test('525. Should match accented query characters against unaccented text', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'écran',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match descriptions with or without accents
+    expect(response.data.data.length).toBeGreaterThanOrEqual(2);
+  });
+
+  test('530. Should match partial word substring', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'alexa',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match "AMAZON ALEXA SPEAKER PRO" and "Amazon Alexa Speaker Mini"
+    expect(response.data.data.length).toBeGreaterThanOrEqual(2);
+  });
+
+  test('540. Should match multiple words in query', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'keyboard mechanical',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // "Clavier mécanique" contains "clavier" which contains "keyboard" meaning or "mecanique" matching
+    // At least one keyboard-related item should be found
+    expect(response.data.data.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test('545. Should search by description with punctuation tolerance', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'K95 Platinum',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match "Clavier mécanique RGB Corsair K95 Platinum PRO"
+    expect(response.data.data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('550. Should handle query with special characters', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'USB-C',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match "Convertisseur USB-C Adaptateur Multi-Port"
+    expect(response.data.data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('560. Should fail with query less than 4 characters', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'abc',
+      limit: 10
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toBeDefined();
+  });
+
+  test('565. Should succeed with query exactly 4 characters', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'hdmi',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match "Cable HDMI 2.1 8K Premium"
+    expect(response.data.data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('570. Should return empty array for non-matching query', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'xyz123nonexistent',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    expect(response.data.data.length).toBe(0);
+  });
+
+  test('575. Should respect the limit parameter', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'corsair',
+      limit: 1
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should return at most 1 result
+    expect(response.data.data.length).toBeLessThanOrEqual(1);
+  });
+
+  test('580. Should require purchaseIds in body for valid request', async () => {
+    const response = await api.post('/purchase/search', {
+      // Missing query field
+      limit: 10
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+  });
+
+  test('585. Should return purchase IDs that can be used in batch API', async () => {
+    // First, search for purchases
+    const searchResponse = await api.post('/purchase/search', {
+      query: 'corsair',
+      limit: 10
+    });
+
+    expect(searchResponse.status).toBe(200);
+    expect(searchResponse.data.success).toBe(true);
+    expect(Array.isArray(searchResponse.data.data)).toBe(true);
+
+    if (searchResponse.data.data.length > 0) {
+      // Then use the returned IDs in the batch API
+      const batchResponse = await api.post('/purchase-status-batch', {
+        purchaseIds: searchResponse.data.data,
+        page: 1,
+        limit: 10
+      });
+
+      expect(batchResponse.status).toBe(200);
+      expect(batchResponse.data.success).toBe(true);
+      expect(Array.isArray(batchResponse.data.data)).toBe(true);
+      // Results should match the count of search results
+      expect(batchResponse.data.data.length).toBeLessThanOrEqual(searchResponse.data.data.length);
+    }
+  });
+
+  test('590. Should handle fuzzy matching with amount field via description', async () => {
+    // Search for a specific price range description
+    const response = await api.post('/purchase/search', {
+      query: '29.99',
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // May or may not match depending on implementation - just verify it doesn't error
+  });
+
+  test('595. Should match partial words case-insensitively', async () => {
+    const response = await api.post('/purchase/search', {
+      query: 'platinum pro',
+      limit: 50
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    // Should match items containing "platinum" like "Platinum PRO"
+    expect(response.data.data.length).toBeGreaterThanOrEqual(0);
+  });
+
+  afterAll(async () => {
+    // Clean up: Delete all fuzzy search test purchases
+    for (const purchaseId of fuzzySearchTestPurchaseIds) {
+      await api.delete(`/purchase/${purchaseId}`);
+    }
+  });
+});

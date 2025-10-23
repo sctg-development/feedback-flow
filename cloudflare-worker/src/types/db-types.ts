@@ -302,6 +302,14 @@ export interface PurchasesRepository {
     getPurchaseStatistics(
         testerUuid: string,
     ): Promise<PurchasesStatisticsData>;
+
+    /**
+     * Search purchases using fuzzy matching
+     * @param testerUuid UUID of the tester
+     * @param query Search query string
+     * @returns Promise<string[]> Array of matching purchase IDs
+     */
+    searchPurchases(testerUuid: string, query: string): Promise<string[]>;
 }
 
 export interface FeedbacksRepository {

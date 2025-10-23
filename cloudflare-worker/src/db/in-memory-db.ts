@@ -692,6 +692,32 @@ export class InMemoryDB implements FeedbackFlowDB {
 				totalNotRefundedAmount,
 				totalPurchaseAmount: totalAmount,
 			} as PurchasesStatisticsData;
+		},
+
+		/**
+		 * Search purchases using fuzzy matching
+		 * @param testerUuid UUID of the tester
+		 * @param query Search query string
+		 * @returns {string[]} Array of matching purchase IDs
+		 */
+		searchPurchases: async (testerUuid: string, query: string): Promise<string[]> => {
+			// Import fuzzy search utilities
+			const { fuzzySearchFields } = await import("../utilities/fuzzy-search");
+
+			const purchases = this.data.purchases.filter(
+				(purchase) => purchase.testerUuid === testerUuid,
+			);
+
+			return purchases
+				.filter((purchase) =>
+					fuzzySearchFields(query, {
+						id: purchase.id,
+						order: purchase.order,
+						description: purchase.description,
+						amount: purchase.amount,
+					})
+				)
+				.map((purchase) => purchase.id);
 		}
 	};
 

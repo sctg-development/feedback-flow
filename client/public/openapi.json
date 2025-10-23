@@ -1039,6 +1039,75 @@
         }
       }
     },
+    "/api/purchase/search": {
+      "post": {
+        "summary": "Search purchases using fuzzy matching",
+        "description": "Searches for purchases matching the query using fuzzy matching. Supports case-insensitive search, accent-insensitive search, and partial matches. Searches in purchase ID, order number, description, and amount.",
+        "tags": [
+          "Purchases"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query (minimum 4 characters)",
+                    "example": "amazon"
+                  },
+                  "limit": {
+                    "type": "number",
+                    "description": "Maximum number of results (default 50, max 1000)",
+                    "default": 50
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Array of matching purchase IDs",
+                      "example": [
+                        "uuid-1",
+                        "uuid-2"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/api/feedback": {
       "post": {
         "summary": "Add feedback",

@@ -93,6 +93,9 @@ export default defineConfig({
     "import.meta.env.BACKUP_PERMISSION": JSON.stringify(
       process.env.BACKUP_PERMISSION || "backup:api",
     ),
+    "import.meta.env.SEARCH_PERMISSION": JSON.stringify(
+      process.env.SEARCH_PERMISSION || "search:api",
+    ),
     "import.meta.env.DB_MAX_IMAGE_SIZE": JSON.stringify(
       process.env.DB_MAX_IMAGE_SIZE || "1024",
     ),

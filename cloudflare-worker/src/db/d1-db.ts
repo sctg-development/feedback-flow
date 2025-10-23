@@ -897,6 +897,48 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				totalPurchaseAmount: stats.total_amount as number,
 			} as PurchasesStatisticsData;
 		},
+
+		/**
+		 * Search purchases using fuzzy matching
+		 * @param testerUuid UUID of the tester
+		 * @param query Search query string
+		 * @returns {string[]} Array of matching purchase IDs
+		 */
+		searchPurchases: async (
+			testerUuid: string,
+			query: string,
+		): Promise<string[]> => {
+			// Import fuzzy search utilities
+			const { fuzzySearchFields } = await import("../utilities/fuzzy-search");
+
+			// Get all purchases for the tester
+			const { results } = await this.db
+				.prepare(
+					`
+					SELECT 
+						id, 
+						order_number as "order", 
+						description, 
+						amount
+					FROM purchases
+					WHERE tester_uuid = ?
+					`,
+				)
+				.bind(testerUuid)
+				.all();
+
+			// Filter using fuzzy matching
+			return results
+				.filter((row) =>
+					fuzzySearchFields(query, {
+						id: row.id as string,
+						order: row.order as string,
+						description: row.description as string,
+						amount: row.amount as number,
+					})
+				)
+				.map((row) => row.id as string);
+		},
 	};
 
 	/**

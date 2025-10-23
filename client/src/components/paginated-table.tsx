@@ -267,6 +267,15 @@ export interface PaginatedTableProps {
    * Useful for refreshing the table after external data modifications
    */
   refreshTrigger?: any;
+  /**
+   * Optional manual data array. When provided, the table will use this data
+   * instead of fetching from `dataUrl`. Useful for client-side search results.
+   */
+  manualData?: any[];
+  /**
+   * When provided, sets the loading state while manualData is being fetched.
+   */
+  manualIsLoading?: boolean;
 }
 
 /**
@@ -463,6 +472,8 @@ export default function PaginatedTable({
   isSuccessfulResponse = (response) => response?.success === true,
   rowKey = "uuid",
   refreshTrigger,
+  manualData,
+  manualIsLoading,
 }: PaginatedTableProps) {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth0();
@@ -576,8 +587,32 @@ export default function PaginatedTable({
    * - External refresh trigger changes
    */
   useEffect(() => {
+    // If manualData is provided, skip server fetching
+    if (manualData && manualData.length >= 0) return;
+
     fetchData(page, limit, sort, order);
   }, [page, limit, sort, order, isAuthenticated, dataUrl, refreshTrigger]);
+
+  // When manualData is provided, use client-side slicing/pagination
+  useEffect(() => {
+    if (!manualData) return;
+
+    setIsLoading(!!manualIsLoading);
+    setError(null);
+
+    const totalCount = manualData.length;
+    setTotal(totalCount);
+
+    // Ensure page is in range
+    if ((page - 1) * limit >= totalCount) {
+      setPage(1);
+    }
+
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const slice = manualData.slice(start, end);
+    setItems(slice);
+  }, [manualData, manualIsLoading, page, limit]);
 
   /**
    * Handle sort change

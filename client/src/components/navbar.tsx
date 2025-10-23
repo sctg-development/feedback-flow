@@ -55,8 +55,11 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { ChevronDownIcon, GithubIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
+import { SearchBar } from "./search-bar";
 export const Navbar = React.memo(() => {
   const { t } = useTranslation();
+
+  const searchInput = <SearchBar />;
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
@@ -177,9 +180,10 @@ export const Navbar = React.memo(() => {
           />
           <LoginLogoutButton />
         </NavbarItem>
+        <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
       </NavbarContent>
 
-{/* Mobile Navbar */}
+      {/* Mobile Navbar */}
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
         <Link isExternal href={siteConfig().links.github}>
           <GithubIcon className="text-default-500" />

@@ -345,3 +345,9 @@ export interface PurchaseStatisticsResponse {
   data: PurchasesStatisticsData;
   error?: string;
 }
+
+export interface PurchaseSearchResponse {
+  success: boolean;
+  data: string[];
+  error?: string;
+}

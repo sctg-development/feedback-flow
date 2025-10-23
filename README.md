@@ -81,6 +81,7 @@ There may be a delay between the purchase and the refund. Additionally, the refu
 | admin:api  | Administer the API |
 | read:api  | Read one's own feedback data |
 | write:api  | Write one's own feedback data |
+| search:api | Search for feedback data |
 | backup:api  | Manage the database |
 
 ## Application Features
@@ -95,6 +96,7 @@ There may be a delay between the purchase and the refund. Additionally, the refu
 - Record a refund (write:api)
 - View non-refunded feedbacks (read:api)
 - View refunded feedbacks (read:api)
+- Search purchases (search:api)
 
 ## Security
 

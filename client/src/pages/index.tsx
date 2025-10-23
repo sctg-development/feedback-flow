@@ -41,8 +41,10 @@ import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-retur
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { PurchaseStatus } from "@/types/db";
 import { AuthenticationGuardWithPermission, useSecuredApi } from "@/components/auth0";
+import { useSearchResults } from "@/hooks/useSearchResults";
 import { CopyButton } from "@/components/copy-button";
 import { cleanAmazonOrderNumber } from "@/utilities/amazon";
+import { useSearch } from "@/context/SearchContext";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -61,6 +63,11 @@ export default function IndexPage() {
   const { t } = useTranslation();
   const { getJson, hasPermission } = useSecuredApi();
   const { isAuthenticated } = useAuth0();
+  const { searchResults } = useSearch();
+  const { data: searchData, isLoading: searchDataLoading } = useSearchResults({
+    searchResults,
+    isActive: searchResults.length > 0,
+  });
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
   const [createNewPurchase, setCreateNewPurchase] = useState(false);
   const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
@@ -120,6 +127,13 @@ export default function IndexPage() {
       });
     }
   }, [toggleAllPurchases, refreshTrigger]);
+
+  // Refresh table when search results change
+  useEffect(() => {
+    if (searchResults.length > 0) {
+      setRefreshTrigger((prev) => prev + 1);
+    }
+  }, [searchResults]);
 
   // Memoize the title component to prevent unnecessary re-renders
   const memoizedTitle = useMemo(() => {
@@ -453,6 +467,8 @@ export default function IndexPage() {
                 },
               ]}
               dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status?limitToNotRefunded=${toggleAllPurchases ? "false" : "true"}`}
+              manualData={searchResults.length > 0 ? searchData : undefined}
+              manualIsLoading={searchDataLoading}
               defaultPageSize={10}
               defaultSortField="date"
               defaultSortOrder="desc"
