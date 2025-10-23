@@ -760,3 +760,204 @@ describe('Feedback Flow API', () => {
     expect(getResponse.data.error).toBe('Purchase not found');
   });
 });
+
+describe('Purchase Status Batch API Tests', () => {
+  let batchTestPurchaseIds: string[] = [];
+
+  beforeAll(async () => {
+    // Create multiple purchases for batch testing
+    const purchases: Purchase[] = [
+      {
+        date: '2024-01-15',
+        order: generateFakeAmazonOrderId(),
+        description: 'Batch test product 1',
+        amount: 29.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-01-20',
+        order: generateFakeAmazonOrderId(),
+        description: 'Batch test product 2',
+        amount: 49.99,
+        screenshot: testImageBase64
+      },
+      {
+        date: '2024-02-01',
+        order: generateFakeAmazonOrderId(),
+        description: 'Batch test product 3',
+        amount: 79.99,
+        screenshot: testImageBase64
+      }
+    ];
+
+    for (const purchase of purchases) {
+      const response = await api.post('/purchase', purchase);
+      if (response.status === 201) {
+        batchTestPurchaseIds.push(response.data.id);
+      }
+    }
+  });
+
+  test('400. Should return purchase statuses for provided IDs', async () => {
+    const response = await api.post('/purchase-status-batch', {
+      purchaseIds: batchTestPurchaseIds.slice(0, 2),
+      page: 1,
+      limit: 10,
+      sort: 'date',
+      order: 'desc'
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(Array.isArray(response.data.data)).toBe(true);
+    expect(response.data.data.length).toBeLessThanOrEqual(2);
+    expect(response.data.pageInfo).toBeDefined();
+    expect(response.data.pageInfo.totalCount).toBeLessThanOrEqual(2);
+  });
+
+  test('410. Should validate required purchaseIds field', async () => {
+    const response = await api.post('/purchase-status-batch', {
+      page: 1,
+      limit: 10
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('purchaseIds must be a non-empty array');
+  });
+
+  test('420. Should return empty array for non-existent purchase IDs', async () => {
+    const response = await api.post('/purchase-status-batch', {
+      purchaseIds: ['non-existent-id-1', 'non-existent-id-2'],
+      page: 1,
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.data.length).toBe(0);
+    expect(response.data.pageInfo.totalCount).toBe(0);
+  });
+
+  test('430. Should handle pagination correctly', async () => {
+    const response = await api.post('/purchase-status-batch', {
+      purchaseIds: batchTestPurchaseIds,
+      page: 1,
+      limit: 2,
+      sort: 'date',
+      order: 'asc'
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.pageInfo.currentPage).toBe(1);
+    expect(response.data.pageInfo.totalPages).toBeGreaterThanOrEqual(1);
+    expect(response.data.pageInfo.hasNextPage).toBeDefined();
+    expect(response.data.pageInfo.hasPreviousPage).toBe(false);
+  });
+
+  test('440. Should sort by date in ascending order', async () => {
+    const response = await api.post('/purchase-status-batch', {
+      purchaseIds: batchTestPurchaseIds,
+      sort: 'date',
+      order: 'asc'
+    });
+
+    expect(response.status).toBe(200);
+    const data = response.data.data as any[];
+    if (data.length > 1) {
+      for (let i = 1; i < data.length; i++) {
+        expect(new Date(data[i].date).getTime()).toBeGreaterThanOrEqual(
+          new Date(data[i - 1].date).getTime()
+        );
+      }
+    }
+  });
+
+  test('450. Should sort by order in descending order', async () => {
+    const response = await api.post('/purchase-status-batch', {
+      purchaseIds: batchTestPurchaseIds,
+      sort: 'order',
+      order: 'desc'
+    });
+
+    expect(response.status).toBe(200);
+    const data = response.data.data as any[];
+    if (data.length > 1) {
+      for (let i = 1; i < data.length; i++) {
+        expect(data[i].order.localeCompare(data[i - 1].order)).toBeLessThanOrEqual(0);
+      }
+    }
+  });
+
+  test('460. Should include transaction ID when purchase is refunded', async () => {
+    if (batchTestPurchaseIds.length === 0) {
+      return;
+    }
+
+    const purchaseId = batchTestPurchaseIds[0];
+
+    // First, add feedback to make it ready for refund
+    const feedbackResponse = await api.post('/api/feedback', {
+      date: new Date().toISOString(),
+      purchase: purchaseId,
+      feedback: 'Batch test feedback for refund'
+    });
+
+    if (feedbackResponse.status !== 201) {
+      console.error('Failed to create feedback:', feedbackResponse.data);
+      return;
+    }
+
+    // Then add publication
+    const publishResponse = await api.post('/api/publish', {
+      date: new Date().toISOString(),
+      purchase: purchaseId,
+      screenshot: testImageBase64
+    });
+
+    if (publishResponse.status !== 201) {
+      console.error('Failed to publish feedback:', publishResponse.data);
+      return;
+    }
+
+    // Now refund the purchase
+    const refundResponse = await api.post('/api/refund', {
+      date: new Date().toISOString(),
+      purchase: purchaseId,
+      refundDate: new Date().toISOString(),
+      amount: 29.99,
+      transactionId: 'TEST-TRANSACTION-12345'
+    });
+
+    if (refundResponse.status !== 201) {
+      console.error('Failed to create refund:', refundResponse.data);
+      return;
+    }
+
+    // Get the batch status including this purchase
+    const response = await api.post('/purchase-status-batch', {
+      purchaseIds: [purchaseId],
+      page: 1,
+      limit: 10
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    if (response.data.data.length > 0) {
+      const purchase = response.data.data[0];
+      expect(purchase.refunded).toBe(true);
+      if (purchase.hasRefund) {
+        expect(purchase.transactionId).toBeDefined();
+        expect(purchase.transactionId).toBe('TEST-TRANSACTION-12345');
+      }
+    }
+  });
+
+  afterAll(async () => {
+    // Clean up: Delete all batch test purchases
+    for (const purchaseId of batchTestPurchaseIds) {
+      await api.delete(`/purchase/${purchaseId}`);
+    }
+  });
+});

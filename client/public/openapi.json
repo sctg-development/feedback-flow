@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Feedback Flow API",
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "paths": {
     "/api/testers": {
@@ -916,6 +916,122 @@
           },
           "400": {
             "description": "Invalid request"
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchase-status-batch": {
+      "post": {
+        "summary": "Get purchase status for a list of purchase IDs",
+        "description": "Returns paginated purchase statuses for a provided list of purchase IDs. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "purchaseIds"
+                ],
+                "properties": {
+                  "purchaseIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of purchase IDs to retrieve status for"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Page number for pagination"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Number of items per page"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "default": "date",
+                    "enum": [
+                      "date",
+                      "order"
+                    ],
+                    "description": "Sort field"
+                  },
+                  "order": {
+                    "type": "string",
+                    "default": "desc",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "description": "Sort order"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchase statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PurchaseStatus"
+                      }
+                    },
+                    "pageInfo": {
+                      "type": "object",
+                      "properties": {
+                        "totalCount": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        },
+                        "currentPage": {
+                          "type": "integer"
+                        },
+                        "hasNextPage": {
+                          "type": "boolean"
+                        },
+                        "hasPreviousPage": {
+                          "type": "boolean"
+                        },
+                        "nextPage": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "previousPage": {
+                          "type": "integer",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
           },
           "403": {
             "description": "Unauthorized request"
