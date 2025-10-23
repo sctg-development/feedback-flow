@@ -14,6 +14,8 @@ import {
   RefundDelayResponse,
 } from "@/types/data";
 import RefundDelayChart from "@/components/charts/RefundDelayChart";
+import { Link } from "react-router-dom";
+import { cleanAmazonOrderNumber } from "@/utilities/amazon";
 
 export default function StatsPage() {
   // Use specific types for each API endpoint
@@ -183,8 +185,8 @@ export default function StatsPage() {
                     {Math.round(
                       (1 -
                         purchasesStatistics.totalNotRefundedAmount /
-                          purchasesStatistics.totalPurchaseAmount) *
-                        100,
+                        purchasesStatistics.totalPurchaseAmount) *
+                      100,
                     )}
                     %
                   </span>
@@ -349,7 +351,14 @@ export default function StatsPage() {
                       <td className="p-3">
                         {new Date(item.refundDate).toLocaleDateString()}
                       </td>
-                      <td className="p-3">{item.order}</td>
+                      <td className="p-3">
+                        <Link
+                          className="text-blue-500 hover:underline break-keep"
+                          target="_blank"
+                          to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
+                        >
+                          {cleanAmazonOrderNumber(item.order)}
+                        </Link></td>
                       <td className="p-3 text-right">
                         {item.purchaseAmount.toFixed(2)} €
                       </td>
