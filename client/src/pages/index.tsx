@@ -447,7 +447,7 @@ export default function IndexPage() {
                   render: (item) => {
                     return item.refunded ? (
                       <>
-                        {item.transactionId && item.transactionId.length >= 4 ? (
+                        {item.transactionId && item.transactionId.length >= 4 && !item.transactionId.startsWith("REFUND_") ? (
                           <Link
                             className="text-blue-500 hover:underline break-keep"
                             target="_blank"
