@@ -156,6 +156,7 @@ READ_PERMISSION=read:api
 WRITE_PERMISSION=write:api
 ADMIN_PERMISSION=admin:api
 BACKUP_PERMISSION=backup:api
+SEARCH_PERMISSION=search:api
 
 # Application Settings
 CRYPTOKEN="your_random_encryption_key_here"
@@ -205,25 +206,21 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 
 ### Purchase Management
 
-- **POST `/api/purchase`** - Add a purchase to the database - requires write:api permission
+- **POST `/api/purchase`** - Add a new purchase to the database - requires write:api permission
   - Request: `{date: string, order: string, description: string, amount: number, screenshot: string}`
   - Response: `{success: boolean, id: string}`
 
 - **GET `/api/purchase/:id`** - Get information about a specific purchase - requires read:api permission
   - Response: `{success: boolean, data: {id: string, date: string, order: string, description: string, amount: number, screenshot: string}}`
 
-- **POST `/api/purchase/:id`** - Update an existing purchase - requires admin:api permission
+- **POST `/api/purchase/:id`** - Update an existing purchase - requires write:api permission
   - Request: `{date?: string, order?: string, description?: string, amount?: number, screenshot?: string, screenshotSummary?: string}`
   - Response: `{success: boolean, message: string}`
 
 - **DELETE `/api/purchase/:purchaseId`** - Delete a purchase by ID - requires write:api permission
   - Response: `{success: boolean, message: string}`
 
-- **GET `/api/purchase`** - Get a list of the authenticated tester's purchases - requires read:api permission
-  - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
-  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
-
-- **GET `/api/purchases/not-refunded`** - Get a list of the authenticated tester's not-refunded purchases - requires read:api permission
+- **GET `/api/purchases/not-refunded`** - Get a list of the authenticated tester's non-refunded purchases - requires read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
   - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
 
@@ -233,11 +230,23 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 
 - **GET `/api/purchases/ready-to-refund`** - Get a list of purchases ready for refund (with feedback and publication) - requires read:api permission
   - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
-  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number, feedback: string, feedbackDate: string, publicationDate: string, publicationScreenShot: string}], total: number, page: number, limit: number}`
+  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number, feedback: string, feedbackDate: string, publicationDate: string, publicationScreenshot: string}], total: number, page: number, limit: number}`
   
 - **GET `/api/purchase-status`** - Get the status of all purchases with feedback/publication/refund status - requires read:api permission
-  - Optional parameters: `?page=1&limit=10&sort=date&order=desc&limitToNotRefunded=false`
-  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number, refunded: boolean, has_feedback: boolean, has_publication: boolean, has_refund: boolean}], total: number, page: number, limit: number}`
+  - Optional parameters: `?page=1&limit=10&sort=date&order=desc&limitToNotRefunded=true`
+  - Response: `{success: boolean, data: [{purchase: string, date: string, order: string, description: string, amount: number, refunded: boolean, hasFeedback: boolean, hasPublication: boolean, hasRefund: boolean, transactionId?: string}], total: number, page: number, limit: number}`
+
+- **POST `/api/purchase-status-batch`** - Get purchase status for a list of purchase IDs - requires read:api permission
+  - Request: `{purchaseIds: string[], page?: number, limit?: number, sort?: string, order?: string}`
+  - Response: `{success: boolean, data: [{purchase: string, date: string, order: string, description: string, amount: number, refunded: boolean, hasFeedback: boolean, hasPublication: boolean, hasRefund: boolean, transactionId?: string}], pageInfo: {currentPage: number, totalPages: number, totalCount: number, hasNextPage: boolean, hasPreviousPage: boolean}}`
+
+- **POST `/api/purchase/search`** - Search purchases using fuzzy matching - requires read:api permission
+  - Searches for purchases matching the query using fuzzy matching
+  - Supports case-insensitive search, accent-insensitive search, and partial matches
+  - Searches in purchase ID, order number, description, and amount
+  - Minimum query length: 4 characters
+  - Request: `{query: string, limit?: number}`
+  - Response: `{success: boolean, data: string[]}` (array of matching purchase IDs)
   
 - **GET `/api/purchases/refunded-amount`** - Get total amount of refunded purchases - requires read:api permission
   - Response: `{success: boolean, amount: number}`
@@ -283,23 +292,23 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 
 ### Database Management
 
-- **GET `/api/backup/json`** - Backup the database - requires backup:api permission
-  - Response: `{success: boolean, data: {backup: string}}`
+- **GET `/api/backup/json`** - Backup the database to JSON format - requires backup:api permission
+  - Response: `{success: boolean, data: {testers: any[], purchases: any[], feedbacks: any[], publications: any[], refunds: any[], ids: any[]}}`
 
-- **POST `/api/backup/json`** - Restore the database - requires backup:api permission
-  - Request: `{backup: string}`
-  - Response: `{success: boolean}`
+- **POST `/api/backup/json`** - Restore the database from JSON format - requires backup:api permission
+  - Request: `{backup: string}` (stringified JSON from backup)
+  - Response: `{success: boolean, message: string}`
 
-### System Debug Endpoints
+### System Debug Endpoints (Cloudflare D1 only)
 
 - **GET `/api/__d1/schema`** - Get database table names - requires admin:api permission
-  - Response: `{tables: string[], timestamp: string}`
+  - Response: `{success: boolean, tables: string[], timestamp: string}`
 
-- **GET `/api/__d1/schema_version`** - Get database schema version - requires admin:api permission
-  - Response: `{version: {version: number, description: string}, timestamp: string}`
+- **GET `/api/__d1/schema_version`** - Get current database schema version - requires admin:api permission
+  - Response: `{success: boolean, version: {version: number, description: string}, timestamp: string}`
 
 - **GET `/api/__d1/schema_migrations`** - Execute database schema migrations - requires admin:api permission
-  - Response: `{migrations: string[], timestamp: string}`
+  - Response: `{success: boolean, migrations: string[], timestamp: string}`
 
 ## Development
 
