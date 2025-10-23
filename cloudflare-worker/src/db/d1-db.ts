@@ -815,7 +815,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			const totalCount = countResults[0]?.count as number;
 			const preparedStatement = this.db
 				.prepare(
-					`SELECT * FROM purchase_status WHERE tester_uuid = ? ${limitToNotRefundedQuery} ORDER BY ${sortColumn} ${orderDir} LIMIT ? OFFSET ?`,
+					`SELECT ps.*, r.transaction_id FROM purchase_status ps 
+					 LEFT JOIN refunds r ON ps.id = r.purchase_id 
+					 WHERE ps.tester_uuid = ? ${limitToNotRefundedQuery} 
+					 ORDER BY ${sortColumn} ${orderDir} LIMIT ? OFFSET ?`,
 				)
 				.bind(testerUuid, limit, offset);
 
@@ -837,6 +840,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 						publicationScreenshot: row.publication_screenshot as string,
 						purchaseScreenshot: row.purchase_screenshot as string,
 						screenshotSummary: row.screenshot_summary as string,
+						transactionId: row.transaction_id ? (row.transaction_id as string) : undefined,
 					}) as PurchaseStatus,
 			);
 			// Add pagination info to the result

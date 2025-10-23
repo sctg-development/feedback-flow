@@ -430,6 +430,17 @@ export default function IndexPage() {
                   sortable: false,
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
+                  render: (item) => {
+                    return item.refunded ? (
+                      <>
+                        <Link
+                          className="text-blue-500 hover:underline break-keep"
+                          target="_blank"
+                          to={`${import.meta.env.PAYPAL_TRANSACTION_BASE_URL}${item.transactionId}`}>{t("yes")}
+                        </Link>
+                      </>) :
+                      <>{t("no")}</>;
+                  }
                 },
                 {
                   field: "actions",

@@ -78,6 +78,7 @@ export interface PurchaseStatus {
     purchaseScreenshot?: string;
     publicationScreenshot?: string;
     screenshotSummary?: string;
+    transactionId?: string;
 }
 
 /**

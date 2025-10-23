@@ -404,8 +404,8 @@ export class InMemoryDB implements FeedbackFlowDB {
 			// 3. Having feedback
 			// 4. Having publication (this is what was missing before)
 			const filteredPurchases = this.data.purchases.filter(
-				(p) => p.testerUuid === testerUuid && 
-					!p.refunded && 
+				(p) => p.testerUuid === testerUuid &&
+					!p.refunded &&
 					this.data.feedbacks.some((feedback) => feedback.purchase === p.id) &&
 					this.data.publications.some((publication) => publication.purchase === p.id)
 			);
@@ -416,10 +416,10 @@ export class InMemoryDB implements FeedbackFlowDB {
 			const enhancedPurchases = filteredPurchases.map(purchase => {
 				// Find the feedback for this purchase
 				const feedback = this.data.feedbacks.find(f => f.purchase === purchase.id);
-				
+
 				// Find the publication for this purchase
 				const publication = this.data.publications.find(p => p.purchase === purchase.id);
-				
+
 				return {
 					...purchase,
 					feedback: feedback?.feedback || "",
@@ -606,6 +606,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 						publicationScreenshot: hasPublication?.screenshot,
 						purchaseScreenshot: purchase.screenshot,
 						screenshotSummary: purchase.screenshotSummary,
+						transactionId: hasRefund?.transactionId,
 					} as PurchaseStatus;
 				});
 
