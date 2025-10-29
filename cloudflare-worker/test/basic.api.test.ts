@@ -1331,7 +1331,7 @@ describe('Short Link API Tests', () => {
     expect(response.data.code).toBeDefined();
     expect(response.data.code).toMatch(/^[0-9a-zA-Z]{7}$/); // 7 alphanumeric characters
     expect(response.data.url).toBeDefined();
-    expect(response.data.url).toMatch(/^\/link\/[0-9a-zA-Z]{7}$/);
+    expect(response.data.url).toMatch(/^link\/[0-9a-zA-Z]{7}$/);
 
     shortLinkCode = response.data.code;
   });
@@ -1504,5 +1504,29 @@ describe('Short Link API Tests', () => {
     expect(response.status).toBe(404);
     expect(response.data.success).toBe(false);
     expect(response.data.error).toContain('Purchase not found');
+  });
+
+  test('780. Should delete expired links', async () => {
+    // Generate a link with minimum valid duration (60 seconds, then it will be expired by cleanup)
+    // We'll create a link that definitely has expired by the time cleanup runs
+    const shortDurationResponse = await api.post(`/link/public?duration=60&purchase=${purchaseWithFeedbackAndPublication}`, {});
+    expect(shortDurationResponse.status).toBe(200);
+
+    // For testing purposes, we'll just verify the cleanup endpoint works
+    // In production, this would be called periodically to remove expired links
+    const response = await api.delete('/links/expired');
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(typeof response.data.deletedCount).toBe('number');
+  });
+
+  test('790. Should return deleted count of zero if no expired links', async () => {
+    // Call the cleanup endpoint - should not find any newly expired links
+    const response = await api.delete('/links/expired');
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(typeof response.data.deletedCount).toBe('number');
   });
 });

@@ -487,4 +487,80 @@ export const setupLinksRoutes = (router: Router, env: Env) => {
             }
         },
     );
+
+    /**
+     * @openapi
+     * /api/links/expired:
+     *   delete:
+     *     summary: Delete all expired short links
+     *     description: |
+     *       Removes all expired short links from the database.
+     *       This endpoint is typically called as a maintenance task to clean up
+     *       links that have passed their expiration date.
+     *       
+     *       Requires admin:api permission.
+     *     tags:
+     *       - Links
+     *     responses:
+     *       200:
+     *         description: Expired links successfully deleted
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                   example: true
+     *                 deletedCount:
+     *                   type: integer
+     *                   description: Number of expired links that were deleted
+     *                   example: 5
+     *       401:
+     *         description: Unauthorized - authentication required
+     *       403:
+     *         description: Insufficient permissions - admin:api permission required
+     */
+    router.delete(
+        "/api/links/expired",
+        async (request) => {
+            try {
+                const db = getDatabase(env);
+
+                // Delete all expired links and get the count
+                const deletedCount = await db.links.cleanupExpired();
+
+                return new Response(
+                    JSON.stringify({
+                        success: true,
+                        deletedCount,
+                    }),
+                    {
+                        status: 200,
+                        headers: {
+                            ...router.corsHeaders,
+                            "Content-Type": "application/json",
+                        },
+                    },
+                );
+            } catch (error) {
+                console.error("Error deleting expired links:", error);
+
+                return new Response(
+                    JSON.stringify({
+                        success: false,
+                        error: `Failed to delete expired links: ${(error as Error).message}`,
+                    }),
+                    {
+                        status: 500,
+                        headers: {
+                            ...router.corsHeaders,
+                            "Content-Type": "application/json",
+                        },
+                    },
+                );
+            }
+        },
+        env.ADMIN_PERMISSION,
+    );
 };

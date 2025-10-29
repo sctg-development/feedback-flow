@@ -349,7 +349,15 @@ These endpoints enable testers to generate secure short links for sharing disput
 - No authentication is required to retrieve data via a valid link code
 - Link codes use 62 possible characters per position (10 digits + 26 lowercase + 26 uppercase), providing 62^7 ≈ 3.5 trillion possible combinations
 - The database includes an index on the `(code, expires_at)` composite key for efficient expiration checks
-- Link cleanup can be performed using a background job that calls the repository's `cleanupExpired()` method
+- Link cleanup can be performed using the DELETE endpoint or by calling the repository's `cleanupExpired()` method
+
+#### Link Maintenance
+
+- **DELETE `/api/links/expired`** - Delete all expired short links - requires admin:api permission
+  - This endpoint removes all links that have passed their expiration time
+  - Useful for regular database maintenance and cleanup
+  - Response: `{success: boolean, deletedCount: number}`
+  - Example Response: `{success: true, deletedCount: 5}`
 
 ### Database Management
 
