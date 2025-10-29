@@ -25,7 +25,6 @@ import {
   ModalFooter,
 } from '@heroui/modal';
 import { Button } from '@heroui/button';
-import { Spinner } from '@heroui/spinner';
 import { addToast } from '@heroui/toast';
 import { useSecuredApi } from '@/components/auth0';
 import { CopyButton } from '../copy-button';
@@ -80,7 +79,7 @@ export const GeneratePublicLinkModal = memo<GeneratePublicLinkModalProps>(
           throw new Error(response.message || 'Failed to generate link');
         }
 
-        const link = `${window.location.origin}${import.meta.env.BASE_URL}/link?code=${response.code}`;
+        const link = `${window.location.origin}${import.meta.env.BASE_URL}/link?code=${response.code}`.replaceAll('//', '/').replace(':/', '://');
         setGeneratedLink(link);
 
         addToast({
@@ -177,14 +176,7 @@ export const GeneratePublicLinkModal = memo<GeneratePublicLinkModalProps>(
                 isLoading={isLoading}
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <>
-                    <Spinner size="sm" color="current" />
-                    {t('generating-link')}
-                  </>
-                ) : (
-                  t('generate-link')
-                )}
+                {isLoading ? t('generating-link') : t('generate-link')}
               </Button>
             )}
           </ModalFooter>
