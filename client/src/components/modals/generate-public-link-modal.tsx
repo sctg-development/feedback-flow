@@ -80,7 +80,7 @@ export const GeneratePublicLinkModal = memo<GeneratePublicLinkModalProps>(
           throw new Error(response.message || 'Failed to generate link');
         }
 
-        const link = `${import.meta.env.BASE_URL}/link?code=${response.code}`;
+        const link = `${window.location.origin}${import.meta.env.BASE_URL}/link?code=${response.code}`;
         setGeneratedLink(link);
 
         addToast({
