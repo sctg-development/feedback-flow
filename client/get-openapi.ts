@@ -8,13 +8,13 @@ const options = {
   format: "json",
   info: {
     title: "Feedback Flow API",
-    version: "1.4.0",
+    version: "1.5.0",
   },
   definition: {
     openapi: "3.0.0",
     info: {
       title: "Feedback Flow API",
-      version: "1.4.0",
+      version: "1.5.0",
     },
   }, // You can move properties from definition here if needed
   apis: [
@@ -30,6 +30,7 @@ const options = {
     "../cloudflare-worker/src/routes/refunds/index.ts",
     "../cloudflare-worker/src/routes/stats/index.ts",
     "../cloudflare-worker/src/routes/system/index.ts",
+    "../cloudflare-worker/src/routes/links/index.ts",
   ], // Path to the API docs
 };
 

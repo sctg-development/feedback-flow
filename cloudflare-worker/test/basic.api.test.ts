@@ -1273,3 +1273,236 @@ describe('Fuzzy Search API Tests', () => {
     }
   });
 });
+
+// ========== SHORT LINK PUBLIC API TESTS ==========
+
+describe('Short Link API Tests', () => {
+  let shortLinkCode: string;
+  let purchaseWithFeedbackAndPublication: string;
+  let purchaseWithoutFeedback: string;
+  let purchaseWithoutPublication: string;
+
+  test('600. Should create a purchase for link generation testing', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0],
+      order: generateFakeAmazonOrderId(),
+      description: 'Test product for link generation',
+      amount: 49.99,
+      screenshot: testImageBase64
+    };
+
+    const response = await api.post('/purchase', purchase);
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+    expect(response.data.id).toBeDefined();
+
+    purchaseWithFeedbackAndPublication = response.data.id;
+  });
+
+  test('610. Should add feedback for the link test purchase', async () => {
+    const response = await api.post('/feedback', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: purchaseWithFeedbackAndPublication,
+      feedback: 'Testing the short link functionality with this feedback.'
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+  });
+
+  test('620. Should record publication for the link test purchase', async () => {
+    const response = await api.post('/publish', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: purchaseWithFeedbackAndPublication,
+      screenshot: testImageBase64
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.data.success).toBe(true);
+  });
+
+  test('630. Should generate a short link for a purchase with feedback and publication', async () => {
+    const durationSeconds = 3600; // 1 hour
+    const response = await api.post(`/link/public?duration=${durationSeconds}&purchase=${purchaseWithFeedbackAndPublication}`, {});
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.code).toBeDefined();
+    expect(response.data.code).toMatch(/^[0-9a-zA-Z]{7}$/); // 7 alphanumeric characters
+    expect(response.data.url).toBeDefined();
+    expect(response.data.url).toMatch(/^\/link\/[0-9a-zA-Z]{7}$/);
+
+    shortLinkCode = response.data.code;
+  });
+
+  test('640. Should require duration parameter', async () => {
+    const response = await api.post(`/link/public?purchase=${purchaseWithFeedbackAndPublication}`, {});
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('Duration');
+  });
+
+  test('650. Should require purchase parameter', async () => {
+    const response = await api.post('/link/public?duration=3600', {});
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('Purchase');
+  });
+
+  test('660. Should reject duration less than 60 seconds', async () => {
+    const response = await api.post(`/link/public?duration=30&purchase=${purchaseWithFeedbackAndPublication}`, {});
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('Duration');
+  });
+
+  test('670. Should reject duration greater than 1 year', async () => {
+    const response = await api.post(`/link/public?duration=31536001&purchase=${purchaseWithFeedbackAndPublication}`, {});
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('Duration');
+  });
+
+  test('680. Should create a purchase without feedback to test link generation failure', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0],
+      order: generateFakeAmazonOrderId(),
+      description: 'Test product without feedback',
+      amount: 39.99,
+      screenshot: testImageBase64
+    };
+
+    const response = await api.post('/purchase', purchase);
+
+    expect(response.status).toBe(201);
+    purchaseWithoutFeedback = response.data.id;
+  });
+
+  test('690. Should reject link generation for purchase without feedback', async () => {
+    const response = await api.post(`/link/public?duration=3600&purchase=${purchaseWithoutFeedback}`, {});
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('feedback and publication');
+  });
+
+  test('700. Should create a purchase with feedback but no publication', async () => {
+    const purchase: Purchase = {
+      date: new Date().toISOString().split('T')[0],
+      order: generateFakeAmazonOrderId(),
+      description: 'Test product without publication',
+      amount: 59.99,
+      screenshot: testImageBase64
+    };
+
+    const response = await api.post('/purchase', purchase);
+    expect(response.status).toBe(201);
+
+    purchaseWithoutPublication = response.data.id;
+
+    // Add feedback
+    const feedbackResponse = await api.post('/feedback', {
+      date: new Date().toISOString().split('T')[0],
+      purchase: purchaseWithoutPublication,
+      feedback: 'This purchase has feedback but no publication.'
+    });
+
+    expect(feedbackResponse.status).toBe(201);
+  });
+
+  test('710. Should reject link generation for purchase without publication', async () => {
+    const response = await api.post(`/link/public?duration=3600&purchase=${purchaseWithoutPublication}`, {});
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('feedback and publication');
+  });
+
+  test('720. Should retrieve dispute data via valid short link', async () => {
+    // Note: This is a public endpoint, so we don't use the authenticated API client
+    const response = await axios.get(`${API_BASE_URL}/link/${shortLinkCode}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      validateStatus: function (status) {
+        return status < 500;
+      }
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.data).toBeDefined();
+
+    const data = response.data.data;
+    expect(data.orderNumber).toBeDefined();
+    expect(data.orderDate).toBeDefined();
+    expect(data.purchaseAmount).toBeDefined();
+    expect(data.purchaseScreenshot).toBeDefined();
+    expect(data.feedbackDate).toBeDefined();
+    expect(data.feedbackText).toBeDefined();
+    expect(data.publicationDate).toBeDefined();
+    expect(data.publicationScreenshot).toBeDefined();
+    expect(data.isRefunded).toBeDefined();
+  });
+
+  test('730. Should return 404 for non-existent link code', async () => {
+    const response = await axios.get(`${API_BASE_URL}/link/invalid`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      validateStatus: function (status) {
+        return status < 500;
+      }
+    });
+
+    expect(response.status).toBe(404);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('not found or has expired');
+  });
+
+  test('740. Should return 400 for invalid link code format', async () => {
+    const response = await axios.get(`${API_BASE_URL}/link/invalid1`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      validateStatus: function (status) {
+        return status < 500;
+      }
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('Invalid link code format');
+  });
+
+  test('750. Should generate links with short duration (60 seconds)', async () => {
+    const response = await api.post(`/link/public?duration=60&purchase=${purchaseWithFeedbackAndPublication}`, {});
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.code).toMatch(/^[0-9a-zA-Z]{7}$/);
+  });
+
+  test('760. Should generate links with long duration (30 days)', async () => {
+    const thirtyDaysInSeconds = 30 * 24 * 60 * 60; // 2592000 seconds
+    const response = await api.post(`/link/public?duration=${thirtyDaysInSeconds}&purchase=${purchaseWithFeedbackAndPublication}`, {});
+
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.code).toMatch(/^[0-9a-zA-Z]{7}$/);
+  });
+
+  test('770. Should reject link generation for non-existent purchase', async () => {
+    const fakeUuid = uuidv4();
+    const response = await api.post(`/link/public?duration=3600&purchase=${fakeUuid}`, {});
+
+    expect(response.status).toBe(404);
+    expect(response.data.success).toBe(false);
+    expect(response.data.error).toContain('Purchase not found');
+  });
+});

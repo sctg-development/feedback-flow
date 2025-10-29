@@ -49,6 +49,7 @@ import { setupFeedbackRoutes } from "./feedback";
 import { setupRefundRoutes } from "./refunds";
 import { setupStatsRoutes } from "./stats";
 import { setupSystemRoutes } from "./system";
+import { setupLinksRoutes } from "./links";
 
 // Tester Management
 const testerRoutes = (router: Router, env: Env) => {
@@ -76,6 +77,12 @@ const refundRoutes = (router: Router, env: Env) => {
 // Statistics API Routes
 const statsRoutes = (router: Router, env: Env) => {
 	setupStatsRoutes(router, env);
+};
+
+// Links Management (Public Short Link API)
+// Links Management (Public Short Link API)
+const linksRoutes = (router: Router, env: Env) => {
+	setupLinksRoutes(router, env);
 };
 
 /**
@@ -269,5 +276,6 @@ export const setupRoutes = async (router: Router, env: Env) => {
 	feedbackRoutes(router, env);
 	refundRoutes(router, env);
 	statsRoutes(router, env);
+	linksRoutes(router, env);
 	await setupSystemRoutes(router, env);
 };

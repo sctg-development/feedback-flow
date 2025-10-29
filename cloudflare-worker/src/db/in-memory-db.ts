@@ -25,8 +25,9 @@
 // Database for testing purposes
 
 import { v4 as uuidv4 } from "uuid";
+import { generateShortCode } from "../utilities/short-link-generator";
 
-import { Feedback, Publication, Purchase, Refund, Tester, PurchasesStatisticsData } from "../types/data";
+import { Feedback, Link, Publication, Purchase, Refund, Tester, PurchasesStatisticsData } from "../types/data";
 
 import { DATABASESCHEMA, DEFAULT_PAGINATION, FeedbackFlowDB, PaginatedResult, PurchaseStatus, PurchaseStatusResponse, PurchaseWithFeedback } from "./db";
 
@@ -49,6 +50,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			feedbacks: [],
 			publications: [],
 			refunds: [],
+			links: [],
 		},
 	) {
 		// Clone the initial data to avoid modifications to the original object
@@ -845,6 +847,127 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 */
 		getAll: async () => [...this.data.refunds],
 	};
+
+	/**
+	 * Links repository for short public dispute resolution links
+	 */
+	links = {
+		/**
+		 * Generate a new short link for a purchase
+		 * @param {string} purchaseId - The purchase ID to create a link for
+		 * @param {number} durationSeconds - How long the link should be valid (in seconds)
+		 * @returns {string} The generated 7-character code
+		 */
+		generate: async (purchaseId: string, durationSeconds: number): Promise<string> => {
+			// Calculate expiration timestamp
+			const expiresAt = new Date(Date.now() + durationSeconds * 1000).toISOString();
+
+			// Generate a unique code (retry if collision occurs, which is extremely unlikely)
+			let code: string;
+			let attempts = 0;
+			const maxAttempts = 10;
+
+			do {
+				code = generateShortCode();
+				attempts++;
+
+				// Check if code already exists in the in-memory database
+				const exists = this.data.links.some((link) => link.code === code);
+				if (!exists) {
+					break; // Code is unique
+				}
+			} while (attempts < maxAttempts);
+
+			if (attempts >= maxAttempts) {
+				throw new Error("Failed to generate unique short code after multiple attempts");
+			}
+
+			// Create and store the link
+			const link: Link = {
+				code,
+				purchase: purchaseId,
+				expiresAt,
+				createdAt: new Date().toISOString(),
+			};
+
+			this.data.links.push(link);
+
+			return code;
+		},
+
+		/**
+		 * Get the purchase ID associated with a valid link
+		 * @param {string} code - The 7-character link code
+		 * @returns {string|null} The purchase ID if link is valid, null otherwise
+		 */
+		getPurchaseByCode: async (code: string): Promise<string | null> => {
+			// Find the link with the given code
+			const link = this.data.links.find((l) => l.code === code);
+
+			if (!link) {
+				return null; // Link doesn't exist
+			}
+
+			// Check if the link has expired
+			const now = new Date();
+			const expirationTime = new Date(link.expiresAt);
+
+			if (now > expirationTime) {
+				return null; // Link has expired
+			}
+
+			return link.purchase;
+		},
+
+		/**
+		 * Delete a link by its code
+		 * @param {string} code - The 7-character link code
+		 * @returns {boolean} true if the link was deleted, false if it didn't exist
+		 */
+		delete: async (code: string): Promise<boolean> => {
+			const index = this.data.links.findIndex((l) => l.code === code);
+
+			if (index >= 0) {
+				this.data.links.splice(index, 1);
+				return true;
+			}
+
+			return false;
+		},
+
+		/**
+		 * Get all links for a specific purchase
+		 * @param {string} purchaseId - The purchase ID
+		 * @returns {Link[]} Array of all links for this purchase
+		 */
+		getByPurchaseId: async (purchaseId: string): Promise<Link[]> => {
+			return this.data.links.filter((link) => link.purchase === purchaseId);
+		},
+
+		/**
+		 * Clean up expired links from the database
+		 * @returns {number} Number of deleted links
+		 */
+		cleanupExpired: async (): Promise<number> => {
+			const now = new Date();
+			const initialLength = this.data.links.length;
+
+			// Filter out expired links
+			this.data.links = this.data.links.filter((link) => {
+				const expirationTime = new Date(link.expiresAt);
+				return now <= expirationTime;
+			});
+
+			return initialLength - this.data.links.length;
+		},
+
+		/**
+		 * Get all links
+		 * @returns {Link[]} A copy of all links
+		 */
+		getAll: async () => [...this.data.links],
+	};
+
 	/**
 	 * backup the database
 	 * @returns the database as a JSON string

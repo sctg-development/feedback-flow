@@ -25,6 +25,7 @@
 import type {
     Feedback,
     IdMapping,
+    Link,
     Publication,
     Purchase,
     PurchasesStatisticsData,
@@ -49,6 +50,7 @@ export interface DATABASESCHEMA {
     feedbacks: Feedback[];
     publications: Publication[];
     refunds: Refund[];
+    links: Link[];
 }
 
 export interface PurchaseStatusResponse {
@@ -336,6 +338,48 @@ export interface RefundsRepository {
 }
 
 /**
+ * Links repository interface for short public dispute resolution links
+ */
+export interface LinksRepository {
+    /**
+     * Generate a new short link for a purchase
+     * @param purchaseId The purchase ID
+     * @param durationSeconds How long the link is valid in seconds
+     * @returns The generated 7-character code
+     */
+    generate(purchaseId: string, durationSeconds: number): Promise<string>;
+
+    /**
+     * Get the purchase information associated with a link
+     * @param code The 7-character link code
+     * @returns The purchase ID if link is valid and not expired, null otherwise
+     */
+    getPurchaseByCode(code: string): Promise<string | null>;
+
+    /**
+     * Delete an expired link
+     * @param code The 7-character link code
+     */
+    delete(code: string): Promise<boolean>;
+
+    /**
+     * Get all links for a purchase
+     * @param purchaseId The purchase ID
+     */
+    getByPurchaseId(purchaseId: string): Promise<Link[]>;
+
+    /**
+     * Cleanup expired links
+     */
+    cleanupExpired(): Promise<number>;
+
+    /**
+     * Get all links
+     */
+    getAll(): Promise<Link[]>;
+}
+
+/**
  * Abstract database class that defines the interface for all database implementations
  */
 export abstract class FeedbackFlowDB {
@@ -368,6 +412,11 @@ export abstract class FeedbackFlowDB {
      * Refund-related database operations
      */
     abstract refunds: RefundsRepository;
+
+    /**
+     * Links-related database operations for short public dispute resolution links
+     */
+    abstract links: LinksRepository;
 
     /**
      * Reset the database with new data (optional)

@@ -99,6 +99,8 @@ There may be a delay between the purchase and the refund. Additionally, the refu
 - View non-refunded feedbacks (read:api)
 - View refunded feedbacks (read:api)
 - Search purchases (search:api)
+- Generate short public links for dispute resolution (write:api)
+- Access dispute resolution information via public links (no permission required)
 
 ## Security
 
@@ -291,6 +293,63 @@ The REST API exchanges all objects in JSON format. The API provides the followin
 
 - **GET `/api/stats/purchases`** - Get purchase statistics overview - requires read:api permission
   - Response: `{success: boolean, data: {totalPurchases: number, totalRefundedPurchases: number, totalRefundedAmount: number}}`
+
+### Public Short Links for Dispute Resolution
+
+These endpoints enable testers to generate secure short links for sharing dispute resolution information publicly. This is useful for cases where proof of purchase, feedback, and publication needs to be shared with a third party or dispute resolution authority.
+
+#### Link Generation
+
+- **POST `/api/link/public`** - Generate a short public link for dispute resolution - requires write:api permission
+  - Query parameters:
+    - `duration` (required): Duration in seconds for which the link should be valid (minimum 60, maximum 31536000 / 1 year)
+    - `purchase` (required): The UUID of the purchase to create a link for
+  - The purchase must have both feedback and publication before a link can be created
+  - Link codes are 7 characters long, containing digits (0-9) and letters (a-z, A-Z)
+  - Each generated code is unique and automatically checked for collisions
+  - Request: `POST /api/link/public?duration=3600&purchase=550e8400-e29b-41d4-a716-446655440000`
+  - Response: `{success: boolean, code: string, url: string}`
+  - Example Response: `{success: true, code: "aBc1234", url: "/link/aBc1234"}`
+
+#### Link Data Retrieval
+
+- **GET `/api/link/:code`** - Access public dispute resolution information via short link - no permission required (public endpoint)
+  - Path parameter: `code` - The 7-character unique link code
+  - This endpoint returns the complete dispute resolution information if the link is valid (not expired and properly formatted)
+  - Returns the following data for eligible purchases:
+    - Order details: order number, date, amount, purchase screenshot
+    - Feedback details: submission date, feedback text
+    - Publication details: publication date, publication screenshot
+    - Refund details (if applicable): refund amount, transaction ID
+  - Response: `{success: boolean, data: {orderNumber: string, orderDate: string, purchaseAmount: number, purchaseScreenshot: string, feedbackDate: string, feedbackText: string, publicationDate: string, publicationScreenshot: string, isRefunded: boolean, refundAmount?: number, refundTransactionId?: string}}`
+  - Error responses:
+    - `400`: Invalid link code format (must be exactly 7 alphanumeric characters)
+    - `404`: Link not found or has expired
+
+#### Usage Example
+
+1. Generate a short link for dispute resolution:
+   ```bash
+   POST /api/link/public?duration=2592000&purchase=550e8400-e29b-41d4-a716-446655440000
+   # Response: {"success": true, "code": "xY7zQw", "url": "/link/xY7zQw"}
+   ```
+
+2. Share the link publicly (e.g., `https://example.com/link/xY7zQw`) or with dispute resolution services
+
+3. Access the dispute information using the link code:
+   ```bash
+   GET /link/xY7zQw
+   # Returns complete dispute resolution data including purchase proof, feedback, and publication proof
+   ```
+
+#### Technical Details
+
+- Link expiration is checked at retrieval time, not during link generation
+- The link will only return data if the purchase has both feedback and a publication entry
+- No authentication is required to retrieve data via a valid link code
+- Link codes use 62 possible characters per position (10 digits + 26 lowercase + 26 uppercase), providing 62^7 ≈ 3.5 trillion possible combinations
+- The database includes an index on the `(code, expires_at)` composite key for efficient expiration checks
+- Link cleanup can be performed using a background job that calls the repository's `cleanupExpired()` method
 
 ### Database Management
 

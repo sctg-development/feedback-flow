@@ -24,10 +24,12 @@
 /* eslint-disable no-console */
 import { D1Database } from "@cloudflare/workers-types";
 import { v4 as uuidv4 } from "uuid";
+import { generateShortCode } from "../utilities/short-link-generator";
 
 import {
 	Feedback,
 	IdMapping,
+	Link,
 	Publication,
 	Purchase,
 	PurchasesStatisticsData,
@@ -40,6 +42,7 @@ import {
 	FeedbackFlowDB,
 	FeedbacksRepository,
 	IdMappingsRepository,
+	LinksRepository,
 	PaginatedResult,
 	PublicationsRepository,
 	PurchasesRepository,
@@ -1107,6 +1110,141 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 		getAll: async (): Promise<Refund[]> => {
 			return this.getAllRefunds();
+		},
+	};
+
+	/**
+	 * Links repository for short public dispute resolution links
+	 */
+	links: LinksRepository = {
+		/**
+		 * Generate a new short link for a purchase
+		 * Ensures the generated code is unique
+		 */
+		generate: async (
+			purchaseId: string,
+			durationSeconds: number,
+		): Promise<string> => {
+			// Calculate expiration timestamp
+			const expiresAt = new Date(Date.now() + durationSeconds * 1000).toISOString();
+
+			// Generate a unique code
+			let code: string;
+			let attempts = 0;
+			const maxAttempts = 10;
+
+			do {
+				code = generateShortCode();
+				attempts++;
+
+				// Check if code already exists
+				const { results } = await this.db
+					.prepare("SELECT id FROM links WHERE code = ?")
+					.bind(code)
+					.all();
+
+				if (results.length === 0) {
+					break; // Code is unique
+				}
+			} while (attempts < maxAttempts);
+
+			if (attempts >= maxAttempts) {
+				throw new Error("Failed to generate unique short code after multiple attempts");
+			}
+
+			// Insert the link into the database
+			await this.db
+				.prepare(
+					"INSERT INTO links (code, purchase_id, expires_at) VALUES (?, ?, ?)"
+				)
+				.bind(code, purchaseId, expiresAt)
+				.run();
+
+			return code;
+		},
+
+		/**
+		 * Get the purchase ID associated with a valid link
+		 * Returns null if the code doesn't exist or has expired
+		 */
+		getPurchaseByCode: async (code: string): Promise<string | null> => {
+			const { results } = await this.db
+				.prepare(
+					"SELECT purchase_id FROM links WHERE code = ? AND expires_at > datetime('now')"
+				)
+				.bind(code)
+				.all();
+
+			if (results.length === 0) {
+				return null;
+			}
+
+			return results[0].purchase_id as string;
+		},
+
+		/**
+		 * Delete a link by its code
+		 */
+		delete: async (code: string): Promise<boolean> => {
+			const result = await this.db
+				.prepare("DELETE FROM links WHERE code = ?")
+				.bind(code)
+				.run();
+
+			return result.success;
+		},
+
+		/**
+		 * Get all links for a specific purchase
+		 */
+		getByPurchaseId: async (purchaseId: string): Promise<Link[]> => {
+			const { results } = await this.db
+				.prepare(
+					"SELECT id, code, purchase_id as purchase, expires_at as expiresAt, created_at as createdAt FROM links WHERE purchase_id = ?"
+				)
+				.bind(purchaseId)
+				.all();
+
+			return results.map((row) => ({
+				id: row.id as number,
+				code: row.code as string,
+				purchase: row.purchase as string,
+				expiresAt: row.expiresAt as string,
+				createdAt: row.createdAt as string,
+			}));
+		},
+
+		/**
+		 * Clean up expired links from the database
+		 * @returns Number of deleted links
+		 */
+		cleanupExpired: async (): Promise<number> => {
+			const result = await this.db
+				.prepare("DELETE FROM links WHERE expires_at < datetime('now')")
+				.run();
+
+			// D1 doesn't provide the number of affected rows directly
+			// We'll return 0 as a placeholder (could be improved with a separate query)
+			return 0;
+		},
+
+		/**
+		 * Get all links
+		 */
+		getAll: async (): Promise<Link[]> => {
+			const { results } = await this.db
+				.prepare(
+					"SELECT id, code, purchase_id as purchase, expires_at as expiresAt, created_at as createdAt FROM links"
+				)
+				.all();
+
+			return results.map((row) => ({
+				id: row.id as number,
+				code: row.code as string,
+				purchase: row.purchase as string,
+				expiresAt: row.expiresAt as string,
+				createdAt: row.createdAt as string,
+			}));
 		},
 	};
 

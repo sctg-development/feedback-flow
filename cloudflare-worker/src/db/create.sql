@@ -27,6 +27,7 @@ PRAGMA foreign_keys = ON;
 
 -- Drop tables if they already exist (for reset)
 DROP TABLE IF EXISTS schema_version;
+DROP TABLE IF EXISTS links;
 DROP TABLE IF EXISTS publications;
 DROP TABLE IF EXISTS feedbacks;
 DROP TABLE IF EXISTS purchases;
@@ -109,8 +110,30 @@ CREATE TABLE refunds (
     FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE
 );
 
--- Index for searching purchases by tester
-CREATE INDEX idx_purchases_tester_uuid ON purchases(tester_uuid);
+-- Links table for short public dispute resolution links
+CREATE TABLE links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code TEXT NOT NULL UNIQUE,              -- 7-character unique code for the short link
+    purchase_id TEXT NOT NULL,              -- Reference to the purchase
+    expires_at TIMESTAMP NOT NULL,          -- Expiration timestamp
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE
+);
+
+-- Index to speed up refunds lookups
+CREATE INDEX idx_refunds_purchase_id ON refunds(purchase_id);
+
+-- Index to speed up links lookups by code
+CREATE INDEX idx_links_code ON links(code);
+
+-- Index to speed up links lookups by purchase_id
+CREATE INDEX idx_links_purchase_id ON links(purchase_id);
+
+-- Index to efficiently find non-expired links
+CREATE INDEX idx_links_expires_at ON links(expires_at);
+
+-- Composite index for checking if a link exists and is still valid
+CREATE INDEX idx_links_code_expires_at ON links(code, expires_at);
 -- Index for searching refunded/non-refunded purchases
 CREATE INDEX idx_purchases_refunded ON purchases(refunded);
 
@@ -194,4 +217,4 @@ GROUP BY t.uuid;
 
 -- Insert initial schema version (or update if exists)
 INSERT  INTO schema_version (id, version, description) 
-VALUES (1, 2, 'Initial schema with transactionId support for refunds and screenshot summary');
+VALUES (1, 3, 'Schema with transactionId support for refunds, screenshot summary, and short public links');

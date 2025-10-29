@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Feedback Flow API",
-    "version": "1.4.0"
+    "version": "1.5.0"
   },
   "paths": {
     "/api/testers": {
@@ -1827,6 +1827,185 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/link/public": {
+      "post": {
+        "summary": "Generate a short public link for dispute resolution",
+        "description": "Creates a short public link that allows sharing dispute information.\nThe link is only valid if the purchase has:\n- A feedback entry (feedback created)\n- A publication entry (feedback published)\n\nThe link will expire after the specified duration (in seconds).\nRequires write:api permission.\n",
+        "tags": [
+          "Links"
+        ],
+        "parameters": [
+          {
+            "name": "duration",
+            "in": "query",
+            "required": true,
+            "description": "Duration in seconds for which the link should be valid",
+            "schema": {
+              "type": "integer",
+              "minimum": 60,
+              "maximum": 31536000,
+              "example": 3600
+            }
+          },
+          {
+            "name": "purchase",
+            "in": "query",
+            "required": true,
+            "description": "The UUID of the purchase to create a link for",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Short link successfully generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "7-character unique code (0-9, a-z, A-Z)",
+                      "example": "aBc1234"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Full URL for accessing the dispute resolution page",
+                      "example": "/link/aBc1234"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or purchase not eligible"
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          },
+          "404": {
+            "description": "Purchase not found or not owned by user"
+          }
+        }
+      }
+    },
+    "/api/link/{code}": {
+      "get": {
+        "summary": "Access public dispute resolution information",
+        "description": "Retrieves complete dispute resolution information for a valid short link.\nThis endpoint requires no authentication and provides:\n- Purchase details (order number, date, amount, screenshot)\n- Feedback details (creation date, content)\n- Publication details (publication date, screenshot)\n- Refund details if the purchase was refunded (amount, transaction ID)\n\nThe link must be valid (code format correct and not expired).\n\nNo permission required - public endpoint accessible with valid link code.\n",
+        "tags": [
+          "Links"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The 7-character unique link code",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-zA-Z]{7}$",
+              "example": "aBc1234"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dispute resolution information successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "orderNumber": {
+                          "type": "string",
+                          "description": "The order number for the purchase",
+                          "example": "102-1234567-1234567"
+                        },
+                        "orderDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date of the purchase",
+                          "example": "2024-03-15"
+                        },
+                        "purchaseAmount": {
+                          "type": "number",
+                          "description": "Amount paid for the purchase",
+                          "example": 99.99
+                        },
+                        "purchaseScreenshot": {
+                          "type": "string",
+                          "description": "Base64-encoded screenshot of the purchase"
+                        },
+                        "secondaryScreenshot": {
+                          "type": "string",
+                          "description": "Optional secondary screenshot (e.g., from publication)"
+                        },
+                        "feedbackDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date when feedback was submitted",
+                          "example": "2024-03-16"
+                        },
+                        "feedbackText": {
+                          "type": "string",
+                          "description": "The feedback text provided by the tester"
+                        },
+                        "publicationDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date when the feedback was published",
+                          "example": "2024-03-17"
+                        },
+                        "publicationScreenshot": {
+                          "type": "string",
+                          "description": "Base64-encoded screenshot of the publication"
+                        },
+                        "isRefunded": {
+                          "type": "boolean",
+                          "description": "Whether the purchase has been refunded",
+                          "example": false
+                        },
+                        "refundAmount": {
+                          "type": "number",
+                          "description": "Amount refunded (only if isRefunded is true)",
+                          "example": 99.99
+                        },
+                        "refundTransactionId": {
+                          "type": "string",
+                          "description": "Transaction ID of the refund (if available)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid link code format"
+          },
+          "404": {
+            "description": "Link not found or expired"
           }
         }
       }

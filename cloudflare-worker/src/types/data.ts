@@ -87,6 +87,15 @@ export interface Refund {
   transactionId?: string; // Optional transaction ID for refund
 }
 
+// Short public link information
+export interface Link {
+  id?: number;
+  code: string; // 7-character unique code (0-9, a-z, A-Z)
+  purchase: string; // Foreign key to purchase.id
+  expiresAt: string; // ISO timestamp for expiration
+  createdAt?: string; // ISO timestamp for creation
+}
+
 // Complete mock database structure
 export interface MockDatabase {
   testers: Tester[];
@@ -94,6 +103,7 @@ export interface MockDatabase {
   feedbacks: Feedback[];
   publications: Publication[];
   refunds: Refund[];
+  links: Link[];
 }
 
 // API request/response types
@@ -237,6 +247,22 @@ export const purchaseAllowedSortKeys = [
   "amount",
 ] as const;
 export type PurchaseSortCriteria = (typeof purchaseAllowedSortKeys)[number];
+
+// Public link data response (for dispute resolution)
+export interface PublicLinkData {
+  orderNumber: string;
+  orderDate: string;
+  purchaseAmount: number;
+  purchaseScreenshot: string;
+  secondaryScreenshot?: string;
+  feedbackDate: string;
+  feedbackText: string;
+  publicationDate: string;
+  publicationScreenshot: string;
+  refundAmount?: number;
+  refundTransactionId?: string;
+  isRefunded: boolean;
+}
 
 // Define valid sort keys for testers
 export const testerAllowedSortKeys = ["uuid", "name"] as const;
