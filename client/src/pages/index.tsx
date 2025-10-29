@@ -39,6 +39,7 @@ import EditPurchaseModal from "@/components/modals/edit-purchase-modal";
 import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
+import { GeneratePublicLinkModal } from "@/components/modals/generate-public-link-modal";
 import { PurchaseStatus } from "@/types/db";
 import { AuthenticationGuardWithPermission, useSecuredApi } from "@/components/auth0";
 import { useSearchResults } from "@/hooks/useSearchResults";
@@ -79,6 +80,8 @@ export default function IndexPage() {
   const [returnPurchase, setReturnPurchase] = useState(false);
   const [screenshot, setScreenshot] = useState<string | string[] | null>(null);
   const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
+  const [generatePublicLink, setGeneratePublicLink] = useState(false);
+  const [generateLinkPurchaseId, setGenerateLinkPurchaseId] = useState<string>("");
   const [hasWritePermission, setHasWritePermission] = useState<boolean | null>(
     null,
   );
@@ -318,6 +321,11 @@ export default function IndexPage() {
     setEditPurchase(true);
   };
 
+  const handleGenerateLink = (purchaseId: string) => {
+    setGenerateLinkPurchaseId(purchaseId);
+    setGeneratePublicLink(true);
+  };
+
   return (
     <DefaultLayout>
       <section
@@ -344,10 +352,19 @@ export default function IndexPage() {
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                   render: (item) => {
+                    const canGenerateLink = item.hasPublication && hasPermission(import.meta.env.ADMIN_PERMISSION);
+
                     return (
                       <>
                         <div className="flex items-center">
-                          <div>
+                          <div
+                            className={canGenerateLink ? "cursor-pointer hover:underline text-blue-500" : ""}
+                            onClick={() => {
+                              if (canGenerateLink) {
+                                handleGenerateLink(item.purchase);
+                              }
+                            }}
+                          >
                             {item.purchase}
                           </div>
                           <div className="flex flex-col">
@@ -356,7 +373,7 @@ export default function IndexPage() {
                             />
                             <AuthenticationGuardWithPermission permission={import.meta.env.ADMIN_PERMISSION}>
                               <EditIcon onClick={() => handleEditPurchase(item.purchase)}
-                                className="group inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent transform-gpu data-[pressed=true]:scale-[0.97] cursor-pointer outline-hidden data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-tiny rounded-small px-0 transition-transform-colors-opacity motion-reduce:transition-none bg-transparent data-[hover=true]:bg-default/40 min-w-4 w-4 h-4 relative z-50 text-zinc-300 -bottom-0 left-2"
+                                className="group inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent transform-gpu data-[pressed=true]:scale-[0.97] cursor-pointer outline-hidden data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-tiny rounded-small px-0 transition-transform-colors-opacity motion-reduce:transition-none bg-transparent data-[hover=true]:bg-default/40 min-w-4 w-4 h-4 relative z-50 text-zinc-300 bottom-0 left-2"
                               />
                             </AuthenticationGuardWithPermission>
                           </div>
@@ -572,6 +589,19 @@ export default function IndexPage() {
               setEditPurchaseId("");
             }}
             onSuccess={refreshTable}
+          />
+        </AuthenticationGuardWithPermission>
+      )}
+      {/* Generate Public Link Modal */}
+      {generatePublicLink && (
+        <AuthenticationGuardWithPermission permission={import.meta.env.ADMIN_PERMISSION}>
+          <GeneratePublicLinkModal
+            isOpen={generatePublicLink}
+            purchaseId={generateLinkPurchaseId}
+            onClose={() => {
+              setGeneratePublicLink(false);
+              setGenerateLinkPurchaseId("");
+            }}
           />
         </AuthenticationGuardWithPermission>
       )}

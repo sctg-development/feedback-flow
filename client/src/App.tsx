@@ -16,7 +16,7 @@ import { PageNotFound } from "./pages/404";
 
 import IndexPage from "@/pages/index";
 import ApiPage from "@/pages/api";
-import PricingPage from "@/pages/pricing";
+import LinkPage from "@/pages/link";
 
 function App() {
   const { isLoading, error } = useAuth0();
@@ -57,8 +57,8 @@ function App() {
           path="/api"
         />
         <Route
-          element={<AuthenticationGuard component={PricingPage} />}
-          path="/pricing"
+          element={<LinkPage />}
+          path="/link"
         />
         {siteConfig().utilitiesMenuItems.map((item) => {
           // Check if item.component exists
