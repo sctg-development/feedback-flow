@@ -1680,8 +1680,16 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				messages.push('Upgraded schema from version 1 to version 2');
 			}
 
+			// Migration to version 3 if needed (only if already at version 2)
+			if (version.version === 2) {
+				const migrationSQLModule = await import('./migrations/v3_add_links_table.sql');
+				const migrationSQL = migrationSQLModule.default;
+				await this.db.exec(migrationSQL);
+				messages.push('Upgraded schema from version 2 to version 3');
+			}
+
 			// If schema is already up to date
-			if (version.version >= 2) {
+			if (version.version >= 3) {
 				messages.push(`Schema is up to date (version ${version.version})`);
 			}
 		} catch (error) {
