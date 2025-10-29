@@ -206,7 +206,7 @@ export const setupLinksRoutes = (router: Router, env: Env) => {
                     JSON.stringify({
                         success: true,
                         code,
-                        url: `/link/${code}`,
+                        url: `link/${code}`,
                     }),
                     {
                         status: 200,
