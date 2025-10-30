@@ -16,9 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import type React from "react";
+import { LanguageSwitch } from "@/components/language-switch";
+import { availableLanguages } from "@/i18n";
+
 export default function MiniLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+            <header className="flex justify-end p-4">
+                <LanguageSwitch availableLanguages={availableLanguages} />
+            </header>
             <main className="grow flex items-center justify-center p-4">
                 <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                     {children}
