@@ -31,7 +31,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Install dependencies
         run: |
@@ -42,7 +42,7 @@ jobs:
         run: |
           cd client
           npm run openapi
-          
+
       - name: Build project
         # You can change the base path to your repository name
         run: |
