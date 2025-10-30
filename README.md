@@ -341,6 +341,7 @@ These endpoints enable testers to generate secure short links for sharing disput
    GET /link/xY7zQw
    # Returns complete dispute resolution data including purchase proof, feedback, and publication proof
    ```
+<img width="1091" height="1024" alt="Capture d’écran 2025-10-30 à 10 18 24" src="https://github.com/user-attachments/assets/862a3aae-bc35-4409-afee-f62d3cf25314" />
 
 #### Technical Details
 
