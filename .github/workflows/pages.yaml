@@ -38,6 +38,11 @@ jobs:
           cd client
           npm ci --legacy-peer-deps
 
+      - name: Create openapi.json file
+        run: |
+          cd client
+          npm run openapi
+          
       - name: Build project
         # You can change the base path to your repository name
         run: |

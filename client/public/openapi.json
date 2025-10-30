@@ -2009,6 +2009,44 @@
           }
         }
       }
+    },
+    "/api/links/expired": {
+      "delete": {
+        "summary": "Delete all expired short links",
+        "description": "Removes all expired short links from the database.\nThis endpoint is typically called as a maintenance task to clean up\nlinks that have passed their expiration date.\n\nRequires admin:api permission.\n",
+        "tags": [
+          "Links"
+        ],
+        "responses": {
+          "200": {
+            "description": "Expired links successfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "deletedCount": {
+                      "type": "integer",
+                      "description": "Number of expired links that were deleted",
+                      "example": 5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          },
+          "403": {
+            "description": "Insufficient permissions - admin:api permission required"
+          }
+        }
+      }
     }
   },
   "components": {
