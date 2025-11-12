@@ -78,6 +78,11 @@ export interface CopyButtonProps extends ButtonProps {
    * Callback when copy fails
    */
   onCopyError?: (error: unknown) => void;
+  /**
+   * Whether the value is an image (base64 data URL)
+   * @default false
+   */
+  isImage?: boolean;
 }
 
 export const CopyButton = memo<CopyButtonProps>(
@@ -89,28 +94,165 @@ export const CopyButton = memo<CopyButtonProps>(
     toastText = "Copied to clipboard",
     onCopySuccess,
     onCopyError,
+    isImage = false,
     ...buttonProps
   }) => {
     const { t } = useTranslation();
     const { copy, copied } = useClipboard();
     const [hasCopyError, setHasCopyError] = useState(false);
+    const [imageCopied, setImageCopied] = useState(false);
 
     // Reset error state after a timeout
     useEffect(() => {
       if (hasCopyError) {
         const timer = setTimeout(() => {
           setHasCopyError(false);
-        }, 2000);
+        }, copiedTimeout);
         return () => clearTimeout(timer);
       }
-    }, [hasCopyError]);
+    }, [hasCopyError, copiedTimeout]);
+
+    // Reset image copied state after a timeout
+    useEffect(() => {
+      if (imageCopied) {
+        const timer = setTimeout(() => {
+          setImageCopied(false);
+        }, copiedTimeout);
+        return () => clearTimeout(timer);
+      }
+    }, [imageCopied, copiedTimeout]);
 
     const handleCopy = useCallback(() => {
-      try {
-        if (!value) {
-          throw new Error(t('no-value-to-copy'));
-        }
+      if (isImage) {
+        // Handle image copying asynchronously
+        (async () => {
+          try {
+            if (!value) {
+              throw new Error(t('no-value-to-copy'));
+            }
 
+            let blob: Blob;
+            let originalMimeType = 'image/png';
+
+            // Check if it's a data URL
+            if (value.startsWith('data:')) {
+              // Extract MIME type from data URL
+              const mimeMatch = value.match(/^data:([^;]+)/);
+              originalMimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+
+              // Convert data URL to blob
+              const parts = value.split(',');
+              if (parts.length !== 2) {
+                throw new Error('Invalid data URL format');
+              }
+
+              const data = parts[1];
+
+              // Decode base64 to binary string
+              const binaryString = atob(data);
+              const bytes = new Uint8Array(binaryString.length);
+              for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+              }
+
+              blob = new Blob([bytes], { type: originalMimeType });
+            } else {
+              // It's a regular URL, fetch it
+              const response = await fetch(value);
+              if (!response.ok) {
+                throw new Error(`Failed to fetch image: ${response.statusText}`);
+              }
+              blob = await response.blob();
+              originalMimeType = blob.type || 'image/png';
+            }
+
+            // Convert image to PNG if it's in an unsupported format for clipboard
+            const supportedMimeTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            let finalBlob = blob;
+            let finalMimeType = originalMimeType;
+
+            if (!supportedMimeTypes.includes(originalMimeType)) {
+              // Convert to PNG using canvas
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              if (!ctx) {
+                throw new Error('Could not get canvas context');
+              }
+
+              const img = new Image();
+              img.crossOrigin = 'anonymous';
+              const blobUrl = URL.createObjectURL(blob);
+
+              try {
+                await new Promise<void>((resolve, reject) => {
+                  img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob(
+                      (pngBlob) => {
+                        if (!pngBlob) {
+                          reject(new Error('Failed to convert image to PNG'));
+                        } else {
+                          finalBlob = pngBlob;
+                          finalMimeType = 'image/png';
+                          resolve();
+                        }
+                      },
+                      'image/png'
+                    );
+                  };
+                  img.onerror = () => {
+                    reject(new Error('Failed to load image'));
+                  };
+                  img.src = blobUrl;
+                });
+              } finally {
+                URL.revokeObjectURL(blobUrl);
+              }
+            }
+
+            // Use Clipboard API to copy image blob
+            const clipboardItem = new ClipboardItem({
+              [finalMimeType]: finalBlob
+            });
+
+            await navigator.clipboard.write([clipboardItem]);
+
+            // Set image copied state for UI feedback
+            setImageCopied(true);
+            setHasCopyError(false);
+
+            if (showToast) {
+              addToast({
+                title: toastText,
+                variant: "solid",
+                timeout: copiedTimeout
+              });
+            }
+
+            if (onCopySuccess) {
+              onCopySuccess();
+            }
+          } catch (error) {
+            setHasCopyError(true);
+            setImageCopied(false);
+
+            if (showToast) {
+              addToast({
+                title: t('failed-to-copy'),
+                variant: "solid",
+                timeout: copiedTimeout
+              });
+            }
+
+            if (onCopyError) {
+              onCopyError(error);
+            }
+          }
+        })();
+      } else {
+        // Handle text copying (original behavior)
         copy(value);
 
         if (showToast) {
@@ -124,22 +266,10 @@ export const CopyButton = memo<CopyButtonProps>(
         if (onCopySuccess) {
           onCopySuccess();
         }
-      } catch (error) {
-        setHasCopyError(true);
-
-        if (showToast) {
-          addToast({
-            title: t('failed-to-copy'),
-            variant: "solid",
-            timeout: copiedTimeout
-          });
-        }
-
-        if (onCopyError) {
-          onCopyError(error);
-        }
       }
-    }, [value, copy, showToast, toastText, copiedTimeout, onCopySuccess, onCopyError]);
+    }, [value, copy, showToast, toastText, copiedTimeout, onCopySuccess, onCopyError, isImage, t]);
+
+    const isCopied = copied || imageCopied;
 
     const icon = hasCopyError ? (
       <ErrorIcon
@@ -147,27 +277,27 @@ export const CopyButton = memo<CopyButtonProps>(
         data-visible={hasCopyError}
         size={16}
       />
-    ) : copied ? (
+    ) : isCopied ? (
       <CheckLinearIcon
         className="opacity-0 scale-50 text-success data-[visible=true]:opacity-100 data-[visible=true]:scale-100 transition-transform-opacity"
-        data-visible={copied}
+        data-visible={isCopied}
         size={16}
       />
     ) : (
       <CopyLinearIcon
         className="opacity-0 scale-50 data-[visible=true]:opacity-100 data-[visible=true]:scale-100 transition-transform-opacity"
-        data-visible={!copied && !hasCopyError}
+        data-visible={!isCopied && !hasCopyError}
         size={16}
       />
     );
 
     return (
       <PreviewButton
-        className={className ?? "-bottom-0 left-0.5"}
+        className={className ?? "bottom-0 left-0.5"}
         icon={icon}
         onPress={handleCopy}
-        aria-label={copied ? t('copied') : t('copy-to-clipboard')}
-        title={copied ? t('copied') : t('copy-to-clipboard')}
+        aria-label={isCopied ? t('copied') : t('copy-to-clipboard')}
+        title={isCopied ? t('copied') : t('copy-to-clipboard')}
         {...buttonProps}
       />
     );

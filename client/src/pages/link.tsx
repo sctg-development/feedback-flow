@@ -174,9 +174,17 @@ export default function LinkPage() {
                             </div>
                             {data.purchaseScreenshot && (
                                 <div>
-                                    <p className="font-medium text-gray-600 dark:text-gray-400 mb-2">
-                                        {t("purchase-screenshot")}
-                                    </p>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="font-medium text-gray-600 dark:text-gray-400">
+                                            {t("purchase-screenshot")}
+                                        </p>
+                                        <CopyButton
+                                            value={data.purchaseScreenshot}
+                                            isImage={true}
+                                            showToast={true}
+                                            toastText={t("copied-to-clipboard")}
+                                        />
+                                    </div>
                                     <img
                                         src={data.purchaseScreenshot}
                                         alt="Purchase receipt"
@@ -227,9 +235,17 @@ export default function LinkPage() {
                             </div>
                             {data.publicationScreenshot && (
                                 <div>
-                                    <p className="font-medium text-gray-600 dark:text-gray-400 mb-2">
-                                        {t("publication-screenshot")}
-                                    </p>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="font-medium text-gray-600 dark:text-gray-400">
+                                            {t("publication-screenshot")}
+                                        </p>
+                                        <CopyButton
+                                            value={data.publicationScreenshot}
+                                            isImage={true}
+                                            showToast={true}
+                                            toastText={t("copied-to-clipboard")}
+                                        />
+                                    </div>
                                     <img
                                         src={data.publicationScreenshot}
                                         alt="Publication proof"
