@@ -25,6 +25,7 @@ import {
     ModalContent,
 } from "@heroui/modal";
 import { Button } from "@heroui/button";
+import { CopyButton } from "@/components/copy-button";
 
 interface PublicLinkData {
     orderNumber: string;
@@ -152,7 +153,7 @@ export default function LinkPage() {
                                     {t("order-number")}
                                 </p>
                                 <p className="text-gray-900 dark:text-gray-100">
-                                    {data.orderNumber}
+                                    {data.orderNumber}<CopyButton value={data.orderNumber} />
                                 </p>
                             </div>
                             <div>
@@ -160,7 +161,7 @@ export default function LinkPage() {
                                     {t("order-date")}
                                 </p>
                                 <p className="text-gray-900 dark:text-gray-100">
-                                    {new Date(data.orderDate).toLocaleDateString()}
+                                    {new Date(data.orderDate).toLocaleDateString()}<CopyButton value={new Date(data.orderDate).toLocaleDateString()} />
                                 </p>
                             </div>
                             <div>
@@ -168,7 +169,7 @@ export default function LinkPage() {
                                     {t("amount")}
                                 </p>
                                 <p className="text-gray-900 dark:text-gray-100">
-                                    €{data.purchaseAmount.toFixed(2)}
+                                    €{data.purchaseAmount.toFixed(2)} <CopyButton value={data.purchaseAmount.toFixed(2)} />
                                 </p>
                             </div>
                             {data.purchaseScreenshot && (
@@ -196,7 +197,7 @@ export default function LinkPage() {
                                     {t("feedback-date")}
                                 </p>
                                 <p className="text-gray-900 dark:text-gray-100">
-                                    {new Date(data.feedbackDate).toLocaleDateString()}
+                                    {new Date(data.feedbackDate).toLocaleDateString()}<CopyButton value={new Date(data.feedbackDate).toLocaleDateString()} />
                                 </p>
                             </div>
                             <div>
@@ -221,7 +222,7 @@ export default function LinkPage() {
                                     {t("publication-date")}
                                 </p>
                                 <p className="text-gray-900 dark:text-gray-100">
-                                    {new Date(data.publicationDate).toLocaleDateString()}
+                                    {new Date(data.publicationDate).toLocaleDateString()}<CopyButton value={new Date(data.publicationDate).toLocaleDateString()} />
                                 </p>
                             </div>
                             {data.publicationScreenshot && (
