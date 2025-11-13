@@ -62,6 +62,14 @@
 # Uses glob patterns for flexible file matching
 FILES_TO_BACKUP=(
     ".env"                                           # Environment variables
+    "cloudflare-worker/.wrangler"
+    "cloudflare-worker/.vscode/launch.json"
+    "cloudflare-worker/.vscode/settings.json"
+    client/.vscode/launch.json client/.vscode/settings.json
+    ./launch-* .env                                       # Launch scripts
+    achats.csv
+    verify_purchases.py
+    insert_missing_purchases.sql
 )
 
 # .env file is located one level from this script
