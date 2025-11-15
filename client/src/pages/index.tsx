@@ -424,7 +424,7 @@ export default function IndexPage() {
                       <span className="flex-1">{item.description}</span>
                       {item.purchaseScreenshot && (
                         <CopyButton
-                          value={item.purchaseScreenshot}
+                          value={[item.purchaseScreenshot, item.screenshotSummary || Transparent1x1WebpPixel]}
                           isImage={true}
                           showToast={true}
                           toastText={t("copied-to-clipboard")}
