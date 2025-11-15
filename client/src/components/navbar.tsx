@@ -78,7 +78,7 @@ export const Navbar = React.memo(() => {
           {siteConfig().navItems.map((item) => (
             <AuthenticationGuardWithPermission
               key={`nav-${item.href}`}
-              permission="read:api"
+              permission={import.meta.env.READ_PERMISSION}
             >
               <NavbarItem>
                 <Link
