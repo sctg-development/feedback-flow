@@ -419,6 +419,20 @@ export default function IndexPage() {
                   label: t("description"),
                   sortable: false,
                   cellTooltip: t("click-to-see-the-screenshot"),
+                  render: (item: PurchaseStatus) => (
+                    <div className="flex items-center justify-between">
+                      <span className="flex-1">{item.description}</span>
+                      {item.purchaseScreenshot && (
+                        <CopyButton
+                          value={item.purchaseScreenshot}
+                          isImage={true}
+                          showToast={true}
+                          toastText={t("copied-to-clipboard")}
+                          className="ml-2"
+                        />
+                      )}
+                    </div>
+                  ),
                   onCellAction: (item: PurchaseStatus) => {
                     item.screenshotSummary
                       ? setScreenshot([
@@ -449,6 +463,20 @@ export default function IndexPage() {
                   cellTooltip: t("click-to-see-the-screenshot"),
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
+                  render: (item: PurchaseStatus) => (
+                    <div className="flex items-center justify-between">
+                      <span className="flex-1">{item.hasPublication ? t("yes") : t("no")}</span>
+                      {item.publicationScreenshot && (
+                        <CopyButton
+                          value={item.publicationScreenshot}
+                          isImage={true}
+                          showToast={true}
+                          toastText={t("copied-to-clipboard")}
+                          className="ml-2"
+                        />
+                      )}
+                    </div>
+                  ),
                   onCellAction: (item) => {
                     if (item.hasPublication) {
                       setScreenshot(item.publicationScreenshot);
