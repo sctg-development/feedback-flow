@@ -49,6 +49,7 @@ import { usePurchaseAmounts } from "./page-components/usePurchaseAmounts";
 import { ActionCell } from "./page-components/ActionCell";
 import { StatusCell } from "./page-components/StatusCell";
 import { PurchaseIdCell } from "./page-components/PurchaseIdCell";
+import { usePurchaseTableColumns } from "./page-components/purchaseTableColumns";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -150,34 +151,6 @@ export default function IndexPage() {
   };
 
   /**
-   * Renders the action column for a purchase row based on its status
-   *
-   * The available actions depend on the purchase status:
-   * - If refunded, displays a "Refunded" label
-   * - If no feedback, shows "Create Feedback" button
-   * - If has feedback but no publication, shows "Publish Feedback" button
-   * - If has feedback and publication, shows "Refund" button
-   *
-   * @param {Object} item - The purchase item data
-   * @param {string} item.purchase - Purchase ID
-   * @param {boolean} item.refunded - Whether the purchase has been refunded
-   * @param {boolean} item.hasFeedback - Whether the purchase has feedback
-   * @param {boolean} item.hasPublication - Whether the feedback has been published
-   * @param {number} item.amount - The purchase amount
-   * @returns {JSX.Element} The rendered action column content
-   */
-  const renderActionColumn = (item: PurchaseStatus) => (
-    <ActionCell
-      item={item}
-      hasWritePermission={hasWritePermission}
-      onCreateFeedback={handleCreateFeedback}
-      onReturnItem={handleReturnItem}
-      onPublishFeedback={handlePublishFeedback}
-      onRefundPurchase={handleRefundPurchases}
-    />
-  );
-
-  /**
    * Handles opening the return modal for a specific purchase
    * Show a confirmation Modal to confirm the return
    * and then call the API to directly set the purchase as refunded
@@ -240,6 +213,19 @@ export default function IndexPage() {
     setGeneratePublicLink(true);
   };
 
+  // Use custom hook for table columns configuration
+  const { columns, emptyContent } = usePurchaseTableColumns({
+    hasWritePermission,
+    onCreateFeedback: handleCreateFeedback,
+    onReturnItem: handleReturnItem,
+    onPublishFeedback: handlePublishFeedback,
+    onRefundPurchase: handleRefundPurchases,
+    onEditPurchase: handleEditPurchase,
+    onGenerateLink: handleGenerateLink,
+    onSetScreenshot: setScreenshot,
+    onCreateNewPurchase: () => setCreateNewPurchase(true),
+  });
+
   return (
     <DefaultLayout>
       <section
@@ -257,138 +243,7 @@ export default function IndexPage() {
         ) : (
           <div className="flex gap-3 max-w-screen">
             <PaginatedTable
-              columns={[
-                {
-                  field: "purchase",
-                  label: t("purchase"),
-                  sortable: false,
-                  cellCopyable: true,
-                  className: "hidden md:table-cell",
-                  headerClassName: "hidden md:table-cell",
-                  render: (item: PurchaseStatus) => (
-                    <PurchaseIdCell
-                      purchaseId={item.purchase}
-                      hasPublication={item.hasPublication}
-                      onEditPurchase={handleEditPurchase}
-                      onGenerateLink={handleGenerateLink}
-                    />
-                  ),
-                },
-                {
-                  field: "date",
-                  label: t("date"),
-                  sortable: true,
-                  className: "hidden md:table-cell",
-                  headerClassName: "hidden md:table-cell",
-                },
-                {
-                  field: "order",
-                  label: t("order"),
-                  sortable: true,
-                  className: "hidden md:table-cell",
-                  headerClassName: "hidden md:table-cell",
-                  render: (item: PurchaseStatus) => {
-                    return (
-                      <>
-                        <Link
-                          className="text-blue-500 hover:underline break-keep"
-                          target="_blank"
-                          to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
-                        >
-                          {cleanAmazonOrderNumber(item.order)}
-                        </Link>
-                        <CopyButton
-                          className="absolute top-0 right-0"
-                          value={item.order}
-                        />
-                      </>
-                    );
-                  },
-                },
-                {
-                  field: "description",
-                  label: t("description"),
-                  sortable: false,
-                  render: (item: PurchaseStatus) => (
-                    <StatusCell
-                      text={item.description}
-                      screenshot={item.purchaseScreenshot}
-                      screenshotSummary={item.screenshotSummary}
-                      copyTooltipKey="copy-screenshots"
-                      onScreenshotClick={setScreenshot}
-                    />
-                  ),
-                  onCellAction: (item: PurchaseStatus) => {
-                    item.screenshotSummary
-                      ? setScreenshot([
-                        item.purchaseScreenshot || Transparent1x1WebpPixel,
-                        item.screenshotSummary,
-                      ])
-                      : setScreenshot(item.purchaseScreenshot || Transparent1x1WebpPixel);
-                  },
-                },
-                {
-                  field: "amount",
-                  label: t("amount"),
-                  sortable: false,
-                  className: "hidden md:table-cell",
-                  headerClassName: "hidden md:table-cell",
-                },
-                {
-                  field: "hasFeedback",
-                  label: t("hasFeedback"),
-                  sortable: false,
-                  className: "hidden md:table-cell",
-                  headerClassName: "hidden md:table-cell",
-                },
-                {
-                  field: "hasPublication",
-                  label: t("hasPublication"),
-                  sortable: false,
-                  className: "hidden md:table-cell",
-                  headerClassName: "hidden md:table-cell",
-                  render: (item: PurchaseStatus) => (
-                    <StatusCell
-                      text={item.hasPublication ? t("yes") : t("no")}
-                      screenshot={item.publicationScreenshot}
-                      copyTooltipKey="copy-screenshot"
-                      onScreenshotClick={(screenshot) => setScreenshot(screenshot)}
-                    />
-                  ),
-                  onCellAction: (item) => {
-                    if (item.hasPublication) {
-                      setScreenshot(item.publicationScreenshot);
-                    }
-                  },
-                },
-                {
-                  field: "refunded",
-                  label: t("refunded"),
-                  sortable: false,
-                  className: "hidden md:table-cell",
-                  headerClassName: "hidden md:table-cell",
-                  render: (item: PurchaseStatus) => {
-                    return item.refunded ? (
-                      <>
-                        {item.transactionId && item.transactionId.length >= 4 && !item.transactionId.startsWith("REFUND_") ? (
-                          <Link
-                            className="text-blue-500 hover:underline break-keep"
-                            target="_blank"
-                            to={`${import.meta.env.PAYPAL_TRANSACTION_BASE_URL}${item.transactionId}`}>{t("yes")}
-                          </Link>
-                        ) : (
-                          <span>{t("yes")}</span>
-                        )}
-                      </>) :
-                      <>{t("no")}</>;
-                  }
-                },
-                {
-                  field: "actions",
-                  label: t("actions"),
-                  render: (item) => renderActionColumn(item),
-                },
-              ]}
+              columns={columns}
               dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status?limitToNotRefunded=${toggleAllPurchases ? "false" : "true"}`}
               manualData={searchResults.length > 0 ? searchData : undefined}
               manualIsLoading={searchDataLoading}
@@ -399,22 +254,7 @@ export default function IndexPage() {
               refreshTrigger={refreshTrigger}
               rowKey="purchase"
               title={getTitleComponent}
-              emptyContent={
-                <div className="text-center text-muted-foreground p-4">
-                  {t("no-data-available")}
-                  {hasWritePermission && (
-                    <div className="mt-4">
-                      <Button
-                        color="primary"
-                        startContent={<EditIcon />}
-                        onPress={() => setCreateNewPurchase(true)}
-                      >
-                        {t("new-purchase")}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              }
+              emptyContent={emptyContent}
             />
           </div>
         )}
