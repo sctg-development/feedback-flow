@@ -35,6 +35,56 @@ export interface PreviewButtonProps extends ButtonProps {
   icon: React.ReactNode;
 }
 
+/**
+ * CopyButton Component
+ *
+ * A versatile React component that provides an easy way to copy text or images to the clipboard.
+ * It supports both single and multiple values, with automatic visual feedback and error handling.
+ *
+ * Key Features:
+ * - Supports copying text strings or arrays of text
+ * - Supports copying single images or multiple images (automatically stacked vertically)
+ * - Handles various image formats (PNG, JPEG, WebP, etc.) with automatic conversion
+ * - Provides visual feedback with animated icons (copy → checkmark → error)
+ * - Includes toast notifications for success/error states
+ * - Fully accessible with proper ARIA labels and keyboard support
+ * - Internationalization support with react-i18next
+ *
+ * Use Cases:
+ * - Copy API keys, tokens, or configuration values
+ * - Copy user-generated content or feedback
+ * - Copy QR codes or other visual elements
+ * - Copy multiple screenshots stacked vertically for documentation
+ * - Any scenario where users need to copy content to clipboard
+ *
+ * Example Usage:
+ *
+ * // Copy text
+ * <CopyButton value="Hello World" />
+ *
+ * // Copy multiple text values
+ * <CopyButton value={["Item 1", "Item 2", "Item 3"]} />
+ *
+ * // Copy a single image (URL or data URL)
+ * <CopyButton value="https://example.com/image.png" isImage />
+ *
+ * // Copy multiple images (stacked vertically)
+ * <CopyButton
+ *   value={["image1.png", "image2.png", "image3.png"]}
+ *   isImage
+ *   showToast
+ *   toastText="Images copied!"
+ * />
+ *
+ * // With custom styling and callbacks
+ * <CopyButton
+ *   value="Secret API Key"
+ *   className="absolute top-2 right-2"
+ *   onCopySuccess={() => console.log("Copied successfully")}
+ *   onCopyError={(error) => console.error("Copy failed", error)}
+ * />
+ */
+
 export const PreviewButton = forwardRef<
   HTMLButtonElement | null,
   PreviewButtonProps
