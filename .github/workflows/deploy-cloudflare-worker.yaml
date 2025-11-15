@@ -40,6 +40,8 @@ jobs:
 
             echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> cloudflare-worker/.env
             echo "AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }}" >> cloudflare-worker/.env
+            echo "AUTH0_CLIENT_SECRET=${{ secrets.AUTH0_CLIENT_SECRET }}" >> cloudflare-worker/.env
+            echo "ADMIN_AUTH0_PERMISSION=\"${{ vars.ADMIN_AUTH0_PERMISSION }}\"" >> cloudflare-worker/.env
             echo "AUTH0_SCOPE=\"${{ vars.AUTH0_SCOPE }}\"" >> cloudflare-worker/.env
             echo "AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}" >> cloudflare-worker/.env
             echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> cloudflare-worker/.env
@@ -61,7 +63,7 @@ jobs:
             cp wrangler.jsonc wrangler.jsonc.bak
             set -a && source .env && set +a 
             cat .env
-            cat wrangler.jsonc.bak | sed 's|// "vars".*.|,"vars": {  "PAYPAL_TRANSACTION_BASE_URL": "'"${PAYPAL_TRANSACTION_BASE_URL}"'", "AMAZON_BASE_URL": "'"${AMAZON_BASE_URL}"'", "AUTH0_DOMAIN": "'"${AUTH0_DOMAIN}"'", "AUTH0_CLIENT_ID": "'"${AUTH0_CLIENT_ID}"'", "AUTH0_SCOPE": "'"${AUTH0_SCOPE}"'", "AUTH0_AUDIENCE": "'"${AUTH0_AUDIENCE}"'", "API_BASE_URL": "'"${API_BASE_URL}"'", "CORS_ORIGIN": "'"${CORS_ORIGIN}"'", "DB_BACKEND": "'"${DB_BACKEND}"'", "DB_MAX_IMAGE_SIZE": "'"${DB_MAX_IMAGE_SIZE}"'", "BACKUP_PERMISSION": "'"${BACKUP_PERMISSION}"'", "READ_PERMISSION": "'"${READ_PERMISSION}"'", "WRITE_PERMISSION": "'"${WRITE_PERMISSION}"'", "ADMIN_PERMISSION": "'"${ADMIN_PERMISSION}"'", "SEARCH_PERMISSION": "'"${SEARCH_PERMISSION}"'", "STATISTICS_LIMIT": "'"${STATISTICS_LIMIT}"'" }|' > wrangler.jsonc.2
+            cat wrangler.jsonc.bak | sed 's|// "vars".*.|,"vars": {  "PAYPAL_TRANSACTION_BASE_URL": "'"${PAYPAL_TRANSACTION_BASE_URL}"'", "AMAZON_BASE_URL": "'"${AMAZON_BASE_URL}"'", "AUTH0_DOMAIN": "'"${AUTH0_DOMAIN}"'", "AUTH0_CLIENT_ID": "'"${AUTH0_CLIENT_ID}"'","AUTH0_CLIENT_SECRET": "'"${AUTH0_CLIENT_SECRET}"'", "AUTH0_SCOPE": "'"${AUTH0_SCOPE}"'", "AUTH0_AUDIENCE": "'"${AUTH0_AUDIENCE}"'", "API_BASE_URL": "'"${API_BASE_URL}"'", "CORS_ORIGIN": "'"${CORS_ORIGIN}"'", "DB_BACKEND": "'"${DB_BACKEND}"'", "DB_MAX_IMAGE_SIZE": "'"${DB_MAX_IMAGE_SIZE}"'", "BACKUP_PERMISSION": "'"${BACKUP_PERMISSION}"'", "READ_PERMISSION": "'"${READ_PERMISSION}"'", "WRITE_PERMISSION": "'"${WRITE_PERMISSION}"'", "ADMIN_PERMISSION": "'"${ADMIN_PERMISSION}"'", "SEARCH_PERMISSION": "'"${SEARCH_PERMISSION}"'","ADMIN_AUTH0_PERMISSION": "'"${ADMIN_AUTH0_PERMISSION}"'", "STATISTICS_LIMIT": "'"${STATISTICS_LIMIT}"'" }|' > wrangler.jsonc.2
             cat wrangler.jsonc.2 | sed 's|// "routes".*.|,"routes": [{ "pattern": "'"${DOMAIN_NAME}"'", "custom_domain": true }]|'  > wrangler.jsonc
             cat wrangler.jsonc
         - name: Deploy
@@ -73,6 +75,7 @@ jobs:
             vars: |
                 AUTH0_DOMAIN
                 AUTH0_CLIENT_ID
+                AUTH0_CLIENT_SECRET
                 AUTH0_SCOPE
                 AUTH0_AUDIENCE
                 API_BASE_URL
@@ -81,6 +84,7 @@ jobs:
                 WRITE_PERMISSION
                 ADMIN_PERMISSION
                 SEARCH_PERMISSION
+                ADMIN_AUTH0_PERMISSION
                 DB_BACKEND
                 BACKUP_PERMISSION
                 DB_MAX_IMAGE_SIZE
@@ -90,6 +94,7 @@ jobs:
           env:
             AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
             AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+            AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
             AUTH0_SCOPE: ${{ vars.AUTH0_SCOPE }}
             AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
             API_BASE_URL: ${{ secrets.API_BASE_URL }}
@@ -98,6 +103,7 @@ jobs:
             WRITE_PERMISSION: ${{ vars.WRITE_PERMISSION }}
             ADMIN_PERMISSION: ${{ vars.ADMIN_PERMISSION }}
             SEARCH_PERMISSION: ${{ vars.SEARCH_PERMISSION }}
+            ADMIN_AUTH0_PERMISSION: ${{ vars.ADMIN_AUTH0_PERMISSION }}
             DB_BACKEND: ${{ vars.DB_BACKEND }}
             BACKUP_PERMISSION: ${{ vars.BACKUP_PERMISSION }}
             DB_MAX_IMAGE_SIZE: ${{ vars.DB_MAX_IMAGE_SIZE }}
