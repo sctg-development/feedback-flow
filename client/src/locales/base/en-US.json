@@ -203,6 +203,8 @@
   "no-value-to-copy": "No value to copy",
   "copied": "Copied",
   "copy-to-clipboard": "Copy to clipboard",
+  "copy-screenshot": "Copy screenshot",
+  "copy-screenshots": "Copy screenshots",
   "edit-purchase": "Edit purchase",
   "current-screenshot": "Current screensshot",
   "current-screenshot-summary": "Current screenshot summary",

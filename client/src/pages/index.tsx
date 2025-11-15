@@ -425,13 +425,15 @@ export default function IndexPage() {
                         <span className="flex-1 cursor-pointer">{item.description}</span>
                       </Tooltip>
                       {item.purchaseScreenshot && (
-                        <CopyButton
-                          value={[item.purchaseScreenshot, item.screenshotSummary || Transparent1x1WebpPixel]}
-                          isImage={true}
-                          showToast={true}
-                          toastText={t("copied-to-clipboard")}
-                          className="ml-2"
-                        />
+                        <Tooltip content={t("copy-screenshots")}>
+                          <CopyButton
+                            value={[item.purchaseScreenshot, item.screenshotSummary || Transparent1x1WebpPixel]}
+                            isImage={true}
+                            showToast={true}
+                            toastText={t("copied-to-clipboard")}
+                            className="ml-2"
+                          />
+                        </Tooltip>
                       )}
                     </div>
                   ),
@@ -470,13 +472,15 @@ export default function IndexPage() {
                         <span className="flex-1 cursor-pointer">{item.hasPublication ? t("yes") : t("no")}</span>
                       </Tooltip>
                       {item.publicationScreenshot && (
-                        <CopyButton
-                          value={item.publicationScreenshot}
-                          isImage={true}
-                          showToast={true}
-                          toastText={t("copied-to-clipboard")}
-                          className="ml-2"
-                        />
+                        <Tooltip content={t("copy-screenshot")}>
+                          <CopyButton
+                            value={item.publicationScreenshot}
+                            isImage={true}
+                            showToast={true}
+                            toastText={t("copied-to-clipboard")}
+                            className="ml-2"
+                          />
+                        </Tooltip>
                       )}
                     </div>
                   ),

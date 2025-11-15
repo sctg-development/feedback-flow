@@ -202,6 +202,8 @@
   "failed-to-copy": "Échec de la copie",
   "copied": "Copié",
   "copy-to-clipboard": "Copier dans le presse-papiers",
+  "copy-screenshot": "Copier la copie d'écran",
+  "copy-screenshots": "Copier les copies d'écran",
   "edit-purchase": "Modifier l'achat",
   "error-loading-purchase": "Erreur lors du chargement de l'achat",
   "loading-purchase-data": "Chargement des données d'achat...",
