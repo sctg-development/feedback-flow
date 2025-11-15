@@ -198,7 +198,7 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
                 const tokenUrl = `https://${env.AUTH0_DOMAIN}/oauth/token`;
 
                 // Audience for the management API: default to api/v2
-                const audience = env.AUTH0_AUDIENCE || `https://${env.AUTH0_DOMAIN}/api/v2/`;
+                const audience =`https://${env.AUTH0_DOMAIN}/api/v2/`;
 
                 // Build the request body for client credentials grant
                 const body = {
