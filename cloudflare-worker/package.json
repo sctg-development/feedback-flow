@@ -26,8 +26,8 @@
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.10.6",
-		"@cloudflare/workers-types": "^4.20251111.0",
+		"@cloudflare/vitest-pool-workers": "^0.10.7",
+		"@cloudflare/workers-types": "^4.20251115.0",
 		"@jest/globals": "^30.2.0",
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.10.1",
@@ -46,7 +46,7 @@
 		"ts-jest": "^29.4.5",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.9.3",
-		"vitest": "~4.0.8",
+		"vitest": "~4.0.9",
 		"wrangler": "^4.47.0"
 	},
 	"dependencies": {
