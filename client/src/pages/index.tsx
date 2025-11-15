@@ -28,6 +28,7 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@heroui/button";
 import { EditIcon } from "@/components/icons";
+import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import PaginatedTable from "@/components/paginated-table";
 import AddFeedbackModal from "@/components/modals/add-feedback-modal";
