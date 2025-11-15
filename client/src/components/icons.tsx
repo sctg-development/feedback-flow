@@ -365,3 +365,6 @@ export const TrashIcon = React.memo(({
   );
 }
 );
+
+export const Transparent1x1WebpPixel =
+  "data:image/webp;base64,UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==";

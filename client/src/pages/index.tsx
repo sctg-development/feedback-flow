@@ -46,6 +46,7 @@ import { useSearchResults } from "@/hooks/useSearchResults";
 import { CopyButton } from "@/components/copy-button";
 import { cleanAmazonOrderNumber } from "@/utilities/amazon";
 import { useSearch } from "@/context/SearchContext";
+import { Transparent1x1WebpPixel } from "@/components/icons";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -351,7 +352,7 @@ export default function IndexPage() {
                   cellCopyable: true,
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
-                  render: (item) => {
+                  render: (item: PurchaseStatus) => {
                     const canGenerateLink = item.hasPublication && hasPermission(import.meta.env.ADMIN_PERMISSION);
 
                     return (
@@ -395,7 +396,7 @@ export default function IndexPage() {
                   sortable: true,
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
-                  render: (item) => {
+                  render: (item: PurchaseStatus) => {
                     return (
                       <>
                         <Link
@@ -418,13 +419,13 @@ export default function IndexPage() {
                   label: t("description"),
                   sortable: false,
                   cellTooltip: t("click-to-see-the-screenshot"),
-                  onCellAction: (item) => {
+                  onCellAction: (item: PurchaseStatus) => {
                     item.screenshotSummary
                       ? setScreenshot([
-                        item.purchaseScreenshot,
+                        item.purchaseScreenshot || Transparent1x1WebpPixel,
                         item.screenshotSummary,
                       ])
-                      : setScreenshot(item.purchaseScreenshot);
+                      : setScreenshot(item.purchaseScreenshot || Transparent1x1WebpPixel);
                   },
                 },
                 {
@@ -460,7 +461,7 @@ export default function IndexPage() {
                   sortable: false,
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
-                  render: (item) => {
+                  render: (item: PurchaseStatus) => {
                     return item.refunded ? (
                       <>
                         {item.transactionId && item.transactionId.length >= 4 && !item.transactionId.startsWith("REFUND_") ? (
