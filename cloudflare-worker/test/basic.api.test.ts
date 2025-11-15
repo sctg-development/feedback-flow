@@ -219,6 +219,35 @@ describe('Feedback Flow API', () => {
     expect(response.data.error).toBe('ID already exists in the database');
   });
 
+  test('900. Should return an Auth0 management token from the system endpoint (if configured)', async () => {
+    // Only run if Auth0 client credentials are configured in the environment
+    const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID || '';
+    const AUTH0_CLIENT_SECRET = process.env.AUTH0_CLIENT_SECRET || '';
+    const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || '';
+
+    if (!AUTH0_CLIENT_ID || !AUTH0_CLIENT_SECRET || !AUTH0_DOMAIN) {
+      // Skip this test if credentials are not present (local environment)
+      console.warn('Skipping Auth0 management token test because AUTH0_CLIENT_* or AUTH0_DOMAIN is not set');
+      return;
+    }
+
+    // Attempt to call the system endpoint to get a management token
+    const response = await api.post('/api/__auth0/token', {});
+
+    // If we are not permitted to call the endpoint, we can get a 403
+    if (response.status === 403) {
+      expect(response.data.success).toBeFalsy();
+      expect(response.data.error).toBeDefined();
+      return;
+    }
+
+    // If successful, expect an access token to be present
+    expect(response.status).toBe(200);
+    expect(response.data).toBeDefined();
+    expect(response.data.access_token).toBeDefined();
+    expect(typeof response.data.access_token).toBe('string');
+  });
+
   test('70. Should create a purchase', async () => {
     const purchase: Purchase = {
       date: new Date().toISOString().split('T')[0], // Today in YYYY-MM-DD format
