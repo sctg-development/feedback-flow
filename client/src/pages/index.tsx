@@ -48,6 +48,8 @@ import { CopyButton } from "@/components/copy-button";
 import { cleanAmazonOrderNumber } from "@/utilities/amazon";
 import { useSearch } from "@/context/SearchContext";
 import { Transparent1x1WebpPixel } from "@/components/icons";
+import { usePurchasePermissions } from "./page-components/usePurchasePermissions";
+import { usePurchaseAmounts } from "./page-components/usePurchaseAmounts";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -64,13 +66,15 @@ import { Transparent1x1WebpPixel } from "@/components/icons";
  */
 export default function IndexPage() {
   const { t } = useTranslation();
-  const { getJson, hasPermission } = useSecuredApi();
+  const { hasPermission } = useSecuredApi();
   const { isAuthenticated } = useAuth0();
   const { searchResults } = useSearch();
   const { data: searchData, isLoading: searchDataLoading } = useSearchResults({
     searchResults,
     isActive: searchResults.length > 0,
   });
+
+  // State declarations
   const [createFeedbackPurchase, setCreateFeedbackPurchase] = useState(false);
   const [createNewPurchase, setCreateNewPurchase] = useState(false);
   const [publishFeedbackPurchase, setPublishFeedbackPurchase] = useState(false);
@@ -84,54 +88,10 @@ export default function IndexPage() {
   const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
   const [generatePublicLink, setGeneratePublicLink] = useState(false);
   const [generateLinkPurchaseId, setGenerateLinkPurchaseId] = useState<string>("");
-  const [hasWritePermission, setHasWritePermission] = useState<boolean | null>(
-    null,
-  );
 
-  // Get write permissions on component mount
-  useEffect(() => {
-    const checkPermissions = async () => {
-      const canWrite = await hasPermission(import.meta.env.WRITE_PERMISSION);
-
-      setHasWritePermission(canWrite);
-    };
-
-    checkPermissions();
-  }, [hasPermission]);
-  // Add state for title data
-  const [titleData, setTitleData] = useState({
-    notRefundedAmount: 0,
-    refundedAmount: 0,
-  });
-
-  // Load amounts when toggle changes or table refreshes
-  useEffect(() => {
-    if (toggleAllPurchases) {
-      // Load refunded amounts
-      getJson(`${import.meta.env.API_BASE_URL}/purchases/refunded-amount`).then(
-        (data) => {
-          if (data.success) {
-            setTitleData((prev) => ({
-              ...prev,
-              refundedAmount: data.amount,
-            }));
-          }
-        },
-      );
-    } else {
-      // Load not refunded amounts
-      getJson(
-        `${import.meta.env.API_BASE_URL}/purchases/not-refunded-amount`,
-      ).then((data) => {
-        if (data.success) {
-          setTitleData((prev) => ({
-            ...prev,
-            notRefundedAmount: data.amount,
-          }));
-        }
-      });
-    }
-  }, [toggleAllPurchases, refreshTrigger]);
+  // Use custom hooks for permissions and amounts
+  const { hasWritePermission } = usePurchasePermissions();
+  const { titleData } = usePurchaseAmounts(toggleAllPurchases, refreshTrigger);
 
   // Refresh table when search results change
   useEffect(() => {
