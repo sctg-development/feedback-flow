@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
 import { EditIcon } from "@heroui/shared-icons";
+import { Tooltip } from "@heroui/tooltip";
 import { Link } from "react-router-dom";
 
 import { title } from "@/components/primitives";
@@ -418,10 +419,11 @@ export default function IndexPage() {
                   field: "description",
                   label: t("description"),
                   sortable: false,
-                  cellTooltip: t("click-to-see-the-screenshot"),
                   render: (item: PurchaseStatus) => (
                     <div className="flex items-center justify-between">
-                      <span className="flex-1">{item.description}</span>
+                      <Tooltip content={t("click-to-see-the-screenshot")}>
+                        <span className="flex-1 cursor-pointer">{item.description}</span>
+                      </Tooltip>
                       {item.purchaseScreenshot && (
                         <CopyButton
                           value={[item.purchaseScreenshot, item.screenshotSummary || Transparent1x1WebpPixel]}
@@ -460,12 +462,13 @@ export default function IndexPage() {
                   field: "hasPublication",
                   label: t("hasPublication"),
                   sortable: false,
-                  cellTooltip: t("click-to-see-the-screenshot"),
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                   render: (item: PurchaseStatus) => (
                     <div className="flex items-center justify-between">
-                      <span className="flex-1">{item.hasPublication ? t("yes") : t("no")}</span>
+                      <Tooltip content={t("click-to-see-the-screenshot")}>
+                        <span className="flex-1 cursor-pointer">{item.hasPublication ? t("yes") : t("no")}</span>
+                      </Tooltip>
                       {item.publicationScreenshot && (
                         <CopyButton
                           value={item.publicationScreenshot}
