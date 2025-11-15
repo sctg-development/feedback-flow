@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # =============================================================================
-# Secure Restore Script for Sensitive Data version 2.6
+# Secure Restore Script for Sensitive Data version 2.5
 # =============================================================================
 #
 # This script decrypts and displays the contents of an encrypted backup archive

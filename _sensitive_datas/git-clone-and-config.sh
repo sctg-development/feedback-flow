@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # =============================================================================
-# Git Clone and Configure Script version 2.6
+# Git Clone and Configure Script version 2.5
 # =============================================================================
 #
 # Generalized script to clone a Git repository with a specific SSH key and configure GPG signing for commits.
