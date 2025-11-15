@@ -21,15 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Button } from "@heroui/button";
-import { EditIcon } from "@heroui/shared-icons";
-import { Tooltip } from "@heroui/tooltip";
 import { Link } from "react-router-dom";
 
-import { title } from "@/components/primitives";
+import { Button } from "@heroui/button";
+import { EditIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import PaginatedTable from "@/components/paginated-table";
 import AddFeedbackModal from "@/components/modals/add-feedback-modal";
@@ -38,7 +36,6 @@ import RefundPurchaseModal from "@/components/modals/refund-purchase-modal";
 import CreatePurchaseModal from "@/components/modals/create-purchase-modal";
 import EditPurchaseModal from "@/components/modals/edit-purchase-modal";
 import { ScreenshotModal } from "@/components/modals/screenshot-modal";
-import ButtonAddFeedbackOrReturn from "@/components/button-add-feedback-or-return";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { GeneratePublicLinkModal } from "@/components/modals/generate-public-link-modal";
 import { PurchaseStatus } from "@/types/db";
@@ -47,9 +44,11 @@ import { useSearchResults } from "@/hooks/useSearchResults";
 import { CopyButton } from "@/components/copy-button";
 import { cleanAmazonOrderNumber } from "@/utilities/amazon";
 import { useSearch } from "@/context/SearchContext";
-import { Transparent1x1WebpPixel } from "@/components/icons";
 import { usePurchasePermissions } from "./page-components/usePurchasePermissions";
 import { usePurchaseAmounts } from "./page-components/usePurchaseAmounts";
+import { ActionCell } from "./page-components/ActionCell";
+import { StatusCell } from "./page-components/StatusCell";
+import { PurchaseIdCell } from "./page-components/PurchaseIdCell";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -167,63 +166,16 @@ export default function IndexPage() {
    * @param {number} item.amount - The purchase amount
    * @returns {JSX.Element} The rendered action column content
    */
-  const renderActionColumn = (item: PurchaseStatus) => {
-    // Early return if permissions are still loading
-    if (hasWritePermission === null) {
-      return <span className="text-gray-400">{t("loading")}</span>;
-    }
-
-    if (item.refunded) {
-      return <span className="text-green-500">{t("refunded")}</span>;
-    }
-
-    if (!item.hasFeedback && hasWritePermission) {
-      return (
-        <div className="flex gap-2">
-          <ButtonAddFeedbackOrReturn
-            onAction={(key) => {
-              if (key === "feedback") {
-                handleCreateFeedback(item.purchase, item.amount);
-              } else if (key === "return") {
-                handleReturnItem(item.purchase, item.amount);
-              }
-            }}
-          />
-        </div>
-      );
-    }
-
-    if (item.hasFeedback && !item.hasPublication && hasWritePermission) {
-      return (
-        <div className="flex gap-2">
-          <Button
-            key={"publish-feedback"}
-            color="primary"
-            size="md"
-            onPress={() => handlePublishFeedback(item.purchase, item.amount)}
-          >
-            {t("publish-feedback")}
-          </Button>
-        </div>
-      );
-    }
-
-    if (item.hasFeedback && item.hasPublication && hasWritePermission) {
-      return (
-        <div className="flex gap-2">
-          <Button
-            color="primary"
-            size="md"
-            onPress={() => handleRefundPurchases(item.purchase, item.amount)}
-          >
-            {t("refund")}
-          </Button>
-        </div>
-      );
-    }
-
-    return <span className="text-red-500">{t("read-only")}</span>;
-  };
+  const renderActionColumn = (item: PurchaseStatus) => (
+    <ActionCell
+      item={item}
+      hasWritePermission={hasWritePermission}
+      onCreateFeedback={handleCreateFeedback}
+      onReturnItem={handleReturnItem}
+      onPublishFeedback={handlePublishFeedback}
+      onRefundPurchase={handleRefundPurchases}
+    />
+  );
 
   /**
    * Handles opening the return modal for a specific purchase
@@ -313,36 +265,14 @@ export default function IndexPage() {
                   cellCopyable: true,
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
-                  render: (item: PurchaseStatus) => {
-                    const canGenerateLink = item.hasPublication && hasPermission(import.meta.env.ADMIN_PERMISSION);
-
-                    return (
-                      <>
-                        <div className="flex items-center">
-                          <div
-                            className={canGenerateLink ? "cursor-pointer hover:underline text-blue-500" : ""}
-                            onClick={() => {
-                              if (canGenerateLink) {
-                                handleGenerateLink(item.purchase);
-                              }
-                            }}
-                          >
-                            {item.purchase}
-                          </div>
-                          <div className="flex flex-col">
-                            <CopyButton
-                              value={item.purchase}
-                            />
-                            <AuthenticationGuardWithPermission permission={import.meta.env.ADMIN_PERMISSION}>
-                              <EditIcon onClick={() => handleEditPurchase(item.purchase)}
-                                className="group inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent transform-gpu data-[pressed=true]:scale-[0.97] cursor-pointer outline-hidden data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-tiny rounded-small px-0 transition-transform-colors-opacity motion-reduce:transition-none bg-transparent data-[hover=true]:bg-default/40 min-w-4 w-4 h-4 relative z-50 text-zinc-300 bottom-0 left-2"
-                              />
-                            </AuthenticationGuardWithPermission>
-                          </div>
-                        </div>
-                      </>
-                    );
-                  },
+                  render: (item: PurchaseStatus) => (
+                    <PurchaseIdCell
+                      purchaseId={item.purchase}
+                      hasPublication={item.hasPublication}
+                      onEditPurchase={handleEditPurchase}
+                      onGenerateLink={handleGenerateLink}
+                    />
+                  ),
                 },
                 {
                   field: "date",
@@ -380,22 +310,13 @@ export default function IndexPage() {
                   label: t("description"),
                   sortable: false,
                   render: (item: PurchaseStatus) => (
-                    <div className="flex items-center justify-between">
-                      <Tooltip content={t("click-to-see-the-screenshot")}>
-                        <span className="flex-1 cursor-pointer">{item.description}</span>
-                      </Tooltip>
-                      {item.purchaseScreenshot && (
-                        <Tooltip content={t("copy-screenshots")}>
-                          <CopyButton
-                            value={[item.purchaseScreenshot, item.screenshotSummary || Transparent1x1WebpPixel]}
-                            isImage={true}
-                            showToast={true}
-                            toastText={t("copied-to-clipboard")}
-                            className="ml-2"
-                          />
-                        </Tooltip>
-                      )}
-                    </div>
+                    <StatusCell
+                      text={item.description}
+                      screenshot={item.purchaseScreenshot}
+                      screenshotSummary={item.screenshotSummary}
+                      copyTooltipKey="copy-screenshots"
+                      onScreenshotClick={setScreenshot}
+                    />
                   ),
                   onCellAction: (item: PurchaseStatus) => {
                     item.screenshotSummary
@@ -427,22 +348,12 @@ export default function IndexPage() {
                   className: "hidden md:table-cell",
                   headerClassName: "hidden md:table-cell",
                   render: (item: PurchaseStatus) => (
-                    <div className="flex items-center justify-between">
-                      <Tooltip content={t("click-to-see-the-screenshot")}>
-                        <span className="flex-1 cursor-pointer">{item.hasPublication ? t("yes") : t("no")}</span>
-                      </Tooltip>
-                      {item.publicationScreenshot && (
-                        <Tooltip content={t("copy-screenshot")}>
-                          <CopyButton
-                            value={item.publicationScreenshot}
-                            isImage={true}
-                            showToast={true}
-                            toastText={t("copied-to-clipboard")}
-                            className="ml-2"
-                          />
-                        </Tooltip>
-                      )}
-                    </div>
+                    <StatusCell
+                      text={item.hasPublication ? t("yes") : t("no")}
+                      screenshot={item.publicationScreenshot}
+                      copyTooltipKey="copy-screenshot"
+                      onScreenshotClick={(screenshot) => setScreenshot(screenshot)}
+                    />
                   ),
                   onCellAction: (item) => {
                     if (item.hasPublication) {
