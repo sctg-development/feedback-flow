@@ -50,7 +50,7 @@
 		"wrangler": "^4.47.0"
 	},
 	"dependencies": {
-		"jose": "^6.1.1",
+		"jose": "^6.1.2",
 		"uuid": "^13.0.0"
 	}
 }
