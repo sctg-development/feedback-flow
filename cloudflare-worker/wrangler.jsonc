@@ -43,6 +43,12 @@
 			},
 		],
 	},
+	"kv_namespaces": [
+		{
+			"binding": "KV_CACHE",
+			"id": "60bd9fcf8f724f9d9a99f1cb549980bf"
+		}
+	],
 	"d1_databases": [
 		{
 			"binding": "FeedbackFlowDB",
