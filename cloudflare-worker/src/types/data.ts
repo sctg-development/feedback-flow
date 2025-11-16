@@ -377,3 +377,35 @@ export interface PurchaseSearchResponse {
   data: string[];
   error?: string;
 }
+
+/**
+ * Response type returned by the system endpoint POST /api/__auth0/token
+ *
+ * This type describes the shape of the successful response that contains a
+ * management API token for Auth0. The token can be returned either by making a
+ * request to Auth0 or by reading a cached value from Cloudflare KV.
+ *
+ * Fields:
+ * - access_token: The JWT used to access Auth0 Management API (do not expose secrets)
+ * - token_type: Usually "Bearer" (optional)
+ * - expires_in: Number of seconds the token is valid starting now (optional)
+ * - from_cache: boolean that indicates whether the returned token was retrieved from KV cache
+ *
+ * Use this interface client-side to type-check API responses and handle cached tokens
+ * in a predictable way.
+ */
+export interface Auth0ManagementTokenResponse {
+  /** The management access token (JWT). */
+  access_token: string;
+  /** The token type. Usually "Bearer". */
+  token_type?: string;
+  /** Seconds until the token expires (relative TTL) */
+  expires_in?: number;
+  /** True when the token is served from KV cache, false when freshly obtained */
+  from_cache: boolean;
+}
+
+/**
+ * Union type for the API response: either the token or a standard error response
+ */
+export type Auth0ManagementTokenApiResponse = Auth0ManagementTokenResponse | ErrorResponse;

@@ -1589,7 +1589,7 @@
     "/api/__auth0/token": {
       "post": {
         "summary": "Get Auth0 Management API token",
-        "description": "Request an Auth0 Management API JWT token using the Client Credentials grant.\nThis endpoint requires `ADMIN_AUTH0_PERMISSION` and uses the following\nenvironment variables: `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, and `AUTH0_DOMAIN`.\nReturns a JSON response containing access_token, token_type, and expires_in when successful.\n",
+        "description": "Request an Auth0 Management API JWT token using the Client Credentials grant and cache it in KV store if available.\nThis endpoint requires `ADMIN_AUTH0_PERMISSION` and uses the following\nenvironment variables: `AUTH0_MANAGEMENT_API_CLIENT_ID`, `AUTH0_MANAGEMENT_API_CLIENT_SECRET`, and `AUTH0_DOMAIN`.\nReturns a JSON response containing access_token, token_type, and expires_in when successful.\n",
         "tags": [
           "System",
           "Auth0"
@@ -1610,6 +1610,9 @@
                     },
                     "expires_in": {
                       "type": "integer"
+                    },
+                    "from_cache": {
+                      "type": "boolean"
                     }
                   }
                 }

@@ -17,6 +17,8 @@ import { Router } from "../router";
 import { CloudflareD1DB } from "../../db/d1-db";
 import { InMemoryDB } from "../../db/in-memory-db";
 import { getDatabase } from "../../db/db";
+import { decodeJwt } from 'jose';
+import type { Auth0ManagementTokenResponse, Auth0ManagementTokenApiResponse, ErrorResponse } from "../../types/data";
 
 /**
  * Setup system and backup routes
@@ -131,15 +133,17 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
      *  - AUTH0_MANAGEMENT_API_CLIENT_SECRET
      *  - AUTH0_DOMAIN
      *
+     * The token is cached in KV store if `env.KV_CACHE` is available to reduce requests to Auth0.
+     * 
      * Security note: This route should be limited to administrative users
-     * and the AUTH0_CLIENT_SECRET should never be returned or logged.
+     * and the AUTH0_MANAGEMENT_API_CLIENT_SECRET should never be returned or logged.
      *
      * @openapi
      * /api/__auth0/token:
      *   post:
      *     summary: Get Auth0 Management API token
      *     description: |
-     *       Request an Auth0 Management API JWT token using the Client Credentials grant.
+     *       Request an Auth0 Management API JWT token using the Client Credentials grant and cache it in KV store if available.
      *       This endpoint requires `ADMIN_AUTH0_PERMISSION` and uses the following
      *       environment variables: `AUTH0_MANAGEMENT_API_CLIENT_ID`, `AUTH0_MANAGEMENT_API_CLIENT_SECRET`, and `AUTH0_DOMAIN`.
      *       Returns a JSON response containing access_token, token_type, and expires_in when successful.
@@ -160,6 +164,8 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
      *                   type: string
      *                 expires_in:
      *                   type: integer
+     *                 from_cache:
+     *                   type: boolean
      *       403:
      *         description: Unauthorized - `ADMIN_AUTH0_PERMISSION` required
      *         content:
@@ -188,7 +194,8 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
             try {
                 // Validate required environment variables
                 if (!env.AUTH0_MANAGEMENT_API_CLIENT_ID || !env.AUTH0_MANAGEMENT_API_CLIENT_SECRET || !env.AUTH0_DOMAIN) {
-                    return new Response(JSON.stringify({ error: "Auth0 configuration is missing" }, null, 2), {
+                    const err: ErrorResponse = { success: false, error: "Auth0 configuration is missing" };
+                    return new Response(JSON.stringify(err, null, 2), {
                         status: 500,
                         headers: { ...router.corsHeaders, "Content-Type": "application/json" },
                     });
@@ -209,6 +216,52 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
                 };
                 console.log("Requesting Auth0 token from:", tokenUrl, "for audience:", audience);
 
+                // Check cache first: if a cached token exists and is not expired, return it
+                const cacheKey = `auth0:management_token`;
+                if (env.KV_CACHE) {
+                    try {
+                        const cached = await env.KV_CACHE.get(cacheKey);
+                        if (cached) {
+                            let parsed: { token?: string; exp?: number } | null = null;
+                            try {
+                                parsed = JSON.parse(cached);
+                            } catch (e) {
+                                // cached value may be raw token string
+                            }
+
+                            const token = parsed?.token ?? cached;
+                            let exp = parsed?.exp;
+                            if (!exp && token) {
+                                try {
+                                    const decoded = decodeJwt(token);
+                                    exp = (decoded?.exp as number) || undefined;
+                                } catch (_) {
+                                    exp = undefined;
+                                }
+                            }
+
+                            // If token has expiry and is still valid, return cached token
+                            if (exp) {
+                                const now = Math.floor(Date.now() / 1000);
+                                if (exp > now + 5) {
+                                    // Return cached token with computed expires_in
+                                    const expires_in = exp - now;
+                                    const cachedResult: Auth0ManagementTokenResponse = { access_token: token, token_type: "Bearer", expires_in, from_cache: true };
+                                    return new Response(JSON.stringify(cachedResult, null, 2), {
+                                        status: 200,
+                                        headers: { ...router.corsHeaders, "Content-Type": "application/json" },
+                                    });
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // KV get failed — proceed to request token from Auth0
+                        // Log and continue
+                        // eslint-disable-next-line no-console
+                        console.warn("KV_CACHE access failed, requesting new token", String(e));
+                    }
+                }
+
                 // Request a token from Auth0
                 const resp = await fetch(tokenUrl, {
                     method: "POST",
@@ -220,7 +273,8 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
 
                 if (!resp.ok) {
                     const errorText = await resp.text();
-                    return new Response(JSON.stringify({ error: `Failed to retrieve token: ${errorText}` }, null, 2), {
+                    const err: ErrorResponse = { success: false, error: `Failed to retrieve token: ${errorText}` };
+                    return new Response(JSON.stringify(err, null, 2), {
                         status: 500,
                         headers: { ...router.corsHeaders, "Content-Type": "application/json" },
                     });
@@ -236,25 +290,59 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
                 };
 
                 if (!data || !data.access_token) {
-                    return new Response(JSON.stringify({ error: "Invalid response from Auth0: no access_token returned" }, null, 2), {
+                    const err: ErrorResponse = { success: false, error: "Invalid response from Auth0: no access_token returned" };
+                    return new Response(JSON.stringify(err, null, 2), {
                         status: 500,
                         headers: { ...router.corsHeaders, "Content-Type": "application/json" },
                     });
                 }
 
                 // Only allow returning the access token and metadata, do not return secrets
-                const result = {
+                const result: Auth0ManagementTokenResponse = {
                     access_token: data.access_token as string,
                     token_type: data.token_type as string | undefined,
                     expires_in: data.expires_in as number | undefined,
+                    from_cache: false,
                 };
 
-                return new Response(JSON.stringify(result, null, 2), {
+                // If KV cache is available, store token with its expiration
+                if (env.KV_CACHE && data.access_token) {
+                    try {
+                        const token = data.access_token as string;
+                        const now = Math.floor(Date.now() / 1000);
+                        let exp: number | undefined;
+                        if (typeof data.expires_in === 'number') {
+                            exp = now + Math.floor(data.expires_in as number);
+                        } else {
+                            try {
+                                const decoded = decodeJwt(token);
+                                exp = (decoded?.exp as number) || undefined;
+                            } catch (_) {
+                                exp = undefined;
+                            }
+                        }
+
+                        if (exp && exp > now + 5) {
+                            // Store token and expiry in KV. Use 'expiration' option
+                            const kvValue = JSON.stringify({ token, exp });
+                            await env.KV_CACHE.put(cacheKey, kvValue, { expiration: exp });
+                        }
+                    } catch (e) {
+                        // Ignore KV cache issues — token is still returned
+                        // eslint-disable-next-line no-console
+                        console.warn('Failed to store token in KV_CACHE', String(e));
+                    }
+                }
+
+                const responseBody: Auth0ManagementTokenApiResponse = result;
+
+                return new Response(JSON.stringify(responseBody, null, 2), {
                     status: 200,
                     headers: { ...router.corsHeaders, "Content-Type": "application/json" },
                 });
             } catch (error) {
-                return new Response(JSON.stringify({ error: String(error) }, null, 2), {
+                const err: ErrorResponse = { success: false, error: String(error) };
+                return new Response(JSON.stringify(err, null, 2), {
                     status: 500,
                     headers: { ...router.corsHeaders, "Content-Type": "application/json" },
                 });

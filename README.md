@@ -81,6 +81,7 @@ There may be a delay between the purchase and the refund. Additionally, the refu
 | permission | description |
 |------------|-------------|
 | admin:api  | Administer the API |
+| auth0:admin:api  | Administer Auth0 users |
 | read:api  | Read one's own feedback data |
 | write:api  | Write one's own feedback data |
 | search:api | Search for feedback data |
@@ -146,6 +147,8 @@ Create a `.env` file in the root of the repository with the following structure:
 # Auth0 Configuration (replace with your actual values)
 AUTH0_CLIENT_ID=your_actual_client_id_here
 AUTH0_CLIENT_SECRET=your_actual_client_secret_here
+AUTH0_MANAGEMENT_API_CLIENT_ID=your_actual_management_api_client_id_here
+AUTH0_MANAGEMENT_API_CLIENT_SECRET=your_actual_management_api_client_secret_here
 AUTH0_DOMAIN=your-domain.eu.auth0.com
 AUTH0_SCOPE="openid profile email read:api write:api admin:api backup:api"
 AUTH0_AUDIENCE="http://localhost:8787/api"
@@ -159,6 +162,7 @@ CORS_ORIGIN=http://localhost:5173
 READ_PERMISSION=read:api
 WRITE_PERMISSION=write:api
 ADMIN_PERMISSION=admin:api
+ADMIN_AUTH0_PERMISSION=auth0:admin:api
 BACKUP_PERMISSION=backup:api
 SEARCH_PERMISSION=search:api
 
@@ -186,199 +190,9 @@ This data allows you to immediately test all application features without manual
 
 ## REST API
 
-A Swagger ui is automatically generated for the API. It is available at `/docs`. The API is secured with Auth0. The API uses the same authentication process as the application. The API requires a JWT token to be sent in the `Authorization` header of each request. The token must be prefixed with `Bearer`.  
+A Swagger ui is automatically generated for the API. It is available at [/docs](https://sctg-development.github.io/feedback-flow/docs). The API is secured with Auth0. The API uses the same authentication process as the application. The API requires a JWT token to be sent in the `Authorization` header of each request. The token must be prefixed with `Bearer`.  
 For easily adding the token, simply click on your name in the footer of the application. A modal will open with the token. Copy the token with the supplied button and paste it in the `Authorization` field in Swagger. The token is valid for 24 hours. The API uses the same permissions as the application. The API uses the same database as the application.  
 
-The REST API exchanges all objects in JSON format. The API provides the following endpoints:
-
-### Tester Management
-
-- **GET `/api/testers`** - Retrieve all testers with pagination - requires admin:api permission
-  - Optional parameters: `?page=1&limit=10&sort=name&order=asc`
-  - Response: `{success: boolean, data: [{uuid: string, name: string, ids: string[]}], total: number, page: number, limit: number}`
-
-- **POST `/api/tester`** - Add a tester to the database (their ID is automatically generated with a UUID) - requires admin:api permission
-  - Request: `{name: string, ids: string[]|string}`
-  - Response: `{success: boolean, uuid: string}`
-
-- **POST `/api/tester/ids`** - Add an ID to the authenticated tester - requires admin:api permission
-  - Request: `{name: string, id: string}`
-  - Response: `{success: boolean, name: string, ids: [string]}`
-
-- **GET `/api/tester`** - Get information about the authenticated tester - requires admin:api permission
-  - Response: `{success: boolean, data: {uuid: string, name: string, ids: [string]}}`
-
-### Purchase Management
-
-- **POST `/api/purchase`** - Add a new purchase to the database - requires write:api permission
-  - Request: `{date: string, order: string, description: string, amount: number, screenshot: string}`
-  - Response: `{success: boolean, id: string}`
-
-- **GET `/api/purchase/:id`** - Get information about a specific purchase - requires read:api permission
-  - Response: `{success: boolean, data: {id: string, date: string, order: string, description: string, amount: number, screenshot: string}}`
-
-- **POST `/api/purchase/:id`** - Update an existing purchase - requires write:api permission
-  - Request: `{date?: string, order?: string, description?: string, amount?: number, screenshot?: string, screenshotSummary?: string}`
-  - Response: `{success: boolean, message: string}`
-
-- **DELETE `/api/purchase/:purchaseId`** - Delete a purchase by ID - requires write:api permission
-  - Response: `{success: boolean, message: string}`
-
-- **GET `/api/purchases/not-refunded`** - Get a list of the authenticated tester's non-refunded purchases - requires read:api permission
-  - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
-  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
-
-- **GET `/api/purchases/refunded`** - Get a list of the authenticated tester's refunded purchases - requires read:api permission
-  - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
-  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number}], total: number, page: number, limit: number}`
-
-- **GET `/api/purchases/ready-to-refund`** - Get a list of purchases ready for refund (with feedback and publication) - requires read:api permission
-  - Optional parameters: `?page=1&limit=10&sort=date&order=desc`
-  - Response: `{success: boolean, data: [{id: string, date: string, order: string, description: string, amount: number, feedback: string, feedbackDate: string, publicationDate: string, publicationScreenshot: string}], total: number, page: number, limit: number}`
-  
-- **GET `/api/purchase-status`** - Get the status of all purchases with feedback/publication/refund status - requires read:api permission
-  - Optional parameters: `?page=1&limit=10&sort=date&order=desc&limitToNotRefunded=true`
-  - Response: `{success: boolean, data: [{purchase: string, date: string, order: string, description: string, amount: number, refunded: boolean, hasFeedback: boolean, hasPublication: boolean, hasRefund: boolean, transactionId?: string}], total: number, page: number, limit: number}`
-
-- **POST `/api/purchase-status-batch`** - Get purchase status for a list of purchase IDs - requires read:api permission
-  - Request: `{purchaseIds: string[], page?: number, limit?: number, sort?: string, order?: string}`
-  - Response: `{success: boolean, data: [{purchase: string, date: string, order: string, description: string, amount: number, refunded: boolean, hasFeedback: boolean, hasPublication: boolean, hasRefund: boolean, transactionId?: string}], pageInfo: {currentPage: number, totalPages: number, totalCount: number, hasNextPage: boolean, hasPreviousPage: boolean}}`
-
-- **POST `/api/purchase/search`** - Search purchases using fuzzy matching - requires read:api permission
-  - Searches for purchases matching the query using fuzzy matching
-  - Supports case-insensitive search, accent-insensitive search, and partial matches
-  - Searches in purchase ID, order number, description, and amount
-  - Minimum query length: 4 characters
-  - Request: `{query: string, limit?: number}`
-  - Response: `{success: boolean, data: string[]}` (array of matching purchase IDs)
-  
-- **GET `/api/purchases/refunded-amount`** - Get total amount of refunded purchases - requires read:api permission
-  - Response: `{success: boolean, amount: number}`
-
-- **GET `/api/purchases/not-refunded-amount`** - Get total amount of non-refunded purchases - requires read:api permission
-  - Response: `{success: boolean, amount: number}`
-
-### Feedback Management
-
-- **POST `/api/feedback`** - Add feedback to the database - requires write:api permission
-  - Request: `{date: string, purchase: string, feedback: string}`
-  - Response: `{success: boolean, id: string}`
-
-- **GET `/api/feedback/:id`** - Get information about specific feedback - requires read:api permission
-  - Response: `{success: boolean, data: {date: string, purchase: string, feedback: string}}`
-
-- **POST `/api/publish`** - Record the publication of feedback - requires write:api permission
-  - Request: `{date: string, purchase: string, screenshot: string}`
-  - Response: `{success: boolean, id: string}`
-
-- **GET `/api/publish/:id`** - Get information about a specific publication - requires read:api permission
-  - Response: `{success: boolean, data: {date: string, purchase: string, screenshot: string}}`
-
-### Refund Management
-
-- **POST `/api/refund`** - Record a refund - requires write:api permission
-  - Request: `{date: string, purchase: string, refundDate: string, amount: number, transactionId?: string}`
-  - Response: `{success: boolean, id: string}`
-
-- **GET `/api/refund/:id`** - Get information about a specific refund - requires read:api permission
-  - Response: `{success: boolean, data: {date: string, purchase: string, refundDate: string, amount: number, transactionId?: string}}`
-
-### Statistics
-
-- **GET `/api/stats/refund-balance`** - Get balance between purchases and refunds - requires read:api permission
-  - Response: `{success: boolean, purchasedAmount: number, refundedAmount: number, balance: number}`
-
-- **GET `/api/stats/refund-delay`** - Get statistics about refund delays - requires read:api permission
-  - Response: `{success: boolean, data: [{purchaseId: string, purchaseAmount: number, refundAmount: number, delayInDays: number, purchaseDate: string, refundDate: string}], averageDelayInDays: number}`
-
-- **GET `/api/stats/purchases`** - Get purchase statistics overview - requires read:api permission
-  - Response: `{success: boolean, data: {totalPurchases: number, totalRefundedPurchases: number, totalRefundedAmount: number}}`
-
-### Public Short Links for Dispute Resolution
-
-These endpoints enable testers to generate secure short links for sharing dispute resolution information publicly. This is useful for cases where proof of purchase, feedback, and publication needs to be shared with a third party or dispute resolution authority.
-
-#### Link Generation
-
-- **POST `/api/link/public`** - Generate a short public link for dispute resolution - requires write:api permission
-  - Query parameters:
-    - `duration` (required): Duration in seconds for which the link should be valid (minimum 60, maximum 31536000 / 1 year)
-    - `purchase` (required): The UUID of the purchase to create a link for
-  - The purchase must have both feedback and publication before a link can be created
-  - Link codes are 7 characters long, containing digits (0-9) and letters (a-z, A-Z)
-  - Each generated code is unique and automatically checked for collisions
-  - Request: `POST /api/link/public?duration=3600&purchase=550e8400-e29b-41d4-a716-446655440000`
-  - Response: `{success: boolean, code: string, url: string}`
-  - Example Response: `{success: true, code: "aBc1234", url: "/link/aBc1234"}`
-
-#### Link Data Retrieval
-
-- **GET `/api/link/:code`** - Access public dispute resolution information via short link - no permission required (public endpoint)
-  - Path parameter: `code` - The 7-character unique link code
-  - This endpoint returns the complete dispute resolution information if the link is valid (not expired and properly formatted)
-  - Returns the following data for eligible purchases:
-    - Order details: order number, date, amount, purchase screenshot
-    - Feedback details: submission date, feedback text
-    - Publication details: publication date, publication screenshot
-    - Refund details (if applicable): refund amount, transaction ID
-  - Response: `{success: boolean, data: {orderNumber: string, orderDate: string, purchaseAmount: number, purchaseScreenshot: string, feedbackDate: string, feedbackText: string, publicationDate: string, publicationScreenshot: string, isRefunded: boolean, refundAmount?: number, refundTransactionId?: string}}`
-  - Error responses:
-    - `400`: Invalid link code format (must be exactly 7 alphanumeric characters)
-    - `404`: Link not found or has expired
-
-#### Usage Example
-
-1. Generate a short link for dispute resolution:
-   ```bash
-   POST /api/link/public?duration=2592000&purchase=550e8400-e29b-41d4-a716-446655440000
-   # Response: {"success": true, "code": "xY7zQw", "url": "/link/xY7zQw"}
-   ```
-
-2. Share the link publicly (e.g., `https://example.com/link/xY7zQw`) or with dispute resolution services
-
-3. Access the dispute information using the link code:
-   ```bash
-   GET /link/xY7zQw
-   # Returns complete dispute resolution data including purchase proof, feedback, and publication proof
-   ```
-<img width="1091" height="1024" alt="Capture d’écran 2025-10-30 à 10 18 24" src="https://github.com/user-attachments/assets/862a3aae-bc35-4409-afee-f62d3cf25314" />
-
-#### Technical Details
-
-- Link expiration is checked at retrieval time, not during link generation
-- The link will only return data if the purchase has both feedback and a publication entry
-- No authentication is required to retrieve data via a valid link code
-- Link codes use 62 possible characters per position (10 digits + 26 lowercase + 26 uppercase), providing 62^7 ≈ 3.5 trillion possible combinations
-- The database includes an index on the `(code, expires_at)` composite key for efficient expiration checks
-- Link cleanup can be performed using the DELETE endpoint or by calling the repository's `cleanupExpired()` method
-
-#### Link Maintenance
-
-- **DELETE `/api/links/expired`** - Delete all expired short links - requires admin:api permission
-  - This endpoint removes all links that have passed their expiration time
-  - Useful for regular database maintenance and cleanup
-  - Response: `{success: boolean, deletedCount: number}`
-  - Example Response: `{success: true, deletedCount: 5}`
-
-### Database Management
-
-- **GET `/api/backup/json`** - Backup the database to JSON format - requires backup:api permission
-  - Response: `{success: boolean, data: {testers: any[], purchases: any[], feedbacks: any[], publications: any[], refunds: any[], ids: any[]}}`
-
-- **POST `/api/backup/json`** - Restore the database from JSON format - requires backup:api permission
-  - Request: `{backup: string}` (stringified JSON from backup)
-  - Response: `{success: boolean, message: string}`
-
-### System Debug Endpoints (Cloudflare D1 only)
-
-- **GET `/api/__d1/schema`** - Get database table names - requires admin:api permission
-  - Response: `{success: boolean, tables: string[], timestamp: string}`
-
-- **GET `/api/__d1/schema_version`** - Get current database schema version - requires admin:api permission
-  - Response: `{success: boolean, version: {version: number, description: string}, timestamp: string}`
-
-- **GET `/api/__d1/schema_migrations`** - Execute database schema migrations - requires admin:api permission
-  - Response: `{success: boolean, migrations: string[], timestamp: string}`
 
 ## Development
 
@@ -396,6 +210,122 @@ cd ../client
 npm ci
 ```
 
+## Cloudflare deployment (free account, KV, D1)
+
+Follow these recommended steps to prepare and deploy the API on Cloudflare (free account): create the KV namespace, create and initialize the D1 database, then deploy using the GitHub Actions workflow `CloudflareWorkerDeploy`:
+
+1. Create a free Cloudflare account
+   - Visit https://dash.cloudflare.com/ and sign up for a free account.
+   - Enable the “Workers” feature in your Cloudflare account if it is not enabled already.
+
+2. Install Wrangler and sign in
+   - Install Wrangler:
+     ```bash
+     npm install -g wrangler
+     # or locally in the cloudflare-worker folder: npx wrangler
+     ```
+   - Sign in to Cloudflare from Wrangler for CLI actions:
+     ```bash
+     npx wrangler login
+     ```
+
+3. Create a KV Namespace (binding: `KV_CACHE`)
+   - Via the Dashboard: Workers -> Tools -> KV -> Create namespace. Copy the namespace ID.
+   - Or via the Wrangler CLI:
+     ```bash
+     npx wrangler kv:namespace create "KV_CACHE"
+     ```
+   - Add the returned namespace ID to `wrangler.jsonc` under `kv_namespaces` or adapt your environment configuration.
+
+4. Create a D1 database (binding: `FeedbackFlowDB`)
+   - In the Cloudflare Dashboard: D1 -> Create database and name it `feedbackflow-db`.
+   - Or via the Wrangler CLI (if available):
+     ```bash
+     npx wrangler d1 create feedbackflow-db
+     ```
+   - Copy the returned database ID and add it to the `d1_databases` section in `wrangler.jsonc` if it is not added automatically.
+
+5. Configure GitHub secrets and environment variables
+   - In your GitHub repository -> Settings -> Secrets and variables -> Actions, add the following secrets and variables:
+     - `CLOUDFLARE_API_TOKEN` (token with minimal rights to edit Workers, D1 and KV)
+     - `CLOUDFLARE_ACCOUNT_ID` (your Cloudflare account ID)
+     - `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_MANAGEMENT_API_CLIENT_ID`, `AUTH0_MANAGEMENT_API_CLIENT_SECRET` (for Auth0 integration)
+     - `API_BASE_URL`, `CORS_ORIGIN` and other `AUTH0_*` variables as needed (see the `.env` example above)
+   - The `CloudflareWorkerDeploy` workflow will use these secrets to populate `wrangler.jsonc` and perform the deployment.
+
+**For forks: enable Actions and create secrets/vars in your fork**
+
+If you fork this repository and want to deploy from your fork, follow these steps:
+
+- Fork the repository to your account.
+- Go to the forked repository -> Settings -> Actions -> General and ensure GitHub Actions is enabled (choose “Allow all actions and reusable workflows” if needed).
+- In the forked repository, open Settings -> Actions -> Secrets and variables -> Actions and create the secrets and variables listed below. The workflow uses a combination of repository *secrets* (for sensitive values) and *variables* (non-sensitive settings) as defined in `.github/workflows/deploy-cloudflare-worker.yaml`.
+
+The workflow expects the following GitHub *secrets* (mark as **Secret**):
+
+- CLOUDFLARE_API_TOKEN (token with minimal rights to edit Workers, D1 and KV)
+- CLOUDFLARE_ACCOUNT_ID (Cloudflare account ID)
+- AUTH0_DOMAIN
+- AUTH0_CLIENT_ID
+- AUTH0_CLIENT_SECRET
+- AUTH0_MANAGEMENT_API_CLIENT_ID
+- AUTH0_MANAGEMENT_API_CLIENT_SECRET
+- AUTH0_AUDIENCE
+- API_BASE_URL
+- CORS_ORIGIN
+- PAYPAL_TRANSACTION_BASE_URL
+
+The following keys are typically created as **repository variables** (not secret), since they hold configuration values used by the workflow. You can still use secrets if you prefer:
+
+- AUTH0_SCOPE
+- READ_PERMISSION
+- WRITE_PERMISSION
+- ADMIN_PERMISSION
+- SEARCH_PERMISSION
+- ADMIN_AUTH0_PERMISSION
+- DB_BACKEND (e.g., d1)
+- BACKUP_PERMISSION
+- DB_MAX_IMAGE_SIZE
+- AMAZON_BASE_URL
+- STATISTICS_LIMIT
+
+Notes about secrets & vars:
+
+- `AUTH0_*` and `PAYPAL_TRANSACTION_BASE_URL` contain sensitive values and should be stored as **secrets** not **variables**.
+- `CLOUDFLARE_API_TOKEN` needs minimal polices: Workers Scripts: Edit, Workers KV Namespace: Edit, D1: Edit (or equivalent). Ensure you scope permissions tightly in production.
+- After creating these values, you can trigger the workflow with a `git push` on `main` or from the Actions UI in your fork.
+
+6. Initialize the D1 database with our remote script
+   - Ensure you have installed dependencies and are in the `cloudflare-worker` directory:
+     ```bash
+     cd cloudflare-worker
+     npm ci
+     ```
+   - Run the remote initialization (create tables):
+     ```bash
+     npm run d1:create:remote
+     ```
+   - To run migrations (if present):
+     ```bash
+     npm run d1:migrate:all:remote
+     ```
+
+7. Deploy via GitHub Actions
+   - The workflow used is `.github/workflows/deploy-cloudflare-worker.yaml` (workflow name: `CloudflareWorkerDeploy`).
+   - Once secrets are configured (step 5), you can either:
+     - Push a commit to the `main` branch (this triggers CI), or
+     - Manually run the workflow in the Actions tab -> CloudflareWorkerDeploy -> Run workflow.
+
+8. Verification
+   - After deployment, check the Worker public URL (configured via `API_BASE_URL`/domains) and test your endpoints (e.g. `GET /api/testers`).
+   - For local debugging, use `npx wrangler dev`.
+
+Notes
+ - Ensure `CLOUDFLARE_API_TOKEN` is created with the minimal required permissions: Workers Scripts: Edit, Workers KV Namespace: Edit, D1: Edit.
+ - If you use the CLI to create resources (KV/D1), save the IDs returned and add them to `wrangler.jsonc` or the appropriate secrets.
+ - For production, treat secrets and API tokens carefully and review permission scopes regularly.
+
+
 ### Configure Auth0
 
 See the [Auth0.md](https://github.com/sctg-development/feedback-flow/blob/main/Auth0.md) file for detailed instructions on how to configure Auth0 for the application.
@@ -407,6 +337,8 @@ The application requires the following environment variables to be set in a `.en
 ```bash
 AUTH0_CLIENT_ID=your_auth0_client_id
 AUTH0_CLIENT_SECRET=your_auth0_client_secret
+AUTH0_MANAGEMENT_API_CLIENT_ID=your_auth0_management_api_client_id
+AUTH0_MANAGEMENT_API_CLIENT_SECRET=your_auth0_management_api_client_secret
 AUTH0_DOMAIN=your_auth0_domain
 AUTH0_SCOPE="openid profile email read:api write:api admin:api backup:api"
 AUTH0_AUDIENCE="http://localhost:8787/api"
@@ -416,6 +348,7 @@ CORS_ORIGIN=http://localhost:5173
 READ_PERMISSION=read:api
 WRITE_PERMISSION=write:api
 ADMIN_PERMISSION=admin:api
+ADMIN_AUTH0_PERMISSION=auth0:admin:api
 BACKUP_PERMISSION=backup:api
 CRYPTOKEN=any_random_string_to_encrypt_the_variables_in_the_repo
 AMAZON_BASE_URL="https://www.amazon.fr/gp/your-account/order-details?orderID="

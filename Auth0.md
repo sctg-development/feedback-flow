@@ -126,6 +126,48 @@ For Feedback Flow to work properly, you need to create two API configurations in
 
 2. Add the same permissions and settings as the Production API
 
+## Step 5.5: Machine-to-Machine App for Auth0 Management API (Feedback Flow Management)
+
+To let the Cloudflare Worker request an Auth0 Management token securely, you need a Machine-to-Machine (M2M) application. This application issues Client Credentials (client_id / client_secret) used by the `/api/__auth0/token` endpoint. These credentials are stored in environment variables `AUTH0_MANAGEMENT_API_CLIENT_ID` and `AUTH0_MANAGEMENT_API_CLIENT_SECRET`.
+
+### Why you need a Management M2M app
+- The Cloudflare Worker needs a Management API token to perform administrative tasks and to retrieve management-level information from Auth0. Rather than storing user credentials, we create a dedicated M2M application that can request tokens using the client credentials flow.
+
+### Create the Management M2M application
+1. In your Auth0 dashboard, go to **Applications > Applications** and click **Create Application**.
+2. Enter the **Name**: `Feedback Flow Management`.
+3. Select **Machine to Machine Application** as the application type.
+4. Click **Create**.
+
+### Grant access to the Auth0 Management API
+1. After creation, you will be prompted to select an API to grant access to. Select **Auth0 Management API** from the list.
+2. Choose the scopes/permissions the M2M app should have. To keep a simple setup, you may choose **All** (for testing), or you can choose specific scopes such as `read:users`, `create:users`, `update:users`, `delete:users`, `read:clients` etc. (see note on *least privilege* below).
+3. Save the authorization changes.
+
+### Get the client credentials
+1. Go to the **Settings** tab of the `Feedback Flow Management` application.
+2. Copy the **Client ID** and **Client Secret** (the secret might be revealed as a button you must click to show).
+3. Store those values securely. Add them to your `.env` file for local development or set them as GitHub secrets in your repo (`AUTH0_MANAGEMENT_API_CLIENT_ID` and `AUTH0_MANAGEMENT_API_CLIENT_SECRET`) for CI/CD deployments.
+
+**Example `.env` entries (local development only)**
+```bash
+AUTH0_MANAGEMENT_API_CLIENT_ID=your_m2m_client_id_here
+AUTH0_MANAGEMENT_API_CLIENT_SECRET=your_m2m_client_secret_here
+```
+
+**GitHub Actions / secrets**
+- Add the `AUTH0_MANAGEMENT_API_CLIENT_ID` and `AUTH0_MANAGEMENT_API_CLIENT_SECRET` secrets in the fork or origin GitHub repository (see the README Cloudflare deployment section for a list of all secrets the workflow requires).
+
+### Usage
+The Worker `/api/__auth0/token` endpoint will use `AUTH0_MANAGEMENT_API_CLIENT_ID` and `AUTH0_MANAGEMENT_API_CLIENT_SECRET` to request a Management API token from Auth0 via the Client Credentials OAuth flow. The token will be cached by the Worker in Cloudflare KV (if available) to avoid excessive calls to Auth0.
+
+### Least Privilege and Security Notes
+- Prefer selecting only the Management API scopes required by the Worker instead of granting every scope. The more limited the permission set, the lower the blast radius if the M2M credentials are compromised.
+- Treat `AUTH0_MANAGEMENT_API_CLIENT_SECRET` as a secret: store it in CI/CD secrets (for GitHub Actions), and never commit it to source control.
+- Rotate Management API client secrets periodically and update your GitHub secrets accordingly.
+- Consider creating a dedicated Auth0 tenant or environment for production and limiting the M2M application access only to the production management features it requires.
+
+
 ## Step 6: Create Roles for Access Control
 
 Roles simplify permission management by grouping permissions together:
