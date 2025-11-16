@@ -82,12 +82,12 @@ export const LoginButton: FC<{ text?: string }> = ({ text }) => {
 export const LoginLink: FC<{
   text?: string;
   color?:
-    | "primary"
-    | "foreground"
-    | "secondary"
-    | "success"
-    | "warning"
-    | "danger";
+  | "primary"
+  | "foreground"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "danger";
 }> = ({ text, color }) => {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
   const { t } = useTranslation();
@@ -185,12 +185,12 @@ interface LogoutLinkProps extends LogoutButtonProps {
    * Button color
    */
   color?:
-    | "primary"
-    | "foreground"
-    | "secondary"
-    | "success"
-    | "warning"
-    | "danger";
+  | "primary"
+  | "foreground"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "danger";
 }
 /**
  * Renders a logout link for Auth0 authentication.
@@ -572,6 +572,209 @@ export const useSecuredApi = () => {
     postJson,
     deleteJson,
     hasPermission,
+    // Auth0 Management helpers
+    getAuth0ManagementToken: async () => {
+      try {
+        const tokenResp = await postJson(
+          `${import.meta.env.API_BASE_URL}/__auth0/token`,
+          {},
+        );
+        return tokenResp;
+      } catch (error) {
+        console.error("Failed to get Auth0 management token:", error);
+        throw error;
+      }
+    },
+    listAuth0Users: async (managementToken: string) => {
+      try {
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users?per_page=100`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to list Auth0 users:", error);
+        throw error;
+      }
+    },
+    listAuth0Roles: async (managementToken: string) => {
+      try {
+        const resp = await fetch(`https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${managementToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to list Auth0 roles:", error);
+        throw error;
+      }
+    },
+    getUserRoles: async (managementToken: string, userId: string) => {
+      try {
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/roles`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to get user roles:", error);
+        throw error;
+      }
+    },
+    addUserToRole: async (managementToken: string, roleId: string, userId: string) => {
+      try {
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles/${encodeURIComponent(roleId)}/users`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ users: [userId] }),
+          },
+        );
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to add user to role:", error);
+        throw error;
+      }
+    },
+    removeUserFromRole: async (managementToken: string, roleId: string, userId: string) => {
+      try {
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles/${encodeURIComponent(roleId)}/users`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ users: [userId] }),
+          },
+        );
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to remove user from role:", error);
+        throw error;
+      }
+    },
+    patchAuth0User: async (managementToken: string, userId: string, body: any) => {
+      try {
+        const resp = await fetch(`https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${managementToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        });
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to patch Auth0 user:", error);
+        throw error;
+      }
+    },
+    deleteAuth0User: async (managementToken: string, userId: string) => {
+      try {
+        const resp = await fetch(`https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${managementToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to delete Auth0 user:", error);
+        throw error;
+      }
+    },
+    getUserPermissions: async (managementToken: string, userId: string) => {
+      try {
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to get user permissions:", error);
+        throw error;
+      }
+    },
+    addPermissionToUser: async (managementToken: string, userId: string, permissionName: string) => {
+      try {
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              permissions: [
+                {
+                  resource_server_identifier: import.meta.env.AUTH0_AUDIENCE,
+                  permission_name: permissionName,
+                },
+              ],
+            }),
+          },
+        );
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to add permission to user:", error);
+        throw error;
+      }
+    },
+    removePermissionFromUser: async (managementToken: string, userId: string, permissionName: string) => {
+      try {
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              permissions: [
+                {
+                  resource_server_identifier: import.meta.env.AUTH0_AUDIENCE,
+                  permission_name: permissionName,
+                },
+              ],
+            }),
+          },
+        );
+        return await resp.json();
+      } catch (error) {
+        console.error("Failed to remove permission from user:", error);
+        throw error;
+      }
+    },
   };
 };
 

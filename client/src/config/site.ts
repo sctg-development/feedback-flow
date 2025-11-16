@@ -6,6 +6,7 @@ import AddNewUser from "@/pages/add-new-user";
 import OldestReadyToRefundPage from "@/pages/oldest-ready-to-refund";
 import ManageDatabasePage from "@/pages/manage-database";
 import StatsPage from "@/pages/stats";
+import UsersAndPermissionsPage from "@/pages/users-and-permissions";
 
 export const siteConfig = () => {
   const t = i18next.t;
@@ -70,6 +71,12 @@ export const siteConfig = () => {
         permission: import.meta.env.BACKUP_PERMISSION,
         component: ManageDatabasePage,
       },
+      {
+        label: i18next.t("users-and-permissions"),
+        href: "/users-and-permissions",
+        permission: import.meta.env.ADMIN_AUTH0_PERMISSION,
+        component: UsersAndPermissionsPage,
+      }
     ],
     links: {
       github: "https://github.com/sctg-development/feedback-flow",

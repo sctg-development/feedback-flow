@@ -247,5 +247,6 @@
   "feedback-text": "Feedback Text",
   "publication-date": "Publication Date",
   "publication-screenshot": "Publication Proof",
-  "order-date": "Order date"
+  "order-date": "Order date",
+  "users-and-permissions": "Users and permissions"
 }

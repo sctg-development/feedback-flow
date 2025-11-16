@@ -44,7 +44,7 @@ The application is deployed on a CDN as a static SPA (Single Page Application). 
 - A product is an item or service that is tested by a tester.
 - The seller is the person who sells the product.
 - Feedback is the opinion given by the tester about the product.
-<img width="1260" alt="Capture d’écran 2025-05-05 à 19 15 36" src="https://github.com/user-attachments/assets/f222c477-59ec-419d-987a-0a3276aa7412" />
+<img width="1260" alt="Statistics dashboard screenshots" src="https://github.com/user-attachments/assets/f222c477-59ec-419d-987a-0a3276aa7412" />
 
 ## Testing and Feedback Process
 

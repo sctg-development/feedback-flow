@@ -108,6 +108,9 @@ export default defineConfig({
     "import.meta.env.STATISTICS_LIMIT": JSON.stringify(
       process.env.STATISTICS_LIMIT || "100",
     ),
+    "import.meta.env.ADMIN_AUTH0_PERMISSION": JSON.stringify(
+      process.env.ADMIN_AUTH0_PERMISSION || "auth0:admin:api",
+    ),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss(), githubPagesSpa()],
   build: {

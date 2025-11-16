@@ -247,5 +247,6 @@
   "feedback-text": "Texto del comentario",
   "publication-date": "Fecha de publicación",
   "publication-screenshot": "Prueba de publicación",
-  "order-date": "fecha de pedido"
+  "order-date": "fecha de pedido",
+  "users-and-permissions": "Usuarios y permisos"
 }
