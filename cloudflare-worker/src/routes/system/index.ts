@@ -207,6 +207,7 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
                     audience,
                     grant_type: "client_credentials",
                 };
+                console.log("Requesting Auth0 token from:", tokenUrl, "for audience:", audience);
 
                 // Request a token from Auth0
                 const resp = await fetch(tokenUrl, {
