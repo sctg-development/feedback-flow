@@ -211,9 +211,9 @@ export const usePurchaseTableColumns = ({
           // Set screenshot(s) for viewing in modal
           item.screenshotSummary
             ? onSetScreenshot([
-                item.purchaseScreenshot || Transparent1x1WebpPixel,
-                item.screenshotSummary,
-              ])
+              item.purchaseScreenshot || Transparent1x1WebpPixel,
+              item.screenshotSummary,
+            ])
             : onSetScreenshot(item.purchaseScreenshot || Transparent1x1WebpPixel);
         },
       },
@@ -252,9 +252,9 @@ export const usePurchaseTableColumns = ({
           />
         ),
         // Action triggered when clicking on the publication cell
-        onCellAction: (item) => {
+        onCellAction: (item: PurchaseStatus) => {
           // Show publication screenshot if it exists
-          if (item.hasPublication) {
+          if (item.hasPublication && item.publicationScreenshot) {
             onSetScreenshot(item.publicationScreenshot);
           }
         },
@@ -294,7 +294,7 @@ export const usePurchaseTableColumns = ({
         // Actions column - shows available actions based on purchase status
         field: "actions", // Not a real database field, used for actions
         label: t("actions"), // Translated column header
-        render: (item) => renderActionColumn(item), // Use the action rendering function
+        render: (item: PurchaseStatus) => renderActionColumn(item), // Use the action rendering function
       },
     ],
     // Return the empty content component
