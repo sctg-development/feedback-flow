@@ -179,7 +179,7 @@ export default function UsersAndPermissionsPage() {
                             <TableCell className="cursor-pointer" onClick={() => openUserModal(u)}>{u.name || u.nickname || u.user_id}</TableCell>
                             <TableCell>{u.email}</TableCell>
                             <TableCell>
-                                <Button color="danger" onPress={() => deleteUser(u.user_id)}>Delete</Button>
+                                <Button color="danger" onPress={async () => { await deleteUser(u.user_id); }}>Delete</Button>
                             </TableCell>
                         </TableRow>
                     )}

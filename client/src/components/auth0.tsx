@@ -699,6 +699,15 @@ export const useSecuredApi = () => {
             "Content-Type": "application/json",
           },
         });
+        if (resp.status === 204) {
+          // Auth0 returns 204 No Content on successful delete: return null to indicate success
+          return null;
+        }
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error(`Auth0 delete user failed: ${resp.status} ${text}`);
+        }
+        // otherwise parse JSON
         return await resp.json();
       } catch (error) {
         console.error("Failed to delete Auth0 user:", error);
