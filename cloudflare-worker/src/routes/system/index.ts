@@ -187,7 +187,7 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
         async () => {
             try {
                 // Validate required environment variables
-                if (!env.AUTH0_CLIENT_ID || !env.AUTH0_CLIENT_SECRET || !env.AUTH0_DOMAIN) {
+                if (!env.AUTH0_MANAGEMENT_API_CLIENT_ID || !env.AUTH0_MANAGEMENT_API_CLIENT_SECRET || !env.AUTH0_DOMAIN) {
                     return new Response(JSON.stringify({ error: "Auth0 configuration is missing" }, null, 2), {
                         status: 500,
                         headers: { ...router.corsHeaders, "Content-Type": "application/json" },
@@ -198,12 +198,12 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
                 const tokenUrl = `https://${env.AUTH0_DOMAIN}/oauth/token`;
 
                 // Audience for the management API: default to api/v2
-                const audience = env.AUTH0_AUDIENCE || `https://${env.AUTH0_DOMAIN}/api/v2/`;
+                const audience = `https://${env.AUTH0_DOMAIN}/api/v2/`;
 
                 // Build the request body for client credentials grant
                 const body = {
-                    client_id: env.AUTH0_CLIENT_ID,
-                    client_secret: env.AUTH0_CLIENT_SECRET,
+                    client_id: env.AUTH0_MANAGEMENT_API_CLIENT_ID,
+                    client_secret: env.AUTH0_MANAGEMENT_API_CLIENT_SECRET,
                     audience,
                     grant_type: "client_credentials",
                 };
