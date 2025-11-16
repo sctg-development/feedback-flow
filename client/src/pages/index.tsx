@@ -24,7 +24,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Link } from "react-router-dom";
 
 import { Button } from "@heroui/button";
 import { EditIcon } from "@/components/icons";
@@ -39,17 +38,14 @@ import EditPurchaseModal from "@/components/modals/edit-purchase-modal";
 import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { GeneratePublicLinkModal } from "@/components/modals/generate-public-link-modal";
-import { PurchaseStatus } from "@/types/db";
-import { AuthenticationGuardWithPermission, useSecuredApi } from "@/components/auth0";
+
+import { AuthenticationGuardWithPermission } from "@/components/auth0";
 import { useSearchResults } from "@/hooks/useSearchResults";
-import { CopyButton } from "@/components/copy-button";
-import { cleanAmazonOrderNumber } from "@/utilities/amazon";
+
 import { useSearch } from "@/context/SearchContext";
 import { usePurchasePermissions } from "./page-components/usePurchasePermissions";
 import { usePurchaseAmounts } from "./page-components/usePurchaseAmounts";
-import { ActionCell } from "./page-components/ActionCell";
-import { StatusCell } from "./page-components/StatusCell";
-import { PurchaseIdCell } from "./page-components/PurchaseIdCell";
+
 import { usePurchaseTableColumns } from "./page-components/purchaseTableColumns";
 
 /**
@@ -67,7 +63,7 @@ import { usePurchaseTableColumns } from "./page-components/purchaseTableColumns"
  */
 export default function IndexPage() {
   const { t } = useTranslation();
-  const { hasPermission } = useSecuredApi();
+
   const { isAuthenticated } = useAuth0();
   const { searchResults } = useSearch();
   const { data: searchData, isLoading: searchDataLoading } = useSearchResults({
