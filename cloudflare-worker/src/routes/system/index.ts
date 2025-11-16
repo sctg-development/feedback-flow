@@ -127,8 +127,8 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
      * Request an Auth0 Management API token using the client credentials flow.
      * This endpoint requires the `env.ADMIN_AUTH0_PERMISSION` permission.
      * The following environment variables must be configured in the Cloudflare Worker:
-     *  - AUTH0_CLIENT_ID
-     *  - AUTH0_CLIENT_SECRET
+     *  - AUTH0_MANAGEMENT_API_CLIENT_ID
+     *  - AUTH0_MANAGEMENT_API_CLIENT_SECRET
      *  - AUTH0_DOMAIN
      *
      * Security note: This route should be limited to administrative users
@@ -141,7 +141,7 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
      *     description: |
      *       Request an Auth0 Management API JWT token using the Client Credentials grant.
      *       This endpoint requires `ADMIN_AUTH0_PERMISSION` and uses the following
-     *       environment variables: `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, and `AUTH0_DOMAIN`.
+     *       environment variables: `AUTH0_MANAGEMENT_API_CLIENT_ID`, `AUTH0_MANAGEMENT_API_CLIENT_SECRET`, and `AUTH0_DOMAIN`.
      *       Returns a JSON response containing access_token, token_type, and expires_in when successful.
      *     tags:
      *       - System
