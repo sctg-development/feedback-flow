@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Feedback Flow API",
-    "version": "1.5.0"
+    "version": "1.6.0"
   },
   "paths": {
     "/api/testers": {
@@ -84,6 +84,85 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      },
+      "post": {
+        "summary": "Get testers filtered by OAuth IDs (supports pagination)",
+        "description": "Returns a list of testers filtered by OAuth IDs provided in the request body. Requires admin permission.",
+        "tags": [
+          "Testers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  },
+                  "ids": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved filtered testers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Tester"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
           },
           "403": {
             "description": "Unauthorized request"

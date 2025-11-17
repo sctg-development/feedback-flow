@@ -2,19 +2,21 @@ import fs from "fs";
 
 import swaggerJsdoc from "swagger-jsdoc";
 
+export const API_VERSION = "1.6.0";
+
 const options = {
   encoding: "utf8",
   failOnErrors: false, // Whether or not to throw when parsing errors. Defaults to false.
   format: "json",
   info: {
     title: "Feedback Flow API",
-    version: "1.5.0",
+    version: API_VERSION,
   },
   definition: {
     openapi: "3.0.0",
     info: {
       title: "Feedback Flow API",
-      version: "1.5.0",
+      version: API_VERSION,
     },
   }, // You can move properties from definition here if needed
   apis: [

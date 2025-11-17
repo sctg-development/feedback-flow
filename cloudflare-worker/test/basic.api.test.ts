@@ -219,20 +219,85 @@ describe('Feedback Flow API', () => {
     expect(response.data.error).toBe('ID already exists in the database');
   });
 
+  test('70. Should filter testers by a single id using POST /testers', async () => {
+    // Use the authenticated user id added to TESTER in test 40
+    const response = await api.post('/testers', { ids: testerId });
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.data).toBeDefined();
+    // At least one tester should match the provided id
+    expect(response.data.total).toBeGreaterThanOrEqual(1);
+    // Ensure that one of the returned testers owns the id provided
+    const matching = response.data.data.find((t: any) => (t.ids || []).includes(testerId));
+    expect(matching).toBeDefined();
+  });
+
+  test('71. Should filter testers by multiple ids using POST /testers', async () => {
+    // Compose multiple ids: the authenticated user and a known other id
+    const otherId = 'auth0|0987654321';
+    const response = await api.post('/testers', { ids: [testerId, otherId] });
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.data).toBeDefined();
+    // The total should be greater than or equal to 2 (the two ids match distinct testers)
+    expect(response.data.total).toBeGreaterThanOrEqual(2);
+    // Each returned tester should have at least one of the provided ids
+    for (const t of response.data.data) {
+      const ids = t.ids || [];
+      expect(ids.some((id: string) => id === testerId || id === otherId)).toBeTruthy();
+    }
+  });
+
+  test('72. Should paginate results when limit provided in POST /testers', async () => {
+    // Retrieve all testers to gather test ids
+    const all = await api.get('/testers');
+    expect(all.data.data).toBeDefined();
+    const allTesters = all.data.data;
+    const itemIds: string[] = [];
+    allTesters.forEach((t: any) => {
+      (t.ids || []).forEach((i: string) => itemIds.push(i));
+    });
+    // Request with pagination limit=1 and page=1
+    const response = await api.post('/testers', { ids: itemIds, limit: 1, page: 1 });
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    expect(response.data.data.length).toBe(1);
+    // total should match the number of unique testers matched by ids
+    expect(response.data.total).toBeGreaterThanOrEqual(1);
+  });
+
+  test('73. Should return all matches when limit not provided in POST /testers', async () => {
+    // Retrieve all testers to gather test ids
+    const all = await api.get('/testers');
+    expect(all.data.data).toBeDefined();
+    const allTesters = all.data.data;
+    const itemIds: string[] = [];
+    allTesters.forEach((t: any) => {
+      (t.ids || []).forEach((i: string) => itemIds.push(i));
+    });
+    // Request without pagination
+    const response = await api.post('/testers', { ids: itemIds });
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    // Without limit, the entire result should be returned
+    expect(response.data.data.length).toBe(response.data.total);
+    expect(response.data.page).toBe(1);
+  });
+
   test('900. Should return an Auth0 management token from the system endpoint (if configured)', async () => {
     // Only run if Auth0 client credentials are configured in the environment
-    const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID || '';
-    const AUTH0_CLIENT_SECRET = process.env.AUTH0_CLIENT_SECRET || '';
+    const AUTH0_MANAGEMENT_API_CLIENT_ID = process.env.AUTH0_MANAGEMENT_API_CLIENT_ID || '';
+    const AUTH0_MANAGEMENT_API_CLIENT_SECRET = process.env.AUTH0_MANAGEMENT_API_CLIENT_SECRET || '';
     const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || '';
 
-    if (!AUTH0_CLIENT_ID || !AUTH0_CLIENT_SECRET || !AUTH0_DOMAIN) {
+    if (!AUTH0_MANAGEMENT_API_CLIENT_ID || !AUTH0_MANAGEMENT_API_CLIENT_SECRET || !AUTH0_DOMAIN) {
       // Skip this test if credentials are not present (local environment)
       console.warn('Skipping Auth0 management token test because AUTH0_CLIENT_* or AUTH0_DOMAIN is not set');
       return;
     }
 
     // Attempt to call the system endpoint to get a management token
-    const response = await api.post('/api/__auth0/token', {});
+    const response = await api.post('/__auth0/token', {});
 
     // If we are not permitted to call the endpoint, we can get a 403
     if (response.status === 403) {

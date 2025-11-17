@@ -433,6 +433,101 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
 
     /**
      * @openapi
+     * /api/testers:
+     *   post:
+     *     summary: Get testers filtered by OAuth IDs (supports pagination)
+     *     description: Returns a list of testers filtered by OAuth IDs provided in the request body. Requires admin permission. If limit is not provided, all matching testers are returned.
+     *     tags:
+     *       - Testers
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               page:
+     *                 type: integer
+     *               limit:
+     *                 type: integer
+     *               ids:
+     *                 oneOf:
+     *                   - type: string
+     *                   - type: array
+     *                     items:
+     *                       type: string
+     *             required: [ids]
+     *     responses:
+     *       200:
+     *         description: Successfully retrieved filtered testers
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                 data:
+     *                   type: array
+     *                   items:
+     *                     $ref: '#/components/schemas/Tester'
+     *                 total:
+     *                   type: integer
+     *                 page:
+     *                   type: integer
+     *                 limit:
+     *                   type: integer
+     *       400:
+     *         description: Invalid request or missing required fields
+     *       403:
+     *         description: Unauthorized request
+     */
+    router.post(
+        "/api/testers",
+        async (request) => {
+            const db = getDatabase(env);
+            try {
+                const body = (await request.json()) as { page?: number; limit?: number; ids: string | string[] };
+                if (!body || !body.ids) {
+                    return new Response(JSON.stringify({ success: false, error: 'ids is required' }), { status: 400, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } });
+                }
+
+                const idArray: string[] = typeof body.ids === 'string' ? [body.ids] : body.ids;
+
+                // Find all testers which own at least one of the provided ids
+                const testers = await db.testers.filter((t) => t.ids.some((id) => idArray.includes(id)));
+
+                // Default sort by name asc
+                const sortedTesters = [...testers].sort((a, b) => (a.name > b.name ? 1 : -1));
+
+                const total = sortedTesters.length;
+                let page = body.page || 1;
+                let limit = body.limit || total; // if limit not provided, return all
+
+                // When limit is provided, apply pagination
+                let paginatedTesters: typeof sortedTesters = sortedTesters;
+                if (body.limit) {
+                    const start = (page - 1) * limit;
+                    const end = start + limit;
+                    paginatedTesters = sortedTesters.slice(start, end);
+                } else {
+                    page = 1;
+                    limit = total;
+                }
+
+                return new Response(
+                    JSON.stringify({ success: true, data: paginatedTesters, total, page, limit }),
+                    { status: 200, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } },
+                );
+            } catch (error) {
+                return new Response(JSON.stringify({ success: false, error: `Invalid request: ${(error as Error).message}` }), { status: 400, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } });
+            }
+        },
+        env.ADMIN_PERMISSION,
+    );
+
+    /**
+     * @openapi
      * /api/tester:
      *   get:
      *     summary: Get tester info by ID
