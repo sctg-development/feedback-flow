@@ -25,7 +25,7 @@
 import { useEffect, useState } from "react";
 import DefaultLayout from "@/layouts/default";
 import { useSecuredApi } from "@/components/auth0";
-import { Auth0ManagementTokenApiResponse, Auth0ManagementTokenResponse } from "@/types/data";
+import { Auth0ManagementTokenApiResponse, Auth0ManagementTokenResponse, Auth0User, Auth0Permission } from "@/types/data";
 import { useTranslation } from "react-i18next";
 import { Button } from "@heroui/button";
 import { Checkbox } from "@heroui/checkbox";
@@ -39,14 +39,14 @@ export default function UsersAndPermissionsPage() {
     const [token, setToken] = useState<Auth0ManagementTokenResponse | null>(null);
     const { t } = useTranslation();
     // replaced message state and inline alert by HeroUI toasts
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<Auth0User[]>([]);
     // roles are not used yet because we work with direct permissions (not roles)
-    const [editing, setEditing] = useState<Record<string, any>>({});
-    const [selectedUser, setSelectedUser] = useState<any | null>(null);
+    const [editing, setEditing] = useState<Record<string, Record<string, boolean>>>({});
+    const [selectedUser, setSelectedUser] = useState<Auth0User | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalLoading, setModalLoading] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-    const [confirmDeleteUser, setConfirmDeleteUser] = useState<any | null>(null);
+    const [confirmDeleteUser, setConfirmDeleteUser] = useState<Auth0User | null>(null);
     const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
     useEffect(() => {
         // Fetch Auth0 Management API token for accessing Auth0 management endpoints
@@ -93,7 +93,7 @@ export default function UsersAndPermissionsPage() {
                 if (edits.hasOwnProperty(key)) {
                     const permName = permissionMappings[key];
                     const userPerms = await getUserPermissions(mgmtToken, userId);
-                    const hasIt = (userPerms || []).some((p: any) => p.permission_name === permName);
+                    const hasIt = (userPerms || []).some((p: Auth0Permission) => p.permission_name === permName);
                     if (edits[key] && !hasIt) {
                         await addPermissionToUser(mgmtToken, userId, permName);
                     } else if (!edits[key] && hasIt) {
@@ -143,10 +143,10 @@ export default function UsersAndPermissionsPage() {
                     // Try exact match or partial match to support localhost vs absolute URL differences
                     return rs === audience || rs.includes(audience) || audience.includes(rs) || rs.endsWith(audience) || audience.endsWith(rs);
                 })
-                .map((p: any) => p.permission_name);
+                .map((p: Auth0Permission) => p.permission_name);
             // fallback: if nothing matched, use the whole list of permission names
             if (!permNames || permNames.length === 0) {
-                permNames = (userPerms || []).map((p: any) => p.permission_name);
+                permNames = (userPerms || []).map((p: Auth0Permission) => p.permission_name);
             }
             // Debug info removed for production readiness
             setEditing((prev) => ({

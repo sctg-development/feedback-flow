@@ -27,6 +27,7 @@ import { FC, ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@heroui/link";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
+import type { Auth0User, Auth0Permission, Auth0Role } from "@/types/data";
 
 /**
  * Renders the user's profile name with a tooltip showing their username.
@@ -585,7 +586,7 @@ export const useSecuredApi = () => {
         throw error;
       }
     },
-    listAuth0Users: async (managementToken: string) => {
+    listAuth0Users: async (managementToken: string): Promise<Auth0User[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users?per_page=100`,
@@ -597,13 +598,13 @@ export const useSecuredApi = () => {
             },
           },
         );
-        return await resp.json();
+        return (await resp.json()) as Auth0User[];
       } catch (error) {
         console.error("Failed to list Auth0 users:", error);
         throw error;
       }
     },
-    listAuth0Roles: async (managementToken: string) => {
+    listAuth0Roles: async (managementToken: string): Promise<Auth0Role[] | null> => {
       try {
         const resp = await fetch(`https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles`, {
           method: "GET",
@@ -612,13 +613,13 @@ export const useSecuredApi = () => {
             "Content-Type": "application/json",
           },
         });
-        return await resp.json();
+        return (await resp.json()) as Auth0Role[];
       } catch (error) {
         console.error("Failed to list Auth0 roles:", error);
         throw error;
       }
     },
-    getUserRoles: async (managementToken: string, userId: string) => {
+    getUserRoles: async (managementToken: string, userId: string): Promise<Auth0Role[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/roles`,
@@ -630,13 +631,13 @@ export const useSecuredApi = () => {
             },
           },
         );
-        return await resp.json();
+        return (await resp.json()) as Auth0Role[];
       } catch (error) {
         console.error("Failed to get user roles:", error);
         throw error;
       }
     },
-    addUserToRole: async (managementToken: string, roleId: string, userId: string) => {
+    addUserToRole: async (managementToken: string, roleId: string, userId: string): Promise<any> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles/${encodeURIComponent(roleId)}/users`,
@@ -714,7 +715,7 @@ export const useSecuredApi = () => {
         throw error;
       }
     },
-    getUserPermissions: async (managementToken: string, userId: string) => {
+    getUserPermissions: async (managementToken: string, userId: string): Promise<Auth0Permission[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,
@@ -732,7 +733,7 @@ export const useSecuredApi = () => {
         throw error;
       }
     },
-    addPermissionToUser: async (managementToken: string, userId: string, permissionName: string) => {
+    addPermissionToUser: async (managementToken: string, userId: string, permissionName: string): Promise<Auth0Permission[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,
@@ -758,7 +759,7 @@ export const useSecuredApi = () => {
         throw error;
       }
     },
-    removePermissionFromUser: async (managementToken: string, userId: string, permissionName: string) => {
+    removePermissionFromUser: async (managementToken: string, userId: string, permissionName: string): Promise<Auth0Permission[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,

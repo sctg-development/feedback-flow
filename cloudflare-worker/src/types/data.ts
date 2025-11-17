@@ -409,3 +409,55 @@ export interface Auth0ManagementTokenResponse {
  * Union type for the API response: either the token or a standard error response
  */
 export type Auth0ManagementTokenApiResponse = Auth0ManagementTokenResponse | ErrorResponse;
+
+/**
+ * Identity object from Auth0 user object (one of multiple identities in a federated login)
+ */
+export interface Auth0UserIdentity {
+  /** Provider specific user ID (e.g. google-oauth2|123456789) */
+  user_id: string;
+  /** Identity provider (e.g. "google-oauth2", "auth0") */
+  provider: string;
+  /** Connection (e.g. "Username-Password-Authentication") */
+  connection?: string;
+  /** True if this identity is a social provider */
+  isSocial?: boolean;
+}
+
+/**
+ * Lightweight representation of an Auth0 Management API user
+ * Based on the official Auth0 Management API documentation (https://auth0.com/docs/api/management/v2/#!/Users/get_users)
+ */
+export interface Auth0User {
+  user_id: string;
+  email?: string;
+  email_verified?: boolean;
+  name?: string;
+  nickname?: string;
+  picture?: string;
+  created_at?: string;
+  updated_at?: string;
+  last_login?: string;
+  logins_count?: number;
+  blocked?: boolean;
+  identities?: Auth0UserIdentity[];
+  user_metadata?: Record<string, any> | null;
+  app_metadata?: Record<string, any> | null;
+}
+
+/**
+ * Representation of a single permission object returned by the Auth0 Management API
+ */
+export interface Auth0Permission {
+  permission_name: string;
+  resource_server_identifier: string;
+}
+
+/**
+ * Simplified Auth0 role object shape
+ */
+export interface Auth0Role {
+  id: string;
+  name: string;
+  description?: string;
+}
