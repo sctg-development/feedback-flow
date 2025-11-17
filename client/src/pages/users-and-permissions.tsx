@@ -30,19 +30,24 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@heroui/button";
 import { Checkbox } from "@heroui/checkbox";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
+import { addToast } from "@heroui/toast";
+import ConfirmDeleteModal from "@/components/modals/confirm-delete-modal";
 // import { Toast } from "@heroui/toast"; // Not using Toast API directly, using message state
 
 export default function UsersAndPermissionsPage() {
     const { getAuth0ManagementToken, listAuth0Users, getUserPermissions, addPermissionToUser, removePermissionFromUser, deleteAuth0User } = useSecuredApi();
     const [token, setToken] = useState<Auth0ManagementTokenResponse | null>(null);
     const { t } = useTranslation();
-    const [message, setMessage] = useState<string | null>(null);
+    // replaced message state and inline alert by HeroUI toasts
     const [users, setUsers] = useState<any[]>([]);
     // roles are not used yet because we work with direct permissions (not roles)
     const [editing, setEditing] = useState<Record<string, any>>({});
     const [selectedUser, setSelectedUser] = useState<any | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalLoading, setModalLoading] = useState(false);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [confirmDeleteUser, setConfirmDeleteUser] = useState<any | null>(null);
+    const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
     useEffect(() => {
         // Fetch Auth0 Management API token for accessing Auth0 management endpoints
         getAuth0ManagementToken().then(async (auth0TokenResponse: Auth0ManagementTokenApiResponse) => {
@@ -97,11 +102,11 @@ export default function UsersAndPermissionsPage() {
                 }
             }
 
-            setMessage('User updated successfully');
+            addToast({ title: t('success'), description: t('user-updated-successfully'), variant: 'solid', timeout: 5000 });
             setEditing((prev) => ({ ...prev, [userId]: {} }));
         } catch (err) {
             console.error(err);
-            setMessage('Failed to update user');
+            addToast({ title: t('error'), description: t('error-updating-user'), variant: 'solid', timeout: 5000 });
         }
     };
 
@@ -111,17 +116,17 @@ export default function UsersAndPermissionsPage() {
             const mgmtToken = token.access_token;
             await deleteAuth0User(mgmtToken, userId);
             setUsers((prev) => prev.filter((u) => u.user_id !== userId));
-            setMessage('User deleted');
+            addToast({ title: t('success'), description: t('user-deleted'), variant: 'solid', timeout: 5000 });
         } catch (err) {
             console.error(err);
-            setMessage('Failed to delete user');
+            addToast({ title: t('error'), description: t('error-deleting-user'), variant: 'solid', timeout: 5000 });
         }
     };
 
     const openUserModal = async (user: any) => {
         // open modal and fetch permissions for the user only
         if (!token) {
-            setMessage('No management token');
+            addToast({ title: t('error'), description: t('no-management-token'), variant: 'solid', timeout: 5000 });
             return;
         }
         setSelectedUser(user);
@@ -156,22 +161,42 @@ export default function UsersAndPermissionsPage() {
             }));
         } catch (err) {
             console.error(err);
-            setMessage('Failed to load user permissions');
+            addToast({ title: t('error'), description: t('failed-loading-user-permissions'), variant: 'solid', timeout: 5000 });
         } finally {
             setModalLoading(false);
         }
     };
 
+    const handleConfirmDelete = async () => {
+        if (!confirmDeleteUser) return;
+        setDeletingUserId(confirmDeleteUser.user_id);
+        try {
+            await deleteUser(confirmDeleteUser.user_id);
+            // If modal was open for this user, close it
+            if (selectedUser?.user_id === confirmDeleteUser.user_id) {
+                setModalOpen(false);
+                setSelectedUser(null);
+            }
+        } catch (err) {
+            // deleteUser already shows a toast; console any error
+            console.error(err);
+        } finally {
+            setDeletingUserId(null);
+            setConfirmDeleteOpen(false);
+            setConfirmDeleteUser(null);
+        }
+    };
+
     return (
         <DefaultLayout>
-            <h2>{t("users-and-permissions") || 'Users and Permissions'}</h2>
-            <p>Manage API users and map permissions to roles via Auth0 Management API.</p>
-            {message && <div className="mb-3 text-sm text-default-600">{message}</div>}
-            <Table aria-label="Users and Permissions" className="my-4">
+            <h2>{t("users-and-permissions")}</h2>
+            <p>{t('manage-api-users-desc')}</p>
+            {/* Notifications are shown via HeroUI Toasts */}
+            <Table aria-label={t('users-and-permissions')} className="my-4">
                 <TableHeader>
-                    <TableColumn>User</TableColumn>
-                    <TableColumn>Email</TableColumn>
-                    <TableColumn>Action</TableColumn>
+                    <TableColumn>{t('user')}</TableColumn>
+                    <TableColumn>{t('email')}</TableColumn>
+                    <TableColumn>{t('actions')}</TableColumn>
                 </TableHeader>
                 <TableBody items={users} emptyContent={t('no-data-available')}>
                     {(u) => (
@@ -179,44 +204,53 @@ export default function UsersAndPermissionsPage() {
                             <TableCell className="cursor-pointer" onClick={() => openUserModal(u)}>{u.name || u.nickname || u.user_id}</TableCell>
                             <TableCell>{u.email}</TableCell>
                             <TableCell>
-                                <Button color="danger" onPress={async () => { await deleteUser(u.user_id); }}>Delete</Button>
+                                <Button color="danger" onPress={() => { setConfirmDeleteUser(u); setConfirmDeleteOpen(true); }} disabled={deletingUserId === u.user_id} isLoading={deletingUserId === u.user_id}>{t('delete')}</Button>
                             </TableCell>
                         </TableRow>
                     )}
                 </TableBody>
             </Table>
 
+            <ConfirmDeleteModal
+                isOpen={confirmDeleteOpen}
+                onClose={() => setConfirmDeleteOpen(false)}
+                title={t('delete')}
+                description={t('confirm-delete-warning', { name: confirmDeleteUser?.name || confirmDeleteUser?.user_id })}
+                onConfirm={() => handleConfirmDelete()}
+                isProcessing={deletingUserId !== null}
+            />
+
             {modalOpen && selectedUser && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                     <div className="bg-white rounded p-6 w-11/12 max-w-2xl">
-                        <h3 className="text-lg font-bold mb-2">Permissions for {selectedUser.name || selectedUser.user_id}</h3>
+                        <h3 className="text-lg font-bold mb-2">{t('permissions-for', { name: selectedUser.name || selectedUser.user_id })}</h3>
                         {modalLoading ? (
-                            <div>Loading...</div>
+                            <div>{t('loading')}</div>
                         ) : (
                             <div className="grid grid-cols-2 gap-2">
                                 <label className="flex items-center gap-2">
                                     <Checkbox isSelected={!!(editing[selectedUser.user_id]?.read)} onValueChange={() => onTogglePermission(selectedUser.user_id, 'read')} />
-                                    Read
+                                    {t('permission-read')}
                                 </label>
                                 <label className="flex items-center gap-2">
                                     <Checkbox isSelected={!!(editing[selectedUser.user_id]?.write)} onValueChange={() => onTogglePermission(selectedUser.user_id, 'write')} />
-                                    Write
+                                    {t('permission-write')}
                                 </label>
                                 <label className="flex items-center gap-2">
                                     <Checkbox isSelected={!!(editing[selectedUser.user_id]?.search)} onValueChange={() => onTogglePermission(selectedUser.user_id, 'search')} />
-                                    Search
+                                    {t('permission-search')}
                                 </label>
                                 <label className="flex items-center gap-2">
                                     <Checkbox isSelected={!!(editing[selectedUser.user_id]?.backup)} onValueChange={() => onTogglePermission(selectedUser.user_id, 'backup')} />
-                                    Backup
+                                    {t('permission-backup')}
                                 </label>
                                 <label className="flex items-center gap-2">
                                     <Checkbox isSelected={!!(editing[selectedUser.user_id]?.admin)} onValueChange={() => onTogglePermission(selectedUser.user_id, 'admin')} />
-                                    Admin
+                                    {t('permission-admin')}
                                 </label>
                                 <label className="flex items-center gap-2">
                                     <Checkbox isSelected={!!(editing[selectedUser.user_id]?.auth0admin)} onValueChange={() => onTogglePermission(selectedUser.user_id, 'auth0admin')} />
-                                    Auth0 Admin
+                                    {t('permission-auth0admin')}
                                 </label>
                             </div>
                         )}
@@ -225,26 +259,16 @@ export default function UsersAndPermissionsPage() {
                             <Button onPress={async () => {
                                 try {
                                     await saveUserPermissions(selectedUser.user_id);
-                                    setMessage('Saved');
+                                    addToast({ title: t('success'), description: t('saved'), variant: 'solid', timeout: 5000 });
                                 } catch (err) {
                                     console.error(err);
-                                    setMessage('Error saving permissions');
+                                    addToast({ title: t('error'), description: t('error-saving-permissions'), variant: 'solid', timeout: 5000 });
                                 } finally {
                                     setModalOpen(false);
                                 }
-                            }}>Save</Button>
-                            <Button color="danger" onPress={async () => {
-                                try {
-                                    await deleteUser(selectedUser.user_id);
-                                    setMessage('Deleted');
-                                } catch (err) {
-                                    console.error(err);
-                                    setMessage('Error deleting user');
-                                } finally {
-                                    setModalOpen(false);
-                                }
-                            }}>Delete</Button>
-                            <Button onPress={() => setModalOpen(false)}>Close</Button>
+                            }}>{t('save')}</Button>
+                            <Button color="danger" onPress={() => { setConfirmDeleteUser(selectedUser); setConfirmDeleteOpen(true); }} disabled={deletingUserId === selectedUser?.user_id} isLoading={deletingUserId === selectedUser?.user_id}>{t('delete')}</Button>
+                            <Button onPress={() => setModalOpen(false)}>{t('close')}</Button>
                         </div>
                     </div>
                 </div>
