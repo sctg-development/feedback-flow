@@ -582,7 +582,7 @@ export default function UsersAndPermissionsPage() {
                                     {assignedName && u.user_id && (
                                         <Button color="warning" onPress={() => unassignId(u.user_id)}>{t('unassign')}</Button>
                                     )}
-                                    <Button color="danger" onPress={() => { setConfirmDeleteUser(u); setConfirmDeleteOpen(true); }} disabled={deletingUserId === u.user_id} isLoading={deletingUserId === u.user_id}>{t('delete')}</Button>
+                                    <Button className="ml-2" color="danger" onPress={() => { setConfirmDeleteUser(u); setConfirmDeleteOpen(true); }} disabled={deletingUserId === u.user_id} isLoading={deletingUserId === u.user_id}>{t('delete')}</Button>
                                 </TableCell>
                             </TableRow>
                         )

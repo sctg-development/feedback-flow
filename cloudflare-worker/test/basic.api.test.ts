@@ -197,19 +197,6 @@ describe('Feedback Flow API', () => {
     expect(response.data.ids).toContain(testerId);
   });
 
-  test('80. Should remove the OAuth ID from the tester', async () => {
-    // Delete using the tester's name
-    const response = await axios.delete(`${API_BASE_URL}/tester/ids`, { data: { name: 'TESTER', id: testerId }, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AUTH0_TOKEN}` }, validateStatus: (status) => status < 500 });
-    expect(response.status).toBe(200);
-    expect(response.data.success).toBe(true);
-    // confirm the tester no longer has the id
-    const verify = await api.post('/testers', { ids: testerId });
-    expect(verify.status).toBe(200);
-    expect(verify.data.total).toBeGreaterThanOrEqual(0);
-    const matching = verify.data.data.find((t: any) => (t.ids || []).includes(testerId));
-    expect(matching).toBeUndefined();
-  });
-
   test('50. Should not add duplicate OAuth ID to the tester', async () => {
     const response = await api.post('/tester/ids', {
       name: 'TESTER',
@@ -230,6 +217,19 @@ describe('Feedback Flow API', () => {
     expect(response.status).toBe(409);
     expect(response.data.success).toBe(false);
     expect(response.data.error).toBe('Some IDs already exist in the database');
+  });
+
+  test('80. Should remove the OAuth ID from the tester', async () => {
+    // Delete using the tester's name
+    const response = await axios.delete(`${API_BASE_URL}/tester/ids`, { data: { name: 'TESTER', id: testerId }, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${AUTH0_TOKEN}` }, validateStatus: (status) => status < 500 });
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    // confirm the tester no longer has the id
+    const verify = await api.post('/testers', { ids: testerId });
+    expect(verify.status).toBe(200);
+    expect(verify.data.total).toBeGreaterThanOrEqual(0);
+    const matching = verify.data.data.find((t: any) => (t.ids || []).includes(testerId));
+    expect(matching).toBeUndefined();
   });
 
   test('70. Should filter testers by a single id using POST /testers', async () => {
