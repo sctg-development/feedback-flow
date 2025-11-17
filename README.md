@@ -1,219 +1,171 @@
-![](https://tokei.rs/b1/github/sctg-development/feedback-flow?type=SQL,TypeScript,TSX,C&category=code)
-![](https://tokei.rs/b1/github/sctg-development/feedback-flow?type=TSX,SQL,TypeScript&category=comments)  
-# Feedback Flow Application
+# Feedback Flow
 
-Feedback Flow is an application designed to help product testers manage their testing activities and feedback.
+![Code Lines](https://tokei.rs/b1/github/sctg-development/feedback-flow?type=SQL,TypeScript,TSX,C&category=code)
+![Comments](https://tokei.rs/b1/github/sctg-development/feedback-flow?type=TSX,SQL,TypeScript&category=comments)
 
-This application is specifically built for individuals who participate in product testing programs (such as "Amazon's Testers Club"), where sellers offer free or discounted products in exchange for honest reviews. The management of the products offered by sellers is outside the scope of this application.
+**⭐ If you find this tool useful, please consider giving it a star!**
 
-## Star the project
+---
 
-**If you find this tool useful, please consider giving it a star! 🤩**
+## 📋 Table of Contents
 
-## Who is this for?
+- [Overview](#-overview)
+- [Quick Start](#-quick-start)
+- [Detailed Installation](#-detailed-installation)
+- [User Guide](#-user-guide)
+- [Technical Documentation](#-technical-documentation)
+- [Production Deployment](#-production-deployment)
+- [Contributing](#-contributing)
 
-This application is designed for:
+---
 
-- Product testers who regularly participate in testing programs
-- Individuals who need to track multiple product testing assignments
-- Users who want to maintain organized records of their purchases, feedback, and refunds
-- Testers who need to provide evidence of completed reviews to receive refunds
+## 🎯 Overview
 
-The application is not intended for sellers or product managers. It is specifically tailored for testers who need to manage their testing activities and provide proof of their work.
+### What is Feedback Flow?
 
-The application allows testers to:
+Feedback Flow is a web application designed to help **product testers** efficiently manage their testing activities and feedback submissions.
 
-- Track their product purchases
-- Document their feedback
-- Provide proof of published reviews
-- Monitor refund status
+### Who is this for?
 
-In case of any dispute with a seller, the tester can use this application to prove they have purchased the product, provided their opinion, and that this opinion has been published on the required platform.
+This application is built for **individual testers** who participate in product testing programs (such as Amazon's Testers Club or similar platforms), where sellers offer free or discounted products in exchange for honest reviews.
 
-## Template
+**✅ You should use this app if you:**
+- Test multiple products simultaneously
+- Need to track purchases, feedback, and refunds
+- Must provide proof of published reviews to receive refunds
+- Want organized records in case of disputes with sellers
 
-The application is based on the [Vite, Auth0 & HeroUI Template](https://github.com/sctg-development/vite-react-heroui-auth0-template), which is a starter template for a React 19 application with Auth0 and HeroUI 2.7, along with a backend running on a Worker C.
+**❌ This app is NOT for:**
+- Sellers or product managers
+- Managing product offers from sellers (out of scope)
 
-## Hardware Architecture
+### Key Features
 
-The application is deployed on a CDN as a static SPA (Single Page Application). It communicates with a REST API deployed on a free Cloudflare worker.
+- 📦 **Purchase Tracking** - Record all your test product purchases
+- ✍️ **Feedback Management** - Document your reviews and opinions
+- 📸 **Proof Storage** - Keep screenshots of purchases and published reviews
+- 💰 **Refund Monitoring** - Track refund status and amounts
+- 🔗 **Dispute Resolution** - Generate public proof links for seller disputes
+- 📊 **Statistics Dashboard** - Visualize your testing activity
 
-## Data Analysis
+### The Testing Workflow
 
-- A product tester is someone who tests a product and provides feedback on it.
-- A product is an item or service that is tested by a tester.
-- The seller is the person who sells the product.
-- Feedback is the opinion given by the tester about the product.
-<img width="1260" alt="Statistics dashboard screenshots" src="https://github.com/user-attachments/assets/f222c477-59ec-419d-987a-0a3276aa7412" />
+Feedback Flow supports the standard product testing process:
 
-## Testing and Feedback Process
+1. **Purchase** - Seller offers product; you purchase it
+2. **Proof of Purchase** - Upload screenshot to seller
+3. **Testing** - Use and evaluate the product
+4. **Review** - Write honest feedback
+5. **Publication** - Feedback published on platform (e.g., Amazon)
+6. **Proof of Review** - Send published review screenshot to seller
+7. **Refund** - Receive full or partial refund from seller
 
-The standard product testing process managed by this application is:
+### Technology Stack
 
-1. A seller offers a product to a tester (usually at a discount or for free)
-2. The tester purchases the product
-3. The tester provides the seller with a screenshot as proof of purchase
-4. The tester tests the product
-5. The tester writes and submits their honest opinion on the product
-6. The feedback is published on the specified platform (e.g., Amazon)
-7. The tester provides the seller with a screenshot of the published feedback
-8. The seller refunds the tester (fully or partially)
+- **Frontend**: React 19, Vite, Tailwind CSS, HeroUI
+- **Backend**: Cloudflare Workers (serverless)
+- **Database**: Cloudflare D1 (SQLite)
+- **Authentication**: Auth0 (OAuth 2.0)
+- **Deployment**: Static SPA on CDN + REST API on Workers
 
-There may be a delay between the purchase and the refund. Additionally, the refund amount may differ from the purchase amount, which is why the application tracks both values separately.
+Based on the [Vite, Auth0 & HeroUI Template](https://github.com/sctg-development/vite-react-heroui-auth0-template).
 
-## Data to Store
+---
 
-- Tester's name
-- Tester's ID (a single tester can have multiple IDs)
-- Purchase date
-- Order number
-- Purchase amount
-- Screenshot of the proof of purchase
-- Date feedback was submitted
-- Date feedback was published
-- Screenshot of the published feedback
-- Date feedback was sent to the seller
-- Refund date
-- Refund amount
+## 🚀 Quick Start
 
-## Permissions
+### Prerequisites
 
-| permission | description |
-|------------|-------------|
-| admin:api  | Administer the API |
-| auth0:admin:api  | Administer Auth0 users |
-| read:api  | Read one's own feedback data |
-| write:api  | Write one's own feedback data |
-| search:api | Search for feedback data |
-| backup:api  | Manage the database |
+- Node.js 18+ and npm
+- Git
+- A GitHub account (for authentication)
 
-## Application Features
-
-- Add a tester (admin:api)
-- Add an ID to a tester (admin:api)
-- Add a product to test (write:api)
-- Add a purchase (write:api)
-- Add feedback (write:api)
-- Publish feedback (write:api)
-- Send feedback to the seller (write:api)
-- Record a refund (write:api)
-- View non-refunded feedbacks (read:api)
-- View refunded feedbacks (read:api)
-- Search purchases (search:api)
-- Generate short public links for dispute resolution (write:api)
-- Access dispute resolution information via public links (no permission required)
-
-## Users & Permissions page (Admin)
-
-This project includes a full admin "Users & Permissions" page implemented at `client/src/pages/users-and-permissions.tsx`. The page lets administrators manage application users (Auth0 users) and map their OAuth IDs to internal "Tester" records for tracking purchases, feedback, and refunds.
-
-Key features
-- Display Auth0 users with a derived "Tester" column (if the user is already assigned to a tester).
-- Create a new `Tester` entity and attach one or more OAuth IDs to it via a `Create Tester` modal.
-- Assign a single or multiple Auth0 user IDs to an existing `Tester` with an `Assign Tester` modal.
-- Bulk operations: select multiple users and assign/unassign them in bulk.
-- Unassign single IDs or bulk unassign selected IDs.
-- Delete an Auth0 user — this attempts to unassign the user's OAuth ID from any `Tester` before removing the user.
-
-How it works (overview)
-- The page fetches a management token to call Auth0 Management endpoints and lists Auth0 users.
-- To determine which users are mapped to Testers, the client calls `POST /api/testers` with an `ids` array (OAuth IDs). The backend returns a list of `Testers` that include any matching `id` in their `ids` array.
-- The client builds a `testerMap` mapping each OAuth id to its corresponding `Tester`. The map contains both provider|id and bare id (for robust lookups), e.g. `github|1234` and `1234`.
-- The table shows a `Tester` column; when the user is assigned to one, the name appears with `unassign` button. When not assigned, an `assign` button is shown.
-
-API endpoints used by the page
-- POST `/api/testers` — Query for `Tester` entities that match a list of OAuth `ids`. Used to build `testerMap` displayed in the UI. Request body example:
-```json
-{ "ids": ["github|123456", "auth0|abcdef"] }
-```
-- POST `/api/tester` — Create a new `Tester` with name and `ids` array. Example:
-```json
-{ "name": "TESTER", "ids": ["github|123456"] }
-```
-- POST `/api/tester/ids` — Add one or many IDs to an existing `Tester` (by `uuid` or `name`). Example:
-```json
-{ "uuid": "tester-uuid", "ids": ["github|123456", "auth0|abcdef"] }
-```
-- DELETE `/api/tester/ids` — Remove an ID from a `Tester` by `uuid` or `name`:
-```json
-{ "uuid": "tester-uuid", "id": "github|123456" }
-```
-
-Permissions & security
-- All Tester management endpoints require an admin permission. By default the app uses `ADMIN_PERMISSION` to gate these endpoints.
-- The UI obtains an Auth0 management token and uses it to list and manage Auth0 users while calls to the API are protected by `Authorization: Bearer <JWT>`.
-
-UX specifics
-- Create and Assign flows are modal-driven, and the page uses HeroUI toasts for feedback on success/failure.
-- When assigning, the UI checks whether the user is already assigned to a tester and prevents opening the "Assign" modal in that case.
-- The UX supports both single and bulk assignments for convenience.
-
-Edge cases & behaviors
-- The server supports several ID formats: `provider|id` and `id` (bare). The client maps both to increase match robustness.
-- When adding IDs server-side, the API verifies if an ID is already present in the database and will return `409` on conflicts. The client shows appropriate toasts based on the response.
-- Deleting an Auth0 user first attempts to unassign the user from any `Tester` to keep the mapping consistent.
-
-Notes for developers
-- If you change the API handling of IDs (for example, if you add a stronger normalization step for `id` vs `provider|id`), make sure to update both the client mapping logic (`users-and-permissions.tsx`) and the D1 repository logic (`cloudflare-worker/src/db/d1-db.ts`) that inserts/queries `id_mappings`.
-- The code uses a `postJsonRef` pattern to avoid stale closures that would otherwise trigger infinite re-renders when the `postJson` hook changes.
-- Tests exist in `cloudflare-worker/test/*` to run end-to-end checks for the `tester` endpoints; ensure you keep tests aligned with the API semantics (e.g., expecting `409` for duplicate ids).
-
-## Security
-
-Authentication is handled by Auth0. The system is provided by the template. It is an OAuth 2.0 process that runs in the browser. The browser receives a JWT token, which it sends to the API. The API verifies the token and grants or denies access to the resource based on the permissions included in the token.
-
-## Test Data Generation
-
-To quickly populate your development environment with sample data, you can use the automated test data generation feature. This creates realistic test data including purchases, feedback, and refunds linked to your GitHub account.
-
-### Quick Setup
-
-Run the following command in the `cloudflare-worker` directory:
+### 5-Minute Setup
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/sctg-development/feedback-flow.git
+cd feedback-flow
+
+# 2. Install dependencies
+cd cloudflare-worker && npm ci
+cd ../client && npm ci
+
+# 3. Set up environment (see Configuration section)
+cp .env.example .env
+# Edit .env with your settings
+
+# 4. Initialize database with test data
+cd cloudflare-worker
 npm run d1:create && npm run d1:init && npm test
+
+# 5. Start the application
+# Terminal 1 - Backend
+cd cloudflare-worker && npm run dev:env
+
+# Terminal 2 - Frontend
+cd client && npm run dev:env
+
+# 6. Open http://localhost:5173
 ```
 
-This command sequence will:
-1. **Create** the D1 database structure
-2. **Initialize** the database with required tables and schema
-3. **Run tests** that populate the database with sample data for your user
+---
 
-### Authentication Setup
+## 📥 Detailed Installation
 
-Before generating test data, you need to link your GitHub account to the application:
-
-1. **Log in** to the application using your GitHub account at [http://localhost:5173](http://localhost:5173)
-2. **Copy your Auth0 token**:
-   - Click on your name in the application footer
-   - Copy the JWT token that appears in the modal
-3. **Get your GitHub user ID**:
-   - Hover over your name in the footer to see your user ID in a tooltip
-   - Note this ID for the `.env` configuration
-4. **Update your `.env` file** with the copied token and user ID
-5. **Restart the Cloudflare Worker** to apply the new configuration
-6. **Run the test command** to generate sample data
-
-### Environment Configuration
-
-Create a `.env` file in the root of the repository with the following structure:
+### Step 1: Clone and Install Dependencies
 
 ```bash
-# Auth0 Configuration (replace with your actual values)
-AUTH0_CLIENT_ID=your_actual_client_id_here
-AUTH0_CLIENT_SECRET=your_actual_client_secret_here
-AUTH0_MANAGEMENT_API_CLIENT_ID=your_actual_management_api_client_id_here
-AUTH0_MANAGEMENT_API_CLIENT_SECRET=your_actual_management_api_client_secret_here
+git clone https://github.com/sctg-development/feedback-flow.git
+cd feedback-flow
+
+# Install backend dependencies
+cd cloudflare-worker
+npm ci
+
+# Install frontend dependencies
+cd ../client
+npm ci
+```
+
+### Step 2: Configure Auth0
+
+Feedback Flow uses Auth0 for authentication. You'll need to:
+
+1. **Create an Auth0 account** at [auth0.com](https://auth0.com)
+2. **Set up an Application** (Single Page Application type)
+3. **Configure Social Connections** (enable GitHub login)
+4. **Create an API** for backend authentication
+5. **Set up permissions** in your API
+
+Detailed Auth0 configuration instructions are available in [Auth0.md](https://github.com/sctg-development/feedback-flow/blob/main/Auth0.md).
+
+### Step 3: Environment Configuration
+
+Create a `.env` file in the **root directory** with the following structure:
+
+```bash
+# ========================================
+# AUTH0 CONFIGURATION
+# ========================================
+AUTH0_CLIENT_ID=your_auth0_client_id
+AUTH0_CLIENT_SECRET=your_auth0_client_secret
+AUTH0_MANAGEMENT_API_CLIENT_ID=your_management_api_client_id
+AUTH0_MANAGEMENT_API_CLIENT_SECRET=your_management_api_secret
 AUTH0_DOMAIN=your-domain.eu.auth0.com
 AUTH0_SCOPE="openid profile email read:api write:api admin:api backup:api"
 AUTH0_AUDIENCE="http://localhost:8787/api"
-AUTH0_SUB="github|123456789" # Replace with your actual GitHub user ID
+AUTH0_SUB=github|your_github_user_id
 
-# API Configuration
+# ========================================
+# API CONFIGURATION
+# ========================================
 API_BASE_URL=http://localhost:8787/api
 CORS_ORIGIN=http://localhost:5173
 
-# Permissions
+# ========================================
+# PERMISSIONS
+# ========================================
 READ_PERMISSION=read:api
 WRITE_PERMISSION=write:api
 ADMIN_PERMISSION=admin:api
@@ -221,258 +173,425 @@ ADMIN_AUTH0_PERMISSION=auth0:admin:api
 BACKUP_PERMISSION=backup:api
 SEARCH_PERMISSION=search:api
 
-# Application Settings
-CRYPTOKEN="your_random_encryption_key_here"
+# ========================================
+# APPLICATION SETTINGS
+# ========================================
+CRYPTOKEN=your_random_encryption_key_here
 STATISTICS_LIMIT=100
 DB_BACKEND=d1
 DB_MAX_IMAGE_SIZE=640
 AMAZON_BASE_URL="https://www.amazon.fr/gp/your-account/order-details?orderID="
 
-# Authentication Token (copy from application after login)
-AUTH0_TOKEN="your_jwt_token_copied_from_application"
+# ========================================
+# AUTHENTICATION TOKEN (for testing)
+# ========================================
+# Get this token by logging into the app and clicking your name in the footer
+AUTH0_TOKEN="your_jwt_token_here"
 ```
 
-### What Test Data is Created
+### Step 4: Initialize Database with Test Data
 
-The test suite generates:
-- **Sample purchases** with various dates, amounts, and order numbers
-- **Feedback entries** linked to purchases
-- **Publication records** with mock screenshots
-- **Refund transactions** to demonstrate the complete workflow
-- **Different purchase states** (pending, with feedback, published, refunded)
-
-This data allows you to immediately test all application features without manually creating entries.
-
-## REST API
-
-A Swagger ui is automatically generated for the API. It is available at [/docs](https://sctg-development.github.io/feedback-flow/docs). The API is secured with Auth0. The API uses the same authentication process as the application. The API requires a JWT token to be sent in the `Authorization` header of each request. The token must be prefixed with `Bearer`.  
-For easily adding the token, simply click on your name in the footer of the application. A modal will open with the token. Copy the token with the supplied button and paste it in the `Authorization` field in Swagger. The token is valid for 24 hours. The API uses the same permissions as the application. The API uses the same database as the application.  
-
-
-## Development
-
-The application is developed using React 19, Vite, and Tailwind CSS. The backend is developed using Cloudflare Workers and the [Cloudflare D1](https://developers.cloudflare.com/d1/worker-api/) database.
-
-The repository is structured as a monorepo with the following structure:
-
-Clone the repository and install the dependencies:
+To populate your development environment with realistic sample data:
 
 ```bash
-git clone https://github.com/sctg-development/feedback-flow.git
-cd feedback-flow/cloudflare-worker
-npm ci
-cd ../client
-npm ci
+cd cloudflare-worker
+npm run d1:create && npm run d1:init && npm test
 ```
 
-## Cloudflare deployment (free account, KV, D1)
+This creates:
+- Sample purchases with various dates and amounts
+- Feedback entries linked to purchases
+- Publication records with screenshots
+- Refund transactions
+- Different purchase states (pending, published, refunded)
 
-Follow these recommended steps to prepare and deploy the API on Cloudflare (free account): create the KV namespace, create and initialize the D1 database, then deploy using the GitHub Actions workflow `CloudflareWorkerDeploy`:
+### Step 5: Get Your Authentication Token
 
-1. Create a free Cloudflare account
-   - Visit https://dash.cloudflare.com/ and sign up for a free account.
-   - Enable the “Workers” feature in your Cloudflare account if it is not enabled already.
+1. Start the application (see Step 6)
+2. Open [http://localhost:5173](http://localhost:5173)
+3. **Log in with your GitHub account**
+4. Click on **your name in the footer**
+5. **Copy the JWT token** from the modal
+6. Paste it in your `.env` file as `AUTH0_TOKEN`
+7. **Restart the Cloudflare Worker**
 
-2. Install Wrangler and sign in
-   - Install Wrangler:
-     ```bash
-     npm install -g wrangler
-     # or locally in the cloudflare-worker folder: npx wrangler
-     ```
-   - Sign in to Cloudflare from Wrangler for CLI actions:
-     ```bash
-     npx wrangler login
-     ```
+### Step 6: Run the Application
 
-3. Create a KV Namespace (binding: `KV_CACHE`)
-   - Via the Dashboard: Workers -> Tools -> KV -> Create namespace. Copy the namespace ID.
-   - Or via the Wrangler CLI:
-     ```bash
-     npx wrangler kv:namespace create "KV_CACHE"
-     ```
-   - Add the returned namespace ID to `wrangler.jsonc` under `kv_namespaces` or adapt your environment configuration.
+Open two terminal windows:
 
-4. Create a D1 database (binding: `FeedbackFlowDB`)
-   - In the Cloudflare Dashboard: D1 -> Create database and name it `feedbackflow-db`.
-   - Or via the Wrangler CLI (if available):
-     ```bash
-     npx wrangler d1 create feedbackflow-db
-     ```
-   - Copy the returned database ID and add it to the `d1_databases` section in `wrangler.jsonc` if it is not added automatically.
-
-5. Configure GitHub secrets and environment variables
-   - In your GitHub repository -> Settings -> Secrets and variables -> Actions, add the following secrets and variables:
-     - `CLOUDFLARE_API_TOKEN` (token with minimal rights to edit Workers, D1 and KV)
-     - `CLOUDFLARE_ACCOUNT_ID` (your Cloudflare account ID)
-     - `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_MANAGEMENT_API_CLIENT_ID`, `AUTH0_MANAGEMENT_API_CLIENT_SECRET` (for Auth0 integration)
-     - `API_BASE_URL`, `CORS_ORIGIN` and other `AUTH0_*` variables as needed (see the `.env` example above)
-   - The `CloudflareWorkerDeploy` workflow will use these secrets to populate `wrangler.jsonc` and perform the deployment.
-
-**For forks: enable Actions and create secrets/vars in your fork**
-
-If you fork this repository and want to deploy from your fork, follow these steps:
-
-- Fork the repository to your account.
-- Go to the forked repository -> Settings -> Actions -> General and ensure GitHub Actions is enabled (choose “Allow all actions and reusable workflows” if needed).
-- In the forked repository, open Settings -> Actions -> Secrets and variables -> Actions and create the secrets and variables listed below. The workflow uses a combination of repository *secrets* (for sensitive values) and *variables* (non-sensitive settings) as defined in `.github/workflows/deploy-cloudflare-worker.yaml`.
-
-The workflow expects the following GitHub *secrets* (mark as **Secret**):
-
-- CLOUDFLARE_API_TOKEN (token with minimal rights to edit Workers, D1 and KV)
-- CLOUDFLARE_ACCOUNT_ID (Cloudflare account ID)
-- AUTH0_DOMAIN
-- AUTH0_CLIENT_ID
-- AUTH0_CLIENT_SECRET
-- AUTH0_MANAGEMENT_API_CLIENT_ID
-- AUTH0_MANAGEMENT_API_CLIENT_SECRET
-- AUTH0_AUDIENCE
-- API_BASE_URL
-- CORS_ORIGIN
-- PAYPAL_TRANSACTION_BASE_URL
-
-The following keys are typically created as **repository variables** (not secret), since they hold configuration values used by the workflow. You can still use secrets if you prefer:
-
-- AUTH0_SCOPE
-- READ_PERMISSION
-- WRITE_PERMISSION
-- ADMIN_PERMISSION
-- SEARCH_PERMISSION
-- ADMIN_AUTH0_PERMISSION
-- DB_BACKEND (e.g., d1)
-- BACKUP_PERMISSION
-- DB_MAX_IMAGE_SIZE
-- AMAZON_BASE_URL
-- STATISTICS_LIMIT
-
-Notes about secrets & vars:
-
-- `AUTH0_*` and `PAYPAL_TRANSACTION_BASE_URL` contain sensitive values and should be stored as **secrets** not **variables**.
-- `CLOUDFLARE_API_TOKEN` needs minimal polices: Workers Scripts: Edit, Workers KV Namespace: Edit, D1: Edit (or equivalent). Ensure you scope permissions tightly in production.
-- After creating these values, you can trigger the workflow with a `git push` on `main` or from the Actions UI in your fork.
-
-6. Initialize the D1 database with our remote script
-   - Ensure you have installed dependencies and are in the `cloudflare-worker` directory:
-     ```bash
-     cd cloudflare-worker
-     npm ci
-     ```
-   - Run the remote initialization (create tables):
-     ```bash
-     npm run d1:create:remote
-     ```
-   - To run migrations (if present):
-     ```bash
-     npm run d1:migrate:all:remote
-     ```
-
-7. Deploy via GitHub Actions
-   - The workflow used is `.github/workflows/deploy-cloudflare-worker.yaml` (workflow name: `CloudflareWorkerDeploy`).
-   - Once secrets are configured (step 5), you can either:
-     - Push a commit to the `main` branch (this triggers CI), or
-     - Manually run the workflow in the Actions tab -> CloudflareWorkerDeploy -> Run workflow.
-
-8. Verification
-   - After deployment, check the Worker public URL (configured via `API_BASE_URL`/domains) and test your endpoints (e.g. `GET /api/testers`).
-   - For local debugging, use `npx wrangler dev`.
-
-Notes
- - Ensure `CLOUDFLARE_API_TOKEN` is created with the minimal required permissions: Workers Scripts: Edit, Workers KV Namespace: Edit, D1: Edit.
- - If you use the CLI to create resources (KV/D1), save the IDs returned and add them to `wrangler.jsonc` or the appropriate secrets.
- - For production, treat secrets and API tokens carefully and review permission scopes regularly.
-
-
-### Configure Auth0
-
-See the [Auth0.md](https://github.com/sctg-development/feedback-flow/blob/main/Auth0.md) file for detailed instructions on how to configure Auth0 for the application.
-
-### Environment Variables
-
-The application requires the following environment variables to be set in a `.env` file in the root of the repository:
-
+**Terminal 1 - Backend:**
 ```bash
-AUTH0_CLIENT_ID=your_auth0_client_id
-AUTH0_CLIENT_SECRET=your_auth0_client_secret
-AUTH0_MANAGEMENT_API_CLIENT_ID=your_auth0_management_api_client_id
-AUTH0_MANAGEMENT_API_CLIENT_SECRET=your_auth0_management_api_client_secret
-AUTH0_DOMAIN=your_auth0_domain
-AUTH0_SCOPE="openid profile email read:api write:api admin:api backup:api"
-AUTH0_AUDIENCE="http://localhost:8787/api"
-AUTH0_SUB=your_current_user_token_sub
-API_BASE_URL=http://localhost:8787/api
-CORS_ORIGIN=http://localhost:5173
-READ_PERMISSION=read:api
-WRITE_PERMISSION=write:api
-ADMIN_PERMISSION=admin:api
-ADMIN_AUTH0_PERMISSION=auth0:admin:api
-BACKUP_PERMISSION=backup:api
-CRYPTOKEN=any_random_string_to_encrypt_the_variables_in_the_repo
-AMAZON_BASE_URL="https://www.amazon.fr/gp/your-account/order-details?orderID="
-DB_BACKEND=memory # or d1
-DB_MAX_IMAGE_SIZE=640
-# This is the token you get from the application when you log in. It is used to authenticate the user with the API.
-# It is not required to be set in the .env file, but it is used in the tests to authenticate the user.
-AUTH0_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnaXRodWJ8MTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwicGVybWlzc2lvbnMiOiJyZWFkOmFwaSB3cml0ZTphcGkgYWRtaW46YXBpIGJhY2t1cDphcGkifQ.m1URdlBbuHa9_e3xN2MEMnkGm3ISbVBAuW7fWgL7fms"
-STATISTICS_LIMIT=100 # number of purchases to uses in the statistics
+cd cloudflare-worker
+npm run dev:env
 ```
 
-### Run the Application
+**Terminal 2 - Frontend:**
+```bash
+cd client
+npm run dev:env
+```
 
-To run the application, you need to start both the client and the server.
-In the root of the repository, run the following command:
+**Access the application:**
+- Frontend: [http://localhost:5173](http://localhost:5173)
+- Backend API: [http://localhost:8787](http://localhost:8787)
+- API Documentation: [http://localhost:8787/docs](http://localhost:8787/docs)
 
-1. Start the development server backend:
+---
 
-   ```bash
-   cd cloudflare-worker && npm run dev:env
-   ```
+## 📖 User Guide
 
-2. Start the development server frontend in another terminal:
+### Understanding Permissions
 
-   ```bash
-   cd client && npm run dev:env
-   ```
+Feedback Flow uses a role-based permission system:
 
-3. The application should now be running at [http://localhost:5173](http://localhost:5173) and the API at [http://localhost:8787](http://localhost:8787).
-4. Connect to the application with your browser to [http://localhost:5173](http://localhost:5173).
+| Permission | Description |
+|------------|-------------|
+| `read:api` | View your own feedback data |
+| `write:api` | Create and update your feedback data |
+| `search:api` | Search across feedback data |
+| `admin:api` | Administer users and testers |
+| `auth0:admin:api` | Manage Auth0 users |
+| `backup:api` | Backup and restore database |
 
-5. Log in to the application with your GitHub account. Copy the token from the application, you can find it by clicking on your name in the appliation footer.
-6. Copy the token and paste it in the `AUTH0_TOKEN` variable in the `.env` file.
-7. Restart the Cloudflare Worker.
-8. in the `cloudflare-worker` folder, run the following command test the worker and add some data to the **TESTER** user linked to your GitHub account:
+### User Workflows
 
-   ```bash
-   cd cloudflare-worker
-   npm test
-   ```
+#### Regular Tester Workflow
 
-## Screenshots
+**1. Add a New Purchase**
+- Navigate to the main page
+- Click **"Add Purchase"**
+- Fill in: product name, order number, purchase date, amount
+- Upload screenshot of purchase confirmation
+- Save
 
-Main page  
+**2. Submit Feedback**
+- Find your purchase in the list
+- Click **"Add Feedback"**
+- Write your honest review
+- Save feedback draft
+
+**3. Publish Your Review**
+- Publish your review on the required platform (e.g., Amazon)
+- Return to Feedback Flow
+- Click **"Publish Feedback"**
+- Upload screenshot of published review
+- Mark as published
+
+**4. Request and Record Refund**
+- Generate a PDF report for the seller (optional)
+- Send proof to seller
+- When refund is received, click **"Add Refund"**
+- Enter refund amount and date
+
+#### Administrator Workflow
+
+**Managing Users and Testers**
+
+Admins can access the **Users & Permissions** page to:
+
+- **View all Auth0 users** with their assigned testers
+- **Create new testers** and assign OAuth IDs
+- **Assign/unassign users** to testers (single or bulk operations)
+- **Delete users** (automatically unassigns them first)
+
+**Creating a Tester:**
+1. Navigate to Users & Permissions
+2. Click **"Create Tester"**
+3. Enter tester name
+4. Select one or more OAuth IDs to assign
+5. Save
+
+**Assigning Users to Testers:**
+1. Select user(s) in the table
+2. Click **"Assign"**
+3. Choose existing tester
+4. Confirm assignment
+
+### Using the API
+
+The REST API is documented with Swagger UI at [/docs](https://sctg-development.github.io/feedback-flow/docs).
+
+**Authentication:**
+1. Log into the application
+2. Click your name in the footer
+3. Copy the JWT token
+4. In Swagger UI, click **"Authorize"**
+5. Paste token with `Bearer ` prefix: `Bearer your_token_here`
+
+The token is valid for 24 hours.
+
+### Generating Dispute Resolution Links
+
+If you need to prove your testing activity to a seller:
+
+1. Select the purchase in question
+2. Click **"Generate Public Link"**
+3. Share the link with the seller
+4. The link provides read-only access to:
+   - Purchase proof
+   - Published review screenshot
+   - All relevant dates and information
+
+---
+
+## 🔧 Technical Documentation
+
+### Architecture Overview
+
+```mermaid
+flowchart LR
+  Browser["Browser\n(React SPA)"] -->|HTTPS| CDN["CDN (Static)\n(Vite build)"]
+  CDN -->|REST API| Workers["Cloudflare Workers\n(Serverless)"]
+  Workers --> D1["D1 Database\n(SQLite)"]
+  Workers --> KV["KV Storage\n(Cache)"]
+  classDef infra fill:#f8f9fa,stroke:#333,stroke-width:1px;
+  class Browser,CDN,Workers,D1,KV infra;
+```
+### Database Schema
+
+The application stores:
+- **Testers**: User profiles with OAuth ID mappings
+- **Purchases**: Product orders with dates and amounts
+- **Feedback**: Review text and submission dates
+- **Publications**: Published review proofs
+- **Refunds**: Refund amounts and dates
+- **Screenshots**: Base64 encoded images
+
+### API Documentation
+
+All REST API endpoints are automatically documented with **Swagger UI**:
+
+🔗 **[Interactive API Documentation](https://sctg-development.github.io/feedback-flow/docs)**
+
+The Swagger UI provides:
+- Complete endpoint documentation
+- Request/response schemas
+- Interactive testing interface
+- Authentication examples
+
+### Security Model
+
+**Authentication Flow:**
+1. User logs in via Auth0 (OAuth 2.0)
+2. Browser receives JWT token
+3. Token sent to API in `Authorization: Bearer <token>` header
+4. API verifies token signature and permissions
+5. Access granted or denied based on token claims
+
+**Permission Enforcement:**
+- All endpoints require valid JWT
+- Permissions checked on every request
+- Users can only access their own data (except admins)
+- Admin endpoints require `admin:api` permission
+
+### Development Scripts
+
+**Backend (cloudflare-worker/):**
+```bash
+npm run dev:env          # Start dev server with .env
+npm run d1:create        # Create local D1 database
+npm run d1:init          # Initialize schema
+npm run d1:migrate:all   # Run migrations
+npm test                 # Run tests + populate test data
+```
+
+**Frontend (client/):**
+```bash
+npm run dev:env          # Start dev server with .env
+npm run build            # Build for production
+npm run preview          # Preview production build
+```
+
+### Testing
+
+The test suite includes:
+- End-to-end API tests
+- Database operation tests
+- Authentication flow tests
+- Permission enforcement tests
+
+Run tests with:
+```bash
+cd cloudflare-worker
+npm test
+```
+
+---
+
+## 🌐 Production Deployment
+
+### Deploying to Cloudflare (Free Tier)
+
+Feedback Flow can be deployed entirely on Cloudflare's free tier.
+
+#### Prerequisites
+
+1. **Cloudflare Account** - Sign up at [dash.cloudflare.com](https://dash.cloudflare.com/)
+2. **Wrangler CLI** - Install globally: `npm install -g wrangler`
+3. **GitHub Repository** - Fork or use the original repo
+
+#### Step 1: Create Cloudflare Resources
+
+**A. Sign in to Cloudflare via Wrangler:**
+```bash
+npx wrangler login
+```
+
+**B. Create KV Namespace (for caching):**
+```bash
+npx wrangler kv:namespace create "KV_CACHE"
+```
+Copy the returned namespace ID to `wrangler.jsonc`.
+
+**C. Create D1 Database:**
+```bash
+npx wrangler d1 create feedbackflow-db
+```
+Copy the returned database ID to `wrangler.jsonc`.
+
+**D. Initialize Remote Database:**
+```bash
+cd cloudflare-worker
+npm run d1:create:remote
+npm run d1:migrate:all:remote
+```
+
+#### Step 2: Configure GitHub Secrets
+
+Navigate to your repository: **Settings → Secrets and variables → Actions**
+
+**Required Secrets:**
+- `CLOUDFLARE_API_TOKEN` (Workers/D1/KV edit permissions)
+- `CLOUDFLARE_ACCOUNT_ID`
+- `AUTH0_DOMAIN`
+- `AUTH0_CLIENT_ID`
+- `AUTH0_CLIENT_SECRET`
+- `AUTH0_MANAGEMENT_API_CLIENT_ID`
+- `AUTH0_MANAGEMENT_API_CLIENT_SECRET`
+- `AUTH0_AUDIENCE`
+- `API_BASE_URL` (your production URL)
+- `CORS_ORIGIN` (your frontend URL)
+- `PAYPAL_TRANSACTION_BASE_URL`
+
+**Required Variables:**
+- `AUTH0_SCOPE`
+- `READ_PERMISSION`
+- `WRITE_PERMISSION`
+- `ADMIN_PERMISSION`
+- `SEARCH_PERMISSION`
+- `ADMIN_AUTH0_PERMISSION`
+- `BACKUP_PERMISSION`
+- `DB_BACKEND` (set to `d1`)
+- `DB_MAX_IMAGE_SIZE`
+- `AMAZON_BASE_URL`
+- `STATISTICS_LIMIT`
+
+#### Step 3: Deploy via GitHub Actions
+
+The repository includes a deployment workflow: `.github/workflows/deploy-cloudflare-worker.yaml`
+
+**Trigger deployment:**
+- **Automatic**: Push to `main` branch
+- **Manual**: Actions tab → CloudflareWorkerDeploy → Run workflow
+
+#### Step 4: Verify Deployment
+
+1. Check the Worker URL in Cloudflare dashboard
+2. Test API endpoints: `GET /api/testers`
+3. Deploy frontend to your preferred CDN
+4. Update Auth0 callback URLs with production URLs
+
+### Deploying the Frontend
+
+The frontend is a static SPA that can be deployed to:
+
+- **Cloudflare Pages** (recommended)
+- Vercel
+- Netlify
+- Any static hosting service
+
+**Build the frontend:**
+```bash
+cd client
+npm run build
+```
+
+Deploy the `dist/` folder to your hosting provider.
+
+### For Forked Repositories
+
+If you fork this repository:
+
+1. **Enable GitHub Actions** in your fork
+2. **Create all secrets and variables** as listed above
+3. **Update `wrangler.jsonc`** with your resource IDs
+4. **Push to trigger deployment**
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit changes: `git commit -m 'Add your feature'`
+4. Push to branch: `git push origin feature/your-feature`
+5. Open a Pull Request
+
+### Development Guidelines
+
+- Follow existing code style
+- Add tests for new features
+- Update documentation as needed
+- Keep commits focused and atomic
+
+---
+
+## 📸 Screenshots
+
+### Main Dashboard
 <img width="1275" alt="main" src="https://github.com/user-attachments/assets/190dc406-27da-473d-bc2f-3c2e555661f7" />
 
-Main page (user with read-only permissions)
+### Read-Only User View
 ![image](https://github.com/user-attachments/assets/551489d2-750e-4ba5-b8c8-2656b2a7aa39)
 
-Add a purchase  
+### Add Purchase Form
 <img width="572" alt="new" src="https://github.com/user-attachments/assets/bd285ec9-6d40-4c60-abe2-218b440c1e4c" />
 
-Add a feedback  
+### Add Feedback Form
 <img width="595" alt="feed" src="https://github.com/user-attachments/assets/f7b7719d-1c81-43e6-bec2-74cea15d6424" />
 
-Publish feedback  
-<img width="477" alt="publish-feedback" src="https://github.com/user-attachments/assets/c128ad7c-48fe-4d7d-9866-82b5a376c293" />  
+### Publish Feedback Dialog
+<img width="477" alt="publish-feedback" src="https://github.com/user-attachments/assets/c128ad7c-48fe-4d7d-9866-82b5a376c293" />
 
-Generate a PDF report for purchases ready to refund
+### Statistics Dashboard
+<img width="1260" alt="Statistics dashboard screenshots" src="https://github.com/user-attachments/assets/f222c477-59ec-419d-987a-0a3276aa7412" />
+
+### PDF Report Generation
 <img width="1379" alt="sreen" src="https://github.com/user-attachments/assets/e2ee801a-fb9b-43db-85ab-f531944ac863" />
 
-Add a refund  
-<img width="462" alt="refund" src="https://github.com/user-attachments/assets/b91764a4-121a-4d43-b924-35c5b2e88a27" />  
+### Add Refund Form
+<img width="462" alt="refund" src="https://github.com/user-attachments/assets/b91764a4-121a-4d43-b924-35c5b2e88a27" />
 
-Add a new user (Admin menu, dark mode)  
-<img width="1043" alt="add-user" src="https://github.com/user-attachments/assets/bded224e-e8eb-494d-bd06-cdf4754a62e7" />  
+### Admin - Add User (Dark Mode)
+<img width="1043" alt="add-user" src="https://github.com/user-attachments/assets/bded224e-e8eb-494d-bd06-cdf4754a62e7" />
 
-API  
+### API Documentation
 <img width="1124" alt="image" src="https://github.com/user-attachments/assets/cb2d57f5-d18c-481b-ba22-ee3455fbb044" />
 
-`````
+---
 
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE.md) file for details.
+
+## 🔗 Links
+
+- **Documentation**: [sctg-development.github.io/feedback-flow/docs](https://sctg-development.github.io/feedback-flow/docs)
+- **Template**: [Vite, Auth0 & HeroUI Template](https://github.com/sctg-development/vite-react-heroui-auth0-template)
+- **Issues**: [GitHub Issues](https://github.com/sctg-development/feedback-flow/issues)
+
+---
+
+**Made with ❤️ by the SCTG Development team**
