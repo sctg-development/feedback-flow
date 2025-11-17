@@ -269,5 +269,6 @@
   "no-management-token": "没有管理令牌",
   "confirm-delete-warning": "您确定要删除 {{name}} 吗？",
   "failed-loading-user-permissions": "加载用户权限失败",
-  "error-saving-permissions": "保存权限时出错"
+  "error-saving-permissions": "保存权限时出错",
+  "tester": "测试员"
 }

@@ -269,5 +269,6 @@
   "no-management-token": "لا يوجد رمز إدارة",
   "confirm-delete-warning": "هل أنت متأكد أنك تريد حذف {{name}}؟",
   "failed-loading-user-permissions": "فشل في تحميل أذونات المستخدم",
-  "error-saving-permissions": "خطأ في حفظ الأذونات"
+  "error-saving-permissions": "خطأ في حفظ الأذونات",
+  "tester": "اختبار"
 }

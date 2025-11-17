@@ -269,5 +269,6 @@
   "no-management-token": "אין אסימון ניהול",
   "confirm-delete-warning": "האם אתה בטוח שאתה רוצה למחוק את {{name}}?",
   "failed-loading-user-permissions": "נכשל טעינת הרשאות המשתמש",
-  "error-saving-permissions": "שגיאה בשמירת ההרשאות"
+  "error-saving-permissions": "שגיאה בשמירת ההרשאות",
+  "tester": "בּוֹחֵן"
 }

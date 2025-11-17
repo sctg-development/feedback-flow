@@ -36,7 +36,7 @@ import type { Auth0User, Auth0Permission, Auth0Role } from "@/types/data";
 export function Profile() {
   const { user } = useAuth0();
 
-  // console.log(JSON.stringify(user));
+
 
   return (
     <Tooltip content={user?.nickname} delay={750}>
@@ -598,6 +598,7 @@ export const useSecuredApi = () => {
             },
           },
         );
+        // debug: listAuth0Users called and response status handled above
         return (await resp.json()) as Auth0User[];
       } catch (error) {
         console.error("Failed to list Auth0 users:", error);
@@ -821,13 +822,13 @@ export const userHasPermission = async (
     const payload = joseResult.payload as JWTPayload;
 
     if (payload.permissions instanceof Array) {
-      // console.log(
+
       //   `You own this JWT: ${JSON.stringify(payload)}, permission (${permission}) is ${payload.permissions.includes(permission)}`,
       // );
 
       return payload.permissions.includes(permission);
     } else {
-      // console.log(
+
       //   `The permissions claim is not an array: ${JSON.stringify(
       //     payload.permissions,
       //   )}`,

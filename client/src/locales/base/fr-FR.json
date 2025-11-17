@@ -269,5 +269,6 @@
   "no-management-token": "Aucun jeton de gestion",
   "confirm-delete-warning": "Êtes-vous sûr de vouloir supprimer {{name}} ?",
   "failed-loading-user-permissions": "Échec du chargement des autorisations de l'utilisateur",
-  "error-saving-permissions": "Erreur lors de l'enregistrement des permissions"
+  "error-saving-permissions": "Erreur lors de l'enregistrement des permissions",
+  "tester": "Testeur"
 }

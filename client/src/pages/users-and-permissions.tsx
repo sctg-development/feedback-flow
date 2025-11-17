@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DefaultLayout from "@/layouts/default";
 import { useSecuredApi } from "@/components/auth0";
-import { Auth0ManagementTokenApiResponse, Auth0ManagementTokenResponse, Auth0User, Auth0Permission } from "@/types/data";
+import { Auth0ManagementTokenApiResponse, Auth0ManagementTokenResponse, Auth0User, Auth0Permission, Tester, GetTestersResponse } from "@/types/data";
 import { useTranslation } from "react-i18next";
 import { Button } from "@heroui/button";
 import { Checkbox } from "@heroui/checkbox";
@@ -35,11 +35,15 @@ import ConfirmDeleteModal from "@/components/modals/confirm-delete-modal";
 // import { Toast } from "@heroui/toast"; // Not using Toast API directly, using message state
 
 export default function UsersAndPermissionsPage() {
-    const { getAuth0ManagementToken, listAuth0Users, getUserPermissions, addPermissionToUser, removePermissionFromUser, deleteAuth0User } = useSecuredApi();
+    const { getAuth0ManagementToken, listAuth0Users, getUserPermissions, addPermissionToUser, removePermissionFromUser, deleteAuth0User, postJson } = useSecuredApi();
+    const postJsonRef = useRef(postJson);
+    useEffect(() => { postJsonRef.current = postJson; }, [postJson]);
     const [token, setToken] = useState<Auth0ManagementTokenResponse | null>(null);
     const { t } = useTranslation();
     // replaced message state and inline alert by HeroUI toasts
     const [users, setUsers] = useState<Auth0User[]>([]);
+    const [usersWithTester, setUsersWithTester] = useState<Array<Auth0User & { testerName?: string }>>([]);
+    const [testerMap, setTesterMap] = useState<Record<string, Tester | undefined>>({});
     // roles are not used yet because we work with direct permissions (not roles)
     const [editing, setEditing] = useState<Record<string, Record<string, boolean>>>({});
     const [selectedUser, setSelectedUser] = useState<Auth0User | null>(null);
@@ -51,14 +55,18 @@ export default function UsersAndPermissionsPage() {
     useEffect(() => {
         // Fetch Auth0 Management API token for accessing Auth0 management endpoints
         getAuth0ManagementToken().then(async (auth0TokenResponse: Auth0ManagementTokenApiResponse) => {
-            console.log("Token data:", auth0TokenResponse);
             setToken(auth0TokenResponse as Auth0ManagementTokenResponse); //TODO verify type correctness (it can be ErrorResponse)
             // After token is fetched, list roles and users
             if ((auth0TokenResponse as any)?.access_token) {
                 const mgmtToken = (auth0TokenResponse as any).access_token;
                 try {
+                    if (!mgmtToken) {
+                        console.error('No mgmtToken available to call listAuth0Users');
+                    }
+                    // Calling listAuth0Users
                     const u = (await listAuth0Users(mgmtToken)) ?? [];
                     setUsers(u);
+                    // listAuth0Users resolved
                 } catch (err) {
                     console.error('Failed to fetch Auth0 roles or users', err);
                 }
@@ -68,6 +76,105 @@ export default function UsersAndPermissionsPage() {
         });
 
     }, []);
+
+    // Ensure the tester map is updated whenever the list of Auth0 users changes
+    useEffect(() => {
+        // Reset map when no users
+        if (!users || users.length === 0) {
+            setTesterMap({});
+            return;
+        }
+
+        let cancelled = false;
+
+        (async () => {
+            const ids = Array.from(new Set(users.map((u) => (u.user_id || "").toString().trim()).filter(Boolean)));
+            // Users effect: found ids
+            if (ids.length === 0) {
+                setTesterMap({});
+                return;
+            }
+
+            try {
+                const postJsonIsFunction = typeof postJsonRef.current === 'function';
+                if (!postJsonIsFunction) {
+                }
+                const postJsonToUse = postJsonRef.current && typeof postJsonRef.current === 'function' ? postJsonRef.current : postJson;
+                if (typeof postJsonToUse !== 'function') {
+                    // No postJson available - aborting
+                    setTesterMap({});
+                    return;
+                }
+                // Calling POST /testers for ids
+                const resp = (await postJsonToUse(
+                    `${import.meta.env.API_BASE_URL}/testers`,
+                    { ids },
+                )) as GetTestersResponse;
+                // POST /testers response
+                if (cancelled) return;
+                if (resp && resp.success && Array.isArray(resp.data)) {
+                    const map: Record<string, Tester> = {};
+                    for (const tester of resp.data) {
+                        if (Array.isArray(tester.ids)) {
+                            for (const id of tester.ids) {
+                                const key = (id || "").toString().trim();
+                                if (!key) continue;
+                                map[key] = tester;
+                                // Also register the bare id (without provider prefix) to support matches
+                                const bare = key.includes("|") ? key.split("|").pop() : key;
+                                if (bare) map[bare] = tester;
+                            }
+                        }
+                    }
+                    setTesterMap(map);
+                    // Build derived users with testerName to ensure table updates
+                    const derived = users.map((u) => {
+                        const userId = (u.user_id || "").toString().trim();
+                        let testerName = "";
+                        if (userId) {
+                            testerName = map[userId]?.name ?? "";
+                        }
+                        if (!testerName) {
+                            const identities = (u as Auth0User).identities || [];
+                            for (const id of identities) {
+                                const providerKey = `${id.provider}|${id.user_id}`.trim();
+                                if (map[providerKey]) {
+                                    testerName = map[providerKey].name;
+                                    break;
+                                }
+                                const bare = `${id.user_id}`.trim();
+                                if (map[bare]) {
+                                    testerName = map[bare].name;
+                                    break;
+                                }
+                            }
+                        }
+                        return { ...u, testerName };
+                    });
+                    setUsersWithTester(derived);
+                    // Derived usersWithTester computed
+                    if (import.meta.env.DEV) {
+                        // Helpful debug info during development
+                        // testerMap built for users
+                    }
+                } else {
+                    if (import.meta.env.DEV) {
+                        // POST /testers returned no results or success=false
+                        addToast({ title: t('error'), description: t('error-fetching-data'), variant: 'solid', timeout: 3000 });
+                    }
+                    // empty map if not success
+                    setTesterMap({});
+                }
+            } catch (err) {
+                console.error('Failed to build tester map on users change:', err);
+                setTesterMap({});
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [users]);
     const onTogglePermission = (userId: string, permissionName: string) => {
         const u = users.find((x) => x.user_id === userId);
         if (!u) return;
@@ -123,7 +230,7 @@ export default function UsersAndPermissionsPage() {
         }
     };
 
-    const openUserModal = async (user: any) => {
+    const openUserModal = async (user: Auth0User) => {
         // open modal and fetch permissions for the user only
         if (!token) {
             addToast({ title: t('error'), description: t('no-management-token'), variant: 'solid', timeout: 5000 });
@@ -195,13 +302,40 @@ export default function UsersAndPermissionsPage() {
             <Table aria-label={t('users-and-permissions')} className="my-4">
                 <TableHeader>
                     <TableColumn>{t('user')}</TableColumn>
+                    <TableColumn>{t('tester')}</TableColumn>
                     <TableColumn>{t('email')}</TableColumn>
                     <TableColumn>{t('actions')}</TableColumn>
                 </TableHeader>
-                <TableBody items={users} emptyContent={t('no-data-available')}>
+                <TableBody items={usersWithTester.length ? usersWithTester : users} emptyContent={t('no-data-available')}>
                     {(u) => (
                         <TableRow key={u.user_id}>
                             <TableCell className="cursor-pointer" onClick={() => openUserModal(u)}>{u.name || u.nickname || u.user_id}</TableCell>
+                            <TableCell>{(() => {
+                                // Use precomputed testerName when available
+                                const precomputed = (u as any).testerName;
+                                if (precomputed) return precomputed;
+                                const userId = (u.user_id || "").toString().trim();
+                                if (!userId) return "";
+                                const tryKey = (k?: string) => {
+                                    if (!k) return undefined;
+                                    const found = testerMap[k];
+                                    return found?.name;
+                                };
+                                // Direct lookup
+                                const direct = tryKey(userId);
+                                if (direct) return direct;
+                                // Check identities fallback
+                                const identities = (u as Auth0User).identities || [];
+                                for (const id of identities) {
+                                    const providerKey = `${id.provider}|${id.user_id}`.trim();
+                                    const nameFromProvider = tryKey(providerKey);
+                                    if (nameFromProvider) return nameFromProvider;
+                                    const bare = `${id.user_id}`.trim();
+                                    const nameFromBare = tryKey(bare);
+                                    if (nameFromBare) return nameFromBare;
+                                }
+                                return "";
+                            })()}</TableCell>
                             <TableCell>{u.email}</TableCell>
                             <TableCell>
                                 <Button color="danger" onPress={() => { setConfirmDeleteUser(u); setConfirmDeleteOpen(true); }} disabled={deletingUserId === u.user_id} isLoading={deletingUserId === u.user_id}>{t('delete')}</Button>
