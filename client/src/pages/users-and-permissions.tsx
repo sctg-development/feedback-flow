@@ -34,9 +34,12 @@ import { Checkbox } from "@heroui/checkbox";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { addToast } from "@heroui/toast";
 import ConfirmDeleteModal from "@/components/modals/confirm-delete-modal";
+import { useAuth0 } from "@auth0/auth0-react";
 // import { Toast } from "@heroui/toast"; // Not using Toast API directly, using message state
 
 export default function UsersAndPermissionsPage() {
+    const { user } = useAuth0();
+    const currentUserId = (user?.sub || "").toString().trim();
     const { getAuth0ManagementToken, listAuth0Users, getUserPermissions, addPermissionToUser, removePermissionFromUser, deleteAuth0User, postJson, deleteJson } = useSecuredApi();
     const postJsonRef = useRef(postJson);
     useEffect(() => { postJsonRef.current = postJson; }, [postJson]);
@@ -299,6 +302,8 @@ export default function UsersAndPermissionsPage() {
     };
 
     const toggleSelectUser = (userId: string) => {
+        // Prevent selecting the current logged-in user to avoid accidental self-unassign/delete
+        if (userId === currentUserId) return;
         setSelectedUserIds((prev) => ({ ...prev, [userId]: !prev[userId] }));
     };
 
@@ -334,6 +339,11 @@ export default function UsersAndPermissionsPage() {
     };
 
     const unassignId = async (id: string) => {
+        // Prevent self-unassign to avoid breaking the current user's session
+        if (id === currentUserId) {
+            addToast({ title: t('error'), description: t('cannot-unassign-self'), variant: 'solid' });
+            return;
+        }
         try {
             // find the tester object for id via map
             const userObj = users.find(u => u.user_id === id) ?? usersWithTester.find(u => u.user_id === id);
@@ -368,6 +378,8 @@ export default function UsersAndPermissionsPage() {
 
     const doUnassignSelected = async (ids: string[]) => {
         if (ids.length === 0) return;
+        // Never unassign the current logged-in user
+        ids = ids.filter(id => id !== currentUserId);
         // for simplification, call delete for each id in parallel
         try {
             await Promise.all(ids.map(async (id) => {
@@ -431,6 +443,11 @@ export default function UsersAndPermissionsPage() {
     };
 
     const deleteUser = async (userId: string) => {
+        // Prevent deleting the current logged-in user from the UI
+        if (userId === currentUserId) {
+            addToast({ title: t('error'), description: t('cannot-delete-self'), variant: 'solid' });
+            return;
+        }
         try {
             if (!token) throw new Error('No management token');
             const mgmtToken = token.access_token;
@@ -549,10 +566,10 @@ export default function UsersAndPermissionsPage() {
                 <TableHeader>
                     <TableColumn>
                         <Checkbox isSelected={Object.keys(selectedUserIds).length > 0 && Object.keys(selectedUserIds).every(k => selectedUserIds[k])} onValueChange={(v) => {
-                            // select/unselect all
+                            // select/unselect all (skip the current user)
                             if (v) {
                                 const map: Record<string, boolean> = {};
-                                (usersWithTester.length ? usersWithTester : users).forEach(u => { if (u.user_id) map[u.user_id] = true });
+                                (usersWithTester.length ? usersWithTester : users).forEach(u => { if (u.user_id && u.user_id !== currentUserId) map[u.user_id] = true });
                                 setSelectedUserIds(map);
                             } else {
                                 setSelectedUserIds({});
@@ -579,10 +596,12 @@ export default function UsersAndPermissionsPage() {
                                     {!assignedName && u.user_id && (
                                         <Button color="secondary" onPress={() => u.user_id && openAssignModalForOne(u.user_id)}>{t('assign')}</Button>
                                     )}
-                                    {assignedName && u.user_id && (
+                                    {assignedName && u.user_id && u.user_id !== currentUserId && (
                                         <Button color="warning" onPress={() => unassignId(u.user_id)}>{t('unassign')}</Button>
                                     )}
-                                    <Button className="ml-2" color="danger" onPress={() => { setConfirmDeleteUser(u); setConfirmDeleteOpen(true); }} disabled={deletingUserId === u.user_id} isLoading={deletingUserId === u.user_id}>{t('delete')}</Button>
+                                    {u.user_id !== currentUserId && (
+                                        <Button className="ml-2" color="danger" onPress={() => { setConfirmDeleteUser(u); setConfirmDeleteOpen(true); }} disabled={deletingUserId === u.user_id} isLoading={deletingUserId === u.user_id}>{t('delete')}</Button>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         )

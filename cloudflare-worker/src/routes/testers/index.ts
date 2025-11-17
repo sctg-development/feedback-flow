@@ -366,6 +366,25 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
                 // Check for collisions in the DB
                 const existing = await db.idMappings.existsMultiple(idArray);
                 if (existing.length > 0) {
+                    // Determine owners of the existing IDs
+                    const owners = await Promise.all(existing.map((id) => db.idMappings.getTesterUuid(id)));
+                    const uniqueOwners = Array.from(new Set(owners.filter(Boolean)));
+                    // If all conflicting ids are already bound to the same tester we are adding to,
+                    // return a 409 error with a specific message about duplicate ID on the same tester.
+                    if (uniqueOwners.length === 1 && uniqueOwners[0] === tester.uuid) {
+                        return new Response(
+                            JSON.stringify({ success: false, error: "ID already exists in the database", existing }),
+                            {
+                                status: 409,
+                                headers: {
+                                    ...router.corsHeaders,
+                                    "Content-Type": "application/json",
+                                },
+                            },
+                        );
+                    }
+
+                    // Otherwise, at least one ID already exists for another tester
                     return new Response(
                         JSON.stringify({ success: false, error: "Some IDs already exist in the database", existing }),
                         {

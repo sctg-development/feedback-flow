@@ -2,7 +2,7 @@ import fs from "fs";
 
 import swaggerJsdoc from "swagger-jsdoc";
 
-export const API_VERSION = "1.6.0";
+export const API_VERSION = "1.7.0";
 
 const options = {
   encoding: "utf8",

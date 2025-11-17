@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Feedback Flow API",
-    "version": "1.6.0"
+    "version": "1.7.0"
   },
   "paths": {
     "/api/testers": {
@@ -92,7 +92,7 @@
       },
       "post": {
         "summary": "Get testers filtered by OAuth IDs (supports pagination)",
-        "description": "Returns a list of testers filtered by OAuth IDs provided in the request body. Requires admin permission.",
+        "description": "Returns a list of testers filtered by OAuth IDs provided in the request body. Requires admin permission. If limit is not provided, all matching testers are returned.",
         "tags": [
           "Testers"
         ],
@@ -318,6 +318,48 @@
           },
           "409": {
             "description": "ID already exists in the database"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove ID from existing tester",
+        "description": "Removes an ID from a tester. Requires admin permission.",
+        "tags": [
+          "Testers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "uuid": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ID successfully removed from tester"
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          },
+          "403": {
+            "description": "Unauthorized request"
           }
         }
       }
