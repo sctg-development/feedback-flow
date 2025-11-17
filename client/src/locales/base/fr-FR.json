@@ -276,11 +276,11 @@
   "assign-tester": "Attribuer un testeur",
   "assigned-successfully": "Attribué avec succès",
   "choose-tester": "Choisissez un testeur",
-  "confirm-unassign-selected": "Êtes-vous sûr de vouloir annuler l'attribution des identifiants sélectionnés à leurs testeurs ?",
+  "confirm-unassign-selected": "Êtes-vous sûr de vouloir annuler l'assignation des identifiants sélectionnés à leurs testeurs ?",
   "create-and-assign": "Créer et attribuer",
   "create-tester": "Créer un testeur",
   "enter-tester-name": "Entrez le nom du testeur",
-  "error-assigning-testers": "Erreur lors de l'attribution des testeurs",
+  "error-assigning-testers": "Erreur lors de l'assignation des testeurs",
   "error-creating-tester": "Erreur lors de la création du testeur",
   "error-removing-oauth-id": "Erreur lors de la suppression de l'ID OAuth",
   "info": "Informations",
@@ -292,7 +292,7 @@
   "selected-unassigned": "Les identifiants sélectionnés n'ont pas été attribués",
   "tester-created": "Testeur créé",
   "tester-created-and-assigned": "Testeur créé et attribué",
-  "unassign": "Annuler l'attribution",
-  "unassign-selected": "Annuler l'attribution de la sélection",
+  "unassign": "Annuler l'assignation",
+  "unassign-selected": "Annuler l'assignation de la sélection",
   "user-already-assigned": "Cet utilisateur est déjà affecté à un testeur"
 }
