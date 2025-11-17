@@ -103,6 +103,61 @@ There may be a delay between the purchase and the refund. Additionally, the refu
 - Generate short public links for dispute resolution (write:api)
 - Access dispute resolution information via public links (no permission required)
 
+## Users & Permissions page (Admin)
+
+This project includes a full admin "Users & Permissions" page implemented at `client/src/pages/users-and-permissions.tsx`. The page lets administrators manage application users (Auth0 users) and map their OAuth IDs to internal "Tester" records for tracking purchases, feedback, and refunds.
+
+Key features
+- Display Auth0 users with a derived "Tester" column (if the user is already assigned to a tester).
+- Create a new `Tester` entity and attach one or more OAuth IDs to it via a `Create Tester` modal.
+- Assign a single or multiple Auth0 user IDs to an existing `Tester` with an `Assign Tester` modal.
+- Bulk operations: select multiple users and assign/unassign them in bulk.
+- Unassign single IDs or bulk unassign selected IDs.
+- Delete an Auth0 user — this attempts to unassign the user's OAuth ID from any `Tester` before removing the user.
+
+How it works (overview)
+- The page fetches a management token to call Auth0 Management endpoints and lists Auth0 users.
+- To determine which users are mapped to Testers, the client calls `POST /api/testers` with an `ids` array (OAuth IDs). The backend returns a list of `Testers` that include any matching `id` in their `ids` array.
+- The client builds a `testerMap` mapping each OAuth id to its corresponding `Tester`. The map contains both provider|id and bare id (for robust lookups), e.g. `github|1234` and `1234`.
+- The table shows a `Tester` column; when the user is assigned to one, the name appears with `unassign` button. When not assigned, an `assign` button is shown.
+
+API endpoints used by the page
+- POST `/api/testers` — Query for `Tester` entities that match a list of OAuth `ids`. Used to build `testerMap` displayed in the UI. Request body example:
+```json
+{ "ids": ["github|123456", "auth0|abcdef"] }
+```
+- POST `/api/tester` — Create a new `Tester` with name and `ids` array. Example:
+```json
+{ "name": "TESTER", "ids": ["github|123456"] }
+```
+- POST `/api/tester/ids` — Add one or many IDs to an existing `Tester` (by `uuid` or `name`). Example:
+```json
+{ "uuid": "tester-uuid", "ids": ["github|123456", "auth0|abcdef"] }
+```
+- DELETE `/api/tester/ids` — Remove an ID from a `Tester` by `uuid` or `name`:
+```json
+{ "uuid": "tester-uuid", "id": "github|123456" }
+```
+
+Permissions & security
+- All Tester management endpoints require an admin permission. By default the app uses `ADMIN_PERMISSION` to gate these endpoints.
+- The UI obtains an Auth0 management token and uses it to list and manage Auth0 users while calls to the API are protected by `Authorization: Bearer <JWT>`.
+
+UX specifics
+- Create and Assign flows are modal-driven, and the page uses HeroUI toasts for feedback on success/failure.
+- When assigning, the UI checks whether the user is already assigned to a tester and prevents opening the "Assign" modal in that case.
+- The UX supports both single and bulk assignments for convenience.
+
+Edge cases & behaviors
+- The server supports several ID formats: `provider|id` and `id` (bare). The client maps both to increase match robustness.
+- When adding IDs server-side, the API verifies if an ID is already present in the database and will return `409` on conflicts. The client shows appropriate toasts based on the response.
+- Deleting an Auth0 user first attempts to unassign the user from any `Tester` to keep the mapping consistent.
+
+Notes for developers
+- If you change the API handling of IDs (for example, if you add a stronger normalization step for `id` vs `provider|id`), make sure to update both the client mapping logic (`users-and-permissions.tsx`) and the D1 repository logic (`cloudflare-worker/src/db/d1-db.ts`) that inserts/queries `id_mappings`.
+- The code uses a `postJsonRef` pattern to avoid stale closures that would otherwise trigger infinite re-renders when the `postJson` hook changes.
+- Tests exist in `cloudflare-worker/test/*` to run end-to-end checks for the `tester` endpoints; ensure you keep tests aligned with the API semantics (e.g., expecting `409` for duplicate ids).
+
 ## Security
 
 Authentication is handled by Auth0. The system is provided by the template. It is an OAuth 2.0 process that runs in the browser. The browser receives a JWT token, which it sends to the API. The API verifies the token and grants or denies access to the resource based on the permissions included in the token.
