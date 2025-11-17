@@ -28,6 +28,8 @@ import { useSecuredApi } from "@/components/auth0";
 import { Auth0ManagementTokenApiResponse, Auth0ManagementTokenResponse, Auth0User, Auth0Permission, Tester, GetTestersResponse } from "@/types/data";
 import { useTranslation } from "react-i18next";
 import { Button } from "@heroui/button";
+import AssignTesterModal from "@/components/modals/assign-tester-modal";
+import CreateTesterModal from "@/components/modals/create-tester-modal";
 import { Checkbox } from "@heroui/checkbox";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { addToast } from "@heroui/toast";
@@ -35,7 +37,7 @@ import ConfirmDeleteModal from "@/components/modals/confirm-delete-modal";
 // import { Toast } from "@heroui/toast"; // Not using Toast API directly, using message state
 
 export default function UsersAndPermissionsPage() {
-    const { getAuth0ManagementToken, listAuth0Users, getUserPermissions, addPermissionToUser, removePermissionFromUser, deleteAuth0User, postJson } = useSecuredApi();
+    const { getAuth0ManagementToken, listAuth0Users, getUserPermissions, addPermissionToUser, removePermissionFromUser, deleteAuth0User, postJson, deleteJson } = useSecuredApi();
     const postJsonRef = useRef(postJson);
     useEffect(() => { postJsonRef.current = postJson; }, [postJson]);
     const [token, setToken] = useState<Auth0ManagementTokenResponse | null>(null);
@@ -46,6 +48,13 @@ export default function UsersAndPermissionsPage() {
     const [testerMap, setTesterMap] = useState<Record<string, Tester | undefined>>({});
     // roles are not used yet because we work with direct permissions (not roles)
     const [editing, setEditing] = useState<Record<string, Record<string, boolean>>>({});
+    // bulk selection state
+    const [selectedUserIds, setSelectedUserIds] = useState<Record<string, boolean>>({});
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+    const [assignModalIds, setAssignModalIds] = useState<string[]>([]);
+    const [confirmUnassignOpen, setConfirmUnassignOpen] = useState(false);
+    const [confirmUnassignIds, setConfirmUnassignIds] = useState<string[]>([]);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<Auth0User | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalLoading, setModalLoading] = useState(false);
@@ -175,10 +184,214 @@ export default function UsersAndPermissionsPage() {
             cancelled = true;
         };
     }, [users]);
+
+    const refreshTesterMap = async () => {
+        // duplicate the logic to rebuild the tester map for the current users
+        if (!users || users.length === 0) {
+            setTesterMap({});
+            setUsersWithTester([]);
+            return;
+        }
+        try {
+            const ids = Array.from(new Set(users.map((u) => (u.user_id || "").toString().trim()).filter(Boolean)));
+            if (ids.length === 0) {
+                setTesterMap({});
+                setUsersWithTester(users);
+                return;
+            }
+            const postJsonToUse = postJsonRef.current && typeof postJsonRef.current === 'function' ? postJsonRef.current : postJson;
+            if (typeof postJsonToUse !== 'function') return;
+            const resp = (await postJsonToUse(`${import.meta.env.API_BASE_URL}/testers`, { ids })) as GetTestersResponse;
+            if (resp && resp.success && Array.isArray(resp.data)) {
+                const map: Record<string, Tester> = {};
+                for (const tester of resp.data) {
+                    if (Array.isArray(tester.ids)) {
+                        for (const id of tester.ids) {
+                            const key = (id || "").toString().trim();
+                            if (!key) continue;
+                            map[key] = tester;
+                            const bare = key.includes("|") ? key.split("|").pop() : key;
+                            if (bare) map[bare] = tester;
+                        }
+                    }
+                }
+                setTesterMap(map);
+                const derived = users.map((u) => {
+                    const userId = (u.user_id || "").toString().trim();
+                    let testerName = "";
+                    if (userId) {
+                        testerName = map[userId]?.name ?? "";
+                    }
+                    if (!testerName) {
+                        const identities = (u as Auth0User).identities || [];
+                        for (const id of identities) {
+                            const providerKey = `${id.provider}|${id.user_id}`.trim();
+                            if (map[providerKey]) {
+                                testerName = map[providerKey].name;
+                                break;
+                            }
+                            const bare = `${id.user_id}`.trim();
+                            if (map[bare]) {
+                                testerName = map[bare].name;
+                                break;
+                            }
+                        }
+                    }
+                    return { ...u, testerName };
+                });
+                setUsersWithTester(derived);
+            }
+        } catch (err) {
+            console.error('Failed to refresh tester map:', err);
+        }
+    };
     const onTogglePermission = (userId: string, permissionName: string) => {
         const u = users.find((x) => x.user_id === userId);
         if (!u) return;
         setEditing((prev) => ({ ...prev, [userId]: { ...(prev[userId] || {}), [permissionName]: !(prev[userId]?.[permissionName] ?? false) } }));
+    };
+
+    const getAssignedTesterName = (u: Auth0User) => {
+        // prefer precomputed value from usersWithTester
+        const precomputed = (u as any).testerName;
+        if (precomputed) return precomputed;
+        const userId = (u.user_id || "").toString().trim();
+        if (userId && testerMap[userId]) return testerMap[userId]?.name ?? "";
+        const identities = (u as Auth0User).identities || [];
+        for (const id of identities) {
+            const providerKey = `${id.provider}|${id.user_id}`.trim();
+            if (testerMap[providerKey]) return testerMap[providerKey]?.name ?? "";
+            const bare = `${id.user_id}`.trim();
+            if (testerMap[bare]) return testerMap[bare]?.name ?? "";
+        }
+        return "";
+    };
+
+    const findAssignedTesterAndStoredId = (u: Auth0User): { tester?: Tester; storedId?: string } => {
+        const userId = (u.user_id || "").toString().trim();
+        if (userId && testerMap[userId]) {
+            // The exact userId exists in the map; but the tester.ids array may store the provider|id instead
+            const t = testerMap[userId]!;
+            // try to find precise stored id within tester.ids
+            const stored = (t.ids || []).find(i => i === userId || i.endsWith(`|${userId}`));
+            if (stored) return { tester: t, storedId: stored };
+            return { tester: t, storedId: userId };
+        }
+        // Try identities
+        const identities = (u as Auth0User).identities || [];
+        for (const id of identities) {
+            const providerKey = `${id.provider}|${id.user_id}`.trim();
+            if (testerMap[providerKey]) {
+                const t = testerMap[providerKey]!;
+                const stored = (t.ids || []).find(i => i === providerKey || i === `${id.user_id}` || i.endsWith(`|${id.user_id}`));
+                if (stored) return { tester: t, storedId: stored };
+                return { tester: t, storedId: providerKey };
+            }
+            const bare = `${id.user_id}`.trim();
+            if (testerMap[bare]) {
+                const t = testerMap[bare]!;
+                const stored = (t.ids || []).find(i => i === bare || i.endsWith(`|${bare}`));
+                if (stored) return { tester: t, storedId: stored };
+                return { tester: t, storedId: bare };
+            }
+        }
+        return {};
+    };
+
+    const toggleSelectUser = (userId: string) => {
+        setSelectedUserIds((prev) => ({ ...prev, [userId]: !prev[userId] }));
+    };
+
+    const bulkSelectedIds = () => Object.keys(selectedUserIds).filter((k) => selectedUserIds[k]);
+    const bulkUnassignedIds = () => bulkSelectedIds().filter((id) => !testerMap[id]);
+
+    const openAssignModalForSelected = () => {
+        // only consider ids that are not already assigned to a tester
+        const ids = bulkSelectedIds().filter(id => !testerMap[id]);
+        if (ids.length === 0) return;
+        setAssignModalIds(ids);
+        setIsAssignModalOpen(true);
+    };
+
+    const openAssignModalForOne = (id: string) => {
+        // only open modal if the user does not already have a mapped tester
+        const user = users.find(u => u.user_id === id) || usersWithTester.find(u => u.user_id === id);
+        if (user) {
+            const assigned = getAssignedTesterName(user);
+            if (assigned) {
+                addToast({ title: t('info'), description: t('user-already-assigned'), variant: 'solid' });
+                return;
+            }
+        } else {
+            // If we don't have the user data, still check map by id
+            if (testerMap[id]) {
+                addToast({ title: t('info'), description: t('user-already-assigned'), variant: 'solid' });
+                return;
+            }
+        }
+        setAssignModalIds([id]);
+        setIsAssignModalOpen(true);
+    };
+
+    const unassignId = async (id: string) => {
+        try {
+            // find the tester object for id via map
+            const userObj = users.find(u => u.user_id === id) ?? usersWithTester.find(u => u.user_id === id);
+            const { tester, storedId } = userObj ? findAssignedTesterAndStoredId(userObj as Auth0User) : { tester: testerMap[id], storedId: undefined };
+            if (!tester) {
+                addToast({ title: t('error'), description: t('no-tester-found-for-id'), variant: 'solid' });
+                return;
+            }
+            // Determine stored id to delete
+            const idToDelete = storedId || ((tester.ids || []).find(i => i === id || i.endsWith(`|${id}`)) ?? id);
+            // Call DELETE endpoint using secured deleteJson
+            const parsed = await deleteJson(`${import.meta.env.API_BASE_URL}/tester/ids`, { uuid: tester.uuid, id: idToDelete });
+            if (parsed && parsed.success) {
+                addToast({ title: t('success'), description: t('oauth-id-removed-successfully'), variant: 'solid' });
+                await refreshTesterMap();
+            } else {
+                addToast({ title: t('error'), description: t('error-removing-oauth-id'), variant: 'solid' });
+            }
+        } catch (err) {
+            console.error(err);
+            addToast({ title: t('error'), description: t('error-removing-oauth-id'), variant: 'solid' });
+        }
+    };
+
+    const unassignSelected = async () => {
+        const ids = bulkSelectedIds();
+        if (ids.length === 0) return;
+        // show confirmation
+        setConfirmUnassignIds(ids);
+        setConfirmUnassignOpen(true);
+    };
+
+    const doUnassignSelected = async (ids: string[]) => {
+        if (ids.length === 0) return;
+        // for simplification, call delete for each id in parallel
+        try {
+            await Promise.all(ids.map(async (id) => {
+                const userObj = users.find(u => u.user_id === id) ?? usersWithTester.find(u => u.user_id === id);
+                let tester: Tester | undefined;
+                let storedId: string | undefined;
+                if (userObj) {
+                    const found = findAssignedTesterAndStoredId(userObj as Auth0User);
+                    tester = found.tester;
+                    storedId = found.storedId;
+                } else {
+                    tester = testerMap[id];
+                }
+                if (!tester) return;
+                const idToDelete = storedId || ((tester.ids || []).find(i => i === id || i.endsWith(`|${id}`)) ?? id);
+                await deleteJson(`${import.meta.env.API_BASE_URL}/tester/ids`, { uuid: tester.uuid, id: idToDelete });
+            }));
+            addToast({ title: t('success'), description: t('selected-unassigned'), variant: 'solid' });
+            setSelectedUserIds({});
+            await refreshTesterMap();
+        } catch (err) {
+            console.error(err);
+            addToast({ title: t('error'), description: t('error-removing-oauth-id'), variant: 'solid' });
+        }
     };
 
     const saveUserPermissions = async (userId: string) => {
@@ -221,8 +434,29 @@ export default function UsersAndPermissionsPage() {
         try {
             if (!token) throw new Error('No management token');
             const mgmtToken = token.access_token;
+            // If the user is assigned to a tester, remove that mapping first
+            const user = users.find((u) => u.user_id === userId) ?? usersWithTester.find((u) => u.user_id === userId);
+            if (user) {
+                const { tester, storedId } = findAssignedTesterAndStoredId(user as Auth0User);
+                if (tester && storedId) {
+                    try {
+                        // Remove mapping in backend
+                        const resp = await deleteJson(`${import.meta.env.API_BASE_URL}/tester/ids`, { uuid: tester.uuid, id: storedId });
+                        if (!(resp && resp.success)) {
+                            addToast({ title: t('error'), description: t('error-removing-oauth-id'), variant: 'solid', timeout: 5000 });
+                            return;
+                        }
+                    } catch (err) {
+                        console.error('Failed to remove OAuth ID from tester before deleting user:', err);
+                        addToast({ title: t('error'), description: t('error-removing-oauth-id'), variant: 'solid', timeout: 5000 });
+                        return;
+                    }
+                }
+            }
             await deleteAuth0User(mgmtToken, userId);
             setUsers((prev) => prev.filter((u) => u.user_id !== userId));
+            // Refresh tester map to update UI immediately
+            await refreshTesterMap();
             addToast({ title: t('success'), description: t('user-deleted'), variant: 'solid', timeout: 5000 });
         } catch (err) {
             console.error(err);
@@ -296,54 +530,68 @@ export default function UsersAndPermissionsPage() {
 
     return (
         <DefaultLayout>
-            <h2>{t("users-and-permissions")}</h2>
+            <div className="flex items-center justify-between">
+                <h2>{t("users-and-permissions")}</h2>
+                <Button onPress={() => setIsCreateModalOpen(true)}>{t('create-tester')}</Button>
+            </div>
+            {Object.keys(selectedUserIds).some((k) => selectedUserIds[k]) && (
+                <div className="mb-4 p-2 bg-default-100 rounded flex gap-2 items-center">
+                    <div>{t('selected-count', { count: bulkSelectedIds().length })}</div>
+                    {bulkUnassignedIds().length > 0 && (
+                        <Button onPress={openAssignModalForSelected}>{t('assign-selected')}</Button>
+                    )}
+                    <Button color="danger" onPress={unassignSelected}>{t('unassign-selected')}</Button>
+                </div>
+            )}
             <p>{t('manage-api-users-desc')}</p>
             {/* Notifications are shown via HeroUI Toasts */}
             <Table aria-label={t('users-and-permissions')} className="my-4">
                 <TableHeader>
+                    <TableColumn>
+                        <Checkbox isSelected={Object.keys(selectedUserIds).length > 0 && Object.keys(selectedUserIds).every(k => selectedUserIds[k])} onValueChange={(v) => {
+                            // select/unselect all
+                            if (v) {
+                                const map: Record<string, boolean> = {};
+                                (usersWithTester.length ? usersWithTester : users).forEach(u => { if (u.user_id) map[u.user_id] = true });
+                                setSelectedUserIds(map);
+                            } else {
+                                setSelectedUserIds({});
+                            }
+                        }} />
+                    </TableColumn>
                     <TableColumn>{t('user')}</TableColumn>
                     <TableColumn>{t('tester')}</TableColumn>
                     <TableColumn>{t('email')}</TableColumn>
                     <TableColumn>{t('actions')}</TableColumn>
                 </TableHeader>
                 <TableBody items={usersWithTester.length ? usersWithTester : users} emptyContent={t('no-data-available')}>
-                    {(u) => (
-                        <TableRow key={u.user_id}>
-                            <TableCell className="cursor-pointer" onClick={() => openUserModal(u)}>{u.name || u.nickname || u.user_id}</TableCell>
-                            <TableCell>{(() => {
-                                // Use precomputed testerName when available
-                                const precomputed = (u as any).testerName;
-                                if (precomputed) return precomputed;
-                                const userId = (u.user_id || "").toString().trim();
-                                if (!userId) return "";
-                                const tryKey = (k?: string) => {
-                                    if (!k) return undefined;
-                                    const found = testerMap[k];
-                                    return found?.name;
-                                };
-                                // Direct lookup
-                                const direct = tryKey(userId);
-                                if (direct) return direct;
-                                // Check identities fallback
-                                const identities = (u as Auth0User).identities || [];
-                                for (const id of identities) {
-                                    const providerKey = `${id.provider}|${id.user_id}`.trim();
-                                    const nameFromProvider = tryKey(providerKey);
-                                    if (nameFromProvider) return nameFromProvider;
-                                    const bare = `${id.user_id}`.trim();
-                                    const nameFromBare = tryKey(bare);
-                                    if (nameFromBare) return nameFromBare;
-                                }
-                                return "";
-                            })()}</TableCell>
-                            <TableCell>{u.email}</TableCell>
-                            <TableCell>
-                                <Button color="danger" onPress={() => { setConfirmDeleteUser(u); setConfirmDeleteOpen(true); }} disabled={deletingUserId === u.user_id} isLoading={deletingUserId === u.user_id}>{t('delete')}</Button>
-                            </TableCell>
-                        </TableRow>
-                    )}
+                    {(u) => {
+                        const assignedName = getAssignedTesterName(u);
+                        return (
+                            <TableRow key={u.user_id}>
+                                <TableCell>
+                                    <Checkbox isSelected={!!selectedUserIds[u.user_id]} onValueChange={() => toggleSelectUser(u.user_id)} />
+                                </TableCell>
+                                <TableCell className="cursor-pointer" onClick={() => openUserModal(u)}>{u.name || u.nickname || u.user_id}</TableCell>
+                                <TableCell>{assignedName}</TableCell>
+                                <TableCell>{u.email}</TableCell>
+                                <TableCell>
+                                    {!assignedName && u.user_id && (
+                                        <Button color="secondary" onPress={() => u.user_id && openAssignModalForOne(u.user_id)}>{t('assign')}</Button>
+                                    )}
+                                    {assignedName && u.user_id && (
+                                        <Button color="warning" onPress={() => unassignId(u.user_id)}>{t('unassign')}</Button>
+                                    )}
+                                    <Button color="danger" onPress={() => { setConfirmDeleteUser(u); setConfirmDeleteOpen(true); }} disabled={deletingUserId === u.user_id} isLoading={deletingUserId === u.user_id}>{t('delete')}</Button>
+                                </TableCell>
+                            </TableRow>
+                        )
+                    }}
                 </TableBody>
             </Table>
+
+            <AssignTesterModal isOpen={isAssignModalOpen} onClose={() => setIsAssignModalOpen(false)} userIds={assignModalIds} onSuccess={async () => { await refreshTesterMap(); }} />
+            <CreateTesterModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSuccess={async () => { await refreshTesterMap(); }} />
 
             <ConfirmDeleteModal
                 isOpen={confirmDeleteOpen}
@@ -352,6 +600,19 @@ export default function UsersAndPermissionsPage() {
                 description={t('confirm-delete-warning', { name: confirmDeleteUser?.name || confirmDeleteUser?.user_id })}
                 onConfirm={() => handleConfirmDelete()}
                 isProcessing={deletingUserId !== null}
+            />
+
+            <ConfirmDeleteModal
+                isOpen={confirmUnassignOpen}
+                onClose={() => setConfirmUnassignOpen(false)}
+                title={t('unassign-selected')}
+                description={t('confirm-unassign-selected')}
+                onConfirm={async () => {
+                    await doUnassignSelected(confirmUnassignIds);
+                    setConfirmUnassignIds([]);
+                    setConfirmUnassignOpen(false);
+                }}
+                isProcessing={false}
             />
 
             {modalOpen && selectedUser && (

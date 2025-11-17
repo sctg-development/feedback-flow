@@ -163,20 +163,47 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			if (ids.length === 0) return [];
 
 			// Create a temp table with the IDs to check
+			// For a single id, use a simpler query to avoid potential D1 issues with "IN (?)"
+			if (ids.length === 1) {
+				const sqlSingle = `SELECT id FROM id_mappings WHERE id = ?`;
+				try {
+					const { results } = await this.db.prepare(sqlSingle).bind(ids[0]).all();
+					return results.map((row) => row.id as string);
+				} catch (error) {
+					console.error("[d1-db] existsMultiple: single-id query failed", { ids, error, stack: new Error().stack });
+					throw error;
+				}
+			}
+
 			const placeholders = ids.map(() => "?").join(",");
-			const stmt = this.db.prepare(
-				`SELECT id FROM id_mappings WHERE id IN (${placeholders})`,
-			);
+			const sql = `SELECT id FROM id_mappings WHERE id IN (${placeholders})`;
+			const stmt = this.db.prepare(sql);
+			// Debug info removed
 
-			// Bind all IDs to the query
-			ids.forEach((id, index) => {
-				stmt.bind(index + 1, id);
-			});
+			// Bind all IDs to the prepared statement in order.
+			// Passing the values as individual parameters matches the placeholders count.
+			// Placeholder count check removed
 
-			const { results } = await stmt.all();
+			stmt.bind(...ids);
 
-			// Return the IDs that exist
-			return results.map((row) => row.id as string);
+			// Try to execute statement and capture details if something goes wrong
+			try {
+				// Debug about to call stmt.all() removed
+				// Debug of stmt internals removed
+				const { results } = await stmt.all();
+				return results.map((row) => row.id as string);
+			} catch (error) {
+				// Capture helpful debug context and rethrow to preserve error behavior
+				console.error("[d1-db] existsMultiple: stmt.all() failed", {
+					placeholders,
+					ids,
+					idsCount: ids.length,
+					error,
+				});
+
+				throw error;
+			}
+			// Return the IDs that exist (handled in try block above)
 		},
 
 		getTesterUuid: async (id: string): Promise<string | undefined> => {

@@ -325,44 +325,30 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
                 if (!testerId) {
                     return router.handleUnauthorizedRequest();
                 }
+                const body = (await request.json()) as unknown as {
+                    name?: string;
+                    uuid?: string;
+                    id?: string;
+                    ids?: string[] | string;
+                };
 
-                let { name, id } = (await request.json()) as TesterIdAddRequest;
+                let { name, uuid, id, ids } = body;
 
-                if (!name) {
-                    return new Response(
-                        JSON.stringify({ success: false, error: "name is required" }),
-                        {
-                            status: 400,
-                            headers: {
-                                ...router.corsHeaders,
-                                "Content-Type": "application/json",
-                            },
-                        },
-                    );
+                // Accept either id or ids or default to token subject if id is missing
+                let idArray: string[] = [];
+                if (ids) {
+                    idArray = Array.isArray(ids) ? ids : [ids];
                 }
-                if (!id) {
-                    id = testerId;
-                }
+                if (id) idArray.push(id);
+                if (idArray.length === 0) idArray.push(testerId);
 
-                // Check ID must be unique for the whole database
-                if (await db.idMappings.exists(id)) {
-                    return new Response(
-                        JSON.stringify({
-                            success: false,
-                            error: "ID already exists in the database",
-                        }),
-                        {
-                            status: 409,
-                            headers: {
-                                ...router.corsHeaders,
-                                "Content-Type": "application/json",
-                            },
-                        },
-                    );
+                // Resolve tester by uuid or name
+                let tester: any | undefined = undefined;
+                if (uuid) {
+                    tester = await db.testers.getTesterWithUuid(uuid);
+                } else if (name) {
+                    tester = await db.testers.find((t) => t.name === name);
                 }
-
-                // Find tester in the database
-                const tester = await db.testers.find((t) => t.name === name);
 
                 if (!tester) {
                     return new Response(
@@ -377,15 +363,26 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
                     );
                 }
 
-                // Check if ID already exists to avoid duplicates
-                if (tester.ids.includes(id)) {
+                // Check for collisions in the DB
+                const existing = await db.idMappings.existsMultiple(idArray);
+                if (existing.length > 0) {
                     return new Response(
-                        JSON.stringify({
-                            success: false,
-                            name: tester.name,
-                            ids: tester.ids,
-                            message: "ID already exists for this tester",
-                        }),
+                        JSON.stringify({ success: false, error: "Some IDs already exist in the database", existing }),
+                        {
+                            status: 409,
+                            headers: {
+                                ...router.corsHeaders,
+                                "Content-Type": "application/json",
+                            },
+                        },
+                    );
+                }
+
+                // Filter only those not already present on the tester
+                const toAdd = idArray.filter((i) => !tester.ids.includes(i));
+                if (toAdd.length === 0) {
+                    return new Response(
+                        JSON.stringify({ success: false, name: tester.name, ids: tester.ids, message: "IDs already exist for this tester" }),
                         {
                             status: 209,
                             headers: {
@@ -396,14 +393,11 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
                     );
                 }
 
-                // Update the database
-                const ids = await db.testers.put({
-                    ...tester,
-                    ids: [...tester.ids, id],
-                });
+                // Add ids using repository helper
+                const updatedIds = await db.testers.addIds(tester.uuid, toAdd);
 
                 return new Response(
-                    JSON.stringify({ success: true, name: tester.name, ids }),
+                    JSON.stringify({ success: true, name: tester.name, ids: updatedIds || tester.ids }),
                     {
                         status: 200,
                         headers: {
@@ -426,6 +420,80 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
                         },
                     },
                 );
+            }
+        },
+        env.ADMIN_PERMISSION,
+    );
+
+    /**
+     * @openapi
+     * /api/tester/ids:
+     *   delete:
+     *     summary: Remove ID from existing tester
+     *     description: Removes an ID from a tester. Requires admin permission.
+     *     tags:
+     *       - Testers
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               uuid:
+     *                 type: string
+     *               name:
+     *                 type: string
+     *               id:
+     *                 type: string
+     *             required: [id]
+     *     responses:
+     *       200:
+     *         description: ID successfully removed from tester
+     *       400:
+     *         description: Invalid request or missing required fields
+     *       403:
+     *         description: Unauthorized request
+     */
+    router.delete(
+        "/api/tester/ids",
+        async (request) => {
+            const db = getDatabase(env);
+
+            try {
+                const body = (await request.json()) as { uuid?: string; name?: string; id?: string };
+                const { uuid, name, id } = body;
+
+                if (!id) {
+                    return new Response(JSON.stringify({ success: false, error: 'id is required' }), { status: 400, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } });
+                }
+
+                // Resolve tester by uuid or name
+                let tester: any | undefined = undefined;
+                if (uuid) {
+                    tester = await db.testers.getTesterWithUuid(uuid);
+                } else if (name) {
+                    tester = await db.testers.find((t) => t.name === name);
+                } else {
+                    return new Response(JSON.stringify({ success: false, error: 'uuid or name is required' }), { status: 400, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } });
+                }
+
+                if (!tester) {
+                    return new Response(JSON.stringify({ success: false, error: 'Tester not found' }), { status: 404, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } });
+                }
+
+                if (!tester.ids.includes(id)) {
+                    return new Response(JSON.stringify({ success: false, error: 'ID not assigned to this tester' }), { status: 404, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } });
+                }
+
+                // Remove the id from tester and idMappings
+                const newIds = tester.ids.filter((i: string) => i !== id);
+                await db.idMappings.delete(id);
+                const updated = await db.testers.put({ ...tester, ids: newIds });
+
+                return new Response(JSON.stringify({ success: true, name: tester.name, ids: updated }), { status: 200, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } });
+            } catch (error) {
+                return new Response(JSON.stringify({ success: false, error: `Invalid request: ${(error as Error).message}` }), { status: 400, headers: { ...router.corsHeaders, 'Content-Type': 'application/json' } });
             }
         },
         env.ADMIN_PERMISSION,

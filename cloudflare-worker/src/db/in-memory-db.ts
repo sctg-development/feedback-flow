@@ -93,9 +93,10 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @returns {string[]} Array of IDs that already exist
 		 */
 		existsMultiple: async (ids: string[]): Promise<string[]> => {
-			return ids.filter((id) =>
+			const found = ids.filter((id) =>
 				this.data.ids.some((mapping) => mapping.id === id),
 			);
+			return found;
 		},
 
 		/**

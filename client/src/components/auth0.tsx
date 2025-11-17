@@ -481,7 +481,7 @@ export const useSecuredApi = () => {
     }
   };
 
-  const deleteJson = async (url: string) => {
+  const deleteJson = async (url: string, data?: any) => {
     try {
       const accessToken = await getAccessTokenSilently({
         authorizationParams: {
@@ -496,6 +496,7 @@ export const useSecuredApi = () => {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
+        body: data ? JSON.stringify(data) : undefined,
       });
 
       return await apiResponse.json();
