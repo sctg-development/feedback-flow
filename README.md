@@ -1,7 +1,7 @@
 # Feedback Flow
 
-![Code Lines](https://tokei.rs/b1/github/sctg-development/feedback-flow?type=SQL,TypeScript,TSX,C&category=code)
-![Comments](https://tokei.rs/b1/github/sctg-development/feedback-flow?type=TSX,SQL,TypeScript&category=comments)
+![](https://tokeisrv.sctg.eu.org/b1/github/sctg-development/feedback-flow?type=SQL,TypeScript,TSX,C&category=code)
+![](https://tokeisrv.sctg.eu.org/b1/github/sctg-development/feedback-flow?type=TSX,SQL,TypeScript&category=comments)
 
 **⭐ If you find this tool useful, please consider giving it a star!**
 
