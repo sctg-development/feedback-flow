@@ -46,7 +46,7 @@
     "@tailwindcss/postcss": "^4.1.17",
     "chart.js": "^4.5.1",
     "framer-motion": "^12.23.24",
-    "i18next": "^25.6.2",
+    "i18next": "^25.7.3",
     "i18next-http-backend": "^3.0.2",
     "jose": "^6.1.1",
     "react": "^19.2.0",
