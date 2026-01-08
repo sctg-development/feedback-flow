@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # =============================================================================
-# Secure Backup Script for Sensitive Data version 2.6
+# Secure Backup Script for Sensitive Data version 2.7
 # =============================================================================
 #
 # This script creates an encrypted backup of sensitive project files including:
@@ -60,15 +60,14 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# List of files and directories to include in the backup
-# Uses glob patterns for flexible file matching
+# List of files and directories to include in the backup (relative to PROJECT_ROOT)
 FILES_TO_BACKUP=(
-    "$SCRIPT_DIR/../.env"                                           # Environment variables
-    "$SCRIPT_DIR/../cloudflare-worker/.wrangler"
-    "$SCRIPT_DIR/../cloudflare-worker/.vscode/launch.json"
-    "$SCRIPT_DIR/../cloudflare-worker/.vscode/settings.json"
-    "$SCRIPT_DIR/../client/.vscode/launch.json" "$SCRIPT_DIR/../client/.vscode/settings.json"
-    "$SCRIPT_DIR/../launch-*" "$SCRIPT_DIR/../.env"                                       # Launch scripts
+    ".env"                                           # Environment variables
+    "cloudflare-worker/.wrangler"
+    "cloudflare-worker/.vscode/launch.json"
+    "cloudflare-worker/.vscode/settings.json"
+    "client/.vscode/launch.json" "client/.vscode/settings.json"
+    "launch-*"                                       # Launch scripts
 )
 
 # .env file is located one level from this script
@@ -94,7 +93,7 @@ if [ "${BACKUP_SSH}" = "1" ] || [ "${BACKUP_SSH}" = "true" ]; then
             # Save original path for restoration
             SSH_KEY_FILENAME=$(basename "$SSH_KEY_PATH")
             echo "$SSH_KEY_FILENAME" > _sensitive_datas/ssh_key_filename.txt
-            FILES_TO_BACKUP+=("$SCRIPT_DIR/../_sensitive_datas/ssh_private.key" "$SCRIPT_DIR/../_sensitive_datas/ssh_public.key" "$SCRIPT_DIR/../_sensitive_datas/ssh_key_filename.txt")
+            FILES_TO_BACKUP+=("_sensitive_datas/ssh_private.key" "_sensitive_datas/ssh_public.key" "_sensitive_datas/ssh_key_filename.txt")
             echo "✓ SSH key configured for backup: $SSH_KEY_PATH"
         else
             echo "⚠️  SSH key path not found or invalid: $SSH_KEY_PATH"
@@ -116,9 +115,9 @@ if [ "${BACKUP_GPG}" = "1" ] || [ "${BACKUP_GPG}" = "true" ]; then
         # Export private key
         gpg --export-secret-keys $GPG_KEY_ID > _sensitive_datas/gpg_private.key 2>/dev/null
         if [ -s "_sensitive_datas/gpg_public.key" ] && [ -s "_sensitive_datas/gpg_private.key" ]; then
-            FILES_TO_BACKUP+=("$SCRIPT_DIR/../_sensitive_datas/gpg_public.key" "$SCRIPT_DIR/../_sensitive_datas/gpg_private.key")
+            FILES_TO_BACKUP+=("_sensitive_datas/gpg_public.key" "_sensitive_datas/gpg_private.key")
             echo "$GPG_KEY_ID" > _sensitive_datas/gpg_key_id.txt
-            FILES_TO_BACKUP+=("$SCRIPT_DIR/../_sensitive_datas/gpg_key_id.txt")
+            FILES_TO_BACKUP+=("_sensitive_datas/gpg_key_id.txt")
             echo "✓ GPG key configured for backup: $GPG_KEY_ID"
         else
             echo "⚠️  Failed to export GPG key: $GPG_KEY_ID"
@@ -152,6 +151,26 @@ if [ -z "${PROJECT_ROOT}" ]; then
 fi
 
 cd $PROJECT_ROOT
+
+# Sanitize FILES_TO_BACKUP: expand globs and produce relative paths (no '..')
+sanitized_files=()
+shopt -s nullglob
+for pattern in "${FILES_TO_BACKUP[@]}"; do
+    for f in $pattern; do
+        if [ -e "$f" ]; then
+            abs="$(cd "$(dirname "$f")" && pwd -P)/$(basename "$f")"
+            rel="${abs#$PROJECT_ROOT/}"
+            sanitized_files+=("$rel")
+        fi
+    done
+done
+shopt -u nullglob
+
+if [ ${#sanitized_files[@]} -eq 0 ]; then
+    echo "ERROR: No files matched for backup"
+    exit 1
+fi
+FILES_TO_BACKUP=("${sanitized_files[@]}")
 
 if [ -z "${CRYPTOKEN}" ]; then
     echo "ERROR: CRYPTOKEN is empty: $CRYPTOKEN"
@@ -237,9 +256,9 @@ echo "Algorithm used: ${CIPHER_ALGO} with PBKDF2 (${PBKDF2_ITERATIONS} iteration
 
 # Clean up GPG key files for security
 echo "Removing temporary GPG key files for security..."
-rm -f $SCRIPT_DIR/../_sensitive_datas/gpg_*.key $SCRIPT_DIR/../_sensitive_datas/gpg_key_id.txt
+rm -f _sensitive_datas/gpg_*.key _sensitive_datas/gpg_key_id.txt
 
 # Clean up SSH key files for security
 echo "Removing temporary SSH key files for security..."
-rm -f $SCRIPT_DIR/../_sensitive_datas/ssh_*.key
-rm -f $SCRIPT_DIR/../_sensitive_datas/ssh_key_filename.txt
+rm -f _sensitive_datas/ssh_*.key
+rm -f _sensitive_datas/ssh_key_filename.txt

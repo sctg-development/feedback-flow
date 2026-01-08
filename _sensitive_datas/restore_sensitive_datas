@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # =============================================================================
-# Secure Restore Script for Sensitive Data version 2.5
+# Secure Restore Script for Sensitive Data version 2.6
 # =============================================================================
 #
 # This script decrypts and displays the contents of an encrypted backup archive
@@ -171,6 +171,65 @@ echo "✓ Decryption successful! Archive contents:"
 echo "=================================================================================="
 tar -tvJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz
 
+# If archive contains '..' components, use a safe per-file extraction into a temp dir
+if tar -tf "$PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz" | grep -q '\.\.'; then
+    echo "⚠️ Archive contains '..' path components. Using safe per-file extraction method."
+    SAFE_EXTRACT_DIR="$(mktemp -d)"
+    echo "Extracting files to temporary directory: $SAFE_EXTRACT_DIR"
+    # Use process substitution to avoid subshell issues
+    while IFS= read -r entry; do
+        # Compute a safe relative path (strip leading ./ or / and remove '..' segments)
+        if command -v python3 >/dev/null 2>&1; then
+            safe=$(python3 -c 'import os,sys
+e=sys.argv[-1]
+s=os.path.normpath(e)
+s=s.lstrip("/.")
+parts=[p for p in s.split(os.sep) if p and p!=".."]
+print(os.path.join(*parts) if parts else "")' -- "$entry")
+        else
+            # POSIX shell fallback: split on / and drop '..' and empty parts
+            tmp="${entry#./}"
+            IFS='/' read -r -a _seg <<< "$tmp"
+            parts=()
+            for p in "${_seg[@]}"; do
+                [ "$p" = ".." ] && continue
+                [ -z "$p" ] && continue
+                parts+=("$p")
+            done
+            safe=$(IFS=/; echo "${parts[*]}")
+        fi
+
+        # Normalize safe path to be relative to PROJECT_ROOT when possible
+        ROOT_STRIP="${PROJECT_ROOT#/}"
+        safe="${safe#./}"
+        safe="${safe#/}"
+        safe="${safe#$ROOT_STRIP/}"
+
+        [ -z "$safe" ] && continue
+
+        # If it's a directory (ends with '/'), create dir and continue
+        if [[ "$entry" == */ ]]; then
+            mkdir -p "$SAFE_EXTRACT_DIR/$safe"
+            continue
+        fi
+
+        # create target dir using parameter expansion (avoid external dirname command)
+        dir="${safe%/*}"
+        if [ "$dir" = "$safe" ]; then
+            dir="."
+        fi
+        mkdir -p "$SAFE_EXTRACT_DIR/$dir"
+        if ! tar -xJf "$PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz" -O -- "$entry" > "$SAFE_EXTRACT_DIR/$safe" 2>/dev/null; then
+            echo "⚠️  Failed to extract '$entry' — skipping"
+            rm -f "$SAFE_EXTRACT_DIR/$safe"
+            continue
+        fi
+    done < <(tar -tf "$PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz")
+    echo "✓ Safe extraction complete. Files available in $SAFE_EXTRACT_DIR"
+else
+    echo "✓ No suspicious path components detected"
+fi
+
 # Step 6: Automatically restore keys if present and not already on system
 # -------------------------------------------------------------------------
 echo ""
@@ -180,18 +239,27 @@ echo "==========================================================================
 
 # Restore SSH keys
 if tar -tf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz | grep -q "ssh_key_filename.txt"; then
-    SSH_KEY_FILENAME=$(tar -xJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz -O "_sensitive_datas/ssh_key_filename.txt" 2>/dev/null)
+    if [ -n "$SAFE_EXTRACT_DIR" ] && [ -f "$SAFE_EXTRACT_DIR/_sensitive_datas/ssh_key_filename.txt" ]; then
+        SSH_KEY_FILENAME=$(cat "$SAFE_EXTRACT_DIR/_sensitive_datas/ssh_key_filename.txt")
+    else
+        SSH_KEY_FILENAME=$(tar -xJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz -O "_sensitive_datas/ssh_key_filename.txt" 2>/dev/null)
+    fi
     if [ -n "$SSH_KEY_FILENAME" ]; then
         TARGET_KEY="$HOME/.ssh/$SSH_KEY_FILENAME"
         if [ ! -f "$TARGET_KEY" ]; then
             echo "Restoring SSH key: $SSH_KEY_FILENAME"
             mkdir -p "$HOME/.ssh"
-            # Extract to temp dir first
-            mkdir -p /tmp/restore_ssh
-            tar -xJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz -C /tmp/restore_ssh "_sensitive_datas/ssh_private.key" "_sensitive_datas/ssh_public.key"
-            mv /tmp/restore_ssh/_sensitive_datas/ssh_private.key "$TARGET_KEY"
-            mv /tmp/restore_ssh/_sensitive_datas/ssh_public.key "${TARGET_KEY}.pub"
-            rm -rf /tmp/restore_ssh
+            if [ -n "$SAFE_EXTRACT_DIR" ] && [ -f "$SAFE_EXTRACT_DIR/_sensitive_datas/ssh_private.key" ]; then
+                cp "$SAFE_EXTRACT_DIR/_sensitive_datas/ssh_private.key" "$TARGET_KEY"
+                cp "$SAFE_EXTRACT_DIR/_sensitive_datas/ssh_public.key" "${TARGET_KEY}.pub"
+            else
+                # Extract to temp dir first
+                mkdir -p /tmp/restore_ssh
+                tar -xJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz -C /tmp/restore_ssh "_sensitive_datas/ssh_private.key" "_sensitive_datas/ssh_public.key"
+                mv /tmp/restore_ssh/_sensitive_datas/ssh_private.key "$TARGET_KEY"
+                mv /tmp/restore_ssh/_sensitive_datas/ssh_public.key "${TARGET_KEY}.pub"
+                rm -rf /tmp/restore_ssh
+            fi
             chmod 600 "$TARGET_KEY"
             chmod 644 "${TARGET_KEY}.pub"
             echo "✓ SSH key restored successfully as $SSH_KEY_FILENAME"
@@ -205,14 +273,23 @@ fi
 
 # Restore GPG keys
 if tar -tf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz | grep -q "gpg_key_id.txt"; then
-    GPG_KEY_ID=$(tar -xJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz -O "_sensitive_datas/gpg_key_id.txt" 2>/dev/null)
+    if [ -n "$SAFE_EXTRACT_DIR" ] && [ -f "$SAFE_EXTRACT_DIR/_sensitive_datas/gpg_key_id.txt" ]; then
+        GPG_KEY_ID=$(cat "$SAFE_EXTRACT_DIR/_sensitive_datas/gpg_key_id.txt")
+    else
+        GPG_KEY_ID=$(tar -xJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz -O "_sensitive_datas/gpg_key_id.txt" 2>/dev/null)
+    fi
     if [ -n "$GPG_KEY_ID" ] && ! gpg --list-keys "$GPG_KEY_ID" >/dev/null 2>&1; then
         echo "Restoring GPG key: $GPG_KEY_ID"
-        mkdir -p /tmp/restore_gpg
-        tar -xJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz -C /tmp/restore_gpg "_sensitive_datas/gpg_public.key" "_sensitive_datas/gpg_private.key"
-        gpg --import /tmp/restore_gpg/_sensitive_datas/gpg_public.key
-        gpg --import /tmp/restore_gpg/_sensitive_datas/gpg_private.key
-        rm -rf /tmp/restore_gpg
+        if [ -n "$SAFE_EXTRACT_DIR" ] && [ -f "$SAFE_EXTRACT_DIR/_sensitive_datas/gpg_public.key" ]; then
+            gpg --import "$SAFE_EXTRACT_DIR/_sensitive_datas/gpg_public.key"
+            gpg --import "$SAFE_EXTRACT_DIR/_sensitive_datas/gpg_private.key"
+        else
+            mkdir -p /tmp/restore_gpg
+            tar -xJf $PROJECT_ROOT/_sensitive_datas/_sensitive_datas.tar.xz -C /tmp/restore_gpg "_sensitive_datas/gpg_public.key" "_sensitive_datas/gpg_private.key"
+            gpg --import /tmp/restore_gpg/_sensitive_datas/gpg_public.key
+            gpg --import /tmp/restore_gpg/_sensitive_datas/gpg_private.key
+            rm -rf /tmp/restore_gpg
+        fi
         echo "✓ GPG key restored successfully"
     else
         echo "✓ GPG key $GPG_KEY_ID already exists or not found in backup, skipping restore"
