@@ -1,118 +1,118 @@
 name: CloudflareWorkerDeploy
 
 on:
-    push:
-      branches:
-        - main
-      paths:
-        - cloudflare-worker/**
-        
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - cloudflare-worker/**
+
+  workflow_dispatch:
 
 permissions:
-    contents: write
-    pages: write
-    id-token: write
-    packages: write
-    attestations: write
+  contents: write
+  pages: write
+  id-token: write
+  packages: write
+  attestations: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-        - name: Set up Node.js
-          uses: actions/setup-node@v4
-          with:
-            node-version: "22"
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
 
-        - name: Install dependencies
-          run: |
-            cd cloudflare-worker
-            npm ci
-        
-        - name: Create .env file
-          run: |
-            echo -n ${{ secrets.AUTH0_AUDIENCE }} | sed -n 's/http.:\/\/\(.*\)\/.*/DOMAIN_NAME=\1\n/p' > cloudflare-worker/.env
+      - name: Install dependencies
+        run: |
+          cd cloudflare-worker
+          npm ci
 
-            echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> cloudflare-worker/.env
-            echo "AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }}" >> cloudflare-worker/.env
-            echo "AUTH0_CLIENT_SECRET=${{ secrets.AUTH0_CLIENT_SECRET }}" >> cloudflare-worker/.env
-            echo "AUTH0_MANAGEMENT_CLIENT_ID=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_ID }}" >> cloudflare-worker/.env
-            echo "AUTH0_MANAGEMENT_CLIENT_SECRET=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_SECRET }}" >> cloudflare-worker/.env
-            echo "ADMIN_AUTH0_PERMISSION=\"${{ vars.ADMIN_AUTH0_PERMISSION }}\"" >> cloudflare-worker/.env
-            echo "AUTH0_SCOPE=\"${{ vars.AUTH0_SCOPE }}\"" >> cloudflare-worker/.env
-            echo "AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}" >> cloudflare-worker/.env
-            echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> cloudflare-worker/.env
-            echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> cloudflare-worker/.env
-            echo "READ_PERMISSION=${{ vars.READ_PERMISSION }}" >> cloudflare-worker/.env
-            echo "WRITE_PERMISSION=${{ vars.WRITE_PERMISSION }}" >> cloudflare-worker/.env
-            echo "ADMIN_PERMISSION=${{ vars.ADMIN_PERMISSION }}" >> cloudflare-worker/.env
-            echo "SEARCH_PERMISSION=${{ vars.SEARCH_PERMISSION }}" >> cloudflare-worker/.env
-            echo "DB_BACKEND=${{ vars.DB_BACKEND }}" >> cloudflare-worker/.env
-            echo "BACKUP_PERMISSION=${{ vars.BACKUP_PERMISSION }}" >> cloudflare-worker/.env
-            echo "DB_MAX_IMAGE_SIZE=${{ vars.DB_MAX_IMAGE_SIZE }}" >> cloudflare-worker/.env
-            echo "AMAZON_BASE_URL=${{ vars.AMAZON_BASE_URL }}" >> cloudflare-worker/.env
-            echo "PAYPAL_TRANSACTION_BASE_URL=${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}" >> cloudflare-worker/.env
-            cat cloudflare-worker/.env
+      - name: Create .env file
+        run: |
+          echo -n ${{ secrets.AUTH0_AUDIENCE }} | sed -n 's/http.:\/\/\(.*\)\/.*/DOMAIN_NAME=\1\n/p' > cloudflare-worker/.env
 
-        - name: Replace "// vars.*" in wrangler.jsonc with a json string
-          run: |
-            cd cloudflare-worker
-            cp wrangler.jsonc wrangler.jsonc.bak
-            set -a && source .env && set +a 
-            cat .env
-            cat wrangler.jsonc.bak | sed 's|// "vars".*.|,"vars": {  "PAYPAL_TRANSACTION_BASE_URL": "'"${PAYPAL_TRANSACTION_BASE_URL}"'", "AMAZON_BASE_URL": "'"${AMAZON_BASE_URL}"'", "AUTH0_DOMAIN": "'"${AUTH0_DOMAIN}"'", "AUTH0_CLIENT_ID": "'"${AUTH0_CLIENT_ID}"'","AUTH0_CLIENT_SECRET": "'"${AUTH0_CLIENT_SECRET}"'","AUTH0_MANAGEMENT_API_CLIENT_ID": "'"${AUTH0_MANAGEMENT_API_CLIENT_ID}"'","AUTH0_MANAGEMENT_API_CLIENT_SECRET": "'"${AUTH0_MANAGEMENT_API_CLIENT_SECRET}"'","AUTH0_SCOPE": "'"${AUTH0_SCOPE}"'", "AUTH0_AUDIENCE": "'"${AUTH0_AUDIENCE}"'", "API_BASE_URL": "'"${API_BASE_URL}"'", "CORS_ORIGIN": "'"${CORS_ORIGIN}"'", "DB_BACKEND": "'"${DB_BACKEND}"'", "DB_MAX_IMAGE_SIZE": "'"${DB_MAX_IMAGE_SIZE}"'", "BACKUP_PERMISSION": "'"${BACKUP_PERMISSION}"'", "READ_PERMISSION": "'"${READ_PERMISSION}"'", "WRITE_PERMISSION": "'"${WRITE_PERMISSION}"'", "ADMIN_PERMISSION": "'"${ADMIN_PERMISSION}"'", "SEARCH_PERMISSION": "'"${SEARCH_PERMISSION}"'","ADMIN_AUTH0_PERMISSION": "'"${ADMIN_AUTH0_PERMISSION}"'", "STATISTICS_LIMIT": "'"${STATISTICS_LIMIT}"'" }|' > wrangler.jsonc.2
-            cat wrangler.jsonc.2 | sed 's|// "routes".*.|,"routes": [{ "pattern": "'"${DOMAIN_NAME}"'", "custom_domain": true }]|'  > wrangler.jsonc
-            cat wrangler.jsonc
-        - name: Deploy
-          uses: cloudflare/wrangler-action@v3
-          with:
-            apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-            accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-            workingDirectory: cloudflare-worker
-            vars: |
-                AUTH0_DOMAIN
-                AUTH0_CLIENT_ID
-                AUTH0_CLIENT_SECRET
-                AUTH0_MANAGEMENT_API_CLIENT_ID
-                AUTH0_MANAGEMENT_API_CLIENT_SECRET
-                AUTH0_SCOPE
-                AUTH0_AUDIENCE
-                API_BASE_URL
-                CORS_ORIGIN
-                READ_PERMISSION
-                WRITE_PERMISSION
-                ADMIN_PERMISSION
-                SEARCH_PERMISSION
-                ADMIN_AUTH0_PERMISSION
-                DB_BACKEND
-                BACKUP_PERMISSION
-                DB_MAX_IMAGE_SIZE
-                AMAZON_BASE_URL
-                PAYPAL_TRANSACTION_BASE_URL
-                STATISTICS_LIMIT
-          env:
-            AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-            AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-            AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-            AUTH0_MANAGEMENT_API_CLIENT_ID: ${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_ID }}
-            AUTH0_MANAGEMENT_API_CLIENT_SECRET: ${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_SECRET }}
-            AUTH0_SCOPE: ${{ vars.AUTH0_SCOPE }}
-            AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
-            API_BASE_URL: ${{ secrets.API_BASE_URL }}
-            CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
-            READ_PERMISSION: ${{ vars.READ_PERMISSION }}
-            WRITE_PERMISSION: ${{ vars.WRITE_PERMISSION }}
-            ADMIN_PERMISSION: ${{ vars.ADMIN_PERMISSION }}
-            SEARCH_PERMISSION: ${{ vars.SEARCH_PERMISSION }}
-            ADMIN_AUTH0_PERMISSION: ${{ vars.ADMIN_AUTH0_PERMISSION }}
-            DB_BACKEND: ${{ vars.DB_BACKEND }}
-            BACKUP_PERMISSION: ${{ vars.BACKUP_PERMISSION }}
-            DB_MAX_IMAGE_SIZE: ${{ vars.DB_MAX_IMAGE_SIZE }}
-            AMAZON_BASE_URL: ${{ vars.AMAZON_BASE_URL }}
-            PAYPAL_TRANSACTION_BASE_URL: ${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}
-            STATISTICS_LIMIT: ${{ vars.STATISTICS_LIMIT }}
+          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> cloudflare-worker/.env
+          echo "AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }}" >> cloudflare-worker/.env
+          echo "AUTH0_CLIENT_SECRET=${{ secrets.AUTH0_CLIENT_SECRET }}" >> cloudflare-worker/.env
+          echo "AUTH0_MANAGEMENT_CLIENT_ID=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_ID }}" >> cloudflare-worker/.env
+          echo "AUTH0_MANAGEMENT_CLIENT_SECRET=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_SECRET }}" >> cloudflare-worker/.env
+          echo "ADMIN_AUTH0_PERMISSION=\"${{ vars.ADMIN_AUTH0_PERMISSION }}\"" >> cloudflare-worker/.env
+          echo "AUTH0_SCOPE=\"${{ vars.AUTH0_SCOPE }}\"" >> cloudflare-worker/.env
+          echo "AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}" >> cloudflare-worker/.env
+          echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> cloudflare-worker/.env
+          echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> cloudflare-worker/.env
+          echo "READ_PERMISSION=${{ vars.READ_PERMISSION }}" >> cloudflare-worker/.env
+          echo "WRITE_PERMISSION=${{ vars.WRITE_PERMISSION }}" >> cloudflare-worker/.env
+          echo "ADMIN_PERMISSION=${{ vars.ADMIN_PERMISSION }}" >> cloudflare-worker/.env
+          echo "SEARCH_PERMISSION=${{ vars.SEARCH_PERMISSION }}" >> cloudflare-worker/.env
+          echo "DB_BACKEND=${{ vars.DB_BACKEND }}" >> cloudflare-worker/.env
+          echo "BACKUP_PERMISSION=${{ vars.BACKUP_PERMISSION }}" >> cloudflare-worker/.env
+          echo "DB_MAX_IMAGE_SIZE=${{ vars.DB_MAX_IMAGE_SIZE }}" >> cloudflare-worker/.env
+          echo "AMAZON_BASE_URL=${{ vars.AMAZON_BASE_URL }}" >> cloudflare-worker/.env
+          echo "PAYPAL_TRANSACTION_BASE_URL=${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}" >> cloudflare-worker/.env
+          cat cloudflare-worker/.env
+
+      - name: Replace "// vars.*" in wrangler.jsonc with a json string
+        run: |
+          cd cloudflare-worker
+          cp wrangler.jsonc wrangler.jsonc.bak
+          set -a && source .env && set +a 
+          cat .env
+          cat wrangler.jsonc.bak | sed 's|// "vars".*.|,"vars": {  "PAYPAL_TRANSACTION_BASE_URL": "'"${PAYPAL_TRANSACTION_BASE_URL}"'", "AMAZON_BASE_URL": "'"${AMAZON_BASE_URL}"'", "AUTH0_DOMAIN": "'"${AUTH0_DOMAIN}"'", "AUTH0_CLIENT_ID": "'"${AUTH0_CLIENT_ID}"'","AUTH0_CLIENT_SECRET": "'"${AUTH0_CLIENT_SECRET}"'","AUTH0_MANAGEMENT_API_CLIENT_ID": "'"${AUTH0_MANAGEMENT_API_CLIENT_ID}"'","AUTH0_MANAGEMENT_API_CLIENT_SECRET": "'"${AUTH0_MANAGEMENT_API_CLIENT_SECRET}"'","AUTH0_SCOPE": "'"${AUTH0_SCOPE}"'", "AUTH0_AUDIENCE": "'"${AUTH0_AUDIENCE}"'", "API_BASE_URL": "'"${API_BASE_URL}"'", "CORS_ORIGIN": "'"${CORS_ORIGIN}"'", "DB_BACKEND": "'"${DB_BACKEND}"'", "DB_MAX_IMAGE_SIZE": "'"${DB_MAX_IMAGE_SIZE}"'", "BACKUP_PERMISSION": "'"${BACKUP_PERMISSION}"'", "READ_PERMISSION": "'"${READ_PERMISSION}"'", "WRITE_PERMISSION": "'"${WRITE_PERMISSION}"'", "ADMIN_PERMISSION": "'"${ADMIN_PERMISSION}"'", "SEARCH_PERMISSION": "'"${SEARCH_PERMISSION}"'","ADMIN_AUTH0_PERMISSION": "'"${ADMIN_AUTH0_PERMISSION}"'", "STATISTICS_LIMIT": "'"${STATISTICS_LIMIT}"'" }|' > wrangler.jsonc.2
+          cat wrangler.jsonc.2 | sed 's|// "routes".*.|,"routes": [{ "pattern": "'"${DOMAIN_NAME}"'", "custom_domain": true }]|'  > wrangler.jsonc
+          cat wrangler.jsonc
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: cloudflare-worker
+          vars: |
+            AUTH0_DOMAIN
+            AUTH0_CLIENT_ID
+            AUTH0_CLIENT_SECRET
+            AUTH0_MANAGEMENT_API_CLIENT_ID
+            AUTH0_MANAGEMENT_API_CLIENT_SECRET
+            AUTH0_SCOPE
+            AUTH0_AUDIENCE
+            API_BASE_URL
+            CORS_ORIGIN
+            READ_PERMISSION
+            WRITE_PERMISSION
+            ADMIN_PERMISSION
+            SEARCH_PERMISSION
+            ADMIN_AUTH0_PERMISSION
+            DB_BACKEND
+            BACKUP_PERMISSION
+            DB_MAX_IMAGE_SIZE
+            AMAZON_BASE_URL
+            PAYPAL_TRANSACTION_BASE_URL
+            STATISTICS_LIMIT
+        env:
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          AUTH0_MANAGEMENT_API_CLIENT_ID: ${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_ID }}
+          AUTH0_MANAGEMENT_API_CLIENT_SECRET: ${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_SECRET }}
+          AUTH0_SCOPE: ${{ vars.AUTH0_SCOPE }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+          READ_PERMISSION: ${{ vars.READ_PERMISSION }}
+          WRITE_PERMISSION: ${{ vars.WRITE_PERMISSION }}
+          ADMIN_PERMISSION: ${{ vars.ADMIN_PERMISSION }}
+          SEARCH_PERMISSION: ${{ vars.SEARCH_PERMISSION }}
+          ADMIN_AUTH0_PERMISSION: ${{ vars.ADMIN_AUTH0_PERMISSION }}
+          DB_BACKEND: ${{ vars.DB_BACKEND }}
+          BACKUP_PERMISSION: ${{ vars.BACKUP_PERMISSION }}
+          DB_MAX_IMAGE_SIZE: ${{ vars.DB_MAX_IMAGE_SIZE }}
+          AMAZON_BASE_URL: ${{ vars.AMAZON_BASE_URL }}
+          PAYPAL_TRANSACTION_BASE_URL: ${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}
+          STATISTICS_LIMIT: ${{ vars.STATISTICS_LIMIT }}
