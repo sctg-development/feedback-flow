@@ -59,7 +59,8 @@ jobs:
       - name: Create openapi.json file
         run: |
           cd apps/client
-          yarn openapi
+          # yarn openapi
+          npm run openapi
 
       - name: Build project
         # You can change the base path to your repository name
