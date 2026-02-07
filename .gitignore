@@ -32,7 +32,7 @@ dist-ssr
 .pnp.*
 
 pnpm-lock.yaml
-yarn.lock
+#yarn.lock
 bun.lockb.env
 .env
 _sensitive_datas/_sensitive_datas.tar.xz
