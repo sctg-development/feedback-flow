@@ -13,7 +13,8 @@
     "preview:env": "bash ./scripts/preview-ensure.sh",
     "clean": "rm -rf dist .turbo node_modules/.vite node_modules/.cache",
     "update:heroui:cli": "npx heroui-cli@latest upgrade --all",
-    "update:heroui": "node --no-warnings --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"ts-node/esm\", pathToFileURL(\"./\"));' ./update-heroui.ts"
+    "update:heroui": "node --no-warnings --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"ts-node/esm\", pathToFileURL(\"./\"));' ./update-heroui.ts",
+    "openapi": "node --experimental-strip-types get-openapi.ts"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.12.0",
