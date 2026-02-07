@@ -144,7 +144,6 @@ CREATE INDEX idx_purchases_order_number ON purchases(order_number);
 -- To optimize joins in views
 CREATE INDEX idx_feedbacks_purchase_id ON feedbacks(purchase_id);
 CREATE INDEX idx_publications_purchase_id ON publications(purchase_id);
-CREATE INDEX idx_refunds_purchase_id ON refunds(purchase_id);
 
 -- Composite indexes for common use cases
 CREATE INDEX idx_purchases_tester_refunded ON purchases(tester_uuid, refunded);
