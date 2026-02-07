@@ -47,9 +47,11 @@ jobs:
           mv package.json package.json.bak || true
           mv yarn.lock yarn.lock.bak || true
           cd apps/client 
-          npm install
+          npm ci
+          ls -la
           cd ../../apps/cloudflare-worker
-          npm install
+          npm ci
+          ls -la
           cd ../../
           mv package.json.bak package.json || true
           mv yarn.lock.bak yarn.lock || true
