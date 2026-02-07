@@ -43,15 +43,15 @@ jobs:
       - name: Temporary workaround for bug https://github.com/yarnpkg/berry/issues/7047
         if: true # Temporarily enabled to work around bug
         run: |
-          mv package.json package.json.bak
-          mv yarn.lock yarn.lock.bak
-          cd apps/client
+          mv package.json package.json.bak || true
+          mv yarn.lock yarn.lock.bak || true
+          cd apps/client 
           npm install
           cd ../../apps/cloudflare-worker
           npm install
           cd ../../
-          mv package.json.bak package.json
-          mv yarn.lock.bak yarn.lock
+          mv package.json.bak package.json || true
+          mv yarn.lock.bak yarn.lock || true
 
       - name: Create openapi.json file
         run: |
