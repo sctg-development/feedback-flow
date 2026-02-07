@@ -88,23 +88,23 @@ git clone https://github.com/sctg-development/feedback-flow.git
 cd feedback-flow
 
 # 2. Install dependencies
-cd cloudflare-worker && npm ci
-cd ../client && npm ci
+cd apps/cloudflare-worker && yarn install --immutable
+cd apps/client && yarn install --immutable
 
 # 3. Set up environment (see Configuration section)
 cp .env.example .env
 # Edit .env with your settings
 
 # 4. Initialize database with test data
-cd cloudflare-worker
-npm run d1:create && npm run d1:init && npm test
+cd apps/cloudflare-worker
+yarn d1:create && yarn d1:init && yarn test
 
 # 5. Start the application
 # Terminal 1 - Backend
-cd cloudflare-worker && npm run dev:env
+cd apps/cloudflare-worker && yarn dev:env
 
 # Terminal 2 - Frontend
-cd client && npm run dev:env
+cd apps/client && yarn dev:env
 
 # 6. Open http://localhost:5173
 ```
@@ -120,12 +120,12 @@ git clone https://github.com/sctg-development/feedback-flow.git
 cd feedback-flow
 
 # Install backend dependencies
-cd cloudflare-worker
-npm ci
+cd apps/cloudflare-worker
+yarn install --immutable
 
 # Install frontend dependencies
-cd ../client
-npm ci
+cd apps/client
+yarn install --immutable
 ```
 
 ### Step 2: Configure Auth0
@@ -194,8 +194,8 @@ AUTH0_TOKEN="your_jwt_token_here"
 To populate your development environment with realistic sample data:
 
 ```bash
-cd cloudflare-worker
-npm run d1:create && npm run d1:init && npm test
+cd apps/cloudflare-worker
+yarn d1:create && yarn d1:init && yarn test
 ```
 
 This creates:
@@ -221,14 +221,14 @@ Open two terminal windows:
 
 **Terminal 1 - Backend:**
 ```bash
-cd cloudflare-worker
-npm run dev:env
+cd apps/cloudflare-worker
+yarn dev:env
 ```
 
 **Terminal 2 - Frontend:**
 ```bash
-cd client
-npm run dev:env
+cd apps/client
+yarn dev:env
 ```
 
 **Access the application:**
@@ -386,7 +386,7 @@ The Swagger UI provides:
 
 ### Development Scripts
 
-**Backend (cloudflare-worker/):**
+**Backend (apps/cloudflare-worker/):**
 ```bash
 npm run dev:env          # Start dev server with .env
 npm run d1:create        # Create local D1 database
@@ -412,8 +412,8 @@ The test suite includes:
 
 Run tests with:
 ```bash
-cd cloudflare-worker
-npm test
+cd apps/cloudflare-worker
+yarn test
 ```
 
 ---
@@ -451,9 +451,9 @@ Copy the returned database ID to `wrangler.jsonc`.
 
 **D. Initialize Remote Database:**
 ```bash
-cd cloudflare-worker
-npm run d1:create:remote
-npm run d1:migrate:all:remote
+cd apps/cloudflare-worker
+yarn d1:create:remote
+yarn d1:migrate:all:remote
 ```
 
 #### Step 2: Configure GitHub Secrets
@@ -512,8 +512,8 @@ The frontend is a static SPA that can be deployed to:
 
 **Build the frontend:**
 ```bash
-cd client
-npm run build
+cd apps/client
+yarn build
 ```
 
 Deploy the `dist/` folder to your hosting provider.

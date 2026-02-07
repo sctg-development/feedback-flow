@@ -200,13 +200,13 @@ Once Auth0 is configured:
 1. Start the development server backend:
 
    ```bash
-   cd cloudflare-worker && npm run dev:env
+   cd apps/cloudflare-worker && yarn dev:env
    ```
 
 2. Start the development server frontend iin another terminal:
 
    ```bash
-   cd client && npm run dev
+   cd apps/client && yarn dev
    ```
 
 3. The login should now work with your GitHub account

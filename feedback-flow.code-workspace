@@ -2,11 +2,11 @@
   "folders": [
     {
       "name": "Cloudflare worker",
-      "path": "./cloudflare-worker"
+      "path": "./apps/cloudflare-worker"
     },
     {
       "name": "Client app",
-      "path": "./client",
+      "path": "./apps/client",
     },
     {
       "name": "GitHub Actions",

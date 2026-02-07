@@ -5,7 +5,9 @@ on:
     branches:
       - main
     paths:
-      - cloudflare-worker/**
+      - apps/cloudflare-worker/**
+      - yarn.lock
+      - .github/workflows/deploy-cloudflare-worker.yaml
 
   workflow_dispatch:
 
@@ -27,41 +29,63 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "24"
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/build-state.yml
+            .yarn/install-state.gz
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache Turborepo
+        uses: actions/cache@v5
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
       - name: Install dependencies
         run: |
-          cd cloudflare-worker
-          npm ci
+          corepack enable
+          yarn install --immutable
 
       - name: Create .env file
         run: |
-          echo -n ${{ secrets.AUTH0_AUDIENCE }} | sed -n 's/http.:\/\/\(.*\)\/.*/DOMAIN_NAME=\1\n/p' > cloudflare-worker/.env
+          echo -n ${{ secrets.AUTH0_AUDIENCE }} | sed -n 's/http.:\/\/(.*)\/.*/DOMAIN_NAME=\1\n/p' > .env
 
-          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> cloudflare-worker/.env
-          echo "AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }}" >> cloudflare-worker/.env
-          echo "AUTH0_CLIENT_SECRET=${{ secrets.AUTH0_CLIENT_SECRET }}" >> cloudflare-worker/.env
-          echo "AUTH0_MANAGEMENT_CLIENT_ID=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_ID }}" >> cloudflare-worker/.env
-          echo "AUTH0_MANAGEMENT_CLIENT_SECRET=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_SECRET }}" >> cloudflare-worker/.env
-          echo "ADMIN_AUTH0_PERMISSION=\"${{ vars.ADMIN_AUTH0_PERMISSION }}\"" >> cloudflare-worker/.env
-          echo "AUTH0_SCOPE=\"${{ vars.AUTH0_SCOPE }}\"" >> cloudflare-worker/.env
-          echo "AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}" >> cloudflare-worker/.env
-          echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> cloudflare-worker/.env
-          echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> cloudflare-worker/.env
-          echo "READ_PERMISSION=${{ vars.READ_PERMISSION }}" >> cloudflare-worker/.env
-          echo "WRITE_PERMISSION=${{ vars.WRITE_PERMISSION }}" >> cloudflare-worker/.env
-          echo "ADMIN_PERMISSION=${{ vars.ADMIN_PERMISSION }}" >> cloudflare-worker/.env
-          echo "SEARCH_PERMISSION=${{ vars.SEARCH_PERMISSION }}" >> cloudflare-worker/.env
-          echo "DB_BACKEND=${{ vars.DB_BACKEND }}" >> cloudflare-worker/.env
-          echo "BACKUP_PERMISSION=${{ vars.BACKUP_PERMISSION }}" >> cloudflare-worker/.env
-          echo "DB_MAX_IMAGE_SIZE=${{ vars.DB_MAX_IMAGE_SIZE }}" >> cloudflare-worker/.env
-          echo "AMAZON_BASE_URL=${{ vars.AMAZON_BASE_URL }}" >> cloudflare-worker/.env
-          echo "PAYPAL_TRANSACTION_BASE_URL=${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}" >> cloudflare-worker/.env
-          cat cloudflare-worker/.env
+          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> .env
+          echo "AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }}" >> .env
+          echo "AUTH0_CLIENT_SECRET=${{ secrets.AUTH0_CLIENT_SECRET }}" >> .env
+          echo "AUTH0_MANAGEMENT_CLIENT_ID=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_ID }}" >> .env
+          echo "AUTH0_MANAGEMENT_CLIENT_SECRET=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_SECRET }}" >> .env
+          echo "ADMIN_AUTH0_PERMISSION=\"${{ vars.ADMIN_AUTH0_PERMISSION }}\"" >> .env
+          echo "AUTH0_SCOPE=\"${{ vars.AUTH0_SCOPE }}\"" >> .env
+          echo "AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}" >> .env
+          echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> .env
+          echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> .env
+          echo "READ_PERMISSION=${{ vars.READ_PERMISSION }}" >> .env
+          echo "WRITE_PERMISSION=${{ vars.WRITE_PERMISSION }}" >> .env
+          echo "ADMIN_PERMISSION=${{ vars.ADMIN_PERMISSION }}" >> .env
+          echo "SEARCH_PERMISSION=${{ vars.SEARCH_PERMISSION }}" >> .env
+          echo "DB_BACKEND=${{ vars.DB_BACKEND }}" >> .env
+          echo "BACKUP_PERMISSION=${{ vars.BACKUP_PERMISSION }}" >> .env
+          echo "DB_MAX_IMAGE_SIZE=${{ vars.DB_MAX_IMAGE_SIZE }}" >> .env
+          echo "AMAZON_BASE_URL=${{ vars.AMAZON_BASE_URL }}" >> .env
+          echo "PAYPAL_TRANSACTION_BASE_URL=${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}" >> .env
+          cat .env
 
       - name: Replace "// vars.*" in wrangler.jsonc with a json string
         run: |
-          cd cloudflare-worker
+          cp .env apps/cloudflare-worker/.env
+          cd apps/cloudflare-worker
           cp wrangler.jsonc wrangler.jsonc.bak
           set -a && source .env && set +a 
           cat .env
@@ -73,8 +97,9 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: cloudflare-worker
+          workingDirectory: apps/cloudflare-worker
           vars: |
+            AUTHENTICATION_PROVIDER_TYPE
             AUTH0_DOMAIN
             AUTH0_CLIENT_ID
             AUTH0_CLIENT_SECRET
@@ -116,3 +141,5 @@ jobs:
           AMAZON_BASE_URL: ${{ vars.AMAZON_BASE_URL }}
           PAYPAL_TRANSACTION_BASE_URL: ${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}
           STATISTICS_LIMIT: ${{ vars.STATISTICS_LIMIT }}
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
