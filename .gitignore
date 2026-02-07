@@ -40,3 +40,4 @@ _sensitive_datas/_sensitive_datas.tar.xz
 achats.csv
 verify_purchases.py
 insert_missing_purchases.sql
+.turbo

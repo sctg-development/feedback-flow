@@ -53,9 +53,23 @@ jobs:
             ${{ runner.os }}-turbo-
 
       - name: Install dependencies
+        if: false # Temporarily disabled to work around bug https://github.com/yarnpkg/berry/issues/7047
         run: |
           corepack enable
           yarn install --immutable
+
+      - name: Temporary workaround for bug https://github.com/yarnpkg/berry/issues/7047
+        if: true # Temporarily enabled to work around bug
+        run: |
+          mv package.json package.json.bak
+          mv yarn.lock yarn.lock.bak
+          cd apps/client
+          npm install
+          cd ../../apps/cloudflare-worker
+          npm install
+          cd ../../
+          mv package.json.bak package.json
+          mv yarn.lock.bak yarn.lock
 
       - name: Create .env file
         run: |
