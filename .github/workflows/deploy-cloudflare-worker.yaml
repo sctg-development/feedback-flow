@@ -81,6 +81,7 @@ jobs:
           echo "AUTH0_MANAGEMENT_CLIENT_ID=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_ID }}" >> .env
           echo "AUTH0_MANAGEMENT_CLIENT_SECRET=${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_SECRET }}" >> .env
           echo "ADMIN_AUTH0_PERMISSION=\"${{ vars.ADMIN_AUTH0_PERMISSION }}\"" >> .env
+          echo "AUTHENTICATION_PROVIDER_TYPE=\"${{ vars.AUTHENTICATION_PROVIDER_TYPE }}\"" >> .env
           echo "AUTH0_SCOPE=\"${{ vars.AUTH0_SCOPE }}\"" >> .env
           echo "AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}" >> .env
           echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> .env
@@ -141,6 +142,7 @@ jobs:
           AUTH0_MANAGEMENT_API_CLIENT_ID: ${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_ID }}
           AUTH0_MANAGEMENT_API_CLIENT_SECRET: ${{ secrets.AUTH0_MANAGEMENT_API_CLIENT_SECRET }}
           AUTH0_SCOPE: ${{ vars.AUTH0_SCOPE }}
+          AUTHENTICATION_PROVIDER_TYPE: ${{ vars.AUTHENTICATION_PROVIDER_TYPE }}
           AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
