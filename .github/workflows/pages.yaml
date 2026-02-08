@@ -59,9 +59,28 @@ jobs:
       - name: Create openapi.json file
         run: |
           cd apps/client
+          # temporary workaround with yarn bug
           # yarn openapi
           npm run openapi
 
+      - name: Test build with yarn
+        continue-on-error: true
+        run: |
+          yarn build:env -- --base=/${{ github.event.repository.name }}
+          # check if the build output directory exists
+          if [ -d "dist" ]; then
+            echo "Build succeeded and dist directory exists."
+          else
+            echo "Build failed or dist directory does not exist."
+            exit 1
+          fi
+          # check if the base url is correctly set in the built index.html and the javascript files
+          if grep -q "base=\"/${{ github.event.repository.name }}\"" apps/client/dist/index.html && grep -q "base=\"/${{ github.event.repository.name }}\"" apps/client/dist/assets/*.js; then
+            echo "Base URL is correctly set in the built files."
+          else
+            echo "Base URL is not correctly set in the built files."
+            exit 1
+          fi
       - name: Build project
         # You can change the base path to your repository name
         run: |
