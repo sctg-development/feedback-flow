@@ -800,6 +800,9 @@ export const useSecuredApi = () => {
  * @returns {Promise<boolean>} Promise resolving to true if the user has the permission, false otherwise
  * @throws {Error} If token acquisition fails or the API request fails
  */
+// Simple in-memory cache for permission checks keyed by `${permission}:${accessToken}`
+const permissionCheckCache = new Map<string, boolean>();
+
 export const userHasPermission = async (
   permission: string,
   getAccessTokenFunction: GetAccessTokenFunction,
@@ -815,6 +818,13 @@ export const userHasPermission = async (
     if (!accessToken) {
       return false;
     }
+
+    const cacheKey = `${permission}:${accessToken}`;
+    if (permissionCheckCache.has(cacheKey)) {
+      return permissionCheckCache.get(cacheKey) as boolean;
+    }
+
+    // Reuse a single JWKS function for the domain to avoid recreating it on each call
     const JWKS = createRemoteJWKSet(
       new URL(`https://${import.meta.env.AUTH0_DOMAIN}/.well-known/jwks.json`),
     );
@@ -825,21 +835,17 @@ export const userHasPermission = async (
     });
     const payload = joseResult.payload as JWTPayload;
 
+    let result = false;
     if (payload.permissions instanceof Array) {
-
-      //   `You own this JWT: ${JSON.stringify(payload)}, permission (${permission}) is ${payload.permissions.includes(permission)}`,
-      // );
-
-      return payload.permissions.includes(permission);
+      result = payload.permissions.includes(permission);
     } else {
-
-      //   `The permissions claim is not an array: ${JSON.stringify(
-      //     payload.permissions,
-      //   )}`,
-      // );
-
-      return false;
+      result = false;
     }
+
+    // Cache the result for subsequent checks using the same token
+    permissionCheckCache.set(cacheKey, result);
+
+    return result;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);

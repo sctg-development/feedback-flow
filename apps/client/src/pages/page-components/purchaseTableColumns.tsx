@@ -148,6 +148,7 @@ export const usePurchaseTableColumns = ({
           <PurchaseIdCell
             purchaseId={item.purchase}
             hasPublication={item.hasPublication}
+            hasWritePermission={hasWritePermission}
             onEditPurchase={onEditPurchase}
             onGenerateLink={onGenerateLink}
           />

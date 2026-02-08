@@ -24,7 +24,6 @@
 
 import { CopyButton } from "@/components/copy-button";
 import { EditIcon } from "@heroui/shared-icons";
-import { AuthenticationGuardWithPermission } from "@/components/auth0";
 
 /**
  * Props interface for the PurchaseIdCell component
@@ -35,6 +34,8 @@ interface PurchaseIdCellProps {
   purchaseId: string;
   /** Whether this purchase has been published (affects link generation availability) */
   hasPublication: boolean;
+  /** Whether the current user has write permissions (null while loading) */
+  hasWritePermission?: boolean | null;
   /** Callback function to edit the purchase */
   onEditPurchase: (purchaseId: string) => void;
   /** Callback function to generate a public link for the purchase */
@@ -65,6 +66,7 @@ interface PurchaseIdCellProps {
 export const PurchaseIdCell = ({
   purchaseId,
   hasPublication,
+  hasWritePermission,
   onEditPurchase,
   onGenerateLink,
 }: PurchaseIdCellProps) => {
@@ -94,15 +96,17 @@ export const PurchaseIdCell = ({
           {/* Copy button to copy purchase ID to clipboard */}
           <CopyButton value={purchaseId} />
 
-          {/* Edit button - only visible to admin users */}
-          <AuthenticationGuardWithPermission permission={import.meta.env.ADMIN_PERMISSION}>
+          {/* Edit button - only visible to admin users (use pre-computed permission to avoid per-row permission checks) */}
+          {hasWritePermission === null ? (
+            <></>
+          ) : hasWritePermission ? (
             <EditIcon
               // Click handler to open edit modal
               onClick={() => onEditPurchase(purchaseId)}
               // Styling classes for the edit icon (HeroUI styling)
               className="group inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent transform-gpu data-[pressed=true]:scale-[0.97] cursor-pointer outline-hidden data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 text-tiny rounded-small px-0 transition-transform-colors-opacity motion-reduce:transition-none bg-transparent data-[hover=true]:bg-default/40 min-w-4 w-4 h-4 relative z-50 text-zinc-300 bottom-0 left-2"
             />
-          </AuthenticationGuardWithPermission>
+          ) : null}
         </div>
       </div>
     </>
