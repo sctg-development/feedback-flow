@@ -41,13 +41,13 @@ export const siteConfig = () => {
     utilitiesMenuItems: [
       {
         label: i18next.t("oldest-ready-to-refund-pdf"),
-        href: import.meta.env.BASE_URL + "ready-to-refund-pdf",
+        href: import.meta.env.BASE_URL + "/ready-to-refund-pdf",
         permission: import.meta.env.READ_PERMISSION,
         component: OldestReadyToRefundPage,
       },
       {
         label: i18next.t('statistics'),
-        href: import.meta.env.BASE_URL + "stats",
+        href: import.meta.env.BASE_URL + "/stats",
         permission: import.meta.env.READ_PERMISSION,
         component: StatsPage,
       }
