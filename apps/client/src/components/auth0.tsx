@@ -26,7 +26,8 @@ import { Tooltip } from "@heroui/tooltip";
 import { FC, ReactNode, useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@heroui/link";
-import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
+import { JWTPayload, jwtVerify } from "jose";
+import { getLocalJwkSet } from "@/components/jwks";
 import type { Auth0User, Auth0Permission, Auth0Role } from "@/types/data";
 
 /**
@@ -546,11 +547,8 @@ export const useSecuredApi = () => {
       if (!accessToken) {
         return false;
       }
-      const JWKS = createRemoteJWKSet(
-        new URL(
-          `https://${import.meta.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
-        ),
-      );
+      // Use cached local JWKS set to avoid repeated network jwks.json fetches
+      const JWKS = await getLocalJwkSet(import.meta.env.AUTH0_DOMAIN);
       const joseResult = await jwtVerify(accessToken, JWKS, {
         issuer: `https://${import.meta.env.AUTH0_DOMAIN}/`,
         audience: import.meta.env.AUTH0_AUDIENCE,
@@ -824,10 +822,8 @@ export const userHasPermission = async (
       return permissionCheckCache.get(cacheKey) as boolean;
     }
 
-    // Reuse a single JWKS function for the domain to avoid recreating it on each call
-    const JWKS = createRemoteJWKSet(
-      new URL(`https://${import.meta.env.AUTH0_DOMAIN}/.well-known/jwks.json`),
-    );
+    // Use a cached local JWKS (fetched once per session) to avoid repeated jwks.json fetches
+    const JWKS = await getLocalJwkSet(import.meta.env.AUTH0_DOMAIN);
 
     const joseResult = await jwtVerify(accessToken, JWKS, {
       issuer: `https://${import.meta.env.AUTH0_DOMAIN}/`,
