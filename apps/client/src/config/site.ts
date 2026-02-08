@@ -19,35 +19,35 @@ export const siteConfig = () => {
     navItems: [
       {
         label: i18next.t("home"),
-        href: "/",
+        href: import.meta.env.BASE_URL + "/",
       },
       // {
       //   label: i18next.t("utilities"),
-      //   href: "/utilities",
+      //   href: import.meta.env.BASE_URL + "/utilities",
       // },
       // {
       //   label: i18next.t("pricing"),
-      //   href: "/pricing",
+      //   href: import.meta.env.BASE_URL + "/pricing",
       // },
       // {
       //   label: i18next.t("blog"),
-      //   href: "/blog",
+      //   href: import.meta.env.BASE_URL + "/blog",
       // },
       // {
       //   label: i18next.t("about"),
-      //   href: "/about",
+      //   href: import.meta.env.BASE_URL + "/about",
       // },
     ],
     utilitiesMenuItems: [
       {
         label: i18next.t("oldest-ready-to-refund-pdf"),
-        href: "/ready-to-refund-pdf",
+        href: import.meta.env.BASE_URL + "ready-to-refund-pdf",
         permission: import.meta.env.READ_PERMISSION,
         component: OldestReadyToRefundPage,
       },
       {
         label: i18next.t('statistics'),
-        href: "/stats",
+        href: import.meta.env.BASE_URL + "stats",
         permission: import.meta.env.READ_PERMISSION,
         component: StatsPage,
       }
@@ -55,25 +55,25 @@ export const siteConfig = () => {
     navMenuItems: [
       {
         label: i18next.t("home"),
-        href: "/",
+        href: import.meta.env.BASE_URL + "/",
       },
     ],
     apiMenuItems: [
       {
         label: i18next.t("add-a-new-user"),
-        href: "/add-user",
+        href: import.meta.env.BASE_URL + "/add-user",
         permission: import.meta.env.ADMIN_PERMISSION,
         component: AddNewUser,
       },
       {
         label: i18next.t("manage-database"),
-        href: "/manage-db",
+        href: import.meta.env.BASE_URL + "/manage-db",
         permission: import.meta.env.BACKUP_PERMISSION,
         component: ManageDatabasePage,
       },
       {
         label: i18next.t("users-and-permissions"),
-        href: "/users-and-permissions",
+        href: import.meta.env.BASE_URL + "/users-and-permissions",
         permission: import.meta.env.ADMIN_AUTH0_PERMISSION,
         component: UsersAndPermissionsPage,
       }
