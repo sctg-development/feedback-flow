@@ -23,7 +23,7 @@ import {
 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
-import { FC, ReactNode, useEffect, useState } from "react";
+import { FC, ReactNode, useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@heroui/link";
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from "jose";
@@ -432,7 +432,7 @@ export const deleteJsonFromSecuredApi = async (
 export const useSecuredApi = () => {
   const { getAccessTokenSilently } = useAuth0();
 
-  const getJson = async (url: string) => {
+  const getJson = useCallback(async (url: string) => {
     try {
       const accessToken = await getAccessTokenSilently({
         authorizationParams: {
@@ -453,9 +453,9 @@ export const useSecuredApi = () => {
       console.error(error);
       throw error;
     }
-  };
+  }, [getAccessTokenSilently]);
 
-  const postJson = async (url: string, data: any) => {
+  const postJson = useCallback(async (url: string, data: any) => {
     try {
       const accessToken = await getAccessTokenSilently({
         authorizationParams: {
@@ -479,9 +479,9 @@ export const useSecuredApi = () => {
       console.error(error);
       throw error;
     }
-  };
+  }, [getAccessTokenSilently]);
 
-  const deleteJson = async (url: string, data?: any) => {
+  const deleteJson = useCallback(async (url: string, data?: any) => {
     try {
       const accessToken = await getAccessTokenSilently({
         authorizationParams: {
@@ -505,7 +505,7 @@ export const useSecuredApi = () => {
       console.error(error);
       throw error;
     }
-  };
+  }, [getAccessTokenSilently]);
 
   /**
    * Returns a boolean indicating if the user has the specified permission
@@ -534,7 +534,7 @@ export const useSecuredApi = () => {
    * }
    * ```
    */
-  const hasPermission = async (permission: string) => {
+  const hasPermission = useCallback(async (permission: string) => {
     try {
       const accessToken = await getAccessTokenSilently({
         authorizationParams: {
@@ -567,13 +567,16 @@ export const useSecuredApi = () => {
       console.error(error);
       throw error;
     }
-  };
+  }, [getAccessTokenSilently]);
+
+  // Memoize the returned object so consumers get stable function identities
+  const securedApi = useMemo(
+    () => ({ getJson, postJson, deleteJson, hasPermission }),
+    [getJson, postJson, deleteJson, hasPermission],
+  );
 
   return {
-    getJson,
-    postJson,
-    deleteJson,
-    hasPermission,
+    ...securedApi,
     // Auth0 Management helpers
     getAuth0ManagementToken: async () => {
       try {
