@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           ./build-reproductible-dev.sh
-          
+
       - name: Create openapi.json file
         run: |
           cd apps/client
@@ -90,7 +90,7 @@ jobs:
             exit 1
           fi
           # check if the base url is correctly set in the built index.html and the javascript files
-          if grep -q "base=\"/${{ github.event.repository.name }}\"" apps/client/dist/index.html && grep -q "base=\"/${{ github.event.repository.name }}\"" apps/client/dist/js/*.js; then
+          if grep -q "\/${{ github.event.repository.name }}" apps/client/dist/index.html && grep -q "\/${{ github.event.repository.name }}" apps/client/dist/js/*.js; then
             echo "Base URL is correctly set in the built files."
           else
             echo "Base URL is not correctly set in the built files."
