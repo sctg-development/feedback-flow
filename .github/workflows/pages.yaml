@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "24"
-          
+
       - name: Create .env file
         run: |
           echo -n ${{ secrets.AUTH0_AUDIENCE }} | sed -n 's/http.:\/\/\(.*\)\/.*/DOMAIN_NAME=\1\n/p' > .env
@@ -90,7 +90,7 @@ jobs:
             exit 1
           fi
           # check if the base url is correctly set in the built index.html and the javascript files
-          if grep -q "base=\"/${{ github.event.repository.name }}\"" apps/client/dist/index.html && grep -q "base=\"/${{ github.event.repository.name }}\"" apps/client/dist/assets/*.js; then
+          if grep -q "base=\"/${{ github.event.repository.name }}\"" apps/client/dist/index.html && grep -q "base=\"/${{ github.event.repository.name }}\"" apps/client/dist/js/*.js; then
             echo "Base URL is correctly set in the built files."
           else
             echo "Base URL is not correctly set in the built files."
