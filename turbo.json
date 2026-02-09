@@ -180,6 +180,20 @@
                 "AUTH0_*"
             ]
         },
+        "openapi": {
+            "dependsOn": [
+                "^openapi"
+            ],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "apps/cloudflare-worker/src/**",
+                "apps/client/get-openapi.ts",
+                "apps/client/package.json"
+            ],
+            "outputs": [
+                "apps/client/public/openapi.json"
+            ]
+        },
         "clean": {
             "cache": false
         }

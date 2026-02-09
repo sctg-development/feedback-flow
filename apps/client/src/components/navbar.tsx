@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import { Button } from "@heroui/button";
-import { Link } from "@heroui/link";
+import { LinkUniversal } from "@/components/link-universal";
 import {
   Navbar as HeroUINavbar,
   NavbarBrand,
@@ -65,14 +65,14 @@ export const Navbar = React.memo(() => {
     <HeroUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand className="gap-3 max-w-fit">
-          <Link
+          <LinkUniversal
             className="flex justify-start items-center gap-1"
             color="foreground"
             href="/"
           >
             <Logo />
             <p className="font-bold text-inherit">{t("brand")}</p>
-          </Link>
+          </LinkUniversal>
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">
           {siteConfig().navItems.map((item) => (
@@ -81,7 +81,7 @@ export const Navbar = React.memo(() => {
               permission={import.meta.env.READ_PERMISSION}
             >
               <NavbarItem>
-                <Link
+                <LinkUniversal
                   className={clsx(
                     linkStyles({ color: "foreground" }),
                     "data-[active=true]:text-primary data-[active=true]:font-medium",
@@ -90,7 +90,7 @@ export const Navbar = React.memo(() => {
                   href={item.href}
                 >
                   {item.label}
-                </Link>
+                </LinkUniversal>
               </NavbarItem>
             </AuthenticationGuardWithPermission>
           ))}
@@ -112,7 +112,7 @@ export const Navbar = React.memo(() => {
               <DropdownMenu>
                 {siteConfig().utilitiesMenuItems.map((item) => (
                   <DropdownItem key={item.href} textValue={item.label}>
-                    <Link
+                    <LinkUniversal
                       className={clsx(
                         linkStyles({ color: "foreground" }),
                         "data-[active=true]:text-primary data-[active=true]:font-medium",
@@ -121,7 +121,7 @@ export const Navbar = React.memo(() => {
                       href={item.href}
                     >
                       {item.label}
-                    </Link>
+                    </LinkUniversal>
                   </DropdownItem>
                 ))}
               </DropdownMenu>
@@ -153,9 +153,9 @@ export const Navbar = React.memo(() => {
                       }
                       permission={item.permission}
                     >
-                      <Link color="foreground" href={item.href}>
+                      <LinkUniversal color="foreground" href={item.href}>
                         {item.label}
-                      </Link>
+                      </LinkUniversal>
                     </AuthenticationGuardWithPermission>
                   </DropdownItem>
                 ))}
@@ -170,9 +170,9 @@ export const Navbar = React.memo(() => {
         justify="end"
       >
         <NavbarItem key="social-media" className="hidden sm:flex gap-2">
-          <Link isExternal href={siteConfig().links.github} title={t("github")}>
+          <LinkUniversal isInternet isExternal href={siteConfig().links.github} title={t("github")}>
             <GithubIcon className="text-default-500" />
-          </Link>
+          </LinkUniversal>
           <ThemeSwitch />
           <LanguageSwitch
             availableLanguages={availableLanguages}
@@ -185,9 +185,9 @@ export const Navbar = React.memo(() => {
 
       {/* Mobile Navbar */}
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal href={siteConfig().links.github}>
+        <LinkUniversal isInternet isExternal href={siteConfig().links.github}>
           <GithubIcon className="text-default-500" />
-        </Link>
+        </LinkUniversal>
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
@@ -200,9 +200,9 @@ export const Navbar = React.memo(() => {
         <div className="mx-4 mt-2 flex flex-col gap-2">
           {siteConfig().navMenuItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
-              <Link color="primary" href={item.href} size="lg">
+              <LinkUniversal color="primary" href={item.href} size="lg">
                 {item.label}
-              </Link>
+              </LinkUniversal>
             </NavbarMenuItem>
           ))}
           {siteConfig().utilitiesMenuItems.map((item, index) => (
@@ -211,9 +211,9 @@ export const Navbar = React.memo(() => {
                 fallback={<span className="line-through">{item.label}</span>}
                 permission={item.permission}
               >
-                <Link color="foreground" href={item.href}>
+                <LinkUniversal color="foreground" href={item.href}>
                   {item.label}
-                </Link>
+                </LinkUniversal>
               </AuthenticationGuardWithPermission>
             </NavbarMenuItem>
           ))}
@@ -223,9 +223,9 @@ export const Navbar = React.memo(() => {
                 fallback={<span className="line-through">{item.label}</span>}
                 permission={item.permission}
               >
-                <Link color="foreground" href={item.href}>
+                <LinkUniversal color="foreground" href={item.href}>
                   {item.label}
-                </Link>
+                </LinkUniversal>
               </AuthenticationGuardWithPermission>
             </NavbarMenuItem>
           ))}

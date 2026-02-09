@@ -3,7 +3,7 @@
     "private": true,
     "version": "1.0.0",
     "type": "module",
-    "packageManager": "yarn@4.10.0",
+    "packageManager": "yarn@4.2.2",
     "workspaces": [
         "apps/*"
     ],
@@ -25,7 +25,8 @@
         "build:worker": "turbo run build --filter=cloudflare-worker",
         "build:client:env": "turbo run build:env --filter=client",
         "build:worker:env": "turbo run build:env --filter=cloudflare-worker",
-        "deploy:worker": "turbo run deploy --filter=cloudflare-worker"
+        "deploy:worker": "turbo run deploy --filter=cloudflare-worker",
+        "postinstall": "turbo run openapi"
     },
     "devDependencies": {
         "@types/node": "^24.10.11",

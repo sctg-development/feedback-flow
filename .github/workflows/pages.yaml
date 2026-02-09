@@ -27,44 +27,33 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "24"
 
       - name: Install dependencies
-        if: false # Temporarily disabled to work around bug
+        if: true # Temporarily disabled to work around bug
         run: |
           corepack enable
-          yarn set version 4.12.0
+          yarn set version 4.2.2
           yarn install --immutable
 
       - name: Temporary workaround for bug https://github.com/yarnpkg/berry/issues/7047
         if: true # Temporarily enabled to work around bug
+        shell: bash
         run: |
-          mv package.json package.json.bak || true
-          mv yarn.lock yarn.lock.bak || true
-          cd apps/client 
-          npm ci
-          ls -la
-          cd ../../apps/cloudflare-worker
-          npm ci
-          ls -la
-          cd ../../
-          mv package.json.bak package.json || true
-          mv yarn.lock.bak yarn.lock || true
-
+          ./build-reproductible-dev.sh
+          
       - name: Create openapi.json file
         run: |
           cd apps/client
           # temporary workaround with yarn bug
-          # yarn openapi
-          npm run openapi
+          yarn openapi
 
-      - name: Test build with yarn
-        continue-on-error: true
+      - name: Build with yarn
         run: |
           yarn build:env -- --base=/${{ github.event.repository.name }}
           # check if the build output directory exists
@@ -81,28 +70,9 @@ jobs:
             echo "Base URL is not correctly set in the built files."
             exit 1
           fi
-      - name: Build project
-        # You can change the base path to your repository name
-        run: |
-          cd apps/client
-          export AUTH0_DOMAIN="${{ secrets.AUTH0_DOMAIN }}"
-          export AUTH0_CLIENT_ID="${{ secrets.AUTH0_CLIENT_ID }}"
-          export AUTH0_SCOPE="${{ vars.AUTH0_SCOPE }}"
-          export AUTH0_AUDIENCE="${{ secrets.AUTH0_AUDIENCE }}"
-          export API_BASE_URL="${{ secrets.API_BASE_URL }}"
-          export CORS_ORIGIN="${{ secrets.CORS_ORIGIN }}"
-          export READ_PERMISSION="${{ vars.READ_PERMISSION }}"
-          export WRITE_PERMISSION="${{ vars.WRITE_PERMISSION }}"
-          export ADMIN_PERMISSION="${{ vars.ADMIN_PERMISSION }}"
-          export BACKUP_PERMISSION="${{ vars.BACKUP_PERMISSION }}"
-          export DB_MAX_IMAGE_SIZE="${{ vars.DB_MAX_IMAGE_SIZE }}"
-          export SEARCH_PERMISSION="${{ vars.SEARCH_PERMISSION }}"
-          export AMAZON_BASE_URL="${{ vars.AMAZON_BASE_URL }}"
-          export PAYPAL_TRANSACTION_BASE_URL="${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}"
-          npx vite build --base=/${{ github.event.repository.name }}
 
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           # Upload docs directory
           path: "apps/client/dist"

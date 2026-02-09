@@ -17,7 +17,7 @@
  */
 import type React from "react";
 
-import { Link } from "@heroui/link";
+import { LinkUniversal } from "@/components/link-universal";
 import { Trans, useTranslation } from "react-i18next";
 import {
   Dropdown,
@@ -94,7 +94,8 @@ export default function DefaultLayout({
         {children}
       </main>
       <footer className="w-full flex items-center justify-center py-3">
-        <Link
+        <LinkUniversal
+          isInternet
           isExternal
           className="flex items-center gap-1 text-current"
           href={siteConfig().links.sctg}
@@ -104,7 +105,7 @@ export default function DefaultLayout({
             <Trans ns="base">powered-by</Trans>
           </span>
           <p className="text-primary">{t("brand")}&nbsp;</p>
-        </Link>
+        </LinkUniversal>
         <Dropdown>
           <DropdownTrigger>
             {isAuthenticated ? (
@@ -138,9 +139,9 @@ export default function DefaultLayout({
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
-        <Link className="flex items-center mx-1" color="secondary" href="/docs">
+        <LinkUniversal className="flex items-center mx-1" color="secondary" href="/docs">
           API
-        </Link>
+        </LinkUniversal>
       </footer>
     </div>
   );
