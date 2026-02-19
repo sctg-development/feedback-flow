@@ -54,13 +54,13 @@ export default function ButtonAddFeedbackOrReturn({
   );
 
   const descriptionsMap: { [key: string]: string } = {
-    feedback: t('add-a-feedback-to-this-purchase'),
-    return: t('cancel-this-purchase-and-return-the-item'),
+    feedback: t("add-a-feedback-to-this-purchase"),
+    return: t("cancel-this-purchase-and-return-the-item"),
   };
 
   const labelsMap: { [key: string]: string } = {
     feedback: t("create-feedback"),
-    return: t('return-this-item'),
+    return: t("return-this-item"),
   };
 
   // Convert the Set to an Array and get the first value.
@@ -80,12 +80,21 @@ export default function ButtonAddFeedbackOrReturn({
 
   return (
     <ButtonGroup>
-      <Button color="primary" onPress={handleButtonClick} className="rounded-lg rounded-r-none rtl:rounded-lg rtl:rounded-l-none">
+      <Button
+        className="rounded-lg rounded-r-none rtl:rounded-lg rtl:rounded-l-none"
+        color="primary"
+        onPress={handleButtonClick}
+      >
         {labelsMap[selectedOptionValue]}
       </Button>
       <Dropdown placement="bottom-end">
         <DropdownTrigger>
-          <Button isIconOnly color="primary" variant="flat" className="rounded-lg rounded-l-none rtl:rounded-lg rtl:rounded-r-none">
+          <Button
+            isIconOnly
+            className="rounded-lg rounded-l-none rtl:rounded-lg rtl:rounded-r-none"
+            color="primary"
+            variant="flat"
+          >
             <ChevronDownIcon />
           </Button>
         </DropdownTrigger>

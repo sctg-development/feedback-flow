@@ -29,20 +29,20 @@
  * @returns A debounced version of the function
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
-    func: T,
-    delay: number
+  func: T,
+  delay: number,
 ): (...args: Parameters<T>) => void {
-    let timeoutId: NodeJS.Timeout | null = null;
+  let timeoutId: NodeJS.Timeout | null = null;
 
-    return (...args: Parameters<T>) => {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-        }
-        timeoutId = setTimeout(() => {
-            func(...args);
-            timeoutId = null;
-        }, delay);
-    };
+  return (...args: Parameters<T>) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+      timeoutId = null;
+    }, delay);
+  };
 }
 
 /**
@@ -54,27 +54,29 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  * @returns Array of purchase IDs matching the query
  */
 export async function searchPurchases(
-    postJson: (url: string, data: unknown) => Promise<unknown>,
-    query: string,
-    limit: number = 50
+  postJson: (url: string, data: unknown) => Promise<unknown>,
+  query: string,
+  limit: number = 50,
 ): Promise<string[]> {
-    try {
-        const data = (await postJson(
-            `${import.meta.env.API_BASE_URL}/purchase/search`,
-            {
-                query,
-                limit,
-            }
-        )) as Record<string, unknown>;
+  try {
+    const data = (await postJson(
+      `${import.meta.env.API_BASE_URL}/purchase/search`,
+      {
+        query,
+        limit,
+      },
+    )) as Record<string, unknown>;
 
-        if (!data.success) {
-            console.error("Search failed:", data.error);
-            return [];
-        }
+    if (!data.success) {
+      console.error("Search failed:", data.error);
 
-        return (data.data as string[]) || [];
-    } catch (error) {
-        console.error("Error searching purchases:", error);
-        return [];
+      return [];
     }
+
+    return (data.data as string[]) || [];
+  } catch (error) {
+    console.error("Error searching purchases:", error);
+
+    return [];
+  }
 }

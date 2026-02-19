@@ -38,7 +38,7 @@ export function OpenAPI() {
     : import.meta.env.BASE_URL + "/openapi.json";
 
   /**
-   * If user is authenticated, set the token 
+   * If user is authenticated, set the token
    */
   useEffect(() => {
     if (isAuthenticated) {

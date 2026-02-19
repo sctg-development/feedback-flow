@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 import { Button } from "@heroui/button";
-import { LinkUniversal } from "@/components/link-universal";
 import {
   Navbar as HeroUINavbar,
   NavbarBrand,
@@ -42,6 +41,7 @@ import {
   DropdownTrigger,
 } from "@heroui/dropdown";
 import React from "react";
+import { useHref } from "react-router-dom";
 
 import { I18nIcon, LanguageSwitch } from "./language-switch";
 import {
@@ -49,14 +49,14 @@ import {
   LoginLogoutButton,
   LoginLogoutLink,
 } from "./auth0";
+import { SearchBar } from "./search-bar";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { ChevronDownIcon, GithubIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
-import { SearchBar } from "./search-bar";
-import { useHref } from "react-router-dom";
+import { LinkUniversal } from "@/components/link-universal";
 
 export const Navbar = React.memo(() => {
   const { t } = useTranslation();
@@ -97,7 +97,9 @@ export const Navbar = React.memo(() => {
             </AuthenticationGuardWithPermission>
           ))}
         </div>
-        <AuthenticationGuardWithPermission permission={import.meta.env.READ_PERMISSION}>
+        <AuthenticationGuardWithPermission
+          permission={import.meta.env.READ_PERMISSION}
+        >
           <NavbarItem key="utilities-menu" className="hidden md:flex">
             <Dropdown>
               <DropdownTrigger>
@@ -155,7 +157,10 @@ export const Navbar = React.memo(() => {
                       }
                       permission={item.permission}
                     >
-                      <LinkUniversal color="foreground" href={useHref(item.href)}>
+                      <LinkUniversal
+                        color="foreground"
+                        href={useHref(item.href)}
+                      >
                         {item.label}
                       </LinkUniversal>
                     </AuthenticationGuardWithPermission>
@@ -172,7 +177,12 @@ export const Navbar = React.memo(() => {
         justify="end"
       >
         <NavbarItem key="social-media" className="hidden sm:flex gap-2">
-          <LinkUniversal isInternet isExternal href={siteConfig().links.github} title={t("github")}>
+          <LinkUniversal
+            isExternal
+            isInternet
+            href={siteConfig().links.github}
+            title={t("github")}
+          >
             <GithubIcon className="text-default-500" />
           </LinkUniversal>
           <ThemeSwitch />
@@ -187,7 +197,7 @@ export const Navbar = React.memo(() => {
 
       {/* Mobile Navbar */}
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <LinkUniversal isInternet isExternal href={siteConfig().links.github}>
+        <LinkUniversal isExternal isInternet href={siteConfig().links.github}>
           <GithubIcon className="text-default-500" />
         </LinkUniversal>
         <ThemeSwitch />

@@ -9,13 +9,18 @@ const DEFAULT_TTL_S = Number(import.meta.env.AUTH0_CACHE_DURATION_S ?? 300);
 const STORAGE_KEY = (domain: string) => `jwks:${domain}`;
 
 const inMemoryCache = new Map<string, ReturnType<typeof createLocalJWKSet>>();
-let inFlightFetches = new Map<string, Promise<ReturnType<typeof createLocalJWKSet>>>();
+let inFlightFetches = new Map<
+  string,
+  Promise<ReturnType<typeof createLocalJWKSet>>
+>();
 
 async function fetchJwksJson(domain: string) {
   const resp = await fetch(`https://${domain}/.well-known/jwks.json`, {
     headers: { Accept: "application/json, application/jwk-set+json" },
   });
+
   if (!resp.ok) throw new Error(`Failed to fetch jwks.json: ${resp.status}`);
+
   return (await resp.json()) as any;
 }
 
@@ -33,20 +38,29 @@ export async function getLocalJwkSet(domain: string) {
       // Try sessionStorage first
       try {
         const raw = sessionStorage.getItem(STORAGE_KEY(domain));
+
         if (raw) {
           const parsed = JSON.parse(raw);
           const ageS = (Date.now() - (parsed.uat || 0)) / 1000;
-          const ttl = Number(import.meta.env.AUTH0_CACHE_DURATION_S ?? DEFAULT_TTL_S);
+          const ttl = Number(
+            import.meta.env.AUTH0_CACHE_DURATION_S ?? DEFAULT_TTL_S,
+          );
+
           if (ageS < ttl && parsed.jwks) {
             const local = createLocalJWKSet(parsed.jwks);
+
             inMemoryCache.set(domain, local);
+
             return local;
           }
         }
       } catch (e) {
         // ignore sessionStorage errors
         // eslint-disable-next-line no-console
-        console.warn("JWKS: sessionStorage unavailable, falling back to network", e);
+        console.warn(
+          "JWKS: sessionStorage unavailable, falling back to network",
+          e,
+        );
       }
 
       const jwks = await fetchJwksJson(domain);
@@ -54,12 +68,16 @@ export async function getLocalJwkSet(domain: string) {
 
       // persist
       try {
-        sessionStorage.setItem(STORAGE_KEY(domain), JSON.stringify({ jwks, uat: Date.now() }));
+        sessionStorage.setItem(
+          STORAGE_KEY(domain),
+          JSON.stringify({ jwks, uat: Date.now() }),
+        );
       } catch (e) {
         // ignore
       }
 
       inMemoryCache.set(domain, local);
+
       return local;
     } finally {
       inFlightFetches.delete(domain);
@@ -67,5 +85,6 @@ export async function getLocalJwkSet(domain: string) {
   })();
 
   inFlightFetches.set(domain, promise);
+
   return await promise;
 }

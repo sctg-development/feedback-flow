@@ -116,14 +116,18 @@ interface TableCellContentProps {
 
 /**
  * Component to render the content of a table cell based on column configuration
- * 
+ *
  * Handles:
  * - Custom rendering functions
  * - Copy button for copyable cells
  * - Tooltip wrapping
  * - Default value rendering
  */
-const TableCellContent = ({ column, item, renderCellValue }: TableCellContentProps) => {
+const TableCellContent = ({
+  column,
+  item,
+  renderCellValue,
+}: TableCellContentProps) => {
   // Common content rendering logic
   const renderContent = () => {
     if (column.render) {
@@ -601,6 +605,7 @@ export default function PaginatedTable({
     setError(null);
 
     const totalCount = manualData.length;
+
     setTotal(totalCount);
 
     // Ensure page is in range
@@ -611,6 +616,7 @@ export default function PaginatedTable({
     const start = (page - 1) * limit;
     const end = start + limit;
     const slice = manualData.slice(start, end);
+
     setItems(slice);
   }, [manualData, manualIsLoading, page, limit]);
 

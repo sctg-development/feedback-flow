@@ -71,7 +71,7 @@ export default function AddNewUser() {
 
     const apiResponse = (await postJson(
       `${import.meta.env.API_BASE_URL}/tester`,
-      { name, ids }
+      { name, ids },
     )) as TesterCreateResponse;
 
     if (apiResponse && apiResponse.success) {

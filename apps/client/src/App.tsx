@@ -56,10 +56,7 @@ function App() {
           element={<AuthenticationGuard component={ApiPage} />}
           path="/api"
         />
-        <Route
-          element={<LinkPage />}
-          path="/link"
-        />
+        <Route element={<LinkPage />} path="/link" />
         {siteConfig().utilitiesMenuItems.map((item) => {
           // Check if item.component exists
           const Component = item.component;
@@ -92,7 +89,12 @@ function App() {
             />
           );
         })}
-        <Route element={<PageNotFound githubUrl="https://github.com/sctg-development/feedback-flow"/>} path="*" />
+        <Route
+          element={
+            <PageNotFound githubUrl="https://github.com/sctg-development/feedback-flow" />
+          }
+          path="*"
+        />
       </Routes>
     </Suspense>
   );

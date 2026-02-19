@@ -23,9 +23,10 @@
  */
 
 import { Tooltip } from "@heroui/tooltip";
+import { useTranslation } from "react-i18next";
+
 import { CopyButton } from "@/components/copy-button";
 import { Transparent1x1WebpPixel } from "@/components/icons";
-import { useTranslation } from "react-i18next";
 
 /**
  * Props interface for the StatusCell component
@@ -98,15 +99,16 @@ export const StatusCell = ({
         <Tooltip content={t(copyTooltipKey)}>
           <CopyButton
             // Prepare the value to copy - either single screenshot or array of screenshots
-            value={screenshotSummary && screenshot
-              ? [screenshot, screenshotSummary || Transparent1x1WebpPixel]
-              : screenshot
+            value={
+              screenshotSummary && screenshot
+                ? [screenshot, screenshotSummary || Transparent1x1WebpPixel]
+                : screenshot
             }
             // Indicate that this is image data for proper clipboard handling
+            className="ml-2"
             isImage={true}
             showToast={true}
             toastText={t("copied-to-clipboard")}
-            className="ml-2"
           />
         </Tooltip>
       )}

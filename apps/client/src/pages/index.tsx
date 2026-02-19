@@ -24,8 +24,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth0 } from "@auth0/auth0-react";
-
 import { Button } from "@heroui/button";
+
+import { usePurchasePermissions } from "./page-components/usePurchasePermissions";
+import { usePurchaseAmounts } from "./page-components/usePurchaseAmounts";
+import { usePurchaseTableColumns } from "./page-components/purchaseTableColumns";
+
 import { EditIcon } from "@/components/icons";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
@@ -38,15 +42,9 @@ import EditPurchaseModal from "@/components/modals/edit-purchase-modal";
 import { ScreenshotModal } from "@/components/modals/screenshot-modal";
 import ReturnPurchaseModal from "@/components/modals/return-purchase";
 import { GeneratePublicLinkModal } from "@/components/modals/generate-public-link-modal";
-
 import { AuthenticationGuardWithPermission } from "@/components/auth0";
 import { useSearchResults } from "@/hooks/useSearchResults";
-
 import { useSearch } from "@/context/SearchContext";
-import { usePurchasePermissions } from "./page-components/usePurchasePermissions";
-import { usePurchaseAmounts } from "./page-components/usePurchaseAmounts";
-
-import { usePurchaseTableColumns } from "./page-components/purchaseTableColumns";
 
 /**
  * Main page of the application displaying purchase data in a tabular format
@@ -84,7 +82,8 @@ export default function IndexPage() {
   const [screenshot, setScreenshot] = useState<string | string[] | null>(null);
   const [toggleAllPurchases, setToggleAllPurchases] = useState(false);
   const [generatePublicLink, setGeneratePublicLink] = useState(false);
-  const [generateLinkPurchaseId, setGenerateLinkPurchaseId] = useState<string>("");
+  const [generateLinkPurchaseId, setGenerateLinkPurchaseId] =
+    useState<string>("");
 
   // Use custom hooks for permissions and amounts
   const { hasWritePermission } = usePurchasePermissions();
@@ -242,16 +241,16 @@ export default function IndexPage() {
             <PaginatedTable
               columns={columns}
               dataUrl={`${import.meta.env.API_BASE_URL}/purchase-status?limitToNotRefunded=${toggleAllPurchases ? "false" : "true"}`}
-              manualData={searchResults.length > 0 ? searchData : undefined}
-              manualIsLoading={searchDataLoading}
               defaultPageSize={10}
               defaultSortField="date"
               defaultSortOrder="desc"
+              emptyContent={emptyContent}
+              manualData={searchResults.length > 0 ? searchData : undefined}
+              manualIsLoading={searchDataLoading}
               permission={import.meta.env.READ_PERMISSION}
               refreshTrigger={refreshTrigger}
               rowKey="purchase"
               title={getTitleComponent}
-              emptyContent={emptyContent}
             />
           </div>
         )}
@@ -323,7 +322,9 @@ export default function IndexPage() {
       )}
       {/* Edit Purchase Modal */}
       {editPurchase && (
-        <AuthenticationGuardWithPermission permission={import.meta.env.ADMIN_PERMISSION}>
+        <AuthenticationGuardWithPermission
+          permission={import.meta.env.ADMIN_PERMISSION}
+        >
           <EditPurchaseModal
             children={undefined}
             isOpen={editPurchase}
@@ -338,7 +339,9 @@ export default function IndexPage() {
       )}
       {/* Generate Public Link Modal */}
       {generatePublicLink && (
-        <AuthenticationGuardWithPermission permission={import.meta.env.ADMIN_PERMISSION}>
+        <AuthenticationGuardWithPermission
+          permission={import.meta.env.ADMIN_PERMISSION}
+        >
           <GeneratePublicLinkModal
             isOpen={generatePublicLink}
             purchaseId={generateLinkPurchaseId}

@@ -17,7 +17,6 @@
  */
 import type React from "react";
 
-import { LinkUniversal } from "@/components/link-universal";
 import { Trans, useTranslation } from "react-i18next";
 import {
   Dropdown,
@@ -29,10 +28,12 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useRef, useState } from "react";
 import { Snippet } from "@heroui/snippet";
 import { JWTPayload, jwtVerify } from "jose";
-import { getLocalJwkSet } from "@/components/jwks";
 
+import { LinkUniversal } from "@/components/link-universal";
+import { getLocalJwkSet } from "@/components/jwks";
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
+import { useHref } from "react-router-dom";
 
 export default function DefaultLayout({
   children,
@@ -54,12 +55,14 @@ export default function DefaultLayout({
     const loadToken = async () => {
       try {
         const token = await getAccessTokenSilently();
+
         if (!isMounted) return;
 
         setAccessToken(token);
 
         if (decodedTokenCacheRef.current.has(token)) {
           setDecodedToken(decodedTokenCacheRef.current.get(token) || null);
+
           return;
         }
 
@@ -71,6 +74,7 @@ export default function DefaultLayout({
         });
 
         const payload = verified.payload as JWTPayload;
+
         decodedTokenCacheRef.current.set(token, payload);
 
         if (isMounted) setDecodedToken(payload);
@@ -95,8 +99,8 @@ export default function DefaultLayout({
       </main>
       <footer className="w-full flex items-center justify-center py-3">
         <LinkUniversal
-          isInternet
           isExternal
+          isInternet
           className="flex items-center gap-1 text-current"
           href={siteConfig().links.sctg}
           title={t("site-homepage")}
@@ -139,7 +143,11 @@ export default function DefaultLayout({
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
-        <LinkUniversal className="flex items-center mx-1" color="secondary" href="/docs">
+        <LinkUniversal
+          className="flex items-center mx-1"
+          color="secondary"
+          href={useHref("/docs")}
+        >
           API
         </LinkUniversal>
       </footer>

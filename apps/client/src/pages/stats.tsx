@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
 import { Divider } from "@heroui/divider";
 import { Button } from "@heroui/button";
+import { Link } from "react-router-dom";
 
 import DefaultLayout from "@/layouts/default";
 import { useSecuredApi } from "@/components/auth0";
@@ -15,7 +16,6 @@ import {
   RefundDelayResponse,
 } from "@/types/data";
 import RefundDelayChart from "@/components/charts/RefundDelayChart";
-import { Link } from "react-router-dom";
 import { cleanAmazonOrderNumber } from "@/utilities/amazon";
 
 export default function StatsPage() {
@@ -35,7 +35,10 @@ export default function StatsPage() {
   const [error, setError] = useState<string | null>(null);
   const [daysFilterInput, setDaysFilterInput] = useState<number | null>(null);
   const [daysFilter, setDaysFilter] = useState<number | null>(null);
-  const [statsLimit, setStatsLimit] = useState<{ type: string; value: number } | null>(null);
+  const [statsLimit, setStatsLimit] = useState<{
+    type: string;
+    value: number;
+  } | null>(null);
 
   // Debounce the days filter input
   useEffect(() => {
@@ -52,6 +55,7 @@ export default function StatsPage() {
 
     // Build the refund-balance URL with optional parameters
     let balanceUrl = `${import.meta.env.API_BASE_URL}/stats/refund-balance`;
+
     if (daysFilter) {
       balanceUrl += `?daysLimit=${daysFilter}`;
     }
@@ -60,7 +64,9 @@ export default function StatsPage() {
       // Load refund balance data
       getJson(balanceUrl)
         .then((_response) => {
-          const response = _response as RefundBalanceResponse & { limit?: { type: string; value: number } };
+          const response = _response as RefundBalanceResponse & {
+            limit?: { type: string; value: number };
+          };
 
           if (response.success) {
             setRefundBalance(response.balance);
@@ -83,7 +89,9 @@ export default function StatsPage() {
         }),
 
       // Load refund delay data
-      getJson(`${import.meta.env.API_BASE_URL}/stats/refund-delay${daysFilter ? `?daysLimit=${daysFilter}` : ""}`)
+      getJson(
+        `${import.meta.env.API_BASE_URL}/stats/refund-delay${daysFilter ? `?daysLimit=${daysFilter}` : ""}`,
+      )
         .then((_response) => {
           const response = _response as RefundDelayResponse;
 
@@ -169,15 +177,21 @@ export default function StatsPage() {
         <div className="w-full max-w-5xl bg-card p-4 rounded-lg border border-default-200">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold">{t("filter-by-days")}</label>
+              <label className="text-sm font-semibold">
+                {t("filter-by-days")}
+              </label>
               <div className="flex gap-2">
                 <input
-                  type="number"
+                  className="px-3 py-2 border border-default-200 rounded-lg bg-default-100"
                   min="1"
                   placeholder={t("enter-number-of-days")}
+                  type="number"
                   value={daysFilterInput || ""}
-                  onChange={(e) => setDaysFilterInput(e.target.value ? parseInt(e.target.value) : null)}
-                  className="px-3 py-2 border border-default-200 rounded-lg bg-default-100"
+                  onChange={(e) =>
+                    setDaysFilterInput(
+                      e.target.value ? parseInt(e.target.value) : null,
+                    )
+                  }
                 />
                 <Button
                   color="primary"
@@ -244,8 +258,8 @@ export default function StatsPage() {
                     {Math.round(
                       (1 -
                         purchasesStatistics.totalNotRefundedAmount /
-                        purchasesStatistics.totalPurchaseAmount) *
-                      100,
+                          purchasesStatistics.totalPurchaseAmount) *
+                        100,
                     )}
                     %
                   </span>
@@ -419,7 +433,8 @@ export default function StatsPage() {
                           to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
                         >
                           {cleanAmazonOrderNumber(item.order)}
-                        </Link></td>
+                        </Link>
+                      </td>
                       <td className="p-3 text-right">
                         {item.purchaseAmount.toFixed(2)} €
                       </td>

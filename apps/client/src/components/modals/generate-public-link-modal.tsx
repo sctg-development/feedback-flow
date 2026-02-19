@@ -15,19 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { memo, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { memo, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from '@heroui/modal';
-import { Button } from '@heroui/button';
-import { addToast } from '@heroui/toast';
-import { useSecuredApi } from '@/components/auth0';
-import { CopyButton } from '../copy-button';
+} from "@heroui/modal";
+import { Button } from "@heroui/button";
+import { addToast } from "@heroui/toast";
+
+import { CopyButton } from "../copy-button";
+
+import { useSecuredApi } from "@/components/auth0";
 
 interface GeneratePublicLinkModalProps {
   isOpen: boolean;
@@ -42,20 +44,20 @@ interface Duration {
 }
 
 const DURATION_OPTIONS: Duration[] = [
-  { key: '1h', label: 'link-duration-1h', seconds: 3600 },
-  { key: '3h', label: 'link-duration-3h', seconds: 10800 },
-  { key: '6h', label: 'link-duration-6h', seconds: 21600 },
-  { key: '12h', label: 'link-duration-12h', seconds: 43200 },
-  { key: '1d', label: 'link-duration-1d', seconds: 86400 },
-  { key: '3d', label: 'link-duration-3d', seconds: 259200 },
-  { key: '7d', label: 'link-duration-7d', seconds: 604800 },
+  { key: "1h", label: "link-duration-1h", seconds: 3600 },
+  { key: "3h", label: "link-duration-3h", seconds: 10800 },
+  { key: "6h", label: "link-duration-6h", seconds: 21600 },
+  { key: "12h", label: "link-duration-12h", seconds: 43200 },
+  { key: "1d", label: "link-duration-1d", seconds: 86400 },
+  { key: "3d", label: "link-duration-3d", seconds: 259200 },
+  { key: "7d", label: "link-duration-7d", seconds: 604800 },
 ];
 
 export const GeneratePublicLinkModal = memo<GeneratePublicLinkModalProps>(
   ({ isOpen, onClose, purchaseId }) => {
     const { t } = useTranslation();
     const { postJson } = useSecuredApi();
-    const [selectedDuration, setSelectedDuration] = useState<string>('1d');
+    const [selectedDuration, setSelectedDuration] = useState<string>("1d");
     const [isLoading, setIsLoading] = useState(false);
     const [generatedLink, setGeneratedLink] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -65,35 +67,44 @@ export const GeneratePublicLinkModal = memo<GeneratePublicLinkModalProps>(
         setIsLoading(true);
         setError(null);
 
-        const duration = DURATION_OPTIONS.find((d) => d.key === selectedDuration);
+        const duration = DURATION_OPTIONS.find(
+          (d) => d.key === selectedDuration,
+        );
+
         if (!duration) {
-          throw new Error('Invalid duration selected');
+          throw new Error("Invalid duration selected");
         }
 
         const response = await postJson(
           `${import.meta.env.API_BASE_URL}/link/public?duration=${duration.seconds}&purchase=${purchaseId}`,
-          {}
+          {},
         );
 
         if (!response.success) {
-          throw new Error(response.message || 'Failed to generate link');
+          throw new Error(response.message || "Failed to generate link");
         }
 
-        const link = `${window.location.origin}${import.meta.env.BASE_URL}/link?code=${response.code}`.replaceAll('//', '/').replace(':/', '://');
+        const link =
+          `${window.location.origin}${import.meta.env.BASE_URL}/link?code=${response.code}`
+            .replaceAll("//", "/")
+            .replace(":/", "://");
+
         setGeneratedLink(link);
 
         addToast({
-          title: t('public-link-generated'),
-          variant: 'solid',
+          title: t("public-link-generated"),
+          variant: "solid",
           timeout: 3000,
         });
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
+
         setError(errorMessage);
 
         addToast({
-          title: t('error-generating-link'),
-          variant: 'solid',
+          title: t("error-generating-link"),
+          variant: "solid",
           timeout: 3000,
         });
       } finally {
@@ -102,30 +113,30 @@ export const GeneratePublicLinkModal = memo<GeneratePublicLinkModalProps>(
     }, [selectedDuration, purchaseId, postJson, t]);
 
     const handleClose = useCallback(() => {
-      setSelectedDuration('1d');
+      setSelectedDuration("1d");
       setGeneratedLink(null);
       setError(null);
       onClose();
     }, [onClose]);
 
     return (
-      <Modal isOpen={isOpen} onClose={handleClose} size="md">
+      <Modal isOpen={isOpen} size="md" onClose={handleClose}>
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">
-            {t('generate-public-link')}
+            {t("generate-public-link")}
           </ModalHeader>
           <ModalBody>
             {!generatedLink ? (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
-                    {t('select-link-duration')}
+                    {t("select-link-duration")}
                   </label>
                   <select
+                    className="flex bg-default-100 dark:bg-default-800 text-foreground rounded-lg px-3 py-2 text-sm border border-default-300 dark:border-default-600 hover:border-default-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    disabled={isLoading}
                     value={selectedDuration}
                     onChange={(e) => setSelectedDuration(e.target.value)}
-                    disabled={isLoading}
-                    className="flex bg-default-100 dark:bg-default-800 text-foreground rounded-lg px-3 py-2 text-sm border border-default-300 dark:border-default-600 hover:border-default-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     {DURATION_OPTIONS.map((duration) => (
                       <option key={duration.key} value={duration.key}>
@@ -143,18 +154,16 @@ export const GeneratePublicLinkModal = memo<GeneratePublicLinkModalProps>(
               </div>
             ) : (
               <div className="flex flex-col gap-4">
-                <p className="text-sm text-foreground-600">
-                  {t('copy-link')}
-                </p>
+                <p className="text-sm text-foreground-600">{t("copy-link")}</p>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 bg-default-100 dark:bg-default-800 rounded p-3 text-sm overflow-auto break-all">
                     {generatedLink}
                   </code>
                   <CopyButton
-                    value={generatedLink}
                     showToast={true}
-                    toastText={t('copied-to-clipboard')}
                     size="sm"
+                    toastText={t("copied-to-clipboard")}
+                    value={generatedLink}
                   />
                 </div>
               </div>
@@ -163,27 +172,27 @@ export const GeneratePublicLinkModal = memo<GeneratePublicLinkModalProps>(
           <ModalFooter>
             <Button
               color="default"
+              disabled={isLoading}
               variant="light"
               onPress={handleClose}
-              disabled={isLoading}
             >
-              {generatedLink ? t('close') : t('cancel')}
+              {generatedLink ? t("close") : t("cancel")}
             </Button>
             {!generatedLink && (
               <Button
                 color="primary"
-                onPress={handleGenerateLink}
-                isLoading={isLoading}
                 disabled={isLoading}
+                isLoading={isLoading}
+                onPress={handleGenerateLink}
               >
-                {isLoading ? t('generating-link') : t('generate-link')}
+                {isLoading ? t("generating-link") : t("generate-link")}
               </Button>
             )}
           </ModalFooter>
         </ModalContent>
       </Modal>
     );
-  }
+  },
 );
 
-GeneratePublicLinkModal.displayName = 'GeneratePublicLinkModal';
+GeneratePublicLinkModal.displayName = "GeneratePublicLinkModal";

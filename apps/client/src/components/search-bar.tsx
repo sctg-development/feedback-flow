@@ -27,84 +27,92 @@ import { Kbd } from "@heroui/kbd";
 import { Button, ButtonGroup } from "@heroui/button";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+
+import { AuthenticationGuardWithPermission } from "./auth0";
+
 import { SearchIcon, TrashIcon } from "@/components/icons";
 import { usePurchaseSearch } from "@/hooks/usePurchaseSearch";
 import { useSearch } from "@/context/SearchContext";
-import { AuthenticationGuardWithPermission } from "./auth0";
 
 interface SearchBarProps {
-    onSearchResults?: (results: string[]) => void;
-    onClear?: () => void;
+  onSearchResults?: (results: string[]) => void;
+  onClear?: () => void;
 }
 
 export const SearchBar = ({ onSearchResults, onClear }: SearchBarProps) => {
-    const { t } = useTranslation();
-    const { setSearchResults, setSearchQuery, clearSearch: clearSearchContext } = useSearch();
+  const { t } = useTranslation();
+  const {
+    setSearchResults,
+    setSearchQuery,
+    clearSearch: clearSearchContext,
+  } = useSearch();
 
-    // Clear search context when component mounts (only once)
-    useEffect(() => {
-        clearSearchContext();
-    }, []);
+  // Clear search context when component mounts (only once)
+  useEffect(() => {
+    clearSearchContext();
+  }, []);
 
-    const handleSearchResultsReceived = (results: string[]) => {
-        setSearchResults(results);
-        onSearchResults?.(results);
-    };
+  const handleSearchResultsReceived = (results: string[]) => {
+    setSearchResults(results);
+    onSearchResults?.(results);
+  };
 
-    const { searchQuery, isSearching, handleSearchChange, clearSearch } =
-        usePurchaseSearch(handleSearchResultsReceived);
+  const { searchQuery, isSearching, handleSearchChange, clearSearch } =
+    usePurchaseSearch(handleSearchResultsReceived);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        handleSearchChange(e.target.value);
-    };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    handleSearchChange(e.target.value);
+  };
 
-    const handleClear = () => {
-        clearSearch();
-        setSearchQuery("");
-        clearSearchContext();
-        onClear?.();
-    };
+  const handleClear = () => {
+    clearSearch();
+    setSearchQuery("");
+    clearSearchContext();
+    onClear?.();
+  };
 
-    return (
-        <AuthenticationGuardWithPermission
-            key={`nav-search`}
-            permission="search:api">
-            <ButtonGroup>
-                <Input
-                    aria-label={t("search")}
-                    classNames={{
-                        inputWrapper: "bg-default-100 rounded-lg rounded-r-none rtl:rounded-lg rtl:rounded-l-none",
-                        input: "text-sm",
-                    }}
-                    endContent={
-                        <Kbd className="hidden lg:inline-block" keys={["command"]}>
-                            K
-                        </Kbd>
-                    }
-                    labelPlacement="outside"
-                    placeholder={`${t("search")}…`}
-                    startContent={
-                        <SearchIcon className="text-base text-default-400 pointer-events-none shrink-0" />
-                    }
-                    type="search"
-                    value={searchQuery}
-                    isDisabled={isSearching}
-                    onChange={handleChange}
-                    onClear={handleClear}
-                    isClearable
-                />
-                <Button
-                    isIconOnly
-                    color="default"
-                    variant="flat"
-                    className="rounded-lg rounded-l-none rtl:rounded-lg rtl:rounded-r-none"
-                    onPress={handleClear}
-                    title={t("reset")}
-                >
-                    <TrashIcon />
-                </Button>
-            </ButtonGroup>
-        </AuthenticationGuardWithPermission>
-    );
+  return (
+    <AuthenticationGuardWithPermission
+      key={`nav-search`}
+      permission="search:api"
+    >
+      <ButtonGroup>
+        <Input
+          isClearable
+          aria-label={t("search")}
+          classNames={{
+            inputWrapper:
+              "bg-default-100 rounded-lg rounded-r-none rtl:rounded-lg rtl:rounded-l-none",
+            input: "text-sm",
+          }}
+          endContent={
+            <Kbd className="hidden lg:inline-block" keys={["command"]}>
+              K
+            </Kbd>
+          }
+          isDisabled={isSearching}
+          labelPlacement="outside"
+          placeholder={`${t("search")}…`}
+          startContent={
+            <SearchIcon className="text-base text-default-400 pointer-events-none shrink-0" />
+          }
+          type="search"
+          value={searchQuery}
+          onChange={handleChange}
+          onClear={handleClear}
+        />
+        <Button
+          isIconOnly
+          className="rounded-lg rounded-l-none rtl:rounded-lg rtl:rounded-r-none"
+          color="default"
+          title={t("reset")}
+          variant="flat"
+          onPress={handleClear}
+        >
+          <TrashIcon />
+        </Button>
+      </ButtonGroup>
+    </AuthenticationGuardWithPermission>
+  );
 };

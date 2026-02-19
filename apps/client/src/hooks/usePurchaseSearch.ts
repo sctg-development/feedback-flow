@@ -23,6 +23,7 @@
  */
 
 import { useState, useCallback, useRef } from "react";
+
 import { searchPurchases } from "@/utilities/search";
 import { useSecuredApi } from "@/components/auth0";
 
@@ -32,64 +33,66 @@ import { useSecuredApi } from "@/components/auth0";
  * @returns Object with search function and state
  */
 export function usePurchaseSearch(
-    onSearchResults: (results: string[]) => void
+  onSearchResults: (results: string[]) => void,
 ) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isSearching, setIsSearching] = useState(false);
-    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const { postJson } = useSecuredApi();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const { postJson } = useSecuredApi();
 
-    const performSearch = useCallback(
-        async (query: string) => {
-            if (query.length < 4) {
-                onSearchResults([]);
-                return;
-            }
-
-            setIsSearching(true);
-            try {
-                const results = await searchPurchases(postJson, query, 50);
-                onSearchResults(results);
-            } catch (error) {
-                console.error("Search error:", error);
-                onSearchResults([]);
-            } finally {
-                setIsSearching(false);
-            }
-        },
-        [onSearchResults, postJson]
-    );
-
-    const handleSearchChange = useCallback(
-        (query: string) => {
-            setSearchQuery(query);
-
-            // Clear existing timeout
-            if (debounceTimerRef.current) {
-                clearTimeout(debounceTimerRef.current);
-            }
-
-            // Set new timeout for debounced search
-            debounceTimerRef.current = setTimeout(() => {
-                performSearch(query);
-            }, 500); // 500ms debounce
-        },
-        [performSearch]
-    );
-
-    const clearSearch = useCallback(() => {
-        setSearchQuery("");
+  const performSearch = useCallback(
+    async (query: string) => {
+      if (query.length < 4) {
         onSearchResults([]);
-        if (debounceTimerRef.current) {
-            clearTimeout(debounceTimerRef.current);
-        }
-    }, [onSearchResults]);
 
-    return {
-        searchQuery,
-        isSearching,
-        handleSearchChange,
-        clearSearch,
-        performSearch,
-    };
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const results = await searchPurchases(postJson, query, 50);
+
+        onSearchResults(results);
+      } catch (error) {
+        console.error("Search error:", error);
+        onSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    },
+    [onSearchResults, postJson],
+  );
+
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+
+      // Clear existing timeout
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      // Set new timeout for debounced search
+      debounceTimerRef.current = setTimeout(() => {
+        performSearch(query);
+      }, 500); // 500ms debounce
+    },
+    [performSearch],
+  );
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+    onSearchResults([]);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+  }, [onSearchResults]);
+
+  return {
+    searchQuery,
+    isSearching,
+    handleSearchChange,
+    clearSearch,
+    performSearch,
+  };
 }
