@@ -70,7 +70,7 @@ export const Navbar = React.memo(() => {
           <LinkUniversal
             className="flex justify-start items-center gap-1"
             color="foreground"
-            href="/"
+            href={useHref("/")}
           >
             <Logo />
             <p className="font-bold text-inherit">{t("brand")}</p>
