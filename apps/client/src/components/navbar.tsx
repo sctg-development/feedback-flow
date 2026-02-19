@@ -56,6 +56,8 @@ import { ChevronDownIcon, GithubIcon } from "@/components/icons";
 import { Logo } from "@/components/icons";
 import { availableLanguages } from "@/i18n";
 import { SearchBar } from "./search-bar";
+import { useHref } from "react-router-dom";
+
 export const Navbar = React.memo(() => {
   const { t } = useTranslation();
 
@@ -118,7 +120,7 @@ export const Navbar = React.memo(() => {
                         "data-[active=true]:text-primary data-[active=true]:font-medium",
                       )}
                       color="foreground"
-                      href={item.href}
+                      href={useHref(item.href)}
                     >
                       {item.label}
                     </LinkUniversal>
@@ -153,7 +155,7 @@ export const Navbar = React.memo(() => {
                       }
                       permission={item.permission}
                     >
-                      <LinkUniversal color="foreground" href={item.href}>
+                      <LinkUniversal color="foreground" href={useHref(item.href)}>
                         {item.label}
                       </LinkUniversal>
                     </AuthenticationGuardWithPermission>
