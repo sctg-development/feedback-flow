@@ -89,7 +89,7 @@ export const Navbar = React.memo(() => {
                     "data-[active=true]:text-primary data-[active=true]:font-medium",
                   )}
                   color="foreground"
-                  href={item.href}
+                  href={useHref(item.href)}
                 >
                   {item.label}
                 </LinkUniversal>
