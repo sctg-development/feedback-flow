@@ -1,0 +1,2519 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Feedback Flow API",
+    "version": "1.7.0"
+  },
+  "paths": {
+    "/api/testers": {
+      "get": {
+        "summary": "Get all testers with pagination and sorting",
+        "description": "Returns a paginated list of testers. Requires admin permission.",
+        "tags": [
+          "Testers"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort field",
+            "schema": {
+              "type": "string",
+              "default": "name"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved testers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Tester"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      },
+      "post": {
+        "summary": "Get testers filtered by OAuth IDs (supports pagination)",
+        "description": "Returns a list of testers filtered by OAuth IDs provided in the request body. Requires admin permission. If limit is not provided, all matching testers are returned.",
+        "tags": [
+          "Testers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  },
+                  "ids": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved filtered testers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Tester"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/tester": {
+      "post": {
+        "summary": "Add a new tester",
+        "description": "Creates a new tester with the provided details. Requires admin permission.",
+        "tags": [
+          "Testers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TesterCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tester successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "uuid": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          },
+          "409": {
+            "description": "ID already exists in the database"
+          },
+          "500": {
+            "description": "Failed to create tester"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get tester info by ID",
+        "description": "Returns information about the authenticated tester. Requires admin permission.",
+        "tags": [
+          "Testers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved tester info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "uuid": {
+                          "type": "string"
+                        },
+                        "nom": {
+                          "type": "string"
+                        },
+                        "ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          },
+          "404": {
+            "description": "Tester not found"
+          }
+        }
+      }
+    },
+    "/api/tester/ids": {
+      "post": {
+        "summary": "Add ID to existing tester",
+        "description": "Adds a new ID to an existing tester. Requires admin permission.",
+        "tags": [
+          "Testers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TesterIdAddRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ID successfully added to tester",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "209": {
+            "description": "ID already exists for this tester"
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          },
+          "404": {
+            "description": "Tester not found"
+          },
+          "409": {
+            "description": "ID already exists in the database"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove ID from existing tester",
+        "description": "Removes an ID from a tester. Requires admin permission.",
+        "tags": [
+          "Testers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "uuid": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ID successfully removed from tester"
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchase/{purchaseId}": {
+      "delete": {
+        "summary": "Delete a purchase by ID",
+        "description": "Deletes a purchase record. Requires write permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "purchaseId",
+            "in": "path",
+            "required": true,
+            "description": "Purchase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase successfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Purchase not found or unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchase": {
+      "post": {
+        "summary": "Add a new purchase",
+        "description": "Creates a new purchase record. Requires write permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Purchase successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          }
+        }
+      }
+    },
+    "/api/purchase/{id}": {
+      "get": {
+        "summary": "Get purchase by ID",
+        "description": "Returns information about a specific purchase own by a tester. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Purchase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchase info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Purchase"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Purchase not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Update an existing purchase",
+        "description": "Updates an existing purchase record. Requires write permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Purchase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Purchase date"
+                  },
+                  "order": {
+                    "type": "string",
+                    "description": "Order number"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Purchase description"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Purchase amount"
+                  },
+                  "screenshot": {
+                    "type": "string",
+                    "description": "Screenshot data (base64 encoded)"
+                  },
+                  "screenshotSummary": {
+                    "type": "string",
+                    "description": "Optional screenshot summary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Purchase successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          },
+          "403": {
+            "description": "Unauthorized - purchase not found or access denied"
+          },
+          "404": {
+            "description": "Purchase not found"
+          }
+        }
+      }
+    },
+    "/api/purchases/not-refunded": {
+      "get": {
+        "summary": "Get non-refunded purchases",
+        "description": "Returns a paginated list of non-refunded purchases for the authenticated user. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort field",
+            "schema": {
+              "type": "string",
+              "default": "date"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchases",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PurchaseSummary"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchases/ready-to-refund": {
+      "get": {
+        "summary": "Get purchases ready for refund",
+        "description": "Returns a paginated list of purchases that are not refunded but have feedback and are ready for refund. Includes feedback data with each purchase. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort field",
+            "schema": {
+              "type": "string",
+              "default": "date"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchases ready for refund",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "order": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "refunded": {
+                            "type": "boolean"
+                          },
+                          "amount": {
+                            "type": "number"
+                          },
+                          "feedback": {
+                            "type": "string",
+                            "description": "Feedback content provided by the tester"
+                          },
+                          "feedbackDate": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Date when the feedback was submitted"
+                          },
+                          "publicationDate": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Date when the purchase was published"
+                          },
+                          "publicationScreenShot": {
+                            "type": "string",
+                            "description": "Screenshot of the publication"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/purchases/refunded": {
+      "get": {
+        "summary": "Get refunded purchases",
+        "description": "Returns a paginated list of refunded purchases for the authenticated user. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort field",
+            "schema": {
+              "type": "string",
+              "default": "date"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchases",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PurchaseSummary"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchases/refunded-amount": {
+      "get": {
+        "summary": "Get total amount of refunded purchases",
+        "description": "Returns the total amount of refunded purchases for the authenticated user. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved total refunded amount",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Total refunded amount",
+                      "example": 123.45
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchases/not-refunded-amount": {
+      "get": {
+        "summary": "Get total amount of non-refunded purchases",
+        "description": "Returns the total amount of non-refunded purchases for the authenticated user. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved total non-refunded amount",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Total non-refunded amount",
+                      "example": 456.78
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchase-status": {
+      "get": {
+        "summary": "Get purchase status with pagination",
+        "description": "Returns a paginated list of purchase statuses for the authenticated user. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "parameters": [
+          {
+            "name": "limitToNotRefunded",
+            "in": "query",
+            "description": "Limit to non-refunded purchases",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort field",
+            "schema": {
+              "type": "string",
+              "default": "date"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchase statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PurchaseStatus"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchase-status-batch": {
+      "post": {
+        "summary": "Get purchase status for a list of purchase IDs",
+        "description": "Returns paginated purchase statuses for a provided list of purchase IDs. Requires read permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "purchaseIds"
+                ],
+                "properties": {
+                  "purchaseIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of purchase IDs to retrieve status for"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Page number for pagination"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Number of items per page"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "default": "date",
+                    "enum": [
+                      "date",
+                      "order"
+                    ],
+                    "description": "Sort field"
+                  },
+                  "order": {
+                    "type": "string",
+                    "default": "desc",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "description": "Sort order"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchase statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PurchaseStatus"
+                      }
+                    },
+                    "pageInfo": {
+                      "type": "object",
+                      "properties": {
+                        "totalCount": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        },
+                        "currentPage": {
+                          "type": "integer"
+                        },
+                        "hasNextPage": {
+                          "type": "boolean"
+                        },
+                        "hasPreviousPage": {
+                          "type": "boolean"
+                        },
+                        "nextPage": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "previousPage": {
+                          "type": "integer",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/purchase/search": {
+      "post": {
+        "summary": "Search purchases using fuzzy matching",
+        "description": "Searches for purchases matching the query using fuzzy matching. Supports case-insensitive search, accent-insensitive search, and partial matches. Searches in purchase ID, order number, description, and amount. Requires search permission.",
+        "tags": [
+          "Purchases"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query (minimum 4 characters)",
+                    "example": "amazon"
+                  },
+                  "limit": {
+                    "type": "number",
+                    "description": "Maximum number of results (default 50, max 1000)",
+                    "default": 50
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Array of matching purchase IDs",
+                      "example": [
+                        "uuid-1",
+                        "uuid-2"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/feedback": {
+      "post": {
+        "summary": "Add feedback",
+        "description": "Creates a new feedback record. Requires write permission.",
+        "tags": [
+          "Feedback"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Feedback successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          }
+        }
+      }
+    },
+    "/api/publish": {
+      "post": {
+        "summary": "Record publication of feedback",
+        "description": "Records the publication of feedback. Requires write permission.",
+        "tags": [
+          "Feedback"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Publication successfully recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          }
+        }
+      }
+    },
+    "/api/publish/{id}": {
+      "get": {
+        "summary": "Get publication info",
+        "description": "Returns information about a specific publication. Requires read permission.",
+        "tags": [
+          "Feedback"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Purchase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved publication info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Publication"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Publication not found"
+          }
+        }
+      }
+    },
+    "/api/refund": {
+      "post": {
+        "summary": "Record refund",
+        "description": "Records a refund for a purchase. Requires write permission.",
+        "tags": [
+          "Refunds"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Refund successfully recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or missing required fields"
+          }
+        }
+      }
+    },
+    "/api/refund/{id}": {
+      "get": {
+        "summary": "Get refund info",
+        "description": "Returns information about a specific refund. Requires read permission.",
+        "tags": [
+          "Refunds"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Purchase ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved refund info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Refund"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Refund not found"
+          }
+        }
+      }
+    },
+    "/api/stats/refund-balance": {
+      "get": {
+        "summary": "Get refund balance statistics",
+        "description": "Returns the difference between the total purchase amount of refunded purchases and the total refund amount. Requires read permission. Optional parameters (daysLimit or purchaseLimit) require search:api permission.",
+        "tags": [
+          "Statistics"
+        ],
+        "parameters": [
+          {
+            "name": "daysLimit",
+            "in": "query",
+            "description": "Limit statistics to purchases from the last N days (requires search:api permission)",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "purchaseLimit",
+            "in": "query",
+            "description": "Limit statistics to the last N purchases (requires search:api permission)",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved refund balance statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "purchasedAmount": {
+                      "type": "number",
+                      "description": "Total amount of refunded purchases",
+                      "example": 123.45
+                    },
+                    "refundedAmount": {
+                      "type": "number",
+                      "description": "Total amount of refunds",
+                      "example": 120
+                    },
+                    "balance": {
+                      "type": "number",
+                      "description": "Difference between purchased and refunded amounts (negative means refunded more than purchased)",
+                      "example": 3.45
+                    },
+                    "limit": {
+                      "type": "object",
+                      "description": "Applied limit information",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "default",
+                            "days",
+                            "purchases"
+                          ]
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/stats/refund-delay": {
+      "get": {
+        "summary": "Get refund delay statistics",
+        "description": "Returns statistics about the delay between purchase and refund dates. Requires read permission. Optional parameter (daysLimit) can filter to purchases from the last N days.",
+        "tags": [
+          "Statistics"
+        ],
+        "parameters": [
+          {
+            "name": "daysLimit",
+            "in": "query",
+            "description": "Limit statistics to purchases from the last N days",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved refund delay statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "purchaseId": {
+                            "type": "string"
+                          },
+                          "purchaseAmount": {
+                            "type": "number"
+                          },
+                          "refundAmount": {
+                            "type": "number"
+                          },
+                          "delayInDays": {
+                            "type": "number"
+                          },
+                          "purchaseDate": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "refundDate": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "order": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "averageDelayInDays": {
+                      "type": "number",
+                      "description": "Average delay between purchase and refund in days"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/stats/purchases": {
+      "get": {
+        "summary": "Get purchase statistics",
+        "description": "Returns purchase statistics for the authenticated user. Requires read permission.",
+        "tags": [
+          "Statistics"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved purchase statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "totalPurchases": {
+                          "type": "integer",
+                          "example": 10
+                        },
+                        "totalRefundedPurchases": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "totalRefundedAmount": {
+                          "type": "number",
+                          "example": 50
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized request"
+          }
+        }
+      }
+    },
+    "/api/backup/json": {
+      "get": {
+        "summary": "Backup database to JSON",
+        "description": "Exports the entire database as JSON. Only available for in-memory and D1 databases. Requires backup permission.",
+        "tags": [
+          "System"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully exported database",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Restore database from JSON",
+        "description": "Imports database from JSON. Only available for in-memory and D1 databases. Requires backup permission.",
+        "tags": [
+          "System"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully imported database",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to restore database"
+          }
+        }
+      }
+    },
+    "/api/__auth0/token": {
+      "post": {
+        "summary": "Get Auth0 Management API token",
+        "description": "Request an Auth0 Management API JWT token using the Client Credentials grant and cache it in KV store if available.\nThis endpoint requires `ADMIN_AUTH0_PERMISSION` and uses the following\nenvironment variables: `AUTH0_MANAGEMENT_API_CLIENT_ID`, `AUTH0_MANAGEMENT_API_CLIENT_SECRET`, and `AUTH0_DOMAIN`.\nReturns a JSON response containing access_token, token_type, and expires_in when successful.\n",
+        "tags": [
+          "System",
+          "Auth0"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully obtained Auth0 management API token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "token_type": {
+                      "type": "string"
+                    },
+                    "expires_in": {
+                      "type": "integer"
+                    },
+                    "from_cache": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized - `ADMIN_AUTH0_PERMISSION` required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error while requesting Auth0 token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/__d1/schema": {
+      "get": {
+        "summary": "Get database table names (available only for D1)",
+        "description": "Returns a list of all tables in the database. Requires admin permission.",
+        "tags": [
+          "System",
+          "Cloudflare D1"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved table names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tables": {
+                      "type": "array",
+                      "description": "List of table names in the database",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "sqlite_sequence",
+                        "testers",
+                        "id_mappings",
+                        "purchases",
+                        "feedbacks",
+                        "publications",
+                        "refunds",
+                        "schema_version"
+                      ]
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Time when the table names were retrieved",
+                      "example": "2025-04-18T11:35:40.537Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized - Admin permission required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving table names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "stack": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/__d1/schema_version": {
+      "get": {
+        "summary": "Get database schema version (available only for D1)",
+        "description": "Returns the current database schema version information. Requires admin permission.",
+        "tags": [
+          "System",
+          "Cloudflare D1"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved schema version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "object",
+                      "description": "Schema version details",
+                      "properties": {
+                        "version": {
+                          "type": "integer",
+                          "description": "Current schema version number",
+                          "example": 1
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Description of the current schema version",
+                          "example": "Added transaction_id to refunds"
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Time when the version was retrieved",
+                      "example": "2025-04-18T11:36:40.414Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized - Admin permission required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving schema version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "stack": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/__d1/schema_migrations": {
+      "get": {
+        "summary": "Execute database schema migrations (available only for D1)",
+        "description": "Checks the current database schema version and runs any pending migrations. Returns migration status information. Requires admin permission.",
+        "tags": [
+          "System",
+          "Cloudflare D1"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully executed migrations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "migrations": {
+                      "type": "array",
+                      "description": "List of migration status messages",
+                      "items": {
+                        "type": "string",
+                        "example": "Schema is up to date (version 1)"
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Time when the migrations were executed",
+                      "example": "2025-04-18T11:40:38.748Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized - Admin permission required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error executing migrations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "stack": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/link/public": {
+      "post": {
+        "summary": "Generate a short public link for dispute resolution",
+        "description": "Creates a short public link that allows sharing dispute information.\nThe link is only valid if the purchase has:\n- A feedback entry (feedback created)\n- A publication entry (feedback published)\n\nThe link will expire after the specified duration (in seconds).\nRequires write:api permission.\n",
+        "tags": [
+          "Links"
+        ],
+        "parameters": [
+          {
+            "name": "duration",
+            "in": "query",
+            "required": true,
+            "description": "Duration in seconds for which the link should be valid",
+            "schema": {
+              "type": "integer",
+              "minimum": 60,
+              "maximum": 31536000,
+              "example": 3600
+            }
+          },
+          {
+            "name": "purchase",
+            "in": "query",
+            "required": true,
+            "description": "The UUID of the purchase to create a link for",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Short link successfully generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "7-character unique code (0-9, a-z, A-Z)",
+                      "example": "aBc1234"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Full URL for accessing the dispute resolution page",
+                      "example": "/link/aBc1234"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or purchase not eligible"
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          },
+          "404": {
+            "description": "Purchase not found or not owned by user"
+          }
+        }
+      }
+    },
+    "/api/link/{code}": {
+      "get": {
+        "summary": "Access public dispute resolution information",
+        "description": "Retrieves complete dispute resolution information for a valid short link.\nThis endpoint requires no authentication and provides:\n- Purchase details (order number, date, amount, screenshot)\n- Feedback details (creation date, content)\n- Publication details (publication date, screenshot)\n- Refund details if the purchase was refunded (amount, transaction ID)\n\nThe link must be valid (code format correct and not expired).\n\nNo permission required - public endpoint accessible with valid link code.\n",
+        "tags": [
+          "Links"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "The 7-character unique link code",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-zA-Z]{7}$",
+              "example": "aBc1234"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dispute resolution information successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "orderNumber": {
+                          "type": "string",
+                          "description": "The order number for the purchase",
+                          "example": "102-1234567-1234567"
+                        },
+                        "orderDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date of the purchase",
+                          "example": "2024-03-15"
+                        },
+                        "purchaseAmount": {
+                          "type": "number",
+                          "description": "Amount paid for the purchase",
+                          "example": 99.99
+                        },
+                        "purchaseScreenshot": {
+                          "type": "string",
+                          "description": "Base64-encoded screenshot of the purchase"
+                        },
+                        "secondaryScreenshot": {
+                          "type": "string",
+                          "description": "Optional secondary screenshot (e.g., from publication)"
+                        },
+                        "feedbackDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date when feedback was submitted",
+                          "example": "2024-03-16"
+                        },
+                        "feedbackText": {
+                          "type": "string",
+                          "description": "The feedback text provided by the tester"
+                        },
+                        "publicationDate": {
+                          "type": "string",
+                          "format": "date",
+                          "description": "Date when the feedback was published",
+                          "example": "2024-03-17"
+                        },
+                        "publicationScreenshot": {
+                          "type": "string",
+                          "description": "Base64-encoded screenshot of the publication"
+                        },
+                        "isRefunded": {
+                          "type": "boolean",
+                          "description": "Whether the purchase has been refunded",
+                          "example": false
+                        },
+                        "refundAmount": {
+                          "type": "number",
+                          "description": "Amount refunded (only if isRefunded is true)",
+                          "example": 99.99
+                        },
+                        "refundTransactionId": {
+                          "type": "string",
+                          "description": "Transaction ID of the refund (if available)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid link code format"
+          },
+          "404": {
+            "description": "Link not found or expired"
+          }
+        }
+      }
+    },
+    "/api/links/expired": {
+      "delete": {
+        "summary": "Delete all expired short links",
+        "description": "Removes all expired short links from the database.\nThis endpoint is typically called as a maintenance task to clean up\nlinks that have passed their expiration date.\n\nRequires admin:api permission.\n",
+        "tags": [
+          "Links"
+        ],
+        "responses": {
+          "200": {
+            "description": "Expired links successfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "deletedCount": {
+                      "type": "integer",
+                      "description": "Number of expired links that were deleted",
+                      "example": 5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          },
+          "403": {
+            "description": "Insufficient permissions - admin:api permission required"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Tester": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TesterCreateRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "ids"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ids": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "TesterIdAddRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "Purchase": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "order": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "screenshot": {
+            "type": "string"
+          }
+        }
+      },
+      "PurchaseSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "order": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "refunded": {
+            "type": "boolean"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "PurchaseStatus": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "order": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "refunded": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PurchaseCreateRequest": {
+        "type": "object",
+        "required": [
+          "date",
+          "order",
+          "description",
+          "amount",
+          "screenshot"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "order": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "screenshot": {
+            "type": "string"
+          }
+        }
+      },
+      "FeedbackCreateRequest": {
+        "type": "object",
+        "required": [
+          "date",
+          "purchase",
+          "feedback"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchase": {
+            "type": "string"
+          },
+          "feedback": {
+            "type": "string"
+          }
+        }
+      },
+      "PublishCreateRequest": {
+        "type": "object",
+        "required": [
+          "date",
+          "purchase",
+          "screenshot"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchase": {
+            "type": "string"
+          },
+          "screenshot": {
+            "type": "string"
+          }
+        }
+      },
+      "Publication": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchase": {
+            "type": "string"
+          },
+          "screenshot": {
+            "type": "string"
+          }
+        }
+      },
+      "RefundCreateRequest": {
+        "type": "object",
+        "required": [
+          "date",
+          "purchase",
+          "refundDate",
+          "amount",
+          "transactionId"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchase": {
+            "type": "string"
+          },
+          "refundDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "Refund": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchase": {
+            "type": "string"
+          },
+          "refundDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "transactionId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}

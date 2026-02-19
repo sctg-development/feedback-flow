@@ -92,7 +92,7 @@ function App() {
             />
           );
         })}
-        <Route element={<PageNotFound />} path="*" />
+        <Route element={<PageNotFound githubUrl="https://github.com/sctg-development/feedback-flow"/>} path="*" />
       </Routes>
     </Suspense>
   );
