@@ -59,7 +59,7 @@ import { availableLanguages } from "@/i18n";
 import { LinkUniversal } from "@/components/link-universal";
 
 export const Navbar = React.memo(() => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const searchInput = <SearchBar />;
 
@@ -205,10 +205,6 @@ export const Navbar = React.memo(() => {
       </NavbarContent>
 
       <NavbarMenu>
-        <LanguageSwitch
-          availableLanguages={availableLanguages}
-          icon={I18nIcon}
-        />
         <div className="mx-4 mt-2 flex flex-col gap-2">
           {siteConfig().navMenuItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
@@ -218,32 +214,56 @@ export const Navbar = React.memo(() => {
             </NavbarMenuItem>
           ))}
           {siteConfig().utilitiesMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <AuthenticationGuardWithPermission
-                fallback={<span className="line-through">{item.label}</span>}
-                permission={item.permission}
-              >
+            <AuthenticationGuardWithPermission
+              key={`${item}-${index}`}
+              fallback={null}
+              permission={item.permission}
+            >
+              <NavbarMenuItem>
                 <LinkUniversal color="foreground" href={item.href}>
                   {item.label}
                 </LinkUniversal>
-              </AuthenticationGuardWithPermission>
-            </NavbarMenuItem>
+              </NavbarMenuItem>
+            </AuthenticationGuardWithPermission>
           ))}
           {siteConfig().apiMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <AuthenticationGuardWithPermission
-                fallback={<span className="line-through">{item.label}</span>}
-                permission={item.permission}
-              >
+            <AuthenticationGuardWithPermission
+              key={`${item}-${index}`}
+              fallback={null}
+              permission={item.permission}
+            >
+              <NavbarMenuItem>
                 <LinkUniversal color="foreground" href={item.href}>
                   {item.label}
                 </LinkUniversal>
-              </AuthenticationGuardWithPermission>
-            </NavbarMenuItem>
+              </NavbarMenuItem>
+            </AuthenticationGuardWithPermission>
           ))}
           <NavbarMenuItem key="login-logout">
             <LoginLogoutLink color="primary" />
           </NavbarMenuItem>
+        </div>
+        
+        <div className="border-t border-divider mt-4 pt-4 mx-4">
+          <p className="text-xs text-default-500 mb-3 font-semibold">{t("language")}</p>
+          <div className="flex gap-2 flex-wrap">
+            {availableLanguages.map((lang) => (
+              <Button
+                key={lang.code}
+                size="sm"
+                className={lang.code === localStorage.getItem("preferredLanguage") || lang.code === i18n.language ? "text-primary font-semibold" : "text-default-600"}
+                variant={lang.code === localStorage.getItem("preferredLanguage") || lang.code === i18n.language ? "solid" : "light"}
+                onPress={() => {
+                  i18n.changeLanguage(lang.code);
+                  localStorage.setItem("preferredLanguage", lang.code);
+                  document.documentElement.lang = lang.code;
+                  document.documentElement.dir = lang.isRTL ? "rtl" : "ltr";
+                }}
+              >
+                {lang.code.split("-")[1]?.toUpperCase() || lang.code.toUpperCase()}
+              </Button>
+            ))}
+          </div>
         </div>
       </NavbarMenu>
     </HeroUINavbar>
