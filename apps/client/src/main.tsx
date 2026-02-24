@@ -21,8 +21,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             audience: import.meta.env.AUTH0_AUDIENCE,
             scope: import.meta.env.AUTH0_SCOPE,
           }}
+          cacheLocation="localstorage"
           clientId={import.meta.env.AUTH0_CLIENT_ID}
           domain={import.meta.env.AUTH0_DOMAIN}
+          useRefreshTokens={true}
+          useCookiesForTransactions={true}
         >
           <App />
         </Auth0Provider>
