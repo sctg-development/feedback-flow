@@ -40,6 +40,9 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
          *     description: Exports the entire database as JSON. Only available for in-memory and D1 databases. Requires backup permission.
          *     tags:
          *       - System
+         *     security:
+         *       - bearerAuth: ["backup:api"]
+         *       - oauth2: ["backup:api"]
          *     responses:
          *       200:
          *         description: Successfully exported database
@@ -52,6 +55,9 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
          *     description: Imports database from JSON. Only available for in-memory and D1 databases. Requires backup permission.
          *     tags:
          *       - System
+         *     security:
+         *       - bearerAuth: ["backup:api"]
+         *       - oauth2: ["backup:api"]
          *     requestBody:
          *       required: true
          *       content:
@@ -150,6 +156,9 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
      *     tags:
      *       - System
      *       - Auth0
+     *     security:
+     *       - bearerAuth: ["auth0:admin:api"]
+     *       - oauth2: ["auth0:admin:api"]
      *     responses:
      *       200:
      *         description: Successfully obtained Auth0 management API token
@@ -378,6 +387,9 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
  *     tags:
  *       - System
  *       - Cloudflare D1
+ *     security:
+ *       - bearerAuth: ["admin:api"]
+ *       - oauth2: ["admin:api"]
  *     responses:
  *       200:
  *         description: Successfully retrieved table names
@@ -478,6 +490,9 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
         *     tags:
         *       - System
         *       - Cloudflare D1
+        *     security:
+        *       - bearerAuth: ["admin:api"]
+        *       - oauth2: ["admin:api"]
         *     responses:
         *       200:
         *         description: Successfully retrieved schema version
@@ -574,6 +589,9 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
  *     tags:
  *       - System
  *       - Cloudflare D1
+ *     security:
+ *       - bearerAuth: ["admin:api"]
+ *       - oauth2: ["admin:api"]
  *     responses:
  *       200:
  *         description: Successfully executed migrations

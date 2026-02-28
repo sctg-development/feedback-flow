@@ -5,7 +5,11 @@ import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 import { githubPagesSpa } from "@sctg/vite-plugin-github-pages-spa";
-
+import dotenv from "dotenv";
+import path from "path";
+const env = dotenv.config({
+  path: path.resolve(import.meta.dirname, '.env'),
+});
 import _package from "./package.json" with { type: "json" };
 
 /**
@@ -23,7 +27,7 @@ export type PackageJson = {
     dev: string;
     build: string;
     lint: string;
-    preview: string;
+    "preview:env": string;
     [key: string]: string;
   };
   dependencies: {
@@ -41,6 +45,11 @@ export type PackageJson = {
 };
 
 const packageJson: PackageJson = _package;
+
+// Construct an array containing all the *_PERMISSION values from the .env file
+const scopesArray = Object.entries(env.parsed || {})
+  .filter(([key]) => key.endsWith("_PERMISSION"))
+  .map(([_, value]) => value);
 
 /**
  * Extract dependencies with a specific vendor prefix
@@ -114,6 +123,7 @@ export default defineConfig({
     "import.meta.env.AUTH0_CACHE_DURATION_S": JSON.stringify(
       process.env.AUTH0_CACHE_DURATION_S || "300",
     ),
+    "import.meta.env.PERMISSIONS": JSON.stringify(scopesArray),
   },
   plugins: [react(), tsconfigPaths(), tailwindcss(), githubPagesSpa()],
   build: {

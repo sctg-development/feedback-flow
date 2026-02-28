@@ -37,6 +37,9 @@ export const setupPurchaseSearchRoutes = (router: Router, env: Env) => {
      *     description: Searches for purchases matching the query using fuzzy matching. Supports case-insensitive search, accent-insensitive search, and partial matches. Searches in purchase ID, order number, description, and amount. Requires search permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["search:api"]
+     *       - oauth2: ["search:api"]
      *     requestBody:
      *       required: true
      *       content:

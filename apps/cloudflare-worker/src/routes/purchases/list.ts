@@ -38,6 +38,9 @@ export const setupPurchaseListRoutes = (router: Router, env: Env) => {
      *     description: Returns a paginated list of non-refunded purchases for the authenticated user. Requires read permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: page
      *         in: query
@@ -168,6 +171,9 @@ export const setupPurchaseListRoutes = (router: Router, env: Env) => {
      *     description: Returns a paginated list of purchases that are not refunded but have feedback and are ready for refund. Includes feedback data with each purchase. Requires read permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: page
      *         in: query
@@ -333,6 +339,9 @@ export const setupPurchaseListRoutes = (router: Router, env: Env) => {
      *     description: Returns a paginated list of refunded purchases for the authenticated user. Requires read permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: page
      *         in: query

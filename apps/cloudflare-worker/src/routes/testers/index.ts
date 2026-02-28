@@ -43,6 +43,9 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
      *     description: Returns a paginated list of testers. Requires admin permission.
      *     tags:
      *       - Testers
+     *     security:
+     *       - bearerAuth: ["admin:api"]
+     *       - oauth2: ["admin:api"]
      *     parameters:
      *       - name: page
      *         in: query
@@ -152,6 +155,9 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
      *     description: Creates a new tester with the provided details. Requires admin permission.
      *     tags:
      *       - Testers
+     *     security:
+     *       - bearerAuth: ["admin:api"]
+     *       - oauth2: ["admin:api"]
      *     requestBody:
      *       required: true
      *       content:
@@ -283,6 +289,9 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
      *     description: Adds a new ID to an existing tester. Requires admin permission.
      *     tags:
      *       - Testers
+     *     security:
+     *       - bearerAuth: ["admin:api"]
+     *       - oauth2: ["admin:api"]
      *     requestBody:
      *       required: true
      *       content:
@@ -452,6 +461,9 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
      *     description: Removes an ID from a tester. Requires admin permission.
      *     tags:
      *       - Testers
+     *     security:
+     *       - bearerAuth: ["admin:api"]
+     *       - oauth2: ["admin:api"]
      *     requestBody:
      *       required: true
      *       content:
@@ -526,6 +538,9 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
      *     description: Returns a list of testers filtered by OAuth IDs provided in the request body. Requires admin permission. If limit is not provided, all matching testers are returned.
      *     tags:
      *       - Testers
+     *     security:
+     *       - bearerAuth: ["admin:api"]
+     *       - oauth2: ["admin:api"]
      *     requestBody:
      *       required: true
      *       content:
@@ -621,6 +636,9 @@ export const setupTesterRoutes = (router: Router, env: Env) => {
      *     description: Returns information about the authenticated tester. Requires admin permission.
      *     tags:
      *       - Testers
+     *     security:
+     *       - bearerAuth: ["admin:api"]
+     *       - oauth2: ["admin:api"]
      *     responses:
      *       200:
      *         description: Successfully retrieved tester info

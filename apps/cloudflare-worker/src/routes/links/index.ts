@@ -48,6 +48,9 @@ export const setupLinksRoutes = (router: Router, env: Env) => {
      *       Requires write:api permission.
      *     tags:
      *       - Links
+     *     security:
+     *       - bearerAuth: ["write:api"]
+     *       - oauth2: ["write:api"]
      *     parameters:
      *       - name: duration
      *         in: query
@@ -501,6 +504,9 @@ export const setupLinksRoutes = (router: Router, env: Env) => {
      *       Requires admin:api permission.
      *     tags:
      *       - Links
+     *     security:
+     *       - bearerAuth: ["admin:api"]
+     *       - oauth2: ["admin:api"]
      *     responses:
      *       200:
      *         description: Expired links successfully deleted

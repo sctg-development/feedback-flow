@@ -43,6 +43,9 @@ export const setupPurchaseCrudRoutes = (router: Router, env: Env) => {
      *     description: Deletes a purchase record. Requires write permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["write:api"]
+     *       - oauth2: ["write:api"]
      *     parameters:
      *       - name: purchaseId
      *         in: path
@@ -118,6 +121,9 @@ export const setupPurchaseCrudRoutes = (router: Router, env: Env) => {
      *     description: Creates a new purchase record. Requires write permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["write:api"]
+     *       - oauth2: ["write:api"]
      *     requestBody:
      *       required: true
      *       content:
@@ -223,6 +229,9 @@ export const setupPurchaseCrudRoutes = (router: Router, env: Env) => {
      *     description: Returns information about a specific purchase own by a tester. Requires read permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: id
      *         in: path
@@ -304,6 +313,9 @@ export const setupPurchaseCrudRoutes = (router: Router, env: Env) => {
      *     description: Updates an existing purchase record. Requires write permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["write:api"]
+     *       - oauth2: ["write:api"]
      *     parameters:
      *       - name: id
      *         in: path

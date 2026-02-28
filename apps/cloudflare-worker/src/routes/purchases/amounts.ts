@@ -37,6 +37,9 @@ export const setupPurchaseAmountRoutes = (router: Router, env: Env) => {
      *     description: Returns the total amount of refunded purchases for the authenticated user. Requires read permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     responses:
      *       200:
      *         description: Successfully retrieved total refunded amount
@@ -127,6 +130,9 @@ export const setupPurchaseAmountRoutes = (router: Router, env: Env) => {
      *     description: Returns the total amount of non-refunded purchases for the authenticated user. Requires read permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     responses:
      *       200:
      *         description: Successfully retrieved total non-refunded amount

@@ -37,6 +37,9 @@ export const setupPurchaseStatusRoutes = (router: Router, env: Env) => {
      *     description: Returns a paginated list of purchase statuses for the authenticated user. Requires read permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: limitToNotRefunded
      *         in: query
@@ -181,6 +184,9 @@ export const setupPurchaseStatusRoutes = (router: Router, env: Env) => {
      *     description: Returns paginated purchase statuses for a provided list of purchase IDs. Requires read permission.
      *     tags:
      *       - Purchases
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     requestBody:
      *       required: true
      *       content:

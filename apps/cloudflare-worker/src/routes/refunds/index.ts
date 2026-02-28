@@ -34,6 +34,9 @@ export const setupRefundRoutes = (router: Router, env: Env) => {
      *     description: Records a refund for a purchase. Requires write permission.
      *     tags:
      *       - Refunds
+     *     security:
+     *       - bearerAuth: ["write:api"]
+     *       - oauth2: ["write:api"]
      *     requestBody:
      *       required: true
      *       content:
@@ -128,6 +131,9 @@ export const setupRefundRoutes = (router: Router, env: Env) => {
      *     description: Returns information about a specific refund. Requires read permission.
      *     tags:
      *       - Refunds
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: id
      *         in: path

@@ -34,6 +34,9 @@ export const setupFeedbackRoutes = (router: Router, env: Env) => {
      *     description: Creates a new feedback record. Requires write permission.
      *     tags:
      *       - Feedback
+     *     security:
+     *       - bearerAuth: ["write:api"]
+     *       - oauth2: ["write:api"]
      *     requestBody:
      *       required: true
      *       content:
@@ -120,6 +123,9 @@ export const setupFeedbackRoutes = (router: Router, env: Env) => {
      *     description: Records the publication of feedback. Requires write permission.
      *     tags:
      *       - Feedback
+     *     security:
+     *       - bearerAuth: ["write:api"]
+     *       - oauth2: ["write:api"]
      *     requestBody:
      *       required: true
      *       content:
@@ -205,6 +211,9 @@ export const setupFeedbackRoutes = (router: Router, env: Env) => {
      *     description: Returns information about a specific publication. Requires read permission.
      *     tags:
      *       - Feedback
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: id
      *         in: path

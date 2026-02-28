@@ -33,6 +33,9 @@ export const setupStatsRoutes = (router: Router, env: Env) => {
      *     description: Returns the difference between the total purchase amount of refunded purchases and the total refund amount. Requires read permission. Optional parameters (daysLimit or purchaseLimit) require search:api permission.
      *     tags:
      *       - Statistics
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: daysLimit
      *         in: query
@@ -255,6 +258,9 @@ export const setupStatsRoutes = (router: Router, env: Env) => {
      *     description: Returns statistics about the delay between purchase and refund dates. Requires read permission. Optional parameter (daysLimit) can filter to purchases from the last N days.
      *     tags:
      *       - Statistics
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     parameters:
      *       - name: daysLimit
      *         in: query
@@ -484,6 +490,9 @@ export const setupStatsRoutes = (router: Router, env: Env) => {
      *     description: Returns purchase statistics for the authenticated user. Requires read permission.
      *     tags:
      *       - Statistics
+     *     security:
+     *       - bearerAuth: ["read:api"]
+     *       - oauth2: ["read:api"]
      *     responses:
      *       200:
      *         description: Successfully retrieved purchase statistics
