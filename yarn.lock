@@ -1294,6 +1294,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@heroui/chip@npm:^2.2.24":
+  version: 2.2.24
+  resolution: "@heroui/chip@npm:2.2.24"
+  dependencies:
+    "@heroui/react-utils": "npm:2.1.14"
+    "@heroui/shared-icons": "npm:2.1.10"
+    "@heroui/shared-utils": "npm:2.1.12"
+    "@react-aria/focus": "npm:3.21.3"
+    "@react-aria/interactions": "npm:3.26.0"
+  peerDependencies:
+    "@heroui/system": ">=2.4.18"
+    "@heroui/theme": ">=2.4.24"
+    react: ">=18 || >=19.0.0-rc.0"
+    react-dom: ">=18 || >=19.0.0-rc.0"
+  checksum: 10/6b4b36c8ca69416692d179a6b317176d4091a0c6ed721ebe71de29dfa5012274b8c66766900e3a3a77529d5e92993d6dd6a6e61ee80feeccd27c48cff6144e7e
+  languageName: node
+  linkType: hard
+
 "@heroui/code@npm:^2.2.24":
   version: 2.2.24
   resolution: "@heroui/code@npm:2.2.24"
@@ -6955,6 +6973,7 @@ __metadata:
     "@heroui/button": "npm:^2.2.31"
     "@heroui/card": "npm:^2.2.27"
     "@heroui/checkbox": "npm:^2.3.31"
+    "@heroui/chip": "npm:^2.2.24"
     "@heroui/code": "npm:^2.2.24"
     "@heroui/date-picker": "npm:^2.3.32"
     "@heroui/dropdown": "npm:^2.3.31"

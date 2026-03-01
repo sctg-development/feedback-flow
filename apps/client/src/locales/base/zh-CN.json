@@ -294,5 +294,11 @@
   "tester-created-and-assigned": "创建并分配测试人员",
   "unassign": "取消分配",
   "unassign-selected": "取消分配所选内容",
-  "user-already-assigned": "该用户已分配给测试人员"
+  "user-already-assigned": "该用户已分配给测试人员",
+  "nav-user-dropdown-access-token": "访问令牌（承载）",
+  "nav-user-dropdown-connected-as": "连接为",
+  "nav-user-dropdown-expires-in": "到期时间：",
+  "nav-user-dropdown-loading": "加载中...",
+  "nav-user-dropdown-no-expiry": "未发现过期情况",
+  "nav-user-dropdown-token-status": "代币状态"
 }

@@ -294,5 +294,11 @@
   "tester-created-and-assigned": "הבוחן נוצר והוקצה",
   "unassign": "בטל הקצאה",
   "unassign-selected": "בטל ההקצאה שנבחרה",
-  "user-already-assigned": "משתמש זה כבר הוקצה לבוחן"
+  "user-already-assigned": "משתמש זה כבר הוקצה לבוחן",
+  "nav-user-dropdown-access-token": "אסימון גישה (נושא)",
+  "nav-user-dropdown-connected-as": "מחובר כמו",
+  "nav-user-dropdown-expires-in": "יפוג בעוד:",
+  "nav-user-dropdown-loading": "טְעִינָה...",
+  "nav-user-dropdown-no-expiry": "לא נמצא תפוגה",
+  "nav-user-dropdown-token-status": "סטטוס אסימון"
 }

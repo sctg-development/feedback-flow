@@ -294,5 +294,11 @@
   "tester-created-and-assigned": "Probador creado y asignado",
   "unassign": "Desasignar",
   "unassign-selected": "Desasignar seleccionado",
-  "user-already-assigned": "Este usuario ya está asignado a un evaluador."
+  "user-already-assigned": "Este usuario ya está asignado a un evaluador.",
+  "nav-user-dropdown-connected-as": "Conectado como",
+  "nav-user-dropdown-token-status": "Estado del Token",
+  "nav-user-dropdown-expires-in": "Expira en:",
+  "nav-user-dropdown-no-expiry": "No se encontró expiración",
+  "nav-user-dropdown-access-token": "Token de Acceso (Bearer)",
+  "nav-user-dropdown-loading": "Cargando..."
 }

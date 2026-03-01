@@ -283,13 +283,6 @@
   "failed-loading-user-permissions": "Failed to load user permissions",
   "error-saving-permissions": "Error saving permissions",
   "selected-count": "{{count}} selected",
-  "assign-selected": "Assign selected",
-  "unassign-selected": "Unassign selected",
-  "assign": "Assign",
-  "unassign": "Unassign",
-  "no-tester-found-for-id": "No tester found for this ID",
-  "oauth-id-removed-successfully": "OAuth ID removed successfully",
-  "selected-unassigned": "Selected IDs were unassigned",
   "assign-tester": "Assign Tester",
   "select-tester": "Select a tester",
   "choose-tester": "Choose a tester",
@@ -302,5 +295,10 @@
   "error-creating-tester": "Error creating tester",
   "create-tester": "Create a tester",
   "tester-created": "Tester created",
-  "confirm-unassign-selected": "Are you sure you want to unassign the selected IDs from their testers?"
+  "nav-user-dropdown-connected-as": "Connected as",
+  "nav-user-dropdown-token-status": "Token Status",
+  "nav-user-dropdown-expires-in": "Expires in:",
+  "nav-user-dropdown-no-expiry": "No expiry found",
+  "nav-user-dropdown-access-token": "Access Token (Bearer)",
+  "nav-user-dropdown-loading": "Loading..."
 }

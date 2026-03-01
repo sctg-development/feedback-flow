@@ -294,5 +294,11 @@
   "tester-created-and-assigned": "تم إنشاء المُختبر وتعيينه",
   "unassign": "إلغاء التعيين",
   "unassign-selected": "إلغاء تحديد المحدد",
-  "user-already-assigned": "تم تعيين هذا المستخدم بالفعل للاختبار"
+  "user-already-assigned": "تم تعيين هذا المستخدم بالفعل للاختبار",
+  "nav-user-dropdown-access-token": "رمز الوصول (حامله)",
+  "nav-user-dropdown-connected-as": "متصل كما",
+  "nav-user-dropdown-expires-in": "تنتهي صلاحيته في:",
+  "nav-user-dropdown-loading": "تحميل...",
+  "nav-user-dropdown-no-expiry": "لم يتم العثور على انتهاء الصلاحية",
+  "nav-user-dropdown-token-status": "حالة الرمز المميز"
 }

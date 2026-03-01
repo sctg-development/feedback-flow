@@ -294,5 +294,11 @@
   "tester-created-and-assigned": "Testeur créé et attribué",
   "unassign": "Annuler l'assignation",
   "unassign-selected": "Annuler l'assignation de la sélection",
-  "user-already-assigned": "Cet utilisateur est déjà affecté à un testeur"
+  "user-already-assigned": "Cet utilisateur est déjà affecté à un testeur",
+  "nav-user-dropdown-connected-as": "Connecté en tant que",
+  "nav-user-dropdown-token-status": "Statut du jeton",
+  "nav-user-dropdown-expires-in": "Expire dans :",
+  "nav-user-dropdown-no-expiry": "Aucune expiration trouvée",
+  "nav-user-dropdown-access-token": "Jeton d'accès (Bearer)",
+  "nav-user-dropdown-loading": "Chargement..."
 }
