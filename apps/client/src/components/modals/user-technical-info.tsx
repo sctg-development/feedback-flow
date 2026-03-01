@@ -102,7 +102,7 @@ export const UserTechnicalInfoModal = memo<UserTechnicalInfoModalProps>(
               <span className="font-black text-foreground text-base leading-tight">
                 {t("nav-user-dropdown-connected-as")}
               </span>
-              <span className="text-sm font-semibold text-primary truncate max-w-[300px]">
+              <span className="text-sm font-semibold text-primary truncate max-w-75">
                 {user.email}
               </span>
             </div>
@@ -185,7 +185,7 @@ export const UserTechnicalInfoModal = memo<UserTechnicalInfoModalProps>(
                               size="sm"
                               variant="solid"
                               onClick={() => {
-                                navigate("/admin/users");
+                                navigate("/users-and-permissions");
                                 onClose();
                               }}
                             >
@@ -228,7 +228,7 @@ export const UserTechnicalInfoModal = memo<UserTechnicalInfoModalProps>(
                 />
               </div>
               <ScrollShadow
-                className="h-[80px] w-full"
+                className="h-20 w-full"
                 orientation="horizontal"
               >
                 <p className="text-[10px] text-default-500 font-mono break-all leading-relaxed select-all">
