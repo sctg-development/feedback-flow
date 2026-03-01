@@ -37,7 +37,7 @@ export function usePurchaseSearch(
 ) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { postJson } = useSecuredApi();
 
   const performSearch = useCallback(

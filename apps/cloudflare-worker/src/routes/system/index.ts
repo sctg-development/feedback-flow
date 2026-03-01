@@ -13,356 +13,421 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
+import type {
+	Auth0ManagementTokenResponse,
+	Auth0ManagementTokenApiResponse,
+	ErrorResponse,
+} from "../../types/data";
+
+import { decodeJwt } from "jose";
+
 import { Router } from "../router";
 import { CloudflareD1DB } from "../../db/d1-db";
 import { InMemoryDB } from "../../db/in-memory-db";
 import { getDatabase } from "../../db/db";
-import { decodeJwt } from 'jose';
-import type { Auth0ManagementTokenResponse, Auth0ManagementTokenApiResponse, ErrorResponse } from "../../types/data";
 
 /**
  * Setup system and backup routes
- * 
- * 
+ *
+ *
  * @param router The router
  * @param env The environment variables
  */
 export const setupSystemRoutes = async (router: Router, env: Env) => {
-    const db = getDatabase(env);
+	const db = getDatabase(env);
 
-    // Backup/Restore routes (available for InMemoryDB and CloudflareD1DB)
-    if (db instanceof InMemoryDB || db instanceof CloudflareD1DB) {
-        /**
-         * @openapi
-         * /api/backup/json:
-         *   get:
-         *     summary: Backup database to JSON
-         *     description: Exports the entire database as JSON. Only available for in-memory and D1 databases. Requires backup permission.
-         *     tags:
-         *       - System
-         *     security:
-         *       - bearerAuth: ["backup:api"]
-         *       - oauth2: ["backup:api"]
-         *     responses:
-         *       200:
-         *         description: Successfully exported database
-         *         content:
-         *           application/json:
-         *             schema:
-         *               type: object
-         *   post:
-         *     summary: Restore database from JSON
-         *     description: Imports database from JSON. Only available for in-memory and D1 databases. Requires backup permission.
-         *     tags:
-         *       - System
-         *     security:
-         *       - bearerAuth: ["backup:api"]
-         *       - oauth2: ["backup:api"]
-         *     requestBody:
-         *       required: true
-         *       content:
-         *         application/json:
-         *           schema:
-         *             type: object
-         *     responses:
-         *       200:
-         *         description: Successfully imported database
-         *         content:
-         *           application/json:
-         *             schema:
-         *               type: object
-         *               properties:
-         *                 success:
-         *                   type: boolean
-         *       500:
-         *         description: Failed to restore database
-         */
-        router.get(
-            "/api/backup/json",
-            async () => {
-                const json = await db.backupToJson();
+	// Backup/Restore routes (available for InMemoryDB and CloudflareD1DB)
+	if (db instanceof InMemoryDB || db instanceof CloudflareD1DB) {
+		/**
+		 * @openapi
+		 * /api/backup/json:
+		 *   get:
+		 *     summary: Backup database to JSON
+		 *     description: Exports the entire database as JSON. Only available for in-memory and D1 databases. Requires backup permission.
+		 *     tags:
+		 *       - System
+		 *     security:
+		 *       - bearerAuth: ["backup:api"]
+		 *       - oauth2: ["backup:api"]
+		 *     responses:
+		 *       200:
+		 *         description: Successfully exported database
+		 *         content:
+		 *           application/json:
+		 *             schema:
+		 *               type: object
+		 *   post:
+		 *     summary: Restore database from JSON
+		 *     description: Imports database from JSON. Only available for in-memory and D1 databases. Requires backup permission.
+		 *     tags:
+		 *       - System
+		 *     security:
+		 *       - bearerAuth: ["backup:api"]
+		 *       - oauth2: ["backup:api"]
+		 *     requestBody:
+		 *       required: true
+		 *       content:
+		 *         application/json:
+		 *           schema:
+		 *             type: object
+		 *     responses:
+		 *       200:
+		 *         description: Successfully imported database
+		 *         content:
+		 *           application/json:
+		 *             schema:
+		 *               type: object
+		 *               properties:
+		 *                 success:
+		 *                   type: boolean
+		 *       500:
+		 *         description: Failed to restore database
+		 */
+		router.get(
+			"/api/backup/json",
+			async () => {
+				const json = await db.backupToJson();
 
-                return new Response(json, {
-                    status: 200,
-                    headers: {
-                        ...router.corsHeaders,
-                        "Content-Type": "application/json",
-                    },
-                });
-            },
-            env.BACKUP_PERMISSION,
-        );
-        router.post(
-            "/api/backup/json",
-            async (request) => {
-                const json = await request.json();
+				return new Response(json, {
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				});
+			},
+			env.BACKUP_PERMISSION,
+		);
+		router.post(
+			"/api/backup/json",
+			async (request) => {
+				const json = await request.json();
 
-                // eslint-disable-next-line no-console
-                console.log("Restoring from JSON");
-                const result = await db.restoreFromJsonString(JSON.stringify(json));
+				// eslint-disable-next-line no-console
+				console.log("Restoring from JSON");
+				const result = await db.restoreFromJsonString(JSON.stringify(json));
 
-                if (!result.success) {
-                    return new Response(
-                        JSON.stringify({
-                            success: false,
-                            error: result.message || "Failed to restore",
-                        }),
-                        {
-                            status: 500,
-                            headers: {
-                                ...router.corsHeaders,
-                                "Content-Type": "application/json",
-                            },
-                        },
-                    );
-                }
+				if (!result.success) {
+					return new Response(
+						JSON.stringify({
+							success: false,
+							error: result.message || "Failed to restore",
+						}),
+						{
+							status: 500,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
 
-                return new Response(JSON.stringify({ success: true }), {
-                    status: 200,
-                    headers: {
-                        ...router.corsHeaders,
-                        "Content-Type": "application/json",
-                    },
-                });
-            },
-            env.BACKUP_PERMISSION,
-        );
-    }
+				return new Response(JSON.stringify({ success: true }), {
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				});
+			},
+			env.BACKUP_PERMISSION,
+		);
+	}
 
-    /**
-     * POST /api/__auth0/token
-     *
-     * Request an Auth0 Management API token using the client credentials flow.
-     * This endpoint requires the `env.ADMIN_AUTH0_PERMISSION` permission.
-     * The following environment variables must be configured in the Cloudflare Worker:
-     *  - AUTH0_MANAGEMENT_API_CLIENT_ID
-     *  - AUTH0_MANAGEMENT_API_CLIENT_SECRET
-     *  - AUTH0_DOMAIN
-     *
-     * The token is cached in KV store if `env.KV_CACHE` is available to reduce requests to Auth0.
-     * 
-     * Security note: This route should be limited to administrative users
-     * and the AUTH0_MANAGEMENT_API_CLIENT_SECRET should never be returned or logged.
-     *
-     * @openapi
-     * /api/__auth0/token:
-     *   post:
-     *     summary: Get Auth0 Management API token
-     *     description: |
-     *       Request an Auth0 Management API JWT token using the Client Credentials grant and cache it in KV store if available.
-     *       This endpoint requires `ADMIN_AUTH0_PERMISSION` and uses the following
-     *       environment variables: `AUTH0_MANAGEMENT_API_CLIENT_ID`, `AUTH0_MANAGEMENT_API_CLIENT_SECRET`, and `AUTH0_DOMAIN`.
-     *       Returns a JSON response containing access_token, token_type, and expires_in when successful.
-     *     tags:
-     *       - System
-     *       - Auth0
-     *     security:
-     *       - bearerAuth: ["auth0:admin:api"]
-     *       - oauth2: ["auth0:admin:api"]
-     *     responses:
-     *       200:
-     *         description: Successfully obtained Auth0 management API token
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 access_token:
-     *                   type: string
-     *                 token_type:
-     *                   type: string
-     *                 expires_in:
-     *                   type: integer
-     *                 from_cache:
-     *                   type: boolean
-     *       403:
-     *         description: Unauthorized - `ADMIN_AUTH0_PERMISSION` required
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 success:
-     *                   type: boolean
-     *                   example: false
-     *                 error:
-     *                   type: string
-     *       500:
-     *         description: Server error while requesting Auth0 token
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 error:
-     *                   type: string
-     */
-    router.post(
-        "/api/__auth0/token",
-        async () => {
-            try {
-                // Validate required environment variables
-                if (!env.AUTH0_MANAGEMENT_API_CLIENT_ID || !env.AUTH0_MANAGEMENT_API_CLIENT_SECRET || !env.AUTH0_DOMAIN) {
-                    const err: ErrorResponse = { success: false, error: "Auth0 configuration is missing" };
-                    return new Response(JSON.stringify(err, null, 2), {
-                        status: 500,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" },
-                    });
-                }
+	/**
+	 * POST /api/__auth0/token
+	 *
+	 * Request an Auth0 Management API token using the client credentials flow.
+	 * This endpoint requires the `env.ADMIN_AUTH0_PERMISSION` permission.
+	 * The following environment variables must be configured in the Cloudflare Worker:
+	 *  - AUTH0_MANAGEMENT_API_CLIENT_ID
+	 *  - AUTH0_MANAGEMENT_API_CLIENT_SECRET
+	 *  - AUTH0_DOMAIN
+	 *
+	 * The token is cached in KV store if `env.KV_CACHE` is available to reduce requests to Auth0.
+	 *
+	 * Security note: This route should be limited to administrative users
+	 * and the AUTH0_MANAGEMENT_API_CLIENT_SECRET should never be returned or logged.
+	 *
+	 * @openapi
+	 * /api/__auth0/token:
+	 *   post:
+	 *     summary: Get Auth0 Management API token
+	 *     description: |
+	 *       Request an Auth0 Management API JWT token using the Client Credentials grant and cache it in KV store if available.
+	 *       This endpoint requires `ADMIN_AUTH0_PERMISSION` and uses the following
+	 *       environment variables: `AUTH0_MANAGEMENT_API_CLIENT_ID`, `AUTH0_MANAGEMENT_API_CLIENT_SECRET`, and `AUTH0_DOMAIN`.
+	 *       Returns a JSON response containing access_token, token_type, and expires_in when successful.
+	 *     tags:
+	 *       - System
+	 *       - Auth0
+	 *     security:
+	 *       - bearerAuth: ["auth0:admin:api"]
+	 *       - oauth2: ["auth0:admin:api"]
+	 *     responses:
+	 *       200:
+	 *         description: Successfully obtained Auth0 management API token
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 access_token:
+	 *                   type: string
+	 *                 token_type:
+	 *                   type: string
+	 *                 expires_in:
+	 *                   type: integer
+	 *                 from_cache:
+	 *                   type: boolean
+	 *       403:
+	 *         description: Unauthorized - `ADMIN_AUTH0_PERMISSION` required
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                   example: false
+	 *                 error:
+	 *                   type: string
+	 *       500:
+	 *         description: Server error while requesting Auth0 token
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 error:
+	 *                   type: string
+	 */
+	router.post(
+		"/api/__auth0/token",
+		async () => {
+			try {
+				// Validate required environment variables
+				if (
+					!env.AUTH0_MANAGEMENT_API_CLIENT_ID ||
+					!env.AUTH0_MANAGEMENT_API_CLIENT_SECRET ||
+					!env.AUTH0_DOMAIN
+				) {
+					const err: ErrorResponse = {
+						success: false,
+						error: "Auth0 configuration is missing",
+					};
 
-                // Build the token endpoint URL for Auth0
-                const tokenUrl = `https://${env.AUTH0_DOMAIN}/oauth/token`;
+					return new Response(JSON.stringify(err, null, 2), {
+						status: 500,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					});
+				}
 
-                // Audience for the management API: default to api/v2
-                const audience = `https://${env.AUTH0_DOMAIN}/api/v2/`;
+				// Build the token endpoint URL for Auth0
+				const tokenUrl = `https://${env.AUTH0_DOMAIN}/oauth/token`;
 
-                // Build the request body for client credentials grant
-                const body = {
-                    client_id: env.AUTH0_MANAGEMENT_API_CLIENT_ID,
-                    client_secret: env.AUTH0_MANAGEMENT_API_CLIENT_SECRET,
-                    audience,
-                    grant_type: "client_credentials",
-                };
-                console.log("Requesting Auth0 token from:", tokenUrl, "for audience:", audience);
+				// Audience for the management API: default to api/v2
+				const audience = `https://${env.AUTH0_DOMAIN}/api/v2/`;
 
-                // Check cache first: if a cached token exists and is not expired, return it
-                const cacheKey = `auth0:management_token`;
-                if (env.KV_CACHE) {
-                    try {
-                        const cached = await env.KV_CACHE.get(cacheKey);
-                        if (cached) {
-                            let parsed: { token?: string; exp?: number } | null = null;
-                            try {
-                                parsed = JSON.parse(cached);
-                            } catch (e) {
-                                // cached value may be raw token string
-                            }
+				// Build the request body for client credentials grant
+				const body = {
+					client_id: env.AUTH0_MANAGEMENT_API_CLIENT_ID,
+					client_secret: env.AUTH0_MANAGEMENT_API_CLIENT_SECRET,
+					audience,
+					grant_type: "client_credentials",
+				};
 
-                            const token = parsed?.token ?? cached;
-                            let exp = parsed?.exp;
-                            if (!exp && token) {
-                                try {
-                                    const decoded = decodeJwt(token);
-                                    exp = (decoded?.exp as number) || undefined;
-                                } catch (_) {
-                                    exp = undefined;
-                                }
-                            }
+				console.log(
+					"Requesting Auth0 token from:",
+					tokenUrl,
+					"for audience:",
+					audience,
+				);
 
-                            // If token has expiry and is still valid, return cached token
-                            if (exp) {
-                                const now = Math.floor(Date.now() / 1000);
-                                if (exp > now + 5) {
-                                    // Return cached token with computed expires_in
-                                    const expires_in = exp - now;
-                                    const cachedResult: Auth0ManagementTokenResponse = { access_token: token, token_type: "Bearer", expires_in, from_cache: true };
-                                    return new Response(JSON.stringify(cachedResult, null, 2), {
-                                        status: 200,
-                                        headers: { ...router.corsHeaders, "Content-Type": "application/json" },
-                                    });
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        // KV get failed — proceed to request token from Auth0
-                        // Log and continue
-                        // eslint-disable-next-line no-console
-                        console.warn("KV_CACHE access failed, requesting new token", String(e));
-                    }
-                }
+				// Check cache first: if a cached token exists and is not expired, return it
+				const cacheKey = `auth0:management_token`;
 
-                // Request a token from Auth0
-                const resp = await fetch(tokenUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(body),
-                });
+				if (env.KV_CACHE) {
+					try {
+						const cached = await env.KV_CACHE.get(cacheKey);
 
-                if (!resp.ok) {
-                    const errorText = await resp.text();
-                    const err: ErrorResponse = { success: false, error: `Failed to retrieve token: ${errorText}` };
-                    return new Response(JSON.stringify(err, null, 2), {
-                        status: 500,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" },
-                    });
-                }
+						if (cached) {
+							let parsed: { token?: string; exp?: number } | null = null;
 
-                // Parse Auth0 response and return to the client (safely)
-                // We type cast the response to a known structure to satisfy TypeScript
-                const data = (await resp.json()) as {
-                    access_token?: string;
-                    token_type?: string;
-                    expires_in?: number;
-                    [key: string]: any;
-                };
+							try {
+								parsed = JSON.parse(cached);
+							} catch (e) {
+								// cached value may be raw token string
+							}
 
-                if (!data || !data.access_token) {
-                    const err: ErrorResponse = { success: false, error: "Invalid response from Auth0: no access_token returned" };
-                    return new Response(JSON.stringify(err, null, 2), {
-                        status: 500,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" },
-                    });
-                }
+							const token = parsed?.token ?? cached;
+							let exp = parsed?.exp;
 
-                // Only allow returning the access token and metadata, do not return secrets
-                const result: Auth0ManagementTokenResponse = {
-                    access_token: data.access_token as string,
-                    token_type: data.token_type as string | undefined,
-                    expires_in: data.expires_in as number | undefined,
-                    from_cache: false,
-                };
+							if (!exp && token) {
+								try {
+									const decoded = decodeJwt(token);
 
-                // If KV cache is available, store token with its expiration
-                if (env.KV_CACHE && data.access_token) {
-                    try {
-                        const token = data.access_token as string;
-                        const now = Math.floor(Date.now() / 1000);
-                        let exp: number | undefined;
-                        if (typeof data.expires_in === 'number') {
-                            exp = now + Math.floor(data.expires_in as number);
-                        } else {
-                            try {
-                                const decoded = decodeJwt(token);
-                                exp = (decoded?.exp as number) || undefined;
-                            } catch (_) {
-                                exp = undefined;
-                            }
-                        }
+									exp = (decoded?.exp as number) || undefined;
+								} catch (_) {
+									exp = undefined;
+								}
+							}
 
-                        if (exp && exp > now + 5) {
-                            // Store token and expiry in KV. Use 'expiration' option
-                            const kvValue = JSON.stringify({ token, exp });
-                            await env.KV_CACHE.put(cacheKey, kvValue, { expiration: exp });
-                        }
-                    } catch (e) {
-                        // Ignore KV cache issues — token is still returned
-                        // eslint-disable-next-line no-console
-                        console.warn('Failed to store token in KV_CACHE', String(e));
-                    }
-                }
+							// If token has expiry and is still valid, return cached token
+							if (exp) {
+								const now = Math.floor(Date.now() / 1000);
 
-                const responseBody: Auth0ManagementTokenApiResponse = result;
+								if (exp > now + 5) {
+									// Return cached token with computed expires_in
+									const expires_in = exp - now;
+									const cachedResult: Auth0ManagementTokenResponse = {
+										access_token: token,
+										token_type: "Bearer",
+										expires_in,
+										from_cache: true,
+									};
 
-                return new Response(JSON.stringify(responseBody, null, 2), {
-                    status: 200,
-                    headers: { ...router.corsHeaders, "Content-Type": "application/json" },
-                });
-            } catch (error) {
-                const err: ErrorResponse = { success: false, error: String(error) };
-                return new Response(JSON.stringify(err, null, 2), {
-                    status: 500,
-                    headers: { ...router.corsHeaders, "Content-Type": "application/json" },
-                });
-            }
-        },
-        env.ADMIN_AUTH0_PERMISSION,
-    );
+									return new Response(JSON.stringify(cachedResult, null, 2), {
+										status: 200,
+										headers: {
+											...router.corsHeaders,
+											"Content-Type": "application/json",
+										},
+									});
+								}
+							}
+						}
+					} catch (e) {
+						// KV get failed — proceed to request token from Auth0
+						// Log and continue
+						// eslint-disable-next-line no-console
+						console.warn(
+							"KV_CACHE access failed, requesting new token",
+							String(e),
+						);
+					}
+				}
 
-    // D1-specific debug endpoints
-    if (db instanceof CloudflareD1DB) {
-        /**
+				// Request a token from Auth0
+				const resp = await fetch(tokenUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(body),
+				});
+
+				if (!resp.ok) {
+					const errorText = await resp.text();
+					const err: ErrorResponse = {
+						success: false,
+						error: `Failed to retrieve token: ${errorText}`,
+					};
+
+					return new Response(JSON.stringify(err, null, 2), {
+						status: 500,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					});
+				}
+
+				// Parse Auth0 response and return to the client (safely)
+				// We type cast the response to a known structure to satisfy TypeScript
+				const data = (await resp.json()) as {
+					access_token?: string;
+					token_type?: string;
+					expires_in?: number;
+					[key: string]: any;
+				};
+
+				if (!data || !data.access_token) {
+					const err: ErrorResponse = {
+						success: false,
+						error: "Invalid response from Auth0: no access_token returned",
+					};
+
+					return new Response(JSON.stringify(err, null, 2), {
+						status: 500,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					});
+				}
+
+				// Only allow returning the access token and metadata, do not return secrets
+				const result: Auth0ManagementTokenResponse = {
+					access_token: data.access_token as string,
+					token_type: data.token_type as string | undefined,
+					expires_in: data.expires_in as number | undefined,
+					from_cache: false,
+				};
+
+				// If KV cache is available, store token with its expiration
+				if (env.KV_CACHE && data.access_token) {
+					try {
+						const token = data.access_token as string;
+						const now = Math.floor(Date.now() / 1000);
+						let exp: number | undefined;
+
+						if (typeof data.expires_in === "number") {
+							exp = now + Math.floor(data.expires_in as number);
+						} else {
+							try {
+								const decoded = decodeJwt(token);
+
+								exp = (decoded?.exp as number) || undefined;
+							} catch (_) {
+								exp = undefined;
+							}
+						}
+
+						if (exp && exp > now + 5) {
+							// Store token and expiry in KV. Use 'expiration' option
+							const kvValue = JSON.stringify({ token, exp });
+
+							await env.KV_CACHE.put(cacheKey, kvValue, { expiration: exp });
+						}
+					} catch (e) {
+						// Ignore KV cache issues — token is still returned
+						// eslint-disable-next-line no-console
+						console.warn("Failed to store token in KV_CACHE", String(e));
+					}
+				}
+
+				const responseBody: Auth0ManagementTokenApiResponse = result;
+
+				return new Response(JSON.stringify(responseBody, null, 2), {
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				});
+			} catch (error) {
+				const err: ErrorResponse = { success: false, error: String(error) };
+
+				return new Response(JSON.stringify(err, null, 2), {
+					status: 500,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				});
+			}
+		},
+		env.ADMIN_AUTH0_PERMISSION,
+	);
+
+	// D1-specific debug endpoints
+	if (db instanceof CloudflareD1DB) {
+		/**
          * Debug endpoint to get the database table names
          * return a json object like
          * {
@@ -443,225 +508,285 @@ export const setupSystemRoutes = async (router: Router, env: Env) => {
  *                   example: "Unauthorized"
 
         */
-        router.get(
-            "/api/__d1/schema",
-            async () => {
-                try {
-                    const database = await getDatabase(env) as CloudflareD1DB;
-                    const tableCheck = await database.getTableNames();
+		router.get(
+			"/api/__d1/schema",
+			async () => {
+				try {
+					const database = (await getDatabase(env)) as CloudflareD1DB;
+					const tableCheck = await database.getTableNames();
 
-                    return new Response(JSON.stringify({
-                        tables: tableCheck,
-                        timestamp: new Date().toISOString()
-                    }, null, 2), {
-                        status: 200,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" }
-                    });
-                } catch (error) {
-                    return new Response(JSON.stringify({
-                        error: String(error),
-                        stack: error instanceof Error ? error.stack : undefined
-                    }, null, 2), {
-                        status: 500,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" }
-                    });
-                }
-            },
-            env.ADMIN_PERMISSION
-        );
+					return new Response(
+						JSON.stringify(
+							{
+								tables: tableCheck,
+								timestamp: new Date().toISOString(),
+							},
+							null,
+							2,
+						),
+						{
+							status: 200,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				} catch (error) {
+					return new Response(
+						JSON.stringify(
+							{
+								error: String(error),
+								stack: error instanceof Error ? error.stack : undefined,
+							},
+							null,
+							2,
+						),
+						{
+							status: 500,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
+			},
+			env.ADMIN_PERMISSION,
+		);
 
-        /**
-         * Debug endpoint to get the database schema version
-         * return a json object like
-         * {
-         *  "version": {
-         * 	"version": 1,
-         * 	"description": "Added transaction_id to refunds"
-         *  },
-         *   "timestamp": "2025-04-18T11:36:40.414Z"
-         * }
-         */
-        /**
-        * @openapi
-        * /api/__d1/schema_version:
-        *   get:
-        *     summary: Get database schema version (available only for D1)
-        *     description: Returns the current database schema version information. Requires admin permission.
-        *     tags:
-        *       - System
-        *       - Cloudflare D1
-        *     security:
-        *       - bearerAuth: ["admin:api"]
-        *       - oauth2: ["admin:api"]
-        *     responses:
-        *       200:
-        *         description: Successfully retrieved schema version
-        *         content:
-        *           application/json:
-        *             schema:
-        *               type: object
-        *               properties:
-        *                 version:
-        *                   type: object
-        *                   description: Schema version details
-        *                   properties:
-        *                     version:
-        *                       type: integer
-        *                       description: Current schema version number
-        *                       example: 1
-        *                     description:
-        *                       type: string
-        *                       description: Description of the current schema version
-        *                       example: "Added transaction_id to refunds"
-        *                 timestamp:
-        *                   type: string
-        *                   format: date-time
-        *                   description: Time when the version was retrieved
-        *                   example: "2025-04-18T11:36:40.414Z"
-        *       500:
-        *         description: Error retrieving schema version
-        *         content:
-        *           application/json:
-        *             schema:
-        *               type: object
-        *               properties:
-        *                 error:
-        *                   type: string
-        *                 stack:
-        *                   type: string
-        *       403:
-        *         description: Unauthorized - Admin permission required
-        *         content:
-        *           application/json:
-        *             schema:
-        *               type: object
-        *               properties:
-        *                 success:
-        *                   type: boolean
-        *                   example: false
-        *                 error:
-        *                   type: string
-        *                   example: "Unauthorized"
-        */
-        router.get(
-            "/api/__d1/schema_version",
-            async () => {
-                try {
-                    const database = await getDatabase(env) as CloudflareD1DB;
-                    const version = await database.getSchemaVersion();
+		/**
+		 * Debug endpoint to get the database schema version
+		 * return a json object like
+		 * {
+		 *  "version": {
+		 * 	"version": 1,
+		 * 	"description": "Added transaction_id to refunds"
+		 *  },
+		 *   "timestamp": "2025-04-18T11:36:40.414Z"
+		 * }
+		 */
+		/**
+		 * @openapi
+		 * /api/__d1/schema_version:
+		 *   get:
+		 *     summary: Get database schema version (available only for D1)
+		 *     description: Returns the current database schema version information. Requires admin permission.
+		 *     tags:
+		 *       - System
+		 *       - Cloudflare D1
+		 *     security:
+		 *       - bearerAuth: ["admin:api"]
+		 *       - oauth2: ["admin:api"]
+		 *     responses:
+		 *       200:
+		 *         description: Successfully retrieved schema version
+		 *         content:
+		 *           application/json:
+		 *             schema:
+		 *               type: object
+		 *               properties:
+		 *                 version:
+		 *                   type: object
+		 *                   description: Schema version details
+		 *                   properties:
+		 *                     version:
+		 *                       type: integer
+		 *                       description: Current schema version number
+		 *                       example: 1
+		 *                     description:
+		 *                       type: string
+		 *                       description: Description of the current schema version
+		 *                       example: "Added transaction_id to refunds"
+		 *                 timestamp:
+		 *                   type: string
+		 *                   format: date-time
+		 *                   description: Time when the version was retrieved
+		 *                   example: "2025-04-18T11:36:40.414Z"
+		 *       500:
+		 *         description: Error retrieving schema version
+		 *         content:
+		 *           application/json:
+		 *             schema:
+		 *               type: object
+		 *               properties:
+		 *                 error:
+		 *                   type: string
+		 *                 stack:
+		 *                   type: string
+		 *       403:
+		 *         description: Unauthorized - Admin permission required
+		 *         content:
+		 *           application/json:
+		 *             schema:
+		 *               type: object
+		 *               properties:
+		 *                 success:
+		 *                   type: boolean
+		 *                   example: false
+		 *                 error:
+		 *                   type: string
+		 *                   example: "Unauthorized"
+		 */
+		router.get(
+			"/api/__d1/schema_version",
+			async () => {
+				try {
+					const database = (await getDatabase(env)) as CloudflareD1DB;
+					const version = await database.getSchemaVersion();
 
-                    return new Response(JSON.stringify({
-                        version: version,
-                        timestamp: new Date().toISOString()
-                    }, null, 2), {
-                        status: 200,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" }
-                    });
-                } catch (error) {
-                    return new Response(JSON.stringify({
-                        error: String(error),
-                        stack: error instanceof Error ? error.stack : undefined
-                    }, null, 2), {
-                        status: 500,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" }
-                    });
-                }
-            },
-            env.ADMIN_PERMISSION
-        );
+					return new Response(
+						JSON.stringify(
+							{
+								version: version,
+								timestamp: new Date().toISOString(),
+							},
+							null,
+							2,
+						),
+						{
+							status: 200,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				} catch (error) {
+					return new Response(
+						JSON.stringify(
+							{
+								error: String(error),
+								stack: error instanceof Error ? error.stack : undefined,
+							},
+							null,
+							2,
+						),
+						{
+							status: 500,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
+			},
+			env.ADMIN_PERMISSION,
+		);
 
-        /**
-         * Debug endpoint to execute migrations (available only for D1)
-         * return a json object containing the resulting version like
-         * {
-         *      "migrations": [
-         *      "Schema is up to date (version 1)"
-         *      ],
-         *   "timestamp": "2025-04-18T11:40:38.748Z"
-         * }
-         */
-        /**
-         * @openapi
-         * /api/__d1/schema_migrations:
- *   get:
- *     summary: Execute database schema migrations (available only for D1)
- *     description: Checks the current database schema version and runs any pending migrations. Returns migration status information. Requires admin permission.
- *     tags:
- *       - System
- *       - Cloudflare D1
- *     security:
- *       - bearerAuth: ["admin:api"]
- *       - oauth2: ["admin:api"]
- *     responses:
- *       200:
- *         description: Successfully executed migrations
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 migrations:
- *                   type: array
- *                   description: List of migration status messages
- *                   items:
- *                     type: string
- *                     example: "Schema is up to date (version 1)"
- *                 timestamp:
- *                   type: string
- *                   format: date-time
- *                   description: Time when the migrations were executed
- *                   example: "2025-04-18T11:40:38.748Z"
- *       500:
- *         description: Error executing migrations
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                 stack:
- *                   type: string
- *       403:
- *         description: Unauthorized - Admin permission required
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 error:
- *                   type: string
- *                   example: "Unauthorized"
- *
-        */
-        router.get(
-            "/api/__d1/schema_migrations",
-            async () => {
-                try {
-                    const database = await getDatabase(env) as CloudflareD1DB;
-                    const migrations = await database.runMigrations();
+		/**
+		 * Debug endpoint to execute migrations (available only for D1)
+		 * return a json object containing the resulting version like
+		 * {
+		 *      "migrations": [
+		 *      "Schema is up to date (version 1)"
+		 *      ],
+		 *   "timestamp": "2025-04-18T11:40:38.748Z"
+		 * }
+		 */
+		/**
+		 * @openapi
+		 * /api/__d1/schema_migrations:
+		 *   get:
+		 *     summary: Execute database schema migrations (available only for D1)
+		 *     description: Checks the current database schema version and runs any pending migrations. Returns migration status information. Requires admin permission.
+		 *     tags:
+		 *       - System
+		 *       - Cloudflare D1
+		 *     security:
+		 *       - bearerAuth: ["admin:api"]
+		 *       - oauth2: ["admin:api"]
+		 *     responses:
+		 *       200:
+		 *         description: Successfully executed migrations
+		 *         content:
+		 *           application/json:
+		 *             schema:
+		 *               type: object
+		 *               properties:
+		 *                 migrations:
+		 *                   type: array
+		 *                   description: List of migration status messages
+		 *                   items:
+		 *                     type: string
+		 *                     example: "Schema is up to date (version 1)"
+		 *                 timestamp:
+		 *                   type: string
+		 *                   format: date-time
+		 *                   description: Time when the migrations were executed
+		 *                   example: "2025-04-18T11:40:38.748Z"
+		 *       500:
+		 *         description: Error executing migrations
+		 *         content:
+		 *           application/json:
+		 *             schema:
+		 *               type: object
+		 *               properties:
+		 *                 error:
+		 *                   type: string
+		 *                 stack:
+		 *                   type: string
+		 *       403:
+		 *         description: Unauthorized - Admin permission required
+		 *         content:
+		 *           application/json:
+		 *             schema:
+		 *               type: object
+		 *               properties:
+		 *                 success:
+		 *                   type: boolean
+		 *                   example: false
+		 *                 error:
+		 *                   type: string
+		 *                   example: "Unauthorized"
+		 *
+		 */
+		router.get(
+			"/api/__d1/schema_migrations",
+			async () => {
+				try {
+					const database = (await getDatabase(env)) as CloudflareD1DB;
+					const migrations = await database.runMigrations();
 
-                    return new Response(JSON.stringify({
-                        migrations: migrations,
-                        timestamp: new Date().toISOString()
-                    }, null, 2), {
-                        status: 200,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" }
-                    });
-                } catch (error) {
-                    return new Response(JSON.stringify({
-                        error: String(error),
-                        stack: error instanceof Error ? error.stack : undefined
-                    }, null, 2), {
-                        status: 500,
-                        headers: { ...router.corsHeaders, "Content-Type": "application/json" }
-                    });
-                }
-            },
-            env.ADMIN_PERMISSION
-        );
-    }
+					return new Response(
+						JSON.stringify(
+							{
+								migrations: migrations,
+								timestamp: new Date().toISOString(),
+							},
+							null,
+							2,
+						),
+						{
+							status: 200,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				} catch (error) {
+					return new Response(
+						JSON.stringify(
+							{
+								error: String(error),
+								stack: error instanceof Error ? error.stack : undefined,
+							},
+							null,
+							2,
+						),
+						{
+							status: 500,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
+			},
+			env.ADMIN_PERMISSION,
+		);
+	}
 };

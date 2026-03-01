@@ -204,7 +204,7 @@ export class Router {
 				{
 					status: 429,
 					headers: {
-						...this.corsHeaders, 
+						...this.corsHeaders,
 						"X-RateLimit-Limit": "10",
 						"X-RateLimit-Remaining": "0",
 						"X-RateLimit-Reset": "60",

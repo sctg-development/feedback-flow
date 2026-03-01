@@ -1,8 +1,9 @@
-import DefaultLayout from "@/layouts/default";
-import { OpenAPI } from "@/components/openapi";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+
+import { OpenAPI } from "@/components/openapi";
+import DefaultLayout from "@/layouts/default";
 
 export default function ApiPage() {
   const { t } = useTranslation();
@@ -13,6 +14,7 @@ export default function ApiPage() {
   useEffect(() => {
     if (!isAuthenticated) {
       setBearer(undefined);
+
       return;
     }
 
@@ -41,10 +43,10 @@ export default function ApiPage() {
     <DefaultLayout>
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
         <OpenAPI
-          source={source}
+          bearer={bearer}
           dataServers={dataServers}
           description={description}
-          bearer={bearer}
+          source={source}
         />
       </section>
     </DefaultLayout>

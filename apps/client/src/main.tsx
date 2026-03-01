@@ -24,8 +24,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           cacheLocation="localstorage"
           clientId={import.meta.env.AUTH0_CLIENT_ID}
           domain={import.meta.env.AUTH0_DOMAIN}
-          useRefreshTokens={true}
           useCookiesForTransactions={true}
+          useRefreshTokens={true}
         >
           <App />
         </Auth0Provider>

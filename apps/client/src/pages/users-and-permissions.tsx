@@ -160,6 +160,7 @@ export default function UsersAndPermissionsPage() {
         const postJsonIsFunction = typeof postJsonRef.current === "function";
 
         if (!postJsonIsFunction) {
+          console.error("postJson is not a function in users effect");
         }
         const postJsonToUse =
           postJsonRef.current && typeof postJsonRef.current === "function"
@@ -625,7 +626,8 @@ export default function UsersAndPermissionsPage() {
 
       // For each mapping, check change requested
       for (const key of Object.keys(permissionMappings)) {
-        if (edits.hasOwnProperty(key)) {
+        // prefer the modern Object.hasOwn API to avoid linter warning
+        if (Object.hasOwn(edits, key)) {
           const permName = permissionMappings[key];
           const userPerms = await getUserPermissions(mgmtToken, userId);
           const hasIt = (userPerms || []).some(

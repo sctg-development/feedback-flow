@@ -28,12 +28,12 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useRef, useState } from "react";
 import { Snippet } from "@heroui/snippet";
 import { JWTPayload, jwtVerify } from "jose";
+import { useHref } from "react-router-dom";
 
 import { LinkUniversal } from "@/components/link-universal";
 import { getLocalJwkSet } from "@/components/jwks";
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
-import { useHref } from "react-router-dom";
 
 export default function DefaultLayout({
   children,

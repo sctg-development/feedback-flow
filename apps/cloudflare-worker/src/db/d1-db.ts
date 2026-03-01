@@ -24,8 +24,8 @@
 /* eslint-disable no-console */
 import { D1Database } from "@cloudflare/workers-types";
 import { v4 as uuidv4 } from "uuid";
-import { generateShortCode } from "../utilities/short-link-generator";
 
+import { generateShortCode } from "../utilities/short-link-generator";
 import {
 	Feedback,
 	IdMapping,
@@ -128,13 +128,16 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 	constructor(bindings: D1Database) {
 		this.db = bindings;
-		this.runMigrations().then(() => {
-			console.log("Database migrations completed");
-		}).catch((error) => {
-			console.error("Error running migrations:", error);
-		}).finally(() => {
-			console.log("Database connection initialized");
-		});
+		this.runMigrations()
+			.then(() => {
+				console.log("Database migrations completed");
+			})
+			.catch((error) => {
+				console.error("Error running migrations:", error);
+			})
+			.finally(() => {
+				console.log("Database connection initialized");
+			});
 	}
 
 	/**
@@ -166,11 +169,20 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			// For a single id, use a simpler query to avoid potential D1 issues with "IN (?)"
 			if (ids.length === 1) {
 				const sqlSingle = `SELECT id FROM id_mappings WHERE id = ?`;
+
 				try {
-					const { results } = await this.db.prepare(sqlSingle).bind(ids[0]).all();
+					const { results } = await this.db
+						.prepare(sqlSingle)
+						.bind(ids[0])
+						.all();
+
 					return results.map((row) => row.id as string);
 				} catch (error) {
-					console.error("[d1-db] existsMultiple: single-id query failed", { ids, error, stack: new Error().stack });
+					console.error("[d1-db] existsMultiple: single-id query failed", {
+						ids,
+						error,
+						stack: new Error().stack,
+					});
 					throw error;
 				}
 			}
@@ -191,6 +203,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				// Debug about to call stmt.all() removed
 				// Debug of stmt internals removed
 				const { results } = await stmt.all();
+
 				return results.map((row) => row.id as string);
 			} catch (error) {
 				// Capture helpful debug context and rethrow to preserve error behavior
@@ -466,22 +479,28 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 			return purchases.find(fn);
 		},
-		refunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
+		refunded: async (
+			testerUuid: string,
+			pagination?: typeof DEFAULT_PAGINATION,
+		): Promise<PaginatedResult<Purchase>> => {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
 
 			// First, get the total count
 			const countResult = await this.db
-				.prepare("SELECT COUNT(*) as count FROM purchases WHERE tester_uuid = ? AND refunded = 1")
+				.prepare(
+					"SELECT COUNT(*) as count FROM purchases WHERE tester_uuid = ? AND refunded = 1",
+				)
 				.bind(testerUuid)
 				.first();
 
-			const totalCount = countResult?.count as number || 0;
+			const totalCount = (countResult?.count as number) || 0;
 
 			// Determine sort field and direction
-			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
+			const sortColumn = pagination.sort === "order" ? "order_number" : "date";
 			const sortDirection = pagination.order.toUpperCase();
+
 			// if pagination.limit <= 0 return all results
 			if (pagination.limit <= 0) {
 				pagination.limit = totalCount;
@@ -492,12 +511,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					`SELECT * FROM purchases 
 					 WHERE tester_uuid = ? AND refunded = 1 
 					 ORDER BY ${sortColumn} ${sortDirection}
-					 LIMIT ? OFFSET ?`
+					 LIMIT ? OFFSET ?`,
 				)
 				.bind(
 					testerUuid,
 					pagination.limit,
-					(pagination.page - 1) * pagination.limit
+					(pagination.page - 1) * pagination.limit,
 				)
 				.all();
 
@@ -518,27 +537,34 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		},
 		refundedAmount: async (testerUuid: string): Promise<number> => {
 			const { results } = await this.db
-				.prepare("SELECT SUM(amount) as total FROM purchases WHERE tester_uuid = ? AND refunded = 1")
+				.prepare(
+					"SELECT SUM(amount) as total FROM purchases WHERE tester_uuid = ? AND refunded = 1",
+				)
 				.bind(testerUuid)
 				.all();
 
-			return results[0]?.total as number || 0;
+			return (results[0]?.total as number) || 0;
 		},
-		notRefunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
+		notRefunded: async (
+			testerUuid: string,
+			pagination?: typeof DEFAULT_PAGINATION,
+		): Promise<PaginatedResult<Purchase>> => {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
 
 			// First, get the total count
 			const countResult = await this.db
-				.prepare("SELECT COUNT(*) as count FROM purchases WHERE tester_uuid = ? AND refunded = 0")
+				.prepare(
+					"SELECT COUNT(*) as count FROM purchases WHERE tester_uuid = ? AND refunded = 0",
+				)
 				.bind(testerUuid)
 				.first();
 
-			const totalCount = countResult?.count as number || 0;
+			const totalCount = (countResult?.count as number) || 0;
 
 			// Determine sort field and direction
-			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
+			const sortColumn = pagination.sort === "order" ? "order_number" : "date";
 			const sortDirection = pagination.order.toUpperCase();
 
 			// Get paginated results
@@ -547,12 +573,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					`SELECT * FROM purchases 
 					 WHERE tester_uuid = ? AND refunded = 0 
 					 ORDER BY ${sortColumn} ${sortDirection}
-					 LIMIT ? OFFSET ?`
+					 LIMIT ? OFFSET ?`,
 				)
 				.bind(
 					testerUuid,
 					pagination.limit,
-					(pagination.page - 1) * pagination.limit
+					(pagination.page - 1) * pagination.limit,
 				)
 				.all();
 
@@ -576,7 +602,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		 * @param testerUuid UUID of the tester
 		 * @param pagination Optional pagination parameters
 		 */
-		readyForRefund: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<PurchaseWithFeedback>> => {
+		readyForRefund: async (
+			testerUuid: string,
+			pagination?: typeof DEFAULT_PAGINATION,
+		): Promise<PaginatedResult<PurchaseWithFeedback>> => {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
@@ -587,21 +616,23 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			// 3. Having feedback
 			// 4. Having publication
 			const countResult = await this.db
-				.prepare(`
+				.prepare(
+					`
 					SELECT COUNT(*) as count 
 					FROM purchases p
 					WHERE p.tester_uuid = ? 
 					  AND p.refunded = 0
 					  AND p.id IN (SELECT purchase_id FROM feedbacks)
 					  AND p.id IN (SELECT purchase_id FROM publications)
-				`)
+				`,
+				)
 				.bind(testerUuid)
 				.first();
 
-			const totalCount = countResult?.count as number || 0;
+			const totalCount = (countResult?.count as number) || 0;
 
 			// Determine sort field and direction
-			const sortColumn = pagination.sort === 'order' ? 'order_number' : 'date';
+			const sortColumn = pagination.sort === "order" ? "order_number" : "date";
 			const sortDirection = pagination.order.toUpperCase();
 
 			// Get paginated results with feedback AND publication data using JOINs
@@ -617,12 +648,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 					 INNER JOIN publications pb ON p.id = pb.purchase_id
 					 WHERE p.tester_uuid = ? AND p.refunded = 0 
 					 ORDER BY p.${sortColumn} ${sortDirection}
-					 LIMIT ? OFFSET ?`
+					 LIMIT ? OFFSET ?`,
 				)
 				.bind(
 					testerUuid,
 					pagination.limit,
-					(pagination.page - 1) * pagination.limit
+					(pagination.page - 1) * pagination.limit,
 				)
 				.all();
 
@@ -646,11 +677,13 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		},
 		notRefundedAmount: async (testerUuid: string): Promise<number> => {
 			const { results } = await this.db
-				.prepare("SELECT SUM(amount) as total FROM purchases WHERE tester_uuid = ? AND refunded = 0")
+				.prepare(
+					"SELECT SUM(amount) as total FROM purchases WHERE tester_uuid = ? AND refunded = 0",
+				)
 				.bind(testerUuid)
 				.all();
 
-			return results[0]?.total as number || 0;
+			return (results[0]?.total as number) || 0;
 		},
 		delete: async (id: string): Promise<boolean> => {
 			const result = await this.db
@@ -762,7 +795,10 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			console.log("Params:", params);
 
 			// Execute the update with all parameters at once
-			const result = await this.db.prepare(sql).bind(...params).run();
+			const result = await this.db
+				.prepare(sql)
+				.bind(...params)
+				.run();
 
 			return result.success;
 		},
@@ -825,16 +861,17 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			}
 
 			const sortColumns = {
-				'date': 'date',
-				'order': 'order_number'
+				date: "date",
+				order: "order_number",
 			};
 			const orderValues = {
-				'asc': 'ASC',
-				'desc': 'DESC'
+				asc: "ASC",
+				desc: "DESC",
 			};
 
-			const sortColumn = sortColumns[sort as keyof typeof sortColumns] || 'date'; // protect against SQL injection
-			const orderDir = orderValues[order as keyof typeof orderValues] || 'DESC'; // protect against SQL injection
+			const sortColumn =
+				sortColumns[sort as keyof typeof sortColumns] || "date"; // protect against SQL injection
+			const orderDir = orderValues[order as keyof typeof orderValues] || "DESC"; // protect against SQL injection
 
 			// Pagination logic
 			const offset = page && limit ? (page - 1) * limit : 0;
@@ -870,7 +907,9 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 						publicationScreenshot: row.publication_screenshot as string,
 						purchaseScreenshot: row.purchase_screenshot as string,
 						screenshotSummary: row.screenshot_summary as string,
-						transactionId: row.transaction_id ? (row.transaction_id as string) : undefined,
+						transactionId: row.transaction_id
+							? (row.transaction_id as string)
+							: undefined,
 					}) as PurchaseStatus,
 			);
 			// Add pagination info to the result
@@ -889,6 +928,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 				nextPage,
 				previousPage,
 			};
+
 			// Return the results and pagination info
 			return {
 				results: mappedResults,
@@ -913,10 +953,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 						SUM(CASE WHEN refunded = 1 THEN amount ELSE 0 END) as total_refunded_amount,
 						SUM(CASE WHEN refunded = 0 THEN amount ELSE 0 END) as total_not_refunded_amount,
 						SUM(amount) as total_amount
-					FROM purchases WHERE tester_uuid = ?`
-				).bind(testerUuid)
+					FROM purchases WHERE tester_uuid = ?`,
+				)
+				.bind(testerUuid)
 				.all();
 			const stats = results[0];
+
 			return {
 				nbRefunded: stats.nb_refunded as number,
 				nbNotRefunded: stats.nb_not_refunded as number,
@@ -965,7 +1007,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 						order: row.order as string,
 						description: row.description as string,
 						amount: row.amount as number,
-					})
+					}),
 				)
 				.map((row) => row.id as string);
 		},
@@ -1041,7 +1083,11 @@ export class CloudflareD1DB implements FeedbackFlowDB {
           VALUES (?, ?, ?)
         `,
 				)
-				.bind(newPublication.purchase, newPublication.date, newPublication.screenshot)
+				.bind(
+					newPublication.purchase,
+					newPublication.date,
+					newPublication.screenshot,
+				)
 				.run();
 
 			return newPublication.purchase;
@@ -1082,11 +1128,9 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		 */
 		put: async (testerId: string, newRefund: Refund): Promise<string> => {
 			try {
-
 				const tester = await this.idMappings.getTesterUuid(testerId);
-				const purchases = await this.db.prepare(
-					"SELECT * FROM purchases WHERE id = ? AND tester_uuid = ?"
-				)
+				const purchases = await this.db
+					.prepare("SELECT * FROM purchases WHERE id = ? AND tester_uuid = ?")
 					.bind(newRefund.purchase, tester)
 					.all();
 
@@ -1111,7 +1155,8 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 						newRefund.purchase,
 						newRefund.date,
 						newRefund.refundDate,
-						newRefund.amount, newRefund.transactionId || null
+						newRefund.amount,
+						newRefund.transactionId || null,
 					)
 					.run();
 
@@ -1153,7 +1198,9 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			durationSeconds: number,
 		): Promise<string> => {
 			// Calculate expiration timestamp
-			const expiresAt = new Date(Date.now() + durationSeconds * 1000).toISOString();
+			const expiresAt = new Date(
+				Date.now() + durationSeconds * 1000,
+			).toISOString();
 
 			// Generate a unique code
 			let code: string;
@@ -1176,13 +1223,15 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			} while (attempts < maxAttempts);
 
 			if (attempts >= maxAttempts) {
-				throw new Error("Failed to generate unique short code after multiple attempts");
+				throw new Error(
+					"Failed to generate unique short code after multiple attempts",
+				);
 			}
 
 			// Insert the link into the database
 			await this.db
 				.prepare(
-					"INSERT INTO links (code, purchase_id, expires_at) VALUES (?, ?, ?)"
+					"INSERT INTO links (code, purchase_id, expires_at) VALUES (?, ?, ?)",
 				)
 				.bind(code, purchaseId, expiresAt)
 				.run();
@@ -1197,7 +1246,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		getPurchaseByCode: async (code: string): Promise<string | null> => {
 			const { results } = await this.db
 				.prepare(
-					"SELECT purchase_id FROM links WHERE code = ? AND expires_at > datetime('now')"
+					"SELECT purchase_id FROM links WHERE code = ? AND expires_at > datetime('now')",
 				)
 				.bind(code)
 				.all();
@@ -1227,7 +1276,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		getByPurchaseId: async (purchaseId: string): Promise<Link[]> => {
 			const { results } = await this.db
 				.prepare(
-					"SELECT id, code, purchase_id as purchase, expires_at as expiresAt, created_at as createdAt FROM links WHERE purchase_id = ?"
+					"SELECT id, code, purchase_id as purchase, expires_at as expiresAt, created_at as createdAt FROM links WHERE purchase_id = ?",
 				)
 				.bind(purchaseId)
 				.all();
@@ -1261,7 +1310,7 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		getAll: async (): Promise<Link[]> => {
 			const { results } = await this.db
 				.prepare(
-					"SELECT id, code, purchase_id as purchase, expires_at as expiresAt, created_at as createdAt FROM links"
+					"SELECT id, code, purchase_id as purchase, expires_at as expiresAt, created_at as createdAt FROM links",
 				)
 				.all();
 
@@ -1566,64 +1615,80 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 
 		// Insert the data back into the database
 		const dbTestersInsertStatement: D1PreparedStatement[] = [];
+
 		testers.forEach((tester: Tester) => {
 			dbTestersInsertStatement.push(
-				this.db.prepare("INSERT INTO testers (uuid, name) VALUES (?, ?)").bind(tester.uuid, tester.name),
+				this.db
+					.prepare("INSERT INTO testers (uuid, name) VALUES (?, ?)")
+					.bind(tester.uuid, tester.name),
 			);
 			tester.ids.forEach((id) => {
 				dbTestersInsertStatement.push(
-					this.db.prepare(
-						"INSERT INTO id_mappings (id, tester_uuid) VALUES (?, ?)").bind(id, tester.uuid)
+					this.db
+						.prepare("INSERT INTO id_mappings (id, tester_uuid) VALUES (?, ?)")
+						.bind(id, tester.uuid),
 				);
 			});
 		});
 		const dbPurchasesStatement: D1PreparedStatement[] = [];
+
 		purchases.forEach((purchase: Purchase) => {
 			dbPurchasesStatement.push(
-				this.db.prepare(
-					`INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount, screenshot, screenshot_summary, refunded) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-				).bind(
-					purchase.id,
-					purchase.testerUuid,
-					purchase.date,
-					purchase.order,
-					purchase.description,
-					purchase.amount,
-					purchase.screenshot,
-					purchase.screenshotSummary || null,
-					purchase.refunded ? 1 : 0,
-				),
+				this.db
+					.prepare(
+						`INSERT INTO purchases (id, tester_uuid, date, order_number, description, amount, screenshot, screenshot_summary, refunded) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+					)
+					.bind(
+						purchase.id,
+						purchase.testerUuid,
+						purchase.date,
+						purchase.order,
+						purchase.description,
+						purchase.amount,
+						purchase.screenshot,
+						purchase.screenshotSummary || null,
+						purchase.refunded ? 1 : 0,
+					),
 			);
 		});
 		const dbFeedbacksStatement: D1PreparedStatement[] = [];
+
 		feedbacks.forEach((feedback: Feedback) => {
 			dbFeedbacksStatement.push(
-				this.db.prepare(
-					`INSERT INTO feedbacks (purchase_id, date, feedback) VALUES (?, ?, ?)`,
-				).bind(feedback.purchase, feedback.date, feedback.feedback),
+				this.db
+					.prepare(
+						`INSERT INTO feedbacks (purchase_id, date, feedback) VALUES (?, ?, ?)`,
+					)
+					.bind(feedback.purchase, feedback.date, feedback.feedback),
 			);
 		});
 		const dbPublicationsStatement: D1PreparedStatement[] = [];
+
 		publications.forEach((publication: Publication) => {
 			dbPublicationsStatement.push(
-				this.db.prepare(
-					`INSERT INTO publications (purchase_id, date, screenshot) VALUES (?, ?, ?)`,
-				).bind(publication.purchase, publication.date, publication.screenshot),
+				this.db
+					.prepare(
+						`INSERT INTO publications (purchase_id, date, screenshot) VALUES (?, ?, ?)`,
+					)
+					.bind(publication.purchase, publication.date, publication.screenshot),
 			);
 		});
 
 		const dbRefundsStatement: D1PreparedStatement[] = [];
+
 		refunds.forEach((refund: Refund) => {
 			dbRefundsStatement.push(
-				this.db.prepare(
-					`INSERT INTO refunds (purchase_id, date, refund_date, amount, transaction_id) VALUES (?, ?, ?, ?, ?)`,
-				).bind(
-					refund.purchase,
-					refund.date,
-					refund.refundDate,
-					refund.amount,
-					refund.transactionId || null,
-				),
+				this.db
+					.prepare(
+						`INSERT INTO refunds (purchase_id, date, refund_date, amount, transaction_id) VALUES (?, ?, ?, ?, ?)`,
+					)
+					.bind(
+						refund.purchase,
+						refund.date,
+						refund.refundDate,
+						refund.amount,
+						refund.transactionId || null,
+					),
 			);
 		});
 		const dbInsertStatements = [
@@ -1634,17 +1699,12 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			dbRefundsStatement,
 		].flat();
 		// Execute global statements
-		const globalStatements = [
-			dbCleanupStatements,
-			dbInsertStatements,
-		].flat();
+		const globalStatements = [dbCleanupStatements, dbInsertStatements].flat();
 
 		try {
 			console.log("Executing batch insert...");
 			console.log(globalStatements);
-			const result = await this.db.batch(
-				globalStatements
-			);
+			const result = await this.db.batch(globalStatements);
 
 			// Code for executing each statement in the batch useful for debugging
 			// const result:D1Result[] = [];
@@ -1662,27 +1722,35 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 			throw new Error("Error during batch insert");
 		}
 	}
-	async checkSchemaVersion(): Promise<{ version: number; description: string }> {
+	async checkSchemaVersion(): Promise<{
+		version: number;
+		description: string;
+	}> {
 		if (!this.db) {
 			console.error("Database connection is not initialized");
-			return { version: 0, description: 'Database connection not initialized' };
+
+			return { version: 0, description: "Database connection not initialized" };
 		}
 		const tables = await this.getTableNames();
+
 		if (!tables.includes("schema_version")) {
 			console.error("Schema version table not found");
-			return { version: 0, description: 'Schema version table not found' };
+
+			return { version: 0, description: "Schema version table not found" };
 		}
 		const statement = await this.db
 			.prepare("SELECT version, description FROM schema_version WHERE id=1")
 			.bind()
 			.first();
+
 		if (statement) {
 			return {
 				version: statement.version as number,
 				description: statement.description as string,
 			};
 		}
-		return { version: 99, description: 'TODO' };
+
+		return { version: 99, description: "TODO" };
 	}
 
 	async runMigrations(): Promise<string[]> {
@@ -1693,26 +1761,34 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 		try {
 			// Migration to version 1 if needed
 			if (version.version < 1) {
-				const migrationSQLModule = await import('./migrations/v1_add_transaction_id.sql');
+				const migrationSQLModule =
+					await import("./migrations/v1_add_transaction_id.sql");
 				const migrationSQL = migrationSQLModule.default;
+
 				await this.db.exec(migrationSQL);
-				messages.push(`Upgraded schema from version ${version.version} to version 1`);
+				messages.push(
+					`Upgraded schema from version ${version.version} to version 1`,
+				);
 			}
 
 			// Migration to version 2 if needed (only if already at version 1)
 			if (version.version === 1) {
-				const migrationSQLModule = await import('./migrations/v2_add_screenshot_summary.sql');
+				const migrationSQLModule =
+					await import("./migrations/v2_add_screenshot_summary.sql");
 				const migrationSQL = migrationSQLModule.default;
+
 				await this.db.exec(migrationSQL);
-				messages.push('Upgraded schema from version 1 to version 2');
+				messages.push("Upgraded schema from version 1 to version 2");
 			}
 
 			// Migration to version 3 if needed (only if already at version 2)
 			if (version.version === 2) {
-				const migrationSQLModule = await import('./migrations/v3_add_links_table.sql');
+				const migrationSQLModule =
+					await import("./migrations/v3_add_links_table.sql");
 				const migrationSQL = migrationSQLModule.default;
+
 				await this.db.exec(migrationSQL);
-				messages.push('Upgraded schema from version 2 to version 3');
+				messages.push("Upgraded schema from version 2 to version 3");
 			}
 
 			// If schema is already up to date
@@ -1728,15 +1804,21 @@ export class CloudflareD1DB implements FeedbackFlowDB {
 	async getSchemaVersion(): Promise<{ version: number; description: string }> {
 		// Check if the table exists
 		const tables = await this.getTableNames();
+
 		if (!tables.includes("schema_version")) {
 			console.error("Schema version table not found");
-			return { version: 0, description: 'Schema version table not found' };
+
+			return { version: 0, description: "Schema version table not found" };
 		}
 		const statement = await this.db
 			.prepare("SELECT version, description FROM schema_version")
 			.bind()
 			.first();
-		return { version: statement?.version as number, description: statement?.description as string };
+
+		return {
+			version: statement?.version as number,
+			description: statement?.description as string,
+		};
 	}
 	async getTableNames(): Promise<string[]> {
 		const statement = await this.db

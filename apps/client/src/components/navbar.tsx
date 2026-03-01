@@ -41,7 +41,6 @@ import {
   DropdownTrigger,
 } from "@heroui/dropdown";
 import React from "react";
-import { useHref } from "react-router-dom";
 
 import { I18nIcon, LanguageSwitch } from "./language-switch";
 import {
@@ -157,10 +156,7 @@ export const Navbar = React.memo(() => {
                       }
                       permission={item.permission}
                     >
-                      <LinkUniversal
-                        color="foreground"
-                        href={item.href}
-                      >
+                      <LinkUniversal color="foreground" href={item.href}>
                         {item.label}
                       </LinkUniversal>
                     </AuthenticationGuardWithPermission>
@@ -243,16 +239,28 @@ export const Navbar = React.memo(() => {
             <LoginLogoutLink color="primary" />
           </NavbarMenuItem>
         </div>
-        
+
         <div className="border-t border-divider mt-4 pt-4 mx-4">
-          <p className="text-xs text-default-500 mb-3 font-semibold">{t("language")}</p>
+          <p className="text-xs text-default-500 mb-3 font-semibold">
+            {t("language")}
+          </p>
           <div className="flex gap-2 flex-wrap">
             {availableLanguages.map((lang) => (
               <Button
                 key={lang.code}
+                className={
+                  lang.code === localStorage.getItem("preferredLanguage") ||
+                  lang.code === i18n.language
+                    ? "text-primary font-semibold"
+                    : "text-default-600"
+                }
                 size="sm"
-                className={lang.code === localStorage.getItem("preferredLanguage") || lang.code === i18n.language ? "text-primary font-semibold" : "text-default-600"}
-                variant={lang.code === localStorage.getItem("preferredLanguage") || lang.code === i18n.language ? "solid" : "light"}
+                variant={
+                  lang.code === localStorage.getItem("preferredLanguage") ||
+                  lang.code === i18n.language
+                    ? "solid"
+                    : "light"
+                }
                 onPress={() => {
                   i18n.changeLanguage(lang.code);
                   localStorage.setItem("preferredLanguage", lang.code);
@@ -260,7 +268,8 @@ export const Navbar = React.memo(() => {
                   document.documentElement.dir = lang.isRTL ? "rtl" : "ltr";
                 }}
               >
-                {lang.code.split("-")[1]?.toUpperCase() || lang.code.toUpperCase()}
+                {lang.code.split("-")[1]?.toUpperCase() ||
+                  lang.code.toUpperCase()}
               </Button>
             ))}
           </div>

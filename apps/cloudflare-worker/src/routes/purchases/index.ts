@@ -23,6 +23,7 @@
  */
 
 import { Router } from "../router";
+
 import { setupPurchaseCrudRoutes } from "./crud";
 import { setupPurchaseListRoutes } from "./list";
 import { setupPurchaseAmountRoutes } from "./amounts";
@@ -33,9 +34,9 @@ import { setupPurchaseSearchRoutes } from "./search";
  * Setup all purchase routes
  */
 export const setupPurchaseRoutes = (router: Router, env: Env) => {
-    setupPurchaseSearchRoutes(router, env);
-    setupPurchaseCrudRoutes(router, env);
-    setupPurchaseListRoutes(router, env);
-    setupPurchaseAmountRoutes(router, env);
-    setupPurchaseStatusRoutes(router, env);
+	setupPurchaseSearchRoutes(router, env);
+	setupPurchaseCrudRoutes(router, env);
+	setupPurchaseListRoutes(router, env);
+	setupPurchaseAmountRoutes(router, env);
+	setupPurchaseStatusRoutes(router, env);
 };

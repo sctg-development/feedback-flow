@@ -90,9 +90,9 @@ export const LinkUniversal = forwardRef<HTMLAnchorElement, LinkUniversalProps>(
       return (
         <RouterLink
           ref={ref as any}
-          to={href || ""}
-          className={styledClassName}
           aria-disabled={isDisabled}
+          className={styledClassName}
+          to={href || ""}
           {...props}
         >
           {children}

@@ -71,7 +71,6 @@ export function OpenAPI({
       ? import.meta.env.BASE_URL + "openapi.json"
       : import.meta.env.BASE_URL + "/openapi.json");
 
-
   // Fetch the OpenAPI spec from the server
   const [openApiSpec, setOpenApiSpec] = useState<any>(null);
 
@@ -106,65 +105,70 @@ export function OpenAPI({
     }
   }, [bearer, swaggerUIInstance]);
 
-    // Custom Swagger UI Plugin to display scope chips
-    const ScopeChipsPlugin = () => {
-        let currentSecurity: any = null;
-        return {
-            wrapComponents: {
-                // Intercept the security props from OperationSummary
-                OperationSummary: (Original: any) => (props: any) => {
-                    const security = props.operationProps.get("security");
-                    currentSecurity = security ? security.toJS() : null;
-                    return <Original {...props} />;
-                },
-                // Render the scope chips before the original padlock button
-                authorizeOperationBtn: (Original: any) => (props: any) => {
-                    const scopes: string[] = [];
-                    if (currentSecurity && Array.isArray(currentSecurity)) {
-                        currentSecurity.forEach((scheme: any) => {
-                            const schemeName = Object.keys(scheme)[0];
-                            if (scheme[schemeName] && Array.isArray(scheme[schemeName])) {
-                                scheme[schemeName].forEach((scope: string) => {
-                                    if (!scopes.includes(scope)) {
-                                        scopes.push(scope);
-                                    }
-                                });
-                            }
-                        });
-                    }
+  // Custom Swagger UI Plugin to display scope chips
+  const ScopeChipsPlugin = () => {
+    let currentSecurity: any = null;
 
-                    return (
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            {scopes.map((scope) => (
-                                <span
-                                    key={scope}
-                                    style={{
-                                        backgroundColor: "#4990e2", // Swagger UI typical blueish color
-                                        color: "white",
-                                        borderRadius: "12px",
-                                        padding: "2px 8px",
-                                        fontSize: "12px",
-                                        fontWeight: "bold",
-                                        fontFamily: "monospace",
-                                        lineHeight: "1",
-                                    }}
-                                >
-                                    {scope}
-                                </span>
-                            ))}
-                            <Original {...props} />
-                        </div>
-                    );
-                },
-            },
-        };
+    return {
+      wrapComponents: {
+        // Intercept the security props from OperationSummary
+        OperationSummary: (Original: any) => (props: any) => {
+          const security = props.operationProps.get("security");
+
+          currentSecurity = security ? security.toJS() : null;
+
+          return <Original {...props} />;
+        },
+        // Render the scope chips before the original padlock button
+        authorizeOperationBtn: (Original: any) => (props: any) => {
+          const scopes: string[] = [];
+
+          if (currentSecurity && Array.isArray(currentSecurity)) {
+            currentSecurity.forEach((scheme: any) => {
+              const schemeName = Object.keys(scheme)[0];
+
+              if (scheme[schemeName] && Array.isArray(scheme[schemeName])) {
+                scheme[schemeName].forEach((scope: string) => {
+                  if (!scopes.includes(scope)) {
+                    scopes.push(scope);
+                  }
+                });
+              }
+            });
+          }
+
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {scopes.map((scope) => (
+                <span
+                  key={scope}
+                  style={{
+                    backgroundColor: "#4990e2", // Swagger UI typical blueish color
+                    color: "white",
+                    borderRadius: "12px",
+                    padding: "2px 8px",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    fontFamily: "monospace",
+                    lineHeight: "1",
+                  }}
+                >
+                  {scope}
+                </span>
+              ))}
+              <Original {...props} />
+            </div>
+          );
+        },
+      },
     };
+  };
 
-    return (
-        <SwaggerUI
-            spec={openApiSpec as unknown as Object}
-            onComplete={onComplete}
-            plugins={[ScopeChipsPlugin]}
-        />
-    );
+  return (
+    <SwaggerUI
+      plugins={[ScopeChipsPlugin]}
+      spec={openApiSpec as unknown as Object}
+      onComplete={onComplete}
+    />
+  );
 }

@@ -25,11 +25,27 @@
 // Database for testing purposes
 
 import { v4 as uuidv4 } from "uuid";
+
 import { generateShortCode } from "../utilities/short-link-generator";
+import {
+	Feedback,
+	Link,
+	Publication,
+	Purchase,
+	Refund,
+	Tester,
+	PurchasesStatisticsData,
+} from "../types/data";
 
-import { Feedback, Link, Publication, Purchase, Refund, Tester, PurchasesStatisticsData } from "../types/data";
-
-import { DATABASESCHEMA, DEFAULT_PAGINATION, FeedbackFlowDB, PaginatedResult, PurchaseStatus, PurchaseStatusResponse, PurchaseWithFeedback } from "./db";
+import {
+	DATABASESCHEMA,
+	DEFAULT_PAGINATION,
+	FeedbackFlowDB,
+	PaginatedResult,
+	PurchaseStatus,
+	PurchaseStatusResponse,
+	PurchaseWithFeedback,
+} from "./db";
 
 /**
  * In-memory database class for testing purposes
@@ -96,6 +112,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			const found = ids.filter((id) =>
 				this.data.ids.some((mapping) => mapping.id === id),
 			);
+
 			return found;
 		},
 
@@ -314,14 +331,17 @@ export class InMemoryDB implements FeedbackFlowDB {
 		find: async (fn: (purchase: Purchase) => boolean) =>
 			this.data.purchases.find(fn),
 
-		refunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
+		refunded: async (
+			testerUuid: string,
+			pagination?: typeof DEFAULT_PAGINATION,
+		): Promise<PaginatedResult<Purchase>> => {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
 
 			// Filter the purchases by tester and refunded status
 			const filteredPurchases = this.data.purchases.filter(
-				(p) => p.testerUuid === testerUuid && p.refunded
+				(p) => p.testerUuid === testerUuid && p.refunded,
 			);
 
 			const totalCount = filteredPurchases.length;
@@ -338,6 +358,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 						: b.order.localeCompare(a.order);
 				}
 			});
+
 			// If pagination.limit is <= 0, return all results
 			if (pagination.limit <= 0) {
 				return { results: sortedPurchases, totalCount };
@@ -345,7 +366,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			// Apply pagination
 			const paginatedPurchases = sortedPurchases.slice(
 				(pagination.page - 1) * pagination.limit,
-				pagination.page * pagination.limit
+				pagination.page * pagination.limit,
 			);
 
 			return { results: paginatedPurchases, totalCount };
@@ -356,16 +377,20 @@ export class InMemoryDB implements FeedbackFlowDB {
 			const totalAmount = refunded.results.reduce((acc, purchase) => {
 				return acc + purchase.amount;
 			}, 0);
+
 			return totalAmount;
 		},
-		notRefunded: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<Purchase>> => {
+		notRefunded: async (
+			testerUuid: string,
+			pagination?: typeof DEFAULT_PAGINATION,
+		): Promise<PaginatedResult<Purchase>> => {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
 
 			// Filter the purchases by tester and not refunded status
 			const filteredPurchases = this.data.purchases.filter(
-				(p) => p.testerUuid === testerUuid && !p.refunded
+				(p) => p.testerUuid === testerUuid && !p.refunded,
 			);
 
 			const totalCount = filteredPurchases.length;
@@ -386,7 +411,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			// Apply pagination
 			const paginatedPurchases = sortedPurchases.slice(
 				(pagination.page - 1) * pagination.limit,
-				pagination.page * pagination.limit
+				pagination.page * pagination.limit,
 			);
 
 			return { results: paginatedPurchases, totalCount };
@@ -396,7 +421,10 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param testerUuid UUID of the tester
 		 * @param pagination Optional pagination parameters
 		 */
-		readyForRefund: async (testerUuid: string, pagination?: typeof DEFAULT_PAGINATION): Promise<PaginatedResult<PurchaseWithFeedback>> => {
+		readyForRefund: async (
+			testerUuid: string,
+			pagination?: typeof DEFAULT_PAGINATION,
+		): Promise<PaginatedResult<PurchaseWithFeedback>> => {
 			if (!pagination) {
 				pagination = DEFAULT_PAGINATION;
 			}
@@ -407,28 +435,35 @@ export class InMemoryDB implements FeedbackFlowDB {
 			// 3. Having feedback
 			// 4. Having publication (this is what was missing before)
 			const filteredPurchases = this.data.purchases.filter(
-				(p) => p.testerUuid === testerUuid &&
+				(p) =>
+					p.testerUuid === testerUuid &&
 					!p.refunded &&
 					this.data.feedbacks.some((feedback) => feedback.purchase === p.id) &&
-					this.data.publications.some((publication) => publication.purchase === p.id)
+					this.data.publications.some(
+						(publication) => publication.purchase === p.id,
+					),
 			);
 
 			const totalCount = filteredPurchases.length;
 
 			// Enhance purchase objects with feedback and publication data
-			const enhancedPurchases = filteredPurchases.map(purchase => {
+			const enhancedPurchases = filteredPurchases.map((purchase) => {
 				// Find the feedback for this purchase
-				const feedback = this.data.feedbacks.find(f => f.purchase === purchase.id);
+				const feedback = this.data.feedbacks.find(
+					(f) => f.purchase === purchase.id,
+				);
 
 				// Find the publication for this purchase
-				const publication = this.data.publications.find(p => p.purchase === purchase.id);
+				const publication = this.data.publications.find(
+					(p) => p.purchase === purchase.id,
+				);
 
 				return {
 					...purchase,
 					feedback: feedback?.feedback || "",
 					feedbackDate: feedback?.date || "",
 					publicationScreenshot: publication?.screenshot,
-					publicationDate: publication?.date
+					publicationDate: publication?.date,
 				} as PurchaseWithFeedback;
 			});
 
@@ -448,7 +483,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			// Apply pagination
 			const paginatedPurchases = sortedPurchases.slice(
 				(pagination.page - 1) * pagination.limit,
-				pagination.page * pagination.limit
+				pagination.page * pagination.limit,
 			);
 
 			return { results: paginatedPurchases, totalCount };
@@ -458,16 +493,20 @@ export class InMemoryDB implements FeedbackFlowDB {
 			const totalAmount = notRefunded.results.reduce((acc, purchase) => {
 				return acc + purchase.amount;
 			}, 0);
+
 			return totalAmount;
 		},
 		delete: async (id: string) => {
 			const index = this.data.purchases.findIndex(
 				(purchase) => purchase.id === id,
 			);
+
 			if (index >= 0) {
 				this.data.purchases.splice(index, 1);
+
 				return true;
 			}
+
 			return false;
 		},
 		/**
@@ -579,61 +618,58 @@ export class InMemoryDB implements FeedbackFlowDB {
 			);
 
 			// Build the status for each purchase
-			let globalResult = testerPurchases
-				.map((purchase) => {
-					// Check for related feedback, publication, and refund
-					const hasFeedback = this.data.feedbacks.find(
-						(feedback) => feedback.purchase === purchase.id,
-					);
+			let globalResult = testerPurchases.map((purchase) => {
+				// Check for related feedback, publication, and refund
+				const hasFeedback = this.data.feedbacks.find(
+					(feedback) => feedback.purchase === purchase.id,
+				);
 
-					const hasPublication = this.data.publications.find(
-						(publication) => publication.purchase === purchase.id,
-					);
+				const hasPublication = this.data.publications.find(
+					(publication) => publication.purchase === purchase.id,
+				);
 
-					const hasRefund = this.data.refunds.find(
-						(refund) => refund.purchase === purchase.id,
-					);
+				const hasRefund = this.data.refunds.find(
+					(refund) => refund.purchase === purchase.id,
+				);
 
-					// Return the purchase status object
-					return {
-						purchase: purchase.id,
-						testerUuid: purchase.testerUuid,
-						date: purchase.date,
-						order: purchase.order,
-						description: purchase.description,
-						amount: purchase.amount,
-						refunded: purchase.refunded || false,
-						hasFeedback: hasFeedback !== undefined,
-						hasPublication: hasPublication !== undefined,
-						hasRefund: hasRefund !== undefined,
-						publicationScreenshot: hasPublication?.screenshot,
-						purchaseScreenshot: purchase.screenshot,
-						screenshotSummary: purchase.screenshotSummary,
-						transactionId: hasRefund?.transactionId,
-					} as PurchaseStatus;
-				});
+				// Return the purchase status object
+				return {
+					purchase: purchase.id,
+					testerUuid: purchase.testerUuid,
+					date: purchase.date,
+					order: purchase.order,
+					description: purchase.description,
+					amount: purchase.amount,
+					refunded: purchase.refunded || false,
+					hasFeedback: hasFeedback !== undefined,
+					hasPublication: hasPublication !== undefined,
+					hasRefund: hasRefund !== undefined,
+					publicationScreenshot: hasPublication?.screenshot,
+					purchaseScreenshot: purchase.screenshot,
+					screenshotSummary: purchase.screenshotSummary,
+					transactionId: hasRefund?.transactionId,
+				} as PurchaseStatus;
+			});
 
 			// Filter out refunded purchases if requested
 			if (limitToNotRefunded) {
 				globalResult = globalResult.filter((purchase) => !purchase.refunded);
 			}
-			const result = globalResult
-				.slice(offset, offset + limit)
-				.sort((a, b) => {
-					if (sort === "date") {
-						if (order === "asc") {
-							return new Date(a.date).getTime() - new Date(b.date).getTime();
-						} else {
-							return new Date(b.date).getTime() - new Date(a.date).getTime();
-						}
+			const result = globalResult.slice(offset, offset + limit).sort((a, b) => {
+				if (sort === "date") {
+					if (order === "asc") {
+						return new Date(a.date).getTime() - new Date(b.date).getTime();
 					} else {
-						if (order === "asc") {
-							return a.order.localeCompare(b.order);
-						} else {
-							return b.order.localeCompare(a.order);
-						}
+						return new Date(b.date).getTime() - new Date(a.date).getTime();
 					}
-				});
+				} else {
+					if (order === "asc") {
+						return a.order.localeCompare(b.order);
+					} else {
+						return b.order.localeCompare(a.order);
+					}
+				}
+			});
 
 			// Construct the response object with pagination info
 			const pageInfo = {
@@ -642,13 +678,15 @@ export class InMemoryDB implements FeedbackFlowDB {
 				currentPage: page,
 				hasNextPage: page < Math.ceil(globalResult.length / limit),
 				hasPreviousPage: page > 1,
-				nextPage: page < Math.ceil(globalResult.length / limit) ? page + 1 : null,
+				nextPage:
+					page < Math.ceil(globalResult.length / limit) ? page + 1 : null,
 				previousPage: page > 1 ? page - 1 : null,
 			};
 			const response: PurchaseStatusResponse = {
 				results: result,
 				pageInfo,
 			};
+
 			return response;
 		},
 		/**
@@ -656,7 +694,9 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param testerUuid UUID of the tester
 		 * @returns {PurchasesStatisticsData} Statistics data for the tester's purchases
 		 */
-		getPurchaseStatistics: async (testerUuid: string): Promise<PurchasesStatisticsData> => {
+		getPurchaseStatistics: async (
+			testerUuid: string,
+		): Promise<PurchasesStatisticsData> => {
 			const purchases = this.data.purchases.filter(
 				(purchase) => purchase.testerUuid === testerUuid,
 			);
@@ -686,6 +726,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 				.reduce((acc, purchase) => {
 					return acc + purchase.amount;
 				}, 0);
+
 			return {
 				nbRefunded,
 				nbNotRefunded,
@@ -703,7 +744,10 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param query Search query string
 		 * @returns {string[]} Array of matching purchase IDs
 		 */
-		searchPurchases: async (testerUuid: string, query: string): Promise<string[]> => {
+		searchPurchases: async (
+			testerUuid: string,
+			query: string,
+		): Promise<string[]> => {
 			// Import fuzzy search utilities
 			const { fuzzySearchFields } = await import("../utilities/fuzzy-search");
 
@@ -718,10 +762,10 @@ export class InMemoryDB implements FeedbackFlowDB {
 						order: purchase.order,
 						description: purchase.description,
 						amount: purchase.amount,
-					})
+					}),
 				)
 				.map((purchase) => purchase.id);
-		}
+		},
 	};
 
 	/**
@@ -859,9 +903,14 @@ export class InMemoryDB implements FeedbackFlowDB {
 		 * @param {number} durationSeconds - How long the link should be valid (in seconds)
 		 * @returns {string} The generated 7-character code
 		 */
-		generate: async (purchaseId: string, durationSeconds: number): Promise<string> => {
+		generate: async (
+			purchaseId: string,
+			durationSeconds: number,
+		): Promise<string> => {
 			// Calculate expiration timestamp
-			const expiresAt = new Date(Date.now() + durationSeconds * 1000).toISOString();
+			const expiresAt = new Date(
+				Date.now() + durationSeconds * 1000,
+			).toISOString();
 
 			// Generate a unique code (retry if collision occurs, which is extremely unlikely)
 			let code: string;
@@ -874,13 +923,16 @@ export class InMemoryDB implements FeedbackFlowDB {
 
 				// Check if code already exists in the in-memory database
 				const exists = this.data.links.some((link) => link.code === code);
+
 				if (!exists) {
 					break; // Code is unique
 				}
 			} while (attempts < maxAttempts);
 
 			if (attempts >= maxAttempts) {
-				throw new Error("Failed to generate unique short code after multiple attempts");
+				throw new Error(
+					"Failed to generate unique short code after multiple attempts",
+				);
 			}
 
 			// Create and store the link
@@ -930,6 +982,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 
 			if (index >= 0) {
 				this.data.links.splice(index, 1);
+
 				return true;
 			}
 
@@ -956,6 +1009,7 @@ export class InMemoryDB implements FeedbackFlowDB {
 			// Filter out expired links
 			this.data.links = this.data.links.filter((link) => {
 				const expirationTime = new Date(link.expiresAt);
+
 				return now <= expirationTime;
 			});
 
