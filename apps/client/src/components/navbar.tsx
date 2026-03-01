@@ -70,7 +70,7 @@ export const Navbar = React.memo(() => {
           <LinkUniversal
             className="flex justify-start items-center gap-1"
             color="foreground"
-            href={useHref("/")}
+            href={"/"}
           >
             <Logo />
             <p className="font-bold text-inherit">{t("brand")}</p>
@@ -89,7 +89,7 @@ export const Navbar = React.memo(() => {
                     "data-[active=true]:text-primary data-[active=true]:font-medium",
                   )}
                   color="foreground"
-                  href={useHref(item.href)}
+                  href={item.href}
                 >
                   {item.label}
                 </LinkUniversal>
@@ -122,7 +122,7 @@ export const Navbar = React.memo(() => {
                         "data-[active=true]:text-primary data-[active=true]:font-medium",
                       )}
                       color="foreground"
-                      href={useHref(item.href)}
+                      href={item.href}
                     >
                       {item.label}
                     </LinkUniversal>
@@ -159,7 +159,7 @@ export const Navbar = React.memo(() => {
                     >
                       <LinkUniversal
                         color="foreground"
-                        href={useHref(item.href)}
+                        href={item.href}
                       >
                         {item.label}
                       </LinkUniversal>
