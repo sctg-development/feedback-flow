@@ -114,10 +114,15 @@ jobs:
             | sed 's|"id": "[^"]*"|"id": "'"${KV_CACHE_ID}"'"|' \
             | sed 's|"database_id": "[^"]*"|"database_id": "'"${D1_DATABASE_ID}"'"|' \
             > wrangler.jsonc.2
-          # if CLOUDFLARE_USE_PAGE_DEV_DOMAIN = true or 1, then also substitute DOMAIN_NAME into routes pattern and set custom_domain to true, otherwise leave routes as is
-          if [ "$CLOUDFLARE_USE_PAGE_DEV_DOMAIN" = "true" ] || [ "$CLOUDFLARE_USE_PAGE_DEV_DOMAIN" = "1" ]; then
+          # inject a custom-domain route only when we're *not* configured to use the page.dev domain
+          # treat any non‑empty, non‑false/0 value as "use page.dev"
+          val="${CLOUDFLARE_USE_PAGE_DEV_DOMAIN,,}"  # lowercase for case‑insensitive comparison
+          echo "CLOUDFLARE_USE_PAGE_DEV_DOMAIN value: '$val'"
+          if [ -n "$val" ] && [ "$val" != "false" ] && [ "$val" != "0" ]; then
+            # using page.dev domain, leave routes comment intact
             mv wrangler.jsonc.2 wrangler.jsonc
           else
+            # not using page.dev, add custom-domain route
             cat wrangler.jsonc.2 | sed 's|// "routes".*.|,"routes": [{ "pattern": "'"${DOMAIN_NAME}"'", "custom_domain": true }]|'  > wrangler.jsonc
           fi
           cat wrangler.jsonc
