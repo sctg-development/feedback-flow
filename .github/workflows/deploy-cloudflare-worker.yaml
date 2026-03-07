@@ -116,9 +116,9 @@ jobs:
             > wrangler.jsonc.2
           # if CLOUDFLARE_USE_PAGE_DEV_DOMAIN = true or 1, then also substitute DOMAIN_NAME into routes pattern and set custom_domain to true, otherwise leave routes as is
           if [ "$CLOUDFLARE_USE_PAGE_DEV_DOMAIN" = "true" ] || [ "$CLOUDFLARE_USE_PAGE_DEV_DOMAIN" = "1" ]; then
-            cat wrangler.jsonc.2 | sed 's|// "routes".*.|,"routes": [{ "pattern": "'"${DOMAIN_NAME}"'", "custom_domain": true }]|'  > wrangler.jsonc
-          else
             mv wrangler.jsonc.2 wrangler.jsonc
+          else
+            cat wrangler.jsonc.2 | sed 's|// "routes".*.|,"routes": [{ "pattern": "'"${DOMAIN_NAME}"'", "custom_domain": true }]|'  > wrangler.jsonc
           fi
           cat wrangler.jsonc
       - name: Deploy
