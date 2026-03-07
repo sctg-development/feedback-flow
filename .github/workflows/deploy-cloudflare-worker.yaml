@@ -98,7 +98,7 @@ jobs:
           echo "PAYPAL_TRANSACTION_BASE_URL=${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}" >> .env
           echo "D1_DATABASE_ID=${{ secrets.D1_DATABASE_ID }}" >> .env
           echo "KV_CACHE_ID=${{ secrets.KV_CACHE_ID }}" >> .env
-          echo "CLOUDFLARE_USE_PAGE_DEV_DOMAIN=${{ vars.CLOUDFLARE_USE_PAGE_DEV_DOMAIN }}" >> .env
+          echo "CLOUDFLARE_USE_PAGE_DEV_DOMAIN=${{ secrets.CLOUDFLARE_USE_PAGE_DEV_DOMAIN }}" >> .env
           cat .env
 
       - name: Replace "// vars.*" in wrangler.jsonc with a json string
@@ -177,4 +177,4 @@ jobs:
           TURBO_TEAM: ${{ vars.TURBO_TEAM }}
           D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
           KV_CACHE_ID: ${{ secrets.KV_CACHE_ID }}
-          CLOUDFLARE_USE_PAGE_DEV_DOMAIN: ${{ vars.CLOUDFLARE_USE_PAGE_DEV_DOMAIN }}
+          CLOUDFLARE_USE_PAGE_DEV_DOMAIN: ${{ secrets.CLOUDFLARE_USE_PAGE_DEV_DOMAIN }}
