@@ -96,6 +96,8 @@ jobs:
           echo "DB_MAX_IMAGE_SIZE=${{ vars.DB_MAX_IMAGE_SIZE }}" >> .env
           echo "AMAZON_BASE_URL=${{ vars.AMAZON_BASE_URL }}" >> .env
           echo "PAYPAL_TRANSACTION_BASE_URL=${{ secrets.PAYPAL_TRANSACTION_BASE_URL }}" >> .env
+          echo "D1_DATABASE_ID=${{ secrets.D1_DATABASE_ID }}" >> .env
+          echo "KV_CACHE_ID=${{ secrets.KV_CACHE_ID }}" >> .env
           cat .env
 
       - name: Replace "// vars.*" in wrangler.jsonc with a json string
@@ -105,7 +107,12 @@ jobs:
           cp wrangler.jsonc wrangler.jsonc.bak
           set -a && source .env && set +a 
           cat .env
-          cat wrangler.jsonc.bak | sed 's|// "vars".*.|,"vars": {  "PAYPAL_TRANSACTION_BASE_URL": "'"${PAYPAL_TRANSACTION_BASE_URL}"'", "AMAZON_BASE_URL": "'"${AMAZON_BASE_URL}"'", "AUTH0_DOMAIN": "'"${AUTH0_DOMAIN}"'", "AUTH0_CLIENT_ID": "'"${AUTH0_CLIENT_ID}"'","AUTH0_CLIENT_SECRET": "'"${AUTH0_CLIENT_SECRET}"'","AUTH0_MANAGEMENT_API_CLIENT_ID": "'"${AUTH0_MANAGEMENT_API_CLIENT_ID}"'","AUTH0_MANAGEMENT_API_CLIENT_SECRET": "'"${AUTH0_MANAGEMENT_API_CLIENT_SECRET}"'","AUTH0_SCOPE": "'"${AUTH0_SCOPE}"'", "AUTH0_AUDIENCE": "'"${AUTH0_AUDIENCE}"'", "API_BASE_URL": "'"${API_BASE_URL}"'", "CORS_ORIGIN": "'"${CORS_ORIGIN}"'", "DB_BACKEND": "'"${DB_BACKEND}"'", "DB_MAX_IMAGE_SIZE": "'"${DB_MAX_IMAGE_SIZE}"'", "BACKUP_PERMISSION": "'"${BACKUP_PERMISSION}"'", "READ_PERMISSION": "'"${READ_PERMISSION}"'", "WRITE_PERMISSION": "'"${WRITE_PERMISSION}"'", "ADMIN_PERMISSION": "'"${ADMIN_PERMISSION}"'", "SEARCH_PERMISSION": "'"${SEARCH_PERMISSION}"'","ADMIN_AUTH0_PERMISSION": "'"${ADMIN_AUTH0_PERMISSION}"'", "STATISTICS_LIMIT": "'"${STATISTICS_LIMIT}"'" }|' > wrangler.jsonc.2
+          # substitute environment vars into vars block, then overwrite IDs
+          cat wrangler.jsonc.bak \
+            | sed 's|// "vars".*.|,"vars": {  "PAYPAL_TRANSACTION_BASE_URL": "'"${PAYPAL_TRANSACTION_BASE_URL}"'", "AMAZON_BASE_URL": "'"${AMAZON_BASE_URL}"'", "AUTH0_DOMAIN": "'"${AUTH0_DOMAIN}"'", "AUTH0_CLIENT_ID": "'"${AUTH0_CLIENT_ID}"'","AUTH0_CLIENT_SECRET": "'"${AUTH0_CLIENT_SECRET}"'","AUTH0_MANAGEMENT_API_CLIENT_ID": "'"${AUTH0_MANAGEMENT_API_CLIENT_ID}"'","AUTH0_MANAGEMENT_API_CLIENT_SECRET": "'"${AUTH0_MANAGEMENT_API_CLIENT_SECRET}"'","AUTH0_SCOPE": "'"${AUTH0_SCOPE}"'", "AUTH0_AUDIENCE": "'"${AUTH0_AUDIENCE}"'", "API_BASE_URL": "'"${API_BASE_URL}"'", "CORS_ORIGIN": "'"${CORS_ORIGIN}"'", "DB_BACKEND": "'"${DB_BACKEND}"'", "DB_MAX_IMAGE_SIZE": "'"${DB_MAX_IMAGE_SIZE}"'", "BACKUP_PERMISSION": "'"${BACKUP_PERMISSION}"'", "READ_PERMISSION": "'"${READ_PERMISSION}"'", "WRITE_PERMISSION": "'"${WRITE_PERMISSION}"'", "ADMIN_PERMISSION": "'"${ADMIN_PERMISSION}"'", "SEARCH_PERMISSION": "'"${SEARCH_PERMISSION}"'","ADMIN_AUTH0_PERMISSION": "'"${ADMIN_AUTH0_PERMISSION}"'", "STATISTICS_LIMIT": "'"${STATISTICS_LIMIT}"'", "D1_DATABASE_ID": "'"${D1_DATABASE_ID}"'", "KV_CACHE_ID": "'"${KV_CACHE_ID}"'" }|' \
+            | sed 's|"id": "[^"]*"|"id": "'"${KV_CACHE_ID}"'"|' \
+            | sed 's|"database_id": "[^"]*"|"database_id": "'"${D1_DATABASE_ID}"'"|' \
+            > wrangler.jsonc.2
           cat wrangler.jsonc.2 | sed 's|// "routes".*.|,"routes": [{ "pattern": "'"${DOMAIN_NAME}"'", "custom_domain": true }]|'  > wrangler.jsonc
           cat wrangler.jsonc
       - name: Deploy
@@ -136,6 +143,8 @@ jobs:
             AMAZON_BASE_URL
             PAYPAL_TRANSACTION_BASE_URL
             STATISTICS_LIMIT
+            D1_DATABASE_ID
+            KV_CACHE_ID
         env:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
@@ -160,3 +169,5 @@ jobs:
           STATISTICS_LIMIT: ${{ vars.STATISTICS_LIMIT }}
           TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
           TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+          KV_CACHE_ID: ${{ secrets.KV_CACHE_ID }}
