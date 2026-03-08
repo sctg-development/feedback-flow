@@ -283,6 +283,52 @@ Feedback Flow uses a role-based permission system:
 - When refund is received, click **"Add Refund"**
 - Enter refund amount and date
 
+---
+
+### 📖 Feedback Flow User Guide
+
+**Feedback Flow user guide**
+
+A simple illustrated guide to track a purchase, add a comment, save publication and note refund.
+
+_Remember order: **purchase**, comment, publication, refund._
+
+#### 1. What is the app for
+Feedback Flow is used to keep your purchases, proofs, comments and refunds in one place.
+The home view first shows non‑refunded purchases, i.e. cases that still require action.
+
+#### 2. View all purchases
+The list shows every purchase, including those already refunded.
+
+#### 3. Create a new purchase
+To start a case click the create‑purchase button and fill order number, description, amount and date.
+Then add the confirmation screenshot and optionally the order summary.
+
+#### 4. Copy proofs
+You can easily copy screenshots to paste into a message or form.
+
+#### 5. Add the comment
+Enter your comment in the provided area.
+
+#### 6. Publish the comment
+Click the publish button when you are ready.
+
+#### 7. Move to refund
+After publication the action button becomes the refund button.
+It signals that the case is ready to record the received amount.
+
+#### 8. Enter the refund
+In the refund window, enter the actual amount received and the date.
+Transaction ID is optional but can help later.
+
+#### 9. Check statistics
+The statistics page displays numbers on feedback and refunds.
+
+**Simple tips**
+- Always keep your proofs and perform refunds in the recommended order.
+
+---
+
 #### Administrator Workflow
 
 **Managing Users and Testers**
