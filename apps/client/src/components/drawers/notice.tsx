@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
 import { Drawer, DrawerContent } from "@heroui/drawer";
 

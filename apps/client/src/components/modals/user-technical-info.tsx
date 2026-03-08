@@ -227,10 +227,7 @@ export const UserTechnicalInfoModal = memo<UserTechnicalInfoModalProps>(
                   variant="flat"
                 />
               </div>
-              <ScrollShadow
-                className="h-20 w-full"
-                orientation="horizontal"
-              >
+              <ScrollShadow className="h-20 w-full" orientation="horizontal">
                 <p className="text-[10px] text-default-500 font-mono break-all leading-relaxed select-all">
                   {accessToken || t("nav-user-dropdown-loading")}
                 </p>

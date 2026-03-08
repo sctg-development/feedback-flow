@@ -117,20 +117,21 @@ export default function DefaultLayout({
           API
         </LinkUniversal>
         &nbsp;
-        <span className="text-default-600" onClick={() => setIsModalOpen(true)}>{user?.name}</span>
-
+        <span className="text-default-600" onClick={() => setIsModalOpen(true)}>
+          {user?.name}
+        </span>
         {/* notice drawer toggle icon positioned right */}
         <button
-          type="button"
           aria-label={t("help-and-feedback")}
-          title={t("help-and-feedback")}
           className="absolute right-4 text-xl text-current"
+          title={t("help-and-feedback")}
+          type="button"
           onClick={() => setIsNoticeOpen(true)}
         >
           <QuestionIcon size={24} />
         </button>
       </footer>
-            {user ? (
+      {user ? (
         <UserTechnicalInfoModal
           accessToken={accessToken}
           isOpen={isModalOpen}
