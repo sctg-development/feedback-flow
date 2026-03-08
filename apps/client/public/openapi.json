@@ -2924,12 +2924,12 @@
             "authorizationUrl": "https://sctg.eu.auth0.com/authorize",
             "tokenUrl": "https://sctg.eu.auth0.com/oauth/token",
             "scopes": {
-              "read:api": "Read Api",
-              "write:api": "Write Api",
+              "auth0:admin:api": "Auth0 Admin Api",
               "admin:api": "Admin Api",
               "backup:api": "Backup Api",
+              "read:api": "Read Api",
               "search:api": "Search Api",
-              "auth0:admin:api": "Auth0 Admin Api",
+              "write:api": "Write Api",
               "openid": "Openid",
               "profile": "Profile",
               "email": "Email"

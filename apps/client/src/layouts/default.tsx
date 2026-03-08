@@ -27,6 +27,8 @@ import { getLocalJwkSet } from "@/components/jwks";
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
 import { UserTechnicalInfoModal } from "@/components/modals/user-technical-info";
+import { NoticeDrawer } from "@/components/drawers/notice";
+import { QuestionIcon } from "@/components/icons";
 
 export default function DefaultLayout({
   children,
@@ -38,6 +40,9 @@ export default function DefaultLayout({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [decodedToken, setDecodedToken] = useState<JWTPayload | null>(null);
+
+  // state for the lazy-loaded notice drawer
+  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
 
   const decodedTokenCacheRef = useRef<Map<string, JWTPayload>>(new Map());
 
@@ -91,7 +96,7 @@ export default function DefaultLayout({
       <main className="container mx-auto max-w-7xl px-6 grow pt-16">
         {children}
       </main>
-      <footer className="w-full flex items-center justify-center py-3">
+      <footer className="relative w-full flex items-center justify-center py-3">
         <LinkUniversal
           isExternal
           isInternet
@@ -113,6 +118,17 @@ export default function DefaultLayout({
         </LinkUniversal>
         &nbsp;
         <span className="text-default-600" onClick={() => setIsModalOpen(true)}>{user?.name}</span>
+
+        {/* notice drawer toggle icon positioned right */}
+        <button
+          type="button"
+          aria-label={t("help-and-feedback")}
+          title={t("help-and-feedback")}
+          className="absolute right-4 text-xl text-current"
+          onClick={() => setIsNoticeOpen(true)}
+        >
+          <QuestionIcon size={24} />
+        </button>
       </footer>
             {user ? (
         <UserTechnicalInfoModal
@@ -125,6 +141,12 @@ export default function DefaultLayout({
       ) : (
         <></>
       )}
+
+      {/* global notice drawer */}
+      <NoticeDrawer
+        isOpen={isNoticeOpen}
+        onClose={() => setIsNoticeOpen(false)}
+      />
     </div>
   );
 }
