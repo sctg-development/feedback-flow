@@ -138,6 +138,24 @@ Feedback Flow uses Auth0 for authentication. You'll need to:
 4. **Create an API** for backend authentication
 5. **Set up permissions** in your API
 
+### Auth0 tenant settings (important)
+
+Feedback Flow relies on Auth0 **refresh tokens** to keep the user logged in when the access token expires. To avoid the app appearing "connected" while using an expired access token, make sure your Auth0 tenant and API settings are configured as follows:
+
+- **Application (SPA)**
+  - **Use Refresh Tokens**: enabled
+  - **Refresh Token Rotation**: enabled (recommended)
+  - **Rotate refresh tokens**: enabled
+  - **Rotation overlap period**: 0 (ensures the refresh token is invalidated after use)
+
+- **Token lifetime settings** (Tenant > Settings / API settings):
+  - **Maximum Access Token Lifetime**: 86400 seconds (24h)
+  - **Idle Refresh Token Lifetime**: 1296000 seconds (15d)
+  - **Maximum Refresh Token Lifetime**: 2592000 seconds (30d)
+  - **Maximum ID Token Lifetime**: 36000 seconds (10h)
+
+These values match the behavior expected by the app, which automatically tries to refresh the access token when it is about to expire or when an API call returns `401`.
+
 Detailed Auth0 configuration instructions are available in [Auth0.md](https://github.com/sctg-development/feedback-flow/blob/main/Auth0.md).
 
 ### Step 3: Environment Configuration
