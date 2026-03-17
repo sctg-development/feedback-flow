@@ -12,6 +12,18 @@
         "tags": [
           "Testers"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
+        ],
         "parameters": [
           {
             "name": "page",
@@ -96,6 +108,18 @@
         "tags": [
           "Testers"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -177,6 +201,18 @@
         "tags": [
           "Testers"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -222,6 +258,18 @@
         "description": "Returns information about the authenticated tester. Requires admin permission.",
         "tags": [
           "Testers"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
         ],
         "responses": {
           "200": {
@@ -271,6 +319,18 @@
         "description": "Adds a new ID to an existing tester. Requires admin permission.",
         "tags": [
           "Testers"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
         ],
         "requestBody": {
           "required": true,
@@ -327,6 +387,18 @@
         "tags": [
           "Testers"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -371,6 +443,18 @@
         "tags": [
           "Purchases"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "write:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "write:api"
+            ]
+          }
+        ],
         "parameters": [
           {
             "name": "purchaseId",
@@ -414,6 +498,18 @@
         "tags": [
           "Purchases"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "write:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "write:api"
+            ]
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -456,6 +552,18 @@
         "tags": [
           "Purchases"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -496,6 +604,18 @@
         "description": "Updates an existing purchase record. Requires write permission.",
         "tags": [
           "Purchases"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "write:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "write:api"
+            ]
+          }
         ],
         "parameters": [
           {
@@ -583,6 +703,18 @@
         "tags": [
           "Purchases"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
+        ],
         "parameters": [
           {
             "name": "page",
@@ -668,6 +800,18 @@
         "description": "Returns a paginated list of purchases that are not refunded but have feedback and are ready for refund. Includes feedback data with each purchase. Requires read permission.",
         "tags": [
           "Purchases"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
         ],
         "parameters": [
           {
@@ -797,6 +941,18 @@
         "tags": [
           "Purchases"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
+        ],
         "parameters": [
           {
             "name": "page",
@@ -883,6 +1039,18 @@
         "tags": [
           "Purchases"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved total refunded amount",
@@ -918,6 +1086,18 @@
         "tags": [
           "Purchases"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved total non-refunded amount",
@@ -952,6 +1132,18 @@
         "description": "Returns a paginated list of purchase statuses for the authenticated user. Requires read permission.",
         "tags": [
           "Purchases"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
         ],
         "parameters": [
           {
@@ -1050,6 +1242,18 @@
         "description": "Returns paginated purchase statuses for a provided list of purchase IDs. Requires read permission.",
         "tags": [
           "Purchases"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
         ],
         "requestBody": {
           "required": true,
@@ -1167,6 +1371,18 @@
         "tags": [
           "Purchases"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "search:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "search:api"
+            ]
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1236,6 +1452,18 @@
         "tags": [
           "Feedback"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "write:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "write:api"
+            ]
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1278,6 +1506,18 @@
         "tags": [
           "Feedback"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "write:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "write:api"
+            ]
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1319,6 +1559,18 @@
         "description": "Returns information about a specific publication. Requires read permission.",
         "tags": [
           "Feedback"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
         ],
         "parameters": [
           {
@@ -1363,6 +1615,18 @@
         "tags": [
           "Refunds"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "write:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "write:api"
+            ]
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1404,6 +1668,18 @@
         "description": "Returns information about a specific refund. Requires read permission.",
         "tags": [
           "Refunds"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
         ],
         "parameters": [
           {
@@ -1447,6 +1723,18 @@
         "description": "Returns the difference between the total purchase amount of refunded purchases and the total refund amount. Requires read permission. Optional parameters (daysLimit or purchaseLimit) require search:api permission.",
         "tags": [
           "Statistics"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
         ],
         "parameters": [
           {
@@ -1531,6 +1819,18 @@
         "tags": [
           "Statistics"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
+        ],
         "parameters": [
           {
             "name": "daysLimit",
@@ -1609,6 +1909,18 @@
         "tags": [
           "Statistics"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "read:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "read:api"
+            ]
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved purchase statistics",
@@ -1656,6 +1968,18 @@
         "tags": [
           "System"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "backup:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "backup:api"
+            ]
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully exported database",
@@ -1674,6 +1998,18 @@
         "description": "Imports database from JSON. Only available for in-memory and D1 databases. Requires backup permission.",
         "tags": [
           "System"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "backup:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "backup:api"
+            ]
+          }
         ],
         "requestBody": {
           "required": true,
@@ -1714,6 +2050,18 @@
         "tags": [
           "System",
           "Auth0"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "auth0:admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "auth0:admin:api"
+            ]
+          }
         ],
         "responses": {
           "200": {
@@ -1784,6 +2132,18 @@
         "tags": [
           "System",
           "Cloudflare D1"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
         ],
         "responses": {
           "200": {
@@ -1870,6 +2230,18 @@
           "System",
           "Cloudflare D1"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved schema version",
@@ -1954,6 +2326,18 @@
           "System",
           "Cloudflare D1"
         ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully executed migrations",
@@ -2028,6 +2412,18 @@
         "description": "Creates a short public link that allows sharing dispute information.\nThe link is only valid if the purchase has:\n- A feedback entry (feedback created)\n- A publication entry (feedback published)\n\nThe link will expire after the specified duration (in seconds).\nRequires write:api permission.\n",
         "tags": [
           "Links"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "write:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "write:api"
+            ]
+          }
         ],
         "parameters": [
           {
@@ -2207,6 +2603,18 @@
         "description": "Removes all expired short links from the database.\nThis endpoint is typically called as a maintenance task to clean up\nlinks that have passed their expiration date.\n\nRequires admin:api permission.\n",
         "tags": [
           "Links"
+        ],
+        "security": [
+          {
+            "bearerAuth": [
+              "admin:api"
+            ]
+          },
+          {
+            "oauth2": [
+              "admin:api"
+            ]
+          }
         ],
         "responses": {
           "200": {
@@ -2507,6 +2915,27 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT"
+      },
+      "oauth2": {
+        "type": "oauth2",
+        "description": "Auth0 OAuth2 Authorization Code Flow",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://sctg.eu.auth0.com/authorize",
+            "tokenUrl": "https://sctg.eu.auth0.com/oauth/token",
+            "scopes": {
+              "read:api": "Read Api",
+              "write:api": "Write Api",
+              "admin:api": "Admin Api",
+              "backup:api": "Backup Api",
+              "search:api": "Search Api",
+              "auth0:admin:api": "Auth0 Admin Api",
+              "openid": "Openid",
+              "profile": "Profile",
+              "email": "Email"
+            }
+          }
+        }
       }
     }
   },
@@ -2514,6 +2943,9 @@
   "security": [
     {
       "bearerAuth": []
+    },
+    {
+      "oauth2": []
     }
   ]
 }

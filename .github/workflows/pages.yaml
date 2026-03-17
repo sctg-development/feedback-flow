@@ -67,21 +67,15 @@ jobs:
           yarn set version 4.2.2
           yarn install --immutable
 
-      - name: Temporary workaround for bug https://github.com/yarnpkg/berry/issues/7047
-        if: true # Temporarily enabled to work around bug
-        shell: bash
+      - name: Build with yarn
         run: |
-          ./build-reproductible-dev.sh
+          yarn build:env -- --base=/${{ github.event.repository.name }}
 
       - name: Create openapi.json file
         run: |
           cd apps/client
           # temporary workaround with yarn bug
           yarn openapi
-
-      - name: Build with yarn
-        run: |
-          yarn build:env -- --base=/${{ github.event.repository.name }}
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v4
