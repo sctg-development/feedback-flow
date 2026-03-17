@@ -316,6 +316,45 @@ export type GetAccessTokenFunction = {
   (options: GetTokenSilentlyOptions): Promise<any>;
 };
 
+const parseJwtPayload = (token: string): JWTPayload | null => {
+  try {
+    const [, payload] = token.split(".");
+    if (!payload) return null;
+
+    // base64url decoding
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const json = atob(base64);
+    return JSON.parse(json) as JWTPayload;
+  } catch {
+    return null;
+  }
+};
+
+const getAccessTokenWithAutoRefresh = async (
+  getAccessTokenSilently: GetAccessTokenFunction,
+  options: GetTokenSilentlyOptions,
+) => {
+  const accessToken = await getAccessTokenSilently(options);
+  const payload = parseJwtPayload(accessToken);
+
+  // If we cannot parse an expiry, just return what we got
+  if (!payload?.exp) {
+    return accessToken;
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const secondsLeft = payload.exp - now;
+
+  // If the token is expired (or about to), force refresh via ignoreCache.
+  // A small buffer helps avoid using a token right before it expires.
+  if (secondsLeft < 10) {
+    const refreshOptions = { ...options, ignoreCache: true } as any;
+    return getAccessTokenSilently(refreshOptions);
+  }
+
+  return accessToken;
+};
+
 /**
  * Fetches JSON data from a secured API endpoint using Auth0 token authentication.
  * Handles the token acquisition and authorization header setup automatically.
@@ -334,18 +373,41 @@ export const getJsonFromSecuredApi = async (
   url: string,
   getAccessTokenFunction: GetAccessTokenFunction,
 ) => {
-  try {
-    const accessToken = await getAccessTokenFunction({
+  const getToken = () =>
+    getAccessTokenWithAutoRefresh(getAccessTokenFunction, {
       authorizationParams: {
         audience: import.meta.env.AUTH0_AUDIENCE,
         scope: import.meta.env.AUTH0_SCOPE,
       },
     });
+
+  try {
+    const accessToken = await getToken();
+
     const apiResponse = await fetch(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+
+    // If server rejects, try to refresh and retry once
+    if (apiResponse.status === 401) {
+      const refreshedToken = await getAccessTokenFunction({
+        authorizationParams: {
+          audience: import.meta.env.AUTH0_AUDIENCE,
+          scope: import.meta.env.AUTH0_SCOPE,
+        },
+        ignoreCache: true,
+      } as any);
+
+      const retryResponse = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${refreshedToken}`,
+        },
+      });
+
+      return await retryResponse.json();
+    }
 
     return await apiResponse.json();
   } catch (error) {
@@ -368,13 +430,17 @@ export const postJsonToSecuredApi = async (
   data: any,
   getAccessTokenFunction: GetAccessTokenFunction,
 ) => {
-  try {
-    const accessToken = await getAccessTokenFunction({
+  const getToken = () =>
+    getAccessTokenWithAutoRefresh(getAccessTokenFunction, {
       authorizationParams: {
         audience: import.meta.env.AUTH0_AUDIENCE,
         scope: import.meta.env.AUTH0_SCOPE,
       },
     });
+
+  try {
+    const accessToken = await getToken();
+
     const apiResponse = await fetch(url, {
       method: "POST",
       headers: {
@@ -383,6 +449,27 @@ export const postJsonToSecuredApi = async (
       },
       body: JSON.stringify(data),
     });
+
+    if (apiResponse.status === 401) {
+      const refreshedToken = await getAccessTokenFunction({
+        authorizationParams: {
+          audience: import.meta.env.AUTH0_AUDIENCE,
+          scope: import.meta.env.AUTH0_SCOPE,
+        },
+        ignoreCache: true,
+      } as any);
+
+      const retryResponse = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${refreshedToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      return await retryResponse.json();
+    }
 
     return await apiResponse.json();
   } catch (error) {
@@ -403,13 +490,17 @@ export const deleteJsonFromSecuredApi = async (
   url: string,
   getAccessTokenFunction: GetAccessTokenFunction,
 ) => {
-  try {
-    const accessToken = await getAccessTokenFunction({
+  const getToken = () =>
+    getAccessTokenWithAutoRefresh(getAccessTokenFunction, {
       authorizationParams: {
         audience: import.meta.env.AUTH0_AUDIENCE,
         scope: import.meta.env.AUTH0_SCOPE,
       },
     });
+
+  try {
+    const accessToken = await getToken();
+
     const apiResponse = await fetch(url, {
       method: "DELETE",
       headers: {
@@ -417,6 +508,26 @@ export const deleteJsonFromSecuredApi = async (
         "Content-Type": "application/json",
       },
     });
+
+    if (apiResponse.status === 401) {
+      const refreshedToken = await getAccessTokenFunction({
+        authorizationParams: {
+          audience: import.meta.env.AUTH0_AUDIENCE,
+          scope: import.meta.env.AUTH0_SCOPE,
+        },
+        ignoreCache: true,
+      } as any);
+
+      const retryResponse = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${refreshedToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return await retryResponse.json();
+    }
 
     return await apiResponse.json();
   } catch (error) {
@@ -443,18 +554,39 @@ export const useSecuredApi = () => {
   const getJson = useCallback(
     async (url: string) => {
       try {
-        const accessToken = await getAccessTokenSilently({
-          authorizationParams: {
-            audience: import.meta.env.AUTH0_AUDIENCE,
-            scope: import.meta.env.AUTH0_SCOPE,
+        const accessToken = await getAccessTokenWithAutoRefresh(
+          getAccessTokenSilently,
+          {
+            authorizationParams: {
+              audience: import.meta.env.AUTH0_AUDIENCE,
+              scope: import.meta.env.AUTH0_SCOPE,
+            },
           },
-        });
+        );
 
         const apiResponse = await fetch(url, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+
+        if (apiResponse.status === 401) {
+          const refreshedToken = await getAccessTokenSilently({
+            authorizationParams: {
+              audience: import.meta.env.AUTH0_AUDIENCE,
+              scope: import.meta.env.AUTH0_SCOPE,
+            },
+            ignoreCache: true,
+          } as any);
+
+          const retryResponse = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${refreshedToken}`,
+            },
+          });
+
+          return await retryResponse.json();
+        }
 
         return await apiResponse.json();
       } catch (error) {
@@ -469,12 +601,15 @@ export const useSecuredApi = () => {
   const postJson = useCallback(
     async (url: string, data: any) => {
       try {
-        const accessToken = await getAccessTokenSilently({
-          authorizationParams: {
-            audience: import.meta.env.AUTH0_AUDIENCE,
-            scope: import.meta.env.AUTH0_SCOPE,
+        const accessToken = await getAccessTokenWithAutoRefresh(
+          getAccessTokenSilently,
+          {
+            authorizationParams: {
+              audience: import.meta.env.AUTH0_AUDIENCE,
+              scope: import.meta.env.AUTH0_SCOPE,
+            },
           },
-        });
+        );
 
         const apiResponse = await fetch(url, {
           method: "POST",
@@ -484,6 +619,27 @@ export const useSecuredApi = () => {
           },
           body: JSON.stringify(data),
         });
+
+        if (apiResponse.status === 401) {
+          const refreshedToken = await getAccessTokenSilently({
+            authorizationParams: {
+              audience: import.meta.env.AUTH0_AUDIENCE,
+              scope: import.meta.env.AUTH0_SCOPE,
+            },
+            ignoreCache: true,
+          } as any);
+
+          const retryResponse = await fetch(url, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${refreshedToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          return await retryResponse.json();
+        }
 
         return await apiResponse.json();
       } catch (error) {
@@ -498,12 +654,15 @@ export const useSecuredApi = () => {
   const deleteJson = useCallback(
     async (url: string, data?: any) => {
       try {
-        const accessToken = await getAccessTokenSilently({
-          authorizationParams: {
-            audience: import.meta.env.AUTH0_AUDIENCE,
-            scope: import.meta.env.AUTH0_SCOPE,
+        const accessToken = await getAccessTokenWithAutoRefresh(
+          getAccessTokenSilently,
+          {
+            authorizationParams: {
+              audience: import.meta.env.AUTH0_AUDIENCE,
+              scope: import.meta.env.AUTH0_SCOPE,
+            },
           },
-        });
+        );
 
         const apiResponse = await fetch(url, {
           method: "DELETE",
@@ -513,6 +672,27 @@ export const useSecuredApi = () => {
           },
           body: data ? JSON.stringify(data) : undefined,
         });
+
+        if (apiResponse.status === 401) {
+          const refreshedToken = await getAccessTokenSilently({
+            authorizationParams: {
+              audience: import.meta.env.AUTH0_AUDIENCE,
+              scope: import.meta.env.AUTH0_SCOPE,
+            },
+            ignoreCache: true,
+          } as any);
+
+          const retryResponse = await fetch(url, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${refreshedToken}`,
+              "Content-Type": "application/json",
+            },
+            body: data ? JSON.stringify(data) : undefined,
+          });
+
+          return await retryResponse.json();
+        }
 
         return await apiResponse.json();
       } catch (error) {
