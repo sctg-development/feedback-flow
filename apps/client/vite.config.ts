@@ -7,6 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { githubPagesSpa } from "@sctg/vite-plugin-github-pages-spa";
 import dotenv from "dotenv";
 import path from "path";
+
 const env = dotenv.config({
   path: path.resolve(import.meta.dirname, '.env'),
 });
