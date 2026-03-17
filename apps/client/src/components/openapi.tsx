@@ -26,49 +26,63 @@
 import { useEffect, useState, useCallback } from "react";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
-import { useTranslation } from "react-i18next";
-import { useAuth0 } from "@auth0/auth0-react";
 
-export function OpenAPI() {
-  const { t } = useTranslation();
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [token, setToken] = useState<string | null>(null);
-  const url = import.meta.env.BASE_URL.endsWith("/")
-    ? import.meta.env.BASE_URL + "openapi.json"
-    : import.meta.env.BASE_URL + "/openapi.json";
+export interface OpenAPIProps {
+  /**
+   * URL where the OpenAPI json should be fetched from.
+   * If omitted the component will still attempt to read from
+   * `import.meta.env.BASE_URL` as a fallback, but callers are
+   * encouraged to supply the value explicitly for reusability.
+   */
+  source?: string;
 
   /**
-   * If user is authenticated, set the token 
+   * List of server base URLs that will be injected into the
+   * specification before rendering. Corresponds to `servers` in
+   * the OpenAPI document.
    */
-  useEffect(() => {
-    if (isAuthenticated) {
-      getAccessTokenSilently().then((token) => {
-        setToken(token);
-      });
-    } else {
-      setToken(null);
-    }
-  }, [isAuthenticated, getAccessTokenSilently]);
+  dataServers: string[];
+
+  /**
+   * Human‑readable description that will be attached to each of
+   * the provided servers (they all share the same description).
+   */
+  description: string;
+
+  /**
+   * Optional bearer token that will be used to pre‑authorize the
+   * Swagger UI instance. The parent component is responsible for
+   * obtaining or refreshing the token; this component has no
+   * dependency on any SDK or authentication library.
+   */
+  bearer?: string;
+}
+
+export function OpenAPI({
+  source,
+  dataServers,
+  description,
+  bearer,
+}: OpenAPIProps) {
+  // compute the URL from prop or fallback to env
+  const url =
+    source ||
+    (import.meta.env.BASE_URL.endsWith("/")
+      ? import.meta.env.BASE_URL + "openapi.json"
+      : import.meta.env.BASE_URL + "/openapi.json");
 
   // Fetch the OpenAPI spec from the server
-  const [openApiSpec, setOpenApiSpec] = useState(null);
+  const [openApiSpec, setOpenApiSpec] = useState<any>(null);
 
   useEffect(() => {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        data.servers = [
-          {
-            url: import.meta.env.API_BASE_URL.endsWith("/api")
-              ? import.meta.env.API_BASE_URL.split("/api")[0]
-              : import.meta.env.API_BASE_URL,
-            description: t("api-server"),
-          },
-        ];
+        data.servers = dataServers.map((u) => ({ url: u, description }));
         setOpenApiSpec(data);
       })
       .catch((error) => console.error("Error fetching OpenAPI spec:", error));
-  }, [url, t]);
+  }, [url, dataServers, description]);
 
   // Callback when SwaggerUI is ready
   const [swaggerUIInstance, setSwaggerUIInstance] = useState<any>(null);
@@ -78,16 +92,81 @@ export function OpenAPI() {
     setSwaggerUIInstance(instance);
   }, []);
 
-  // Effect to set authorization when token or SwaggerUI instance changes
+  /**
+   * whenever a bearer token is provided by the parent, apply it
+   * to the UI. the parent is responsible for refreshing/obtaining
+   * a token (e.g. via Auth0) so this component has no SDK
+   * dependency.
+   */
   useEffect(() => {
-    if (token && swaggerUIInstance) {
-      console.log("Setting bearer token:", token);
-      swaggerUIInstance.preauthorizeApiKey("bearerAuth", token);
+    if (bearer && swaggerUIInstance) {
+      console.log("Setting bearer token:", bearer);
+      swaggerUIInstance.preauthorizeApiKey("bearerAuth", bearer);
     }
-  }, [token, swaggerUIInstance]);
+  }, [bearer, swaggerUIInstance]);
+
+  // Custom Swagger UI Plugin to display scope chips
+  const ScopeChipsPlugin = () => {
+    let currentSecurity: any = null;
+
+    return {
+      wrapComponents: {
+        // Intercept the security props from OperationSummary
+        OperationSummary: (Original: any) => (props: any) => {
+          const security = props.operationProps.get("security");
+
+          currentSecurity = security ? security.toJS() : null;
+
+          return <Original {...props} />;
+        },
+        // Render the scope chips before the original padlock button
+        authorizeOperationBtn: (Original: any) => (props: any) => {
+          const scopes: string[] = [];
+
+          if (currentSecurity && Array.isArray(currentSecurity)) {
+            currentSecurity.forEach((scheme: any) => {
+              const schemeName = Object.keys(scheme)[0];
+
+              if (scheme[schemeName] && Array.isArray(scheme[schemeName])) {
+                scheme[schemeName].forEach((scope: string) => {
+                  if (!scopes.includes(scope)) {
+                    scopes.push(scope);
+                  }
+                });
+              }
+            });
+          }
+
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {scopes.map((scope) => (
+                <span
+                  key={scope}
+                  style={{
+                    backgroundColor: "#4990e2", // Swagger UI typical blueish color
+                    color: "white",
+                    borderRadius: "12px",
+                    padding: "2px 8px",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    fontFamily: "monospace",
+                    lineHeight: "1",
+                  }}
+                >
+                  {scope}
+                </span>
+              ))}
+              <Original {...props} />
+            </div>
+          );
+        },
+      },
+    };
+  };
 
   return (
     <SwaggerUI
+      plugins={[ScopeChipsPlugin]}
       spec={openApiSpec as unknown as Object}
       onComplete={onComplete}
     />

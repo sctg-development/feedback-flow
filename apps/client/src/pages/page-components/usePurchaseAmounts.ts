@@ -23,6 +23,7 @@
  */
 
 import { useState, useEffect } from "react";
+
 import { useSecuredApi } from "@/components/auth0";
 
 /**
@@ -45,7 +46,10 @@ import { useSecuredApi } from "@/components/auth0";
  * @param refreshTrigger - Number that triggers a refresh when changed (used for manual refreshes)
  * @returns Object containing titleData with refunded and non-refunded amounts
  */
-export const usePurchaseAmounts = (toggleAllPurchases: boolean, refreshTrigger: number) => {
+export const usePurchaseAmounts = (
+  toggleAllPurchases: boolean,
+  refreshTrigger: number,
+) => {
   // Access the secured API functions for making authenticated requests
   const { getJson } = useSecuredApi();
 
@@ -53,7 +57,7 @@ export const usePurchaseAmounts = (toggleAllPurchases: boolean, refreshTrigger: 
   // Contains both refunded and non-refunded purchase totals
   const [titleData, setTitleData] = useState({
     notRefundedAmount: 0, // Total amount of non-refunded purchases
-    refundedAmount: 0,    // Total amount of refunded purchases
+    refundedAmount: 0, // Total amount of refunded purchases
   });
 
   // Effect hook to load amounts when toggle changes or table refreshes
@@ -76,16 +80,16 @@ export const usePurchaseAmounts = (toggleAllPurchases: boolean, refreshTrigger: 
       );
 
       // Also load non-refunded amounts when showing all purchases
-      getJson(`${import.meta.env.API_BASE_URL}/purchases/not-refunded-amount`).then(
-        (data) => {
-          if (data.success) {
-            setTitleData((prev) => ({
-              ...prev,
-              notRefundedAmount: data.amount,
-            }));
-          }
-        },
-      );
+      getJson(
+        `${import.meta.env.API_BASE_URL}/purchases/not-refunded-amount`,
+      ).then((data) => {
+        if (data.success) {
+          setTitleData((prev) => ({
+            ...prev,
+            notRefundedAmount: data.amount,
+          }));
+        }
+      });
     } else {
       // When showing only non-refunded purchases, only load non-refunded amounts
       // Reset refunded amount to 0 since we're not showing refunded purchases

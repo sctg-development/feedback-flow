@@ -17,22 +17,18 @@
  */
 import type React from "react";
 
-import { LinkUniversal } from "@/components/link-universal";
 import { Trans, useTranslation } from "react-i18next";
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-} from "@heroui/dropdown";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useRef, useState } from "react";
-import { Snippet } from "@heroui/snippet";
 import { JWTPayload, jwtVerify } from "jose";
-import { getLocalJwkSet } from "@/components/jwks";
 
+import { LinkUniversal } from "@/components/link-universal";
+import { getLocalJwkSet } from "@/components/jwks";
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
+import { UserTechnicalInfoModal } from "@/components/modals/user-technical-info";
+import { NoticeDrawer } from "@/components/drawers/notice";
+import { QuestionIcon } from "@/components/icons";
 
 export default function DefaultLayout({
   children,
@@ -41,8 +37,12 @@ export default function DefaultLayout({
 }) {
   const { t } = useTranslation();
   const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [decodedToken, setDecodedToken] = useState<JWTPayload | null>(null);
+
+  // state for the lazy-loaded notice drawer
+  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
 
   const decodedTokenCacheRef = useRef<Map<string, JWTPayload>>(new Map());
 
@@ -54,12 +54,14 @@ export default function DefaultLayout({
     const loadToken = async () => {
       try {
         const token = await getAccessTokenSilently();
+
         if (!isMounted) return;
 
         setAccessToken(token);
 
         if (decodedTokenCacheRef.current.has(token)) {
           setDecodedToken(decodedTokenCacheRef.current.get(token) || null);
+
           return;
         }
 
@@ -71,6 +73,7 @@ export default function DefaultLayout({
         });
 
         const payload = verified.payload as JWTPayload;
+
         decodedTokenCacheRef.current.set(token, payload);
 
         if (isMounted) setDecodedToken(payload);
@@ -90,13 +93,13 @@ export default function DefaultLayout({
   return (
     <div className="relative flex flex-col h-screen">
       <Navbar />
-      <main className="container mx-auto max-w-7xl px-6 flex-grow pt-16">
+      <main className="container mx-auto max-w-7xl px-6 grow pt-16">
         {children}
       </main>
-      <footer className="w-full flex items-center justify-center py-3">
+      <footer className="relative w-full flex items-center justify-center py-3">
         <LinkUniversal
-          isInternet
           isExternal
+          isInternet
           className="flex items-center gap-1 text-current"
           href={siteConfig().links.sctg}
           title={t("site-homepage")}
@@ -106,43 +109,45 @@ export default function DefaultLayout({
           </span>
           <p className="text-primary">{t("brand")}&nbsp;</p>
         </LinkUniversal>
-        <Dropdown>
-          <DropdownTrigger>
-            {isAuthenticated ? (
-              <span>
-                {t("user")}: &nbsp;{user?.name}
-              </span>
-            ) : (
-              <></>
-            )}
-          </DropdownTrigger>
-          <DropdownMenu className="max-w-5xl">
-            <DropdownItem key="user-logged" textValue="user-logged">
-              <span className="text-default-600">{t("token")}:</span>
-              <br />
-              <Snippet className="max-w-4xl" symbol="" title="api-response">
-                <div className="max-w-2xs sm:max-w-sm md:max-w-md lg:max-w-3xl  whitespace-break-spaces  text-wrap break-words">
-                  {accessToken}
-                </div>
-              </Snippet>
-              <br />
-              <span className="text-default-600">
-                {t("expiration")}:{" "}
-                {new Date((decodedToken?.exp || 0) * 1000).toLocaleString()}
-              </span>
-              <br />
-              <span className="text-default-600">
-                {t("permissions")}:{" "}
-                {((decodedToken?.permissions as string[]) || []).join(", ") ||
-                  t("no-permissions")}
-              </span>
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-        <LinkUniversal className="flex items-center mx-1" color="secondary" href="/docs">
+        <LinkUniversal
+          className="flex items-center mx-1"
+          color="secondary"
+          href={"/docs"}
+        >
           API
         </LinkUniversal>
+        &nbsp;
+        <span className="text-default-600" onClick={() => setIsModalOpen(true)}>
+          {user?.name}
+        </span>
+        {/* notice drawer toggle icon positioned right */}
+        <button
+          aria-label={t("help-and-feedback")}
+          className="absolute right-4 text-xl text-current"
+          title={t("help-and-feedback")}
+          type="button"
+          onClick={() => setIsNoticeOpen(true)}
+        >
+          <QuestionIcon size={24} />
+        </button>
       </footer>
+      {user ? (
+        <UserTechnicalInfoModal
+          accessToken={accessToken}
+          isOpen={isModalOpen}
+          tokenPayload={decodedToken}
+          user={user}
+          onClose={() => setIsModalOpen(false)}
+        />
+      ) : (
+        <></>
+      )}
+
+      {/* global notice drawer */}
+      <NoticeDrawer
+        isOpen={isNoticeOpen}
+        onClose={() => setIsNoticeOpen(false)}
+      />
     </div>
   );
 }

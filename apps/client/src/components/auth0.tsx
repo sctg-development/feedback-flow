@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { Auth0User, Auth0Permission, Auth0Role } from "@/types/data";
+
 import {
   GetTokenSilentlyOptions,
   useAuth0,
@@ -23,12 +25,19 @@ import {
 } from "@auth0/auth0-react";
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
-import { FC, ReactNode, useEffect, useState, useCallback, useMemo } from "react";
+import {
+  FC,
+  ReactNode,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@heroui/link";
 import { JWTPayload, jwtVerify } from "jose";
+
 import { getLocalJwkSet } from "@/components/jwks";
-import type { Auth0User, Auth0Permission, Auth0Role } from "@/types/data";
 
 /**
  * Renders the user's profile name with a tooltip showing their username.
@@ -36,8 +45,6 @@ import type { Auth0User, Auth0Permission, Auth0Role } from "@/types/data";
  */
 export function Profile() {
   const { user } = useAuth0();
-
-
 
   return (
     <Tooltip content={user?.nickname} delay={750}>
@@ -84,12 +91,12 @@ export const LoginButton: FC<{ text?: string }> = ({ text }) => {
 export const LoginLink: FC<{
   text?: string;
   color?:
-  | "primary"
-  | "foreground"
-  | "secondary"
-  | "success"
-  | "warning"
-  | "danger";
+    | "primary"
+    | "foreground"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger";
 }> = ({ text, color }) => {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
   const { t } = useTranslation();
@@ -187,12 +194,12 @@ interface LogoutLinkProps extends LogoutButtonProps {
    * Button color
    */
   color?:
-  | "primary"
-  | "foreground"
-  | "secondary"
-  | "success"
-  | "warning"
-  | "danger";
+    | "primary"
+    | "foreground"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger";
 }
 /**
  * Renders a logout link for Auth0 authentication.
@@ -433,80 +440,89 @@ export const deleteJsonFromSecuredApi = async (
 export const useSecuredApi = () => {
   const { getAccessTokenSilently } = useAuth0();
 
-  const getJson = useCallback(async (url: string) => {
-    try {
-      const accessToken = await getAccessTokenSilently({
-        authorizationParams: {
-          audience: import.meta.env.AUTH0_AUDIENCE,
-          scope: import.meta.env.AUTH0_SCOPE,
-        },
-      });
+  const getJson = useCallback(
+    async (url: string) => {
+      try {
+        const accessToken = await getAccessTokenSilently({
+          authorizationParams: {
+            audience: import.meta.env.AUTH0_AUDIENCE,
+            scope: import.meta.env.AUTH0_SCOPE,
+          },
+        });
 
-      const apiResponse = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+        const apiResponse = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
-      return await apiResponse.json();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-      throw error;
-    }
-  }, [getAccessTokenSilently]);
+        return await apiResponse.json();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        throw error;
+      }
+    },
+    [getAccessTokenSilently],
+  );
 
-  const postJson = useCallback(async (url: string, data: any) => {
-    try {
-      const accessToken = await getAccessTokenSilently({
-        authorizationParams: {
-          audience: import.meta.env.AUTH0_AUDIENCE,
-          scope: import.meta.env.AUTH0_SCOPE,
-        },
-      });
+  const postJson = useCallback(
+    async (url: string, data: any) => {
+      try {
+        const accessToken = await getAccessTokenSilently({
+          authorizationParams: {
+            audience: import.meta.env.AUTH0_AUDIENCE,
+            scope: import.meta.env.AUTH0_SCOPE,
+          },
+        });
 
-      const apiResponse = await fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+        const apiResponse = await fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
 
-      return await apiResponse.json();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-      throw error;
-    }
-  }, [getAccessTokenSilently]);
+        return await apiResponse.json();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        throw error;
+      }
+    },
+    [getAccessTokenSilently],
+  );
 
-  const deleteJson = useCallback(async (url: string, data?: any) => {
-    try {
-      const accessToken = await getAccessTokenSilently({
-        authorizationParams: {
-          audience: import.meta.env.AUTH0_AUDIENCE,
-          scope: import.meta.env.AUTH0_SCOPE,
-        },
-      });
+  const deleteJson = useCallback(
+    async (url: string, data?: any) => {
+      try {
+        const accessToken = await getAccessTokenSilently({
+          authorizationParams: {
+            audience: import.meta.env.AUTH0_AUDIENCE,
+            scope: import.meta.env.AUTH0_SCOPE,
+          },
+        });
 
-      const apiResponse = await fetch(url, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: data ? JSON.stringify(data) : undefined,
-      });
+        const apiResponse = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: data ? JSON.stringify(data) : undefined,
+        });
 
-      return await apiResponse.json();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-      throw error;
-    }
-  }, [getAccessTokenSilently]);
+        return await apiResponse.json();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        throw error;
+      }
+    },
+    [getAccessTokenSilently],
+  );
 
   /**
    * Returns a boolean indicating if the user has the specified permission
@@ -535,37 +551,40 @@ export const useSecuredApi = () => {
    * }
    * ```
    */
-  const hasPermission = useCallback(async (permission: string) => {
-    try {
-      const accessToken = await getAccessTokenSilently({
-        authorizationParams: {
+  const hasPermission = useCallback(
+    async (permission: string) => {
+      try {
+        const accessToken = await getAccessTokenSilently({
+          authorizationParams: {
+            audience: import.meta.env.AUTH0_AUDIENCE,
+            scope: import.meta.env.AUTH0_SCOPE,
+          },
+        });
+
+        if (!accessToken) {
+          return false;
+        }
+        // Use cached local JWKS set to avoid repeated network jwks.json fetches
+        const JWKS = await getLocalJwkSet(import.meta.env.AUTH0_DOMAIN);
+        const joseResult = await jwtVerify(accessToken, JWKS, {
+          issuer: `https://${import.meta.env.AUTH0_DOMAIN}/`,
           audience: import.meta.env.AUTH0_AUDIENCE,
-          scope: import.meta.env.AUTH0_SCOPE,
-        },
-      });
+        });
+        const payload = joseResult.payload as JWTPayload;
 
-      if (!accessToken) {
-        return false;
+        if (payload.permissions instanceof Array) {
+          return payload.permissions.includes(permission);
+        } else {
+          return false;
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        throw error;
       }
-      // Use cached local JWKS set to avoid repeated network jwks.json fetches
-      const JWKS = await getLocalJwkSet(import.meta.env.AUTH0_DOMAIN);
-      const joseResult = await jwtVerify(accessToken, JWKS, {
-        issuer: `https://${import.meta.env.AUTH0_DOMAIN}/`,
-        audience: import.meta.env.AUTH0_AUDIENCE,
-      });
-      const payload = joseResult.payload as JWTPayload;
-
-      if (payload.permissions instanceof Array) {
-        return payload.permissions.includes(permission);
-      } else {
-        return false;
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-      throw error;
-    }
-  }, [getAccessTokenSilently]);
+    },
+    [getAccessTokenSilently],
+  );
 
   // Memoize the returned object so consumers get stable function identities
   const securedApi = useMemo(
@@ -582,13 +601,16 @@ export const useSecuredApi = () => {
           `${import.meta.env.API_BASE_URL}/__auth0/token`,
           {},
         );
+
         return tokenResp;
       } catch (error) {
         console.error("Failed to get Auth0 management token:", error);
         throw error;
       }
     },
-    listAuth0Users: async (managementToken: string): Promise<Auth0User[] | null> => {
+    listAuth0Users: async (
+      managementToken: string,
+    ): Promise<Auth0User[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users?per_page=100`,
@@ -600,6 +622,7 @@ export const useSecuredApi = () => {
             },
           },
         );
+
         // debug: listAuth0Users called and response status handled above
         return (await resp.json()) as Auth0User[];
       } catch (error) {
@@ -607,22 +630,31 @@ export const useSecuredApi = () => {
         throw error;
       }
     },
-    listAuth0Roles: async (managementToken: string): Promise<Auth0Role[] | null> => {
+    listAuth0Roles: async (
+      managementToken: string,
+    ): Promise<Auth0Role[] | null> => {
       try {
-        const resp = await fetch(`https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${managementToken}`,
-            "Content-Type": "application/json",
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
+
         return (await resp.json()) as Auth0Role[];
       } catch (error) {
         console.error("Failed to list Auth0 roles:", error);
         throw error;
       }
     },
-    getUserRoles: async (managementToken: string, userId: string): Promise<Auth0Role[] | null> => {
+    getUserRoles: async (
+      managementToken: string,
+      userId: string,
+    ): Promise<Auth0Role[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/roles`,
@@ -634,13 +666,18 @@ export const useSecuredApi = () => {
             },
           },
         );
+
         return (await resp.json()) as Auth0Role[];
       } catch (error) {
         console.error("Failed to get user roles:", error);
         throw error;
       }
     },
-    addUserToRole: async (managementToken: string, roleId: string, userId: string): Promise<any> => {
+    addUserToRole: async (
+      managementToken: string,
+      roleId: string,
+      userId: string,
+    ): Promise<any> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles/${encodeURIComponent(roleId)}/users`,
@@ -653,13 +690,18 @@ export const useSecuredApi = () => {
             body: JSON.stringify({ users: [userId] }),
           },
         );
+
         return await resp.json();
       } catch (error) {
         console.error("Failed to add user to role:", error);
         throw error;
       }
     },
-    removeUserFromRole: async (managementToken: string, roleId: string, userId: string) => {
+    removeUserFromRole: async (
+      managementToken: string,
+      roleId: string,
+      userId: string,
+    ) => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/roles/${encodeURIComponent(roleId)}/users`,
@@ -672,22 +714,31 @@ export const useSecuredApi = () => {
             body: JSON.stringify({ users: [userId] }),
           },
         );
+
         return await resp.json();
       } catch (error) {
         console.error("Failed to remove user from role:", error);
         throw error;
       }
     },
-    patchAuth0User: async (managementToken: string, userId: string, body: any) => {
+    patchAuth0User: async (
+      managementToken: string,
+      userId: string,
+      body: any,
+    ) => {
       try {
-        const resp = await fetch(`https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`, {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${managementToken}`,
-            "Content-Type": "application/json",
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
           },
-          body: JSON.stringify(body),
-        });
+        );
+
         return await resp.json();
       } catch (error) {
         console.error("Failed to patch Auth0 user:", error);
@@ -696,21 +747,27 @@ export const useSecuredApi = () => {
     },
     deleteAuth0User: async (managementToken: string, userId: string) => {
       try {
-        const resp = await fetch(`https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${managementToken}`,
-            "Content-Type": "application/json",
+        const resp = await fetch(
+          `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${managementToken}`,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
+
         if (resp.status === 204) {
           // Auth0 returns 204 No Content on successful delete: return null to indicate success
           return null;
         }
         if (!resp.ok) {
           const text = await resp.text();
+
           throw new Error(`Auth0 delete user failed: ${resp.status} ${text}`);
         }
+
         // otherwise parse JSON
         return await resp.json();
       } catch (error) {
@@ -718,7 +775,10 @@ export const useSecuredApi = () => {
         throw error;
       }
     },
-    getUserPermissions: async (managementToken: string, userId: string): Promise<Auth0Permission[] | null> => {
+    getUserPermissions: async (
+      managementToken: string,
+      userId: string,
+    ): Promise<Auth0Permission[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,
@@ -730,13 +790,18 @@ export const useSecuredApi = () => {
             },
           },
         );
+
         return await resp.json();
       } catch (error) {
         console.error("Failed to get user permissions:", error);
         throw error;
       }
     },
-    addPermissionToUser: async (managementToken: string, userId: string, permissionName: string): Promise<Auth0Permission[] | null> => {
+    addPermissionToUser: async (
+      managementToken: string,
+      userId: string,
+      permissionName: string,
+    ): Promise<Auth0Permission[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,
@@ -756,13 +821,18 @@ export const useSecuredApi = () => {
             }),
           },
         );
+
         return await resp.json();
       } catch (error) {
         console.error("Failed to add permission to user:", error);
         throw error;
       }
     },
-    removePermissionFromUser: async (managementToken: string, userId: string, permissionName: string): Promise<Auth0Permission[] | null> => {
+    removePermissionFromUser: async (
+      managementToken: string,
+      userId: string,
+      permissionName: string,
+    ): Promise<Auth0Permission[] | null> => {
       try {
         const resp = await fetch(
           `https://${import.meta.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}/permissions`,
@@ -782,6 +852,7 @@ export const useSecuredApi = () => {
             }),
           },
         );
+
         return await resp.json();
       } catch (error) {
         console.error("Failed to remove permission from user:", error);
@@ -818,6 +889,7 @@ export const userHasPermission = async (
     }
 
     const cacheKey = `${permission}:${accessToken}`;
+
     if (permissionCheckCache.has(cacheKey)) {
       return permissionCheckCache.get(cacheKey) as boolean;
     }
@@ -832,6 +904,7 @@ export const userHasPermission = async (
     const payload = joseResult.payload as JWTPayload;
 
     let result = false;
+
     if (payload.permissions instanceof Array) {
       result = payload.permissions.includes(permission);
     } else {

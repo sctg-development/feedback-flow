@@ -32,19 +32,19 @@
  * @returns The normalized text
  */
 export function normalizeText(text: string): string {
-    return (
-        text
-            // Convert to lowercase
-            .toLowerCase()
-            // Normalize accents using NFD (decomposed form)
-            .normalize("NFD")
-            // Remove combining diacritical marks
-            .replace(/[\u0300-\u036f]/g, "")
-            // Replace common punctuation variations
-            .replace(/[.,]/g, " ")
-            // Remove extra whitespace
-            .trim()
-    );
+	return (
+		text
+			// Convert to lowercase
+			.toLowerCase()
+			// Normalize accents using NFD (decomposed form)
+			.normalize("NFD")
+			// Remove combining diacritical marks
+			.replace(/[\u0300-\u036f]/g, "")
+			// Replace common punctuation variations
+			.replace(/[.,]/g, " ")
+			// Remove extra whitespace
+			.trim()
+	);
 }
 
 /**
@@ -56,26 +56,26 @@ export function normalizeText(text: string): string {
  * @returns The distance (0 = identical)
  */
 function levenshteinDistance(str1: string, str2: string): number {
-    const m = str1.length;
-    const n = str2.length;
-    const dp: number[][] = Array(m + 1)
-        .fill(null)
-        .map(() => Array(n + 1).fill(0));
+	const m = str1.length;
+	const n = str2.length;
+	const dp: number[][] = Array(m + 1)
+		.fill(null)
+		.map(() => Array(n + 1).fill(0));
 
-    for (let i = 0; i <= m; i++) dp[i][0] = i;
-    for (let j = 0; j <= n; j++) dp[0][j] = j;
+	for (let i = 0; i <= m; i++) dp[i][0] = i;
+	for (let j = 0; j <= n; j++) dp[0][j] = j;
 
-    for (let i = 1; i <= m; i++) {
-        for (let j = 1; j <= n; j++) {
-            if (str1[i - 1] === str2[j - 1]) {
-                dp[i][j] = dp[i - 1][j - 1];
-            } else {
-                dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-            }
-        }
-    }
+	for (let i = 1; i <= m; i++) {
+		for (let j = 1; j <= n; j++) {
+			if (str1[i - 1] === str2[j - 1]) {
+				dp[i][j] = dp[i - 1][j - 1];
+			} else {
+				dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+			}
+		}
+	}
 
-    return dp[m][n];
+	return dp[m][n];
 }
 
 /**
@@ -86,13 +86,17 @@ function levenshteinDistance(str1: string, str2: string): number {
  * @param normalized2 - Second normalized string
  * @returns Similarity score (0-1)
  */
-export function calculateSimilarity(normalized1: string, normalized2: string): number {
-    if (normalized1 === normalized2) return 1;
-    if (!normalized1 || !normalized2) return 0;
+export function calculateSimilarity(
+	normalized1: string,
+	normalized2: string,
+): number {
+	if (normalized1 === normalized2) return 1;
+	if (!normalized1 || !normalized2) return 0;
 
-    const maxLength = Math.max(normalized1.length, normalized2.length);
-    const distance = levenshteinDistance(normalized1, normalized2);
-    return 1 - distance / maxLength;
+	const maxLength = Math.max(normalized1.length, normalized2.length);
+	const distance = levenshteinDistance(normalized1, normalized2);
+
+	return 1 - distance / maxLength;
 }
 
 /**
@@ -109,37 +113,41 @@ export function calculateSimilarity(normalized1: string, normalized2: string): n
  * @returns True if match found
  */
 export function fuzzyMatch(
-    query: string,
-    text: string,
-    threshold: number = 0.7,
+	query: string,
+	text: string,
+	threshold: number = 0.7,
 ): boolean {
-    if (!query || !text) return false;
+	if (!query || !text) return false;
 
-    const normalizedQuery = normalizeText(query);
-    const normalizedText = normalizeText(text);
+	const normalizedQuery = normalizeText(query);
+	const normalizedText = normalizeText(text);
 
-    // Check for exact substring match first (most common case)
-    if (normalizedText.includes(normalizedQuery)) return true;
+	// Check for exact substring match first (most common case)
+	if (normalizedText.includes(normalizedQuery)) return true;
 
-    // Split both into words for partial matching
-    const queryWords = normalizedQuery.split(/\s+/).filter((w) => w.length > 0);
-    const textWords = normalizedText.split(/\s+/).filter((w) => w.length > 0);
+	// Split both into words for partial matching
+	const queryWords = normalizedQuery.split(/\s+/).filter((w) => w.length > 0);
+	const textWords = normalizedText.split(/\s+/).filter((w) => w.length > 0);
 
-    // Check if any query word matches any text word with similarity threshold
-    for (const qWord of queryWords) {
-        let found = false;
-        for (const tWord of textWords) {
-            const similarity = calculateSimilarity(qWord, tWord);
-            if (similarity >= threshold) {
-                console.log(`Fuzzy match: "${qWord}" ~ "${tWord}" (score: ${similarity.toFixed(2)})`);
-                found = true;
-                break;
-            }
-        }
-        if (!found) return false;
-    }
+	// Check if any query word matches any text word with similarity threshold
+	for (const qWord of queryWords) {
+		let found = false;
 
-    return true;
+		for (const tWord of textWords) {
+			const similarity = calculateSimilarity(qWord, tWord);
+
+			if (similarity >= threshold) {
+				console.log(
+					`Fuzzy match: "${qWord}" ~ "${tWord}" (score: ${similarity.toFixed(2)})`,
+				);
+				found = true;
+				break;
+			}
+		}
+		if (!found) return false;
+	}
+
+	return true;
 }
 
 /**
@@ -151,11 +159,11 @@ export function fuzzyMatch(
  * @returns True if match found in any field
  */
 export function fuzzySearchFields(
-    query: string,
-    fields: Record<string, string | number>,
-    threshold?: number,
+	query: string,
+	fields: Record<string, string | number>,
+	threshold?: number,
 ): boolean {
-    return Object.values(fields).some((value) =>
-        fuzzyMatch(query, String(value), threshold),
-    );
+	return Object.values(fields).some((value) =>
+		fuzzyMatch(query, String(value), threshold),
+	);
 }

@@ -23,6 +23,7 @@
  */
 
 import { useState, useEffect } from "react";
+
 import { useSecuredApi } from "@/components/auth0";
 
 /**
@@ -50,7 +51,9 @@ export const usePurchasePermissions = () => {
 
   // State to track whether the user has write permissions
   // null = loading, true = has permission, false = no permission
-  const [hasWritePermission, setHasWritePermission] = useState<boolean | null>(null);
+  const [hasWritePermission, setHasWritePermission] = useState<boolean | null>(
+    null,
+  );
 
   // Effect hook to check permissions when the component mounts
   // This runs once when the hook is first used

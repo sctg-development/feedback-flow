@@ -23,109 +23,180 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { useTranslation } from "react-i18next";
 import { addToast } from "@heroui/toast";
+
 import { useSecuredApi } from "@/components/auth0";
 
 export default function AssignTesterModal({
-    isOpen,
-    onClose,
-    userIds,
-    onSuccess,
+  isOpen,
+  onClose,
+  userIds,
+  onSuccess,
 }: {
-    isOpen: boolean;
-    onClose: () => void;
-    userIds: string[]; // one or more Auth0 IDs
-    onSuccess?: () => void;
+  isOpen: boolean;
+  onClose: () => void;
+  userIds: string[]; // one or more Auth0 IDs
+  onSuccess?: () => void;
 }) {
-    const { t } = useTranslation();
-    const { getJson, postJson } = useSecuredApi();
-    const [testers, setTesters] = useState<Array<{ uuid: string; name: string }>>([]);
-    const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
-    const [createName, setCreateName] = useState("");
-    const [isCreating, setIsCreating] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation();
+  const { getJson, postJson } = useSecuredApi();
+  const [testers, setTesters] = useState<Array<{ uuid: string; name: string }>>(
+    [],
+  );
+  const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
+  const [createName, setCreateName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        if (!isOpen) return;
-        (async () => {
-            try {
-                const resp = await getJson(`${import.meta.env.API_BASE_URL}/testers`);
-                const data = resp?.data || [];
-                setTesters(data);
-            } catch (err) {
-                console.error(err);
-                addToast({ title: t("error"), description: t("error-fetching-data"), variant: "solid" });
-            }
-        })();
-    }, [isOpen]);
+  useEffect(() => {
+    if (!isOpen) return;
+    (async () => {
+      try {
+        const resp = await getJson(`${import.meta.env.API_BASE_URL}/testers`);
+        const data = resp?.data || [];
 
-    const assignToExisting = async () => {
-        if (!selectedUuid) return;
-        setIsSubmitting(true);
-        try {
-            const resp = await postJson(`${import.meta.env.API_BASE_URL}/tester/ids`, { uuid: selectedUuid, ids: userIds });
-            if (resp.success) {
-                addToast({ title: t("success"), description: t("assigned-successfully"), variant: "solid" });
-                onSuccess?.();
-                onClose();
-            } else {
-                addToast({ title: t("error"), description: resp.error || t("error-assigning-testers"), variant: "solid" });
-            }
-        } catch (err) {
-            console.error(err);
-            addToast({ title: t("error"), description: t("error-assigning-testers"), variant: "solid" });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+        setTesters(data);
+      } catch (err) {
+        console.error(err);
+        addToast({
+          title: t("error"),
+          description: t("error-fetching-data"),
+          variant: "solid",
+        });
+      }
+    })();
+  }, [isOpen]);
 
-    const createAndAssign = async () => {
-        if (!createName.trim()) return;
-        setIsCreating(true);
-        try {
-            const resp = await postJson(`${import.meta.env.API_BASE_URL}/tester`, { name: createName.trim(), ids: userIds });
-            if (resp.success) {
-                addToast({ title: t("success"), description: t("tester-created-and-assigned"), variant: "solid" });
-                onSuccess?.();
-                onClose();
-            } else {
-                addToast({ title: t("error"), description: resp.error || t("error-creating-tester"), variant: "solid" });
-            }
-        } catch (err) {
-            console.error(err);
-            addToast({ title: t("error"), description: t("error-creating-tester"), variant: "solid" });
-        } finally {
-            setIsCreating(false);
-        }
-    };
+  const assignToExisting = async () => {
+    if (!selectedUuid) return;
+    setIsSubmitting(true);
+    try {
+      const resp = await postJson(
+        `${import.meta.env.API_BASE_URL}/tester/ids`,
+        { uuid: selectedUuid, ids: userIds },
+      );
 
-    return (
-        <Modal isOpen={isOpen} onClose={onClose} aria-labelledby="assign-tester-title">
-            <ModalContent>
-                <ModalHeader id="assign-tester-title">{t("assign-tester")}</ModalHeader>
-                <ModalBody>
-                    <div className="mb-4">
-                        <label className="text-sm font-semibold">{t("select-tester")}</label>
-                        <select
-                            className="w-full p-2 border rounded mt-2"
-                            value={selectedUuid ?? ""}
-                            onChange={(e) => setSelectedUuid(e.target.value || null)}
-                        >
-                            <option value="">{t("choose-tester")}</option>
-                            {testers.map((tst) => (
-                                <option key={tst.uuid} value={tst.uuid}>{tst.name}</option>
-                            ))}
-                        </select>
-                        <div className="text-sm text-muted-foreground mt-2">{t("or-create-new-tester")}</div>
-                        <Input value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder={t("enter-tester-name")} className="mt-2" />
-                    </div>
+      if (resp.success) {
+        addToast({
+          title: t("success"),
+          description: t("assigned-successfully"),
+          variant: "solid",
+        });
+        onSuccess?.();
+        onClose();
+      } else {
+        addToast({
+          title: t("error"),
+          description: resp.error || t("error-assigning-testers"),
+          variant: "solid",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      addToast({
+        title: t("error"),
+        description: t("error-assigning-testers"),
+        variant: "solid",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-                    <div className="flex justify-end gap-2 mt-4">
-                        <Button onPress={onClose} color="secondary">{t("cancel")}</Button>
-                        <Button color="primary" isLoading={isSubmitting} disabled={!selectedUuid} onPress={assignToExisting}>{t("assign")}</Button>
-                        <Button color="primary" isLoading={isCreating} disabled={!createName.trim()} onPress={createAndAssign}>{t("create-and-assign")}</Button>
-                    </div>
-                </ModalBody>
-            </ModalContent>
-        </Modal>
-    );
+  const createAndAssign = async () => {
+    if (!createName.trim()) return;
+    setIsCreating(true);
+    try {
+      const resp = await postJson(`${import.meta.env.API_BASE_URL}/tester`, {
+        name: createName.trim(),
+        ids: userIds,
+      });
+
+      if (resp.success) {
+        addToast({
+          title: t("success"),
+          description: t("tester-created-and-assigned"),
+          variant: "solid",
+        });
+        onSuccess?.();
+        onClose();
+      } else {
+        addToast({
+          title: t("error"),
+          description: resp.error || t("error-creating-tester"),
+          variant: "solid",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      addToast({
+        title: t("error"),
+        description: t("error-creating-tester"),
+        variant: "solid",
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  return (
+    <Modal
+      aria-labelledby="assign-tester-title"
+      isOpen={isOpen}
+      onClose={onClose}
+    >
+      <ModalContent>
+        <ModalHeader id="assign-tester-title">{t("assign-tester")}</ModalHeader>
+        <ModalBody>
+          <div className="mb-4">
+            <label className="text-sm font-semibold">
+              {t("select-tester")}
+            </label>
+            <select
+              className="w-full p-2 border rounded mt-2"
+              value={selectedUuid ?? ""}
+              onChange={(e) => setSelectedUuid(e.target.value || null)}
+            >
+              <option value="">{t("choose-tester")}</option>
+              {testers.map((tst) => (
+                <option key={tst.uuid} value={tst.uuid}>
+                  {tst.name}
+                </option>
+              ))}
+            </select>
+            <div className="text-sm text-muted-foreground mt-2">
+              {t("or-create-new-tester")}
+            </div>
+            <Input
+              className="mt-2"
+              placeholder={t("enter-tester-name")}
+              value={createName}
+              onChange={(e) => setCreateName(e.target.value)}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button color="secondary" onPress={onClose}>
+              {t("cancel")}
+            </Button>
+            <Button
+              color="primary"
+              disabled={!selectedUuid}
+              isLoading={isSubmitting}
+              onPress={assignToExisting}
+            >
+              {t("assign")}
+            </Button>
+            <Button
+              color="primary"
+              disabled={!createName.trim()}
+              isLoading={isCreating}
+              onPress={createAndAssign}
+            >
+              {t("create-and-assign")}
+            </Button>
+          </div>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
 }

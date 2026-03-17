@@ -26,172 +26,178 @@ import { getDatabase } from "../../db/db";
 import { Router } from "../router";
 
 export const setupRefundRoutes = (router: Router, env: Env) => {
-    /**
-     * @openapi
-     * /api/refund:
-     *   post:
-     *     summary: Record refund
-     *     description: Records a refund for a purchase. Requires write permission.
-     *     tags:
-     *       - Refunds
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/RefundCreateRequest'
-     *     responses:
-     *       201:
-     *         description: Refund successfully recorded
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 success:
-     *                   type: boolean
-     *                 id:
-     *                   type: string
-     *       400:
-     *         description: Invalid request or missing required fields
-     */
-    router.post(
-        "/api/refund",
-        async (request) => {
-            const db = getDatabase(env);
+	/**
+	 * @openapi
+	 * /api/refund:
+	 *   post:
+	 *     summary: Record refund
+	 *     description: Records a refund for a purchase. Requires write permission.
+	 *     tags:
+	 *       - Refunds
+	 *     security:
+	 *       - bearerAuth: ["write:api"]
+	 *       - oauth2: ["write:api"]
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             $ref: '#/components/schemas/RefundCreateRequest'
+	 *     responses:
+	 *       201:
+	 *         description: Refund successfully recorded
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 id:
+	 *                   type: string
+	 *       400:
+	 *         description: Invalid request or missing required fields
+	 */
+	router.post(
+		"/api/refund",
+		async (request) => {
+			const db = getDatabase(env);
 
-            try {
-                const { date, purchase, refundDate, amount, transactionId } =
-                    (await request.json()) as RefundCreateRequest;
+			try {
+				const { date, purchase, refundDate, amount, transactionId } =
+					(await request.json()) as RefundCreateRequest;
 
-                if (!date || !purchase || !refundDate || amount === undefined) {
-                    return new Response(
-                        JSON.stringify({
-                            success: false,
-                            error: "All fields are required",
-                        }),
-                        {
-                            status: 400,
-                            headers: {
-                                ...router.corsHeaders,
-                                "Content-Type": "application/json",
-                            },
-                        },
-                    );
-                }
+				if (!date || !purchase || !refundDate || amount === undefined) {
+					return new Response(
+						JSON.stringify({
+							success: false,
+							error: "All fields are required",
+						}),
+						{
+							status: 400,
+							headers: {
+								...router.corsHeaders,
+								"Content-Type": "application/json",
+							},
+						},
+					);
+				}
 
-                // Add to database
-                const testerId = router.jwtPayload.sub;
+				// Add to database
+				const testerId = router.jwtPayload.sub;
 
-                if (!testerId) {
-                    return router.handleUnauthorizedRequest();
-                }
-                const id = await db.refunds.put(testerId, {
-                    date,
-                    purchase,
-                    refundDate,
-                    amount,
-                    transactionId,
-                });
+				if (!testerId) {
+					return router.handleUnauthorizedRequest();
+				}
+				const id = await db.refunds.put(testerId, {
+					date,
+					purchase,
+					refundDate,
+					amount,
+					transactionId,
+				});
 
-                return new Response(JSON.stringify({ success: true, id }), {
-                    status: 201,
-                    headers: {
-                        ...router.corsHeaders,
-                        "Content-Type": "application/json",
-                    },
-                });
-            } catch (error) {
-                return new Response(
-                    JSON.stringify({
-                        success: false,
-                        error: `Invalid request: ${(error as Error).message}`,
-                    }),
-                    {
-                        status: 400,
-                        headers: {
-                            ...router.corsHeaders,
-                            "Content-Type": "application/json",
-                        },
-                    },
-                );
-            }
-        },
-        env.WRITE_PERMISSION,
-    );
+				return new Response(JSON.stringify({ success: true, id }), {
+					status: 201,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				});
+			} catch (error) {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: `Invalid request: ${(error as Error).message}`,
+					}),
+					{
+						status: 400,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
+		},
+		env.WRITE_PERMISSION,
+	);
 
-    /**
-     * @openapi
-     * /api/refund/{id}:
-     *   get:
-     *     summary: Get refund info
-     *     description: Returns information about a specific refund. Requires read permission.
-     *     tags:
-     *       - Refunds
-     *     parameters:
-     *       - name: id
-     *         in: path
-     *         required: true
-     *         description: Purchase ID
-     *         schema:
-     *           type: string
-     *     responses:
-     *       200:
-     *         description: Successfully retrieved refund info
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 success:
-     *                   type: boolean
-     *                 data:
-     *                   $ref: '#/components/schemas/Refund'
-     *       404:
-     *         description: Refund not found
-     */
-    router.get(
-        "/api/refund/:id",
-        async (request) => {
-            const db = getDatabase(env);
-            const { id } = request.params;
+	/**
+	 * @openapi
+	 * /api/refund/{id}:
+	 *   get:
+	 *     summary: Get refund info
+	 *     description: Returns information about a specific refund. Requires read permission.
+	 *     tags:
+	 *       - Refunds
+	 *     security:
+	 *       - bearerAuth: ["read:api"]
+	 *       - oauth2: ["read:api"]
+	 *     parameters:
+	 *       - name: id
+	 *         in: path
+	 *         required: true
+	 *         description: Purchase ID
+	 *         schema:
+	 *           type: string
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved refund info
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 success:
+	 *                   type: boolean
+	 *                 data:
+	 *                   $ref: '#/components/schemas/Refund'
+	 *       404:
+	 *         description: Refund not found
+	 */
+	router.get(
+		"/api/refund/:id",
+		async (request) => {
+			const db = getDatabase(env);
+			const { id } = request.params;
 
-            // Find refund in the database
-            const refund = await db.refunds.find((r) => r.purchase === id);
+			// Find refund in the database
+			const refund = await db.refunds.find((r) => r.purchase === id);
 
-            if (!refund) {
-                return new Response(
-                    JSON.stringify({ success: false, error: "Refund not found" }),
-                    {
-                        status: 404,
-                        headers: {
-                            ...router.corsHeaders,
-                            "Content-Type": "application/json",
-                        },
-                    },
-                );
-            }
+			if (!refund) {
+				return new Response(
+					JSON.stringify({ success: false, error: "Refund not found" }),
+					{
+						status: 404,
+						headers: {
+							...router.corsHeaders,
+							"Content-Type": "application/json",
+						},
+					},
+				);
+			}
 
-            return new Response(
-                JSON.stringify({
-                    success: true,
-                    data: {
-                        date: refund.date,
-                        purchase: refund.purchase,
-                        refundDate: refund.refundDate,
-                        amount: refund.amount,
-                        transactionId: refund.transactionId,
-                    },
-                }),
-                {
-                    status: 200,
-                    headers: {
-                        ...router.corsHeaders,
-                        "Content-Type": "application/json",
-                    },
-                },
-            );
-        },
-        env.READ_PERMISSION,
-    );
+			return new Response(
+				JSON.stringify({
+					success: true,
+					data: {
+						date: refund.date,
+						purchase: refund.purchase,
+						refundDate: refund.refundDate,
+						amount: refund.amount,
+						transactionId: refund.transactionId,
+					},
+				}),
+				{
+					status: 200,
+					headers: {
+						...router.corsHeaders,
+						"Content-Type": "application/json",
+					},
+				},
+			);
+		},
+		env.READ_PERMISSION,
+	);
 };

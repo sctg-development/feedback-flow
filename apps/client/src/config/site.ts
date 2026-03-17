@@ -46,11 +46,11 @@ export const siteConfig = () => {
         component: OldestReadyToRefundPage,
       },
       {
-        label: i18next.t('statistics'),
+        label: i18next.t("statistics"),
         href: "/stats",
         permission: import.meta.env.READ_PERMISSION,
         component: StatsPage,
-      }
+      },
     ],
     navMenuItems: [
       {
@@ -76,7 +76,7 @@ export const siteConfig = () => {
         href: "/users-and-permissions",
         permission: import.meta.env.ADMIN_AUTH0_PERMISSION,
         component: UsersAndPermissionsPage,
-      }
+      },
     ],
     links: {
       github: "https://github.com/sctg-development/feedback-flow",

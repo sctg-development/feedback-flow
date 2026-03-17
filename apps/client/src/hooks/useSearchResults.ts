@@ -23,18 +23,19 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+
 import { PurchaseStatus } from "@/types/db";
 import { useSecuredApi } from "@/components/auth0";
 
 interface UseSearchResultsProps {
-    searchResults: string[];
-    isActive: boolean;
+  searchResults: string[];
+  isActive: boolean;
 }
 
 interface SearchResultData {
-    data: PurchaseStatus[];
-    isLoading: boolean;
-    error: string | null;
+  data: PurchaseStatus[];
+  isLoading: boolean;
+  error: string | null;
 }
 
 /**
@@ -44,51 +45,56 @@ interface SearchResultData {
  * @returns Object with data, loading state, and error
  */
 export function useSearchResults({
-    searchResults,
-    isActive,
+  searchResults,
+  isActive,
 }: UseSearchResultsProps): SearchResultData {
-    const [data, setData] = useState<PurchaseStatus[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const { postJson } = useSecuredApi();
+  const [data, setData] = useState<PurchaseStatus[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { postJson } = useSecuredApi();
 
-    const fetchSearchResults = useCallback(async () => {
-        if (!isActive || searchResults.length === 0) {
-            setData([]);
-            setError(null);
-            return;
-        }
+  const fetchSearchResults = useCallback(async () => {
+    if (!isActive || searchResults.length === 0) {
+      setData([]);
+      setError(null);
 
-        setIsLoading(true);
-        setError(null);
+      return;
+    }
 
-        try {
-            const responseData = (await postJson(
-                `${import.meta.env.API_BASE_URL}/purchase-status-batch`,
-                {
-                    purchaseIds: searchResults,
-                    page: 1,
-                    limit: 1000,
-                },
-            )) as Record<string, unknown>;
+    setIsLoading(true);
+    setError(null);
 
-            if (responseData && (responseData.success as boolean) && Array.isArray(responseData.data)) {
-                setData((responseData.data as PurchaseStatus[]) || []);
-            } else {
-                setError("Invalid response format");
-            }
-        } catch (err) {
-            console.error("Error fetching search results:", err);
-            setError(err instanceof Error ? err.message : "Unknown error");
-            setData([]);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [searchResults, isActive]);
+    try {
+      const responseData = (await postJson(
+        `${import.meta.env.API_BASE_URL}/purchase-status-batch`,
+        {
+          purchaseIds: searchResults,
+          page: 1,
+          limit: 1000,
+        },
+      )) as Record<string, unknown>;
 
-    useEffect(() => {
-        fetchSearchResults();
-    }, [fetchSearchResults]);
+      if (
+        responseData &&
+        (responseData.success as boolean) &&
+        Array.isArray(responseData.data)
+      ) {
+        setData((responseData.data as PurchaseStatus[]) || []);
+      } else {
+        setError("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching search results:", err);
+      setError(err instanceof Error ? err.message : "Unknown error");
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchResults, isActive]);
 
-    return { data, isLoading, error };
+  useEffect(() => {
+    fetchSearchResults();
+  }, [fetchSearchResults]);
+
+  return { data, isLoading, error };
 }

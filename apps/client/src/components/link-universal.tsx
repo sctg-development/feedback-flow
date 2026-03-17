@@ -16,12 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { forwardRef } from "react";
-import { Link } from "@heroui/link";
-import { link as linkStyles } from "@heroui/theme";
-import { clsx } from "@heroui/shared-utils";
 import type { ReactNode } from "react";
 import type { LinkProps } from "@heroui/link";
+
+import { forwardRef } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { link as linkStyles } from "@heroui/theme";
+import { clsx } from "@heroui/shared-utils";
 
 type LinkUniversalProps = Omit<LinkProps, "as"> & {
   /**
@@ -34,7 +35,7 @@ type LinkUniversalProps = Omit<LinkProps, "as"> & {
    * Children content of the link
    */
   children?: ReactNode;
-}
+};
 
 /**
  * LinkUniversal is a polymorphic link component that intelligently chooses
@@ -53,30 +54,25 @@ type LinkUniversalProps = Omit<LinkProps, "as"> & {
  * <LinkUniversal href="https://example.com" isInternet color="primary">External</LinkUniversal>
  */
 export const LinkUniversal = forwardRef<HTMLAnchorElement, LinkUniversalProps>(
-  ({ isInternet = false, children, className, href, color, size, underline, isDisabled, disableAnimation, isExternal, showAnchorIcon, anchorIcon, ...props }, ref) => {
-    // If not an internet link, use HeroUI Link component (supports react-router)
-    if (!isInternet) {
-      return (
-        <Link
-          ref={ref}
-          href={href}
-          color={color}
-          size={size}
-          underline={underline}
-          isDisabled={isDisabled}
-          disableAnimation={disableAnimation}
-          isExternal={isExternal}
-          showAnchorIcon={showAnchorIcon}
-          anchorIcon={anchorIcon}
-          className={className}
-          {...props}
-        >
-          {children}
-        </Link>
-      );
-    }
-
-    // For internet links, create a native <a> with HeroUI Link styles applied
+  (
+    {
+      isInternet = false,
+      children,
+      className,
+      href,
+      color,
+      size,
+      underline,
+      isDisabled,
+      disableAnimation,
+      isExternal,
+      showAnchorIcon,
+      anchorIcon,
+      ...props
+    },
+    ref,
+  ) => {
+    // decide whether to render an internal router link or external/internet link
     const styledClassName = clsx(
       linkStyles({
         color: color as any,
@@ -85,24 +81,42 @@ export const LinkUniversal = forwardRef<HTMLAnchorElement, LinkUniversalProps>(
         isDisabled: isDisabled as any,
         disableAnimation: disableAnimation as any,
       }),
-      className
+      className,
     );
 
+    if (!isInternet) {
+      // use react-router-dom Link for internal navigation
+      // href is expected to be a string path
+      return (
+        <RouterLink
+          ref={ref as any}
+          aria-disabled={isDisabled}
+          className={styledClassName}
+          to={href || ""}
+          {...props}
+        >
+          {children}
+          {showAnchorIcon && anchorIcon}
+        </RouterLink>
+      );
+    }
+
+    // For internet links, render native <a> with same styling
     return (
       <a
         ref={ref}
-        href={href}
-        className={styledClassName}
-        target={isExternal ? "_blank" : undefined}
-        rel={isExternal ? "noopener noreferrer" : undefined}
         aria-disabled={isDisabled}
+        className={styledClassName}
+        href={href}
+        rel={isExternal ? "noopener noreferrer" : undefined}
+        target={isExternal ? "_blank" : undefined}
         {...props}
       >
         {children}
         {showAnchorIcon && anchorIcon}
       </a>
     );
-  }
+  },
 );
 
 LinkUniversal.displayName = "LinkUniversal";

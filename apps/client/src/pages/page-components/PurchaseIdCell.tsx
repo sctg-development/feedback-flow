@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-import { CopyButton } from "@/components/copy-button";
 import { EditIcon } from "@heroui/shared-icons";
+
+import { CopyButton } from "@/components/copy-button";
 
 /**
  * Props interface for the PurchaseIdCell component
@@ -80,7 +81,11 @@ export const PurchaseIdCell = ({
         {/* Purchase ID display - clickable if publication exists */}
         <div
           // Apply clickable styling only if link generation is available
-          className={canGenerateLink ? "cursor-pointer hover:underline text-blue-500" : ""}
+          className={
+            canGenerateLink
+              ? "cursor-pointer hover:underline text-blue-500"
+              : ""
+          }
           onClick={() => {
             // Generate public link when clicked (only if publication exists)
             if (canGenerateLink) {

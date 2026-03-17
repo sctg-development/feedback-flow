@@ -17,18 +17,18 @@
  */
 
 // Import React hooks and utilities
-import { useClipboard } from "@heroui/use-clipboard";
-import { memo, useState, useEffect, useCallback } from "react";
-
-import { IconSvgProps } from "@/types";
 
 import type React from "react";
 
+import { memo, useState, useEffect, useCallback } from "react";
+import { useClipboard } from "@heroui/use-clipboard";
 import { forwardRef } from "react";
 import { Button, type ButtonProps } from "@heroui/button";
 import { clsx } from "@heroui/shared-utils";
 import { addToast } from "@heroui/toast";
 import { useTranslation } from "react-i18next";
+
+import { IconSvgProps } from "@/types";
 
 // PreviewButton is a simple wrapper around HeroUI Button for icon-only buttons
 export interface PreviewButtonProps extends ButtonProps {
@@ -108,7 +108,7 @@ export const PreviewButton = forwardRef<
 PreviewButton.displayName = "PreviewButton";
 
 // CopyButtonProps defines all the properties our CopyButton component accepts
-export interface CopyButtonProps extends Omit<ButtonProps, 'value'> {
+export interface CopyButtonProps extends Omit<ButtonProps, "value"> {
   // value can be a single string or an array of strings (for multiple items)
   value?: string | string[];
   /**
@@ -157,13 +157,13 @@ export const CopyButton = memo<CopyButtonProps>(
   }) => {
     // useTranslation hook for internationalization (i18n)
     const { t } = useTranslation();
-    
+
     // useClipboard hook from HeroUI provides copy function and copied state
     const { copy, copied } = useClipboard();
-    
+
     // State to track if there was an error during copying
     const [hasCopyError, setHasCopyError] = useState(false);
-    
+
     // State to track if an image was successfully copied (separate from text copying)
     const [imageCopied, setImageCopied] = useState(false);
 
@@ -174,6 +174,7 @@ export const CopyButton = memo<CopyButtonProps>(
         const timer = setTimeout(() => {
           setHasCopyError(false);
         }, copiedTimeout);
+
         return () => clearTimeout(timer); // Cleanup timer on unmount or dependency change
       }
     }, [hasCopyError, copiedTimeout]);
@@ -185,6 +186,7 @@ export const CopyButton = memo<CopyButtonProps>(
         const timer = setTimeout(() => {
           setImageCopied(false);
         }, copiedTimeout);
+
         return () => clearTimeout(timer); // Cleanup timer on unmount or dependency change
       }
     }, [imageCopied, copiedTimeout]);
@@ -197,11 +199,13 @@ export const CopyButton = memo<CopyButtonProps>(
           try {
             // Convert value to array of URLs, filtering out empty values
             // This allows copying multiple images at once
-            const imageUrls = Array.isArray(value) ? value.filter(url => url) : [value].filter(url => url);
+            const imageUrls = Array.isArray(value)
+              ? value.filter((url) => url)
+              : [value].filter((url) => url);
 
             // Validate that we have at least one valid URL
-            if (!imageUrls.length || imageUrls.some(url => !url)) {
-              throw new Error(t('no-value-to-copy'));
+            if (!imageUrls.length || imageUrls.some((url) => !url)) {
+              throw new Error(t("no-value-to-copy"));
             }
 
             // Arrays to store loaded images and their MIME types
@@ -211,20 +215,22 @@ export const CopyButton = memo<CopyButtonProps>(
             // Process each image URL
             for (const url of imageUrls) {
               if (!url) continue;
-              
+
               let blob: Blob;
-              let originalMimeType = 'image/png';
+              let originalMimeType = "image/png";
 
               // Check if it's a data URL (base64 encoded image)
-              if (url.startsWith('data:')) {
+              if (url.startsWith("data:")) {
                 // Extract MIME type from data URL (e.g., "image/png" from "data:image/png;base64,...")
                 const mimeMatch = url.match(/^data:([^;]+)/);
-                originalMimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+
+                originalMimeType = mimeMatch ? mimeMatch[1] : "image/png";
 
                 // Convert data URL to blob
-                const parts = url.split(',');
+                const parts = url.split(",");
+
                 if (parts.length !== 2) {
-                  throw new Error('Invalid data URL format');
+                  throw new Error("Invalid data URL format");
                 }
 
                 const data = parts[1];
@@ -232,6 +238,7 @@ export const CopyButton = memo<CopyButtonProps>(
                 // Decode base64 to binary string, then to Uint8Array
                 const binaryString = atob(data);
                 const bytes = new Uint8Array(binaryString.length);
+
                 for (let i = 0; i < binaryString.length; i++) {
                   bytes[i] = binaryString.charCodeAt(i);
                 }
@@ -240,27 +247,37 @@ export const CopyButton = memo<CopyButtonProps>(
               } else {
                 // It's a regular URL, fetch it from the network
                 const response = await fetch(url);
+
                 if (!response.ok) {
-                  throw new Error(`Failed to fetch image: ${response.statusText}`);
+                  throw new Error(
+                    `Failed to fetch image: ${response.statusText}`,
+                  );
                 }
                 blob = await response.blob();
-                originalMimeType = blob.type || 'image/png';
+                originalMimeType = blob.type || "image/png";
               }
 
               originalMimeTypes.push(originalMimeType);
 
               // Convert to PNG if needed (clipboard API only supports PNG/JPEG)
-              const supportedMimeTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+              const supportedMimeTypes = [
+                "image/png",
+                "image/jpeg",
+                "image/jpg",
+              ];
+
               if (!supportedMimeTypes.includes(originalMimeType)) {
                 // Create a canvas to convert the image to PNG
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
                 if (!ctx) {
-                  throw new Error('Could not get canvas context');
+                  throw new Error("Could not get canvas context");
                 }
 
                 const img = new Image();
-                img.crossOrigin = 'anonymous';
+
+                img.crossOrigin = "anonymous";
                 const blobUrl = URL.createObjectURL(blob);
 
                 try {
@@ -269,20 +286,17 @@ export const CopyButton = memo<CopyButtonProps>(
                       canvas.width = img.width;
                       canvas.height = img.height;
                       ctx.drawImage(img, 0, 0);
-                      canvas.toBlob(
-                        (pngBlob) => {
-                          if (!pngBlob) {
-                            reject(new Error('Failed to convert image to PNG'));
-                          } else {
-                            blob = pngBlob;
-                            resolve();
-                          }
-                        },
-                        'image/png'
-                      );
+                      canvas.toBlob((pngBlob) => {
+                        if (!pngBlob) {
+                          reject(new Error("Failed to convert image to PNG"));
+                        } else {
+                          blob = pngBlob;
+                          resolve();
+                        }
+                      }, "image/png");
                     };
                     img.onerror = () => {
-                      reject(new Error('Failed to load image'));
+                      reject(new Error("Failed to load image"));
                     };
                     img.src = blobUrl;
                   });
@@ -293,7 +307,8 @@ export const CopyButton = memo<CopyButtonProps>(
 
               // Load image for canvas stacking
               const img = new Image();
-              img.crossOrigin = 'anonymous';
+
+              img.crossOrigin = "anonymous";
               const blobUrl = URL.createObjectURL(blob);
 
               await new Promise<void>((resolve, reject) => {
@@ -302,7 +317,7 @@ export const CopyButton = memo<CopyButtonProps>(
                   resolve();
                 };
                 img.onerror = () => {
-                  reject(new Error('Failed to load image for stacking'));
+                  reject(new Error("Failed to load image for stacking"));
                 };
                 img.src = blobUrl;
               });
@@ -312,16 +327,18 @@ export const CopyButton = memo<CopyButtonProps>(
 
             // Create canvas for stacking images vertically
             // Canvas is like a digital drawing board where we can combine multiple images
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
             if (!ctx) {
-              throw new Error('Could not get canvas context');
+              throw new Error("Could not get canvas context");
             }
 
             // Calculate total height and max width for the combined image
             // We need to know the final size before drawing
             let totalHeight = 0;
             let maxWidth = 0;
+
             for (const img of images) {
               totalHeight += img.height; // Add up all image heights
               maxWidth = Math.max(maxWidth, img.width); // Find the widest image
@@ -334,6 +351,7 @@ export const CopyButton = memo<CopyButtonProps>(
             // Draw images vertically (stacked on top of each other)
             // Start from the top (y = 0) and move down for each image
             let currentY = 0;
+
             for (const img of images) {
               ctx.drawImage(img, 0, currentY); // Draw at (0, currentY) position
               currentY += img.height; // Move down by the height of this image
@@ -345,19 +363,19 @@ export const CopyButton = memo<CopyButtonProps>(
               canvas.toBlob(
                 (blob) => {
                   if (!blob) {
-                    reject(new Error('Failed to create stacked image blob'));
+                    reject(new Error("Failed to create stacked image blob"));
                   } else {
                     resolve(blob);
                   }
                 },
-                'image/png' // Always PNG for clipboard compatibility
+                "image/png", // Always PNG for clipboard compatibility
               );
             });
 
             // Use Clipboard API to copy image blob
             // ClipboardItem allows copying different types of data (text, images, etc.)
             const clipboardItem = new ClipboardItem({
-              'image/png': finalBlob // Specify the MIME type and the blob data
+              "image/png": finalBlob, // Specify the MIME type and the blob data
             });
 
             // Write the ClipboardItem to the system clipboard
@@ -374,7 +392,7 @@ export const CopyButton = memo<CopyButtonProps>(
               addToast({
                 title: toastText,
                 variant: "solid",
-                timeout: copiedTimeout
+                timeout: copiedTimeout,
               });
             }
 
@@ -384,16 +402,16 @@ export const CopyButton = memo<CopyButtonProps>(
             }
           } catch (error) {
             // Handle any errors that occurred during image processing or copying
-            console.error('Image copy failed:', error);
+            console.error("Image copy failed:", error);
             setHasCopyError(true);
             setImageCopied(false);
 
             // Show error toast if enabled
             if (showToast) {
               addToast({
-                title: t('failed-to-copy'),
+                title: t("failed-to-copy"),
                 variant: "solid",
-                timeout: copiedTimeout
+                timeout: copiedTimeout,
               });
             }
 
@@ -406,14 +424,15 @@ export const CopyButton = memo<CopyButtonProps>(
       } else {
         // Handle text copying (much simpler than image copying)
         // Join array elements with commas if value is an array
-        const textToCopy = Array.isArray(value) ? value.join(', ') : value;
+        const textToCopy = Array.isArray(value) ? value.join(", ") : value;
+
         copy(textToCopy);
 
         if (showToast) {
           addToast({
             title: toastText,
             variant: "solid",
-            timeout: copiedTimeout
+            timeout: copiedTimeout,
           });
         }
 
@@ -421,7 +440,17 @@ export const CopyButton = memo<CopyButtonProps>(
           onCopySuccess();
         }
       }
-    }, [value, copy, showToast, toastText, copiedTimeout, onCopySuccess, onCopyError, isImage, t]);
+    }, [
+      value,
+      copy,
+      showToast,
+      toastText,
+      copiedTimeout,
+      onCopySuccess,
+      onCopyError,
+      isImage,
+      t,
+    ]);
 
     // Determine if content has been copied (either text or image)
     // This controls which icon to show
@@ -456,11 +485,11 @@ export const CopyButton = memo<CopyButtonProps>(
     // PreviewButton is likely a styled button component from HeroUI
     return (
       <PreviewButton
+        aria-label={isCopied ? t("copied") : t("copy-to-clipboard")}
         className={className ?? "bottom-0 left-0.5"}
         icon={icon}
+        title={isCopied ? t("copied") : t("copy-to-clipboard")}
         onPress={handleCopy}
-        aria-label={isCopied ? t('copied') : t('copy-to-clipboard')}
-        title={isCopied ? t('copied') : t('copy-to-clipboard')}
         {...buttonProps}
       />
     );

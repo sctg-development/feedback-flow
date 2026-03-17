@@ -4,6 +4,7 @@ import type { NavigateOptions } from "react-router-dom";
 import { HeroUIProvider } from "@heroui/system";
 import { useHref, useNavigate } from "react-router-dom";
 import { ToastProvider } from "@heroui/toast";
+
 import { SearchProvider } from "@/context/SearchContext";
 
 declare module "@react-types/shared" {
@@ -18,9 +19,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
   return (
     <HeroUIProvider navigate={navigate} useHref={useHref}>
       <ToastProvider />
-      <SearchProvider>
-        {children}
-      </SearchProvider>
+      <SearchProvider>{children}</SearchProvider>
     </HeroUIProvider>
   );
 }

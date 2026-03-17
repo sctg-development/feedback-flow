@@ -25,6 +25,23 @@ import * as React from "react";
 
 import { IconSvgProps } from "@/types";
 
+export const QuestionIcon: React.FC<IconSvgProps> = React.memo(
+  ({ size = 24, width, height, color = "currentColor", ...props }) => (
+    <svg
+      height={`${height || size}px`}
+      width={`${width || size}px`}
+      viewBox="0 0 640 640"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576zM320 240C302.3 240 288 254.3 288 272C288 285.3 277.3 296 264 296C250.7 296 240 285.3 240 272C240 227.8 275.8 192 320 192C364.2 192 400 227.8 400 272C400 319.2 364 339.2 344 346.5L344 350.3C344 363.6 333.3 374.3 320 374.3C306.7 374.3 296 363.6 296 350.3L296 342.2C296 321.7 310.8 307 326.1 302C332.5 299.9 339.3 296.5 344.3 291.7C348.6 287.5 352 281.7 352 272.1C352 254.4 337.7 240.1 320 240.1zM288 432C288 414.3 302.3 400 320 400C337.7 400 352 414.3 352 432C352 449.7 337.7 464 320 464C302.3 464 288 449.7 288 432z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
+);
+
 export const Logo: React.FC<IconSvgProps> = React.memo(
   ({ size = 36, height = 36 }) => (
     <svg
@@ -299,59 +316,61 @@ export const ChevronDownIcon = React.memo((props: IconSvgProps) => {
   );
 });
 
-export const EditIcon = React.memo(({
-  size,
-  width = 18,
-  height = 18,
-  color = "currentColor",
-  ...props
-}: IconSvgProps) => {
-  return (
-    <svg
-      fill="none"
-      height={size || height}
-      stroke={color}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.5"
-      viewBox="0 0 24 24"
-      width={size || width}
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-  );
-}
+export const EditIcon = React.memo(
+  ({
+    size,
+    width = 18,
+    height = 18,
+    color = "currentColor",
+    ...props
+  }: IconSvgProps) => {
+    return (
+      <svg
+        fill="none"
+        height={size || height}
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+        viewBox="0 0 24 24"
+        width={size || width}
+        xmlns="http://www.w3.org/2000/svg"
+        {...props}
+      >
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+      </svg>
+    );
+  },
 );
-export const TrashIcon = React.memo(({
-  size,
-  width = 18,
-  height = 18,
-  color = "currentColor",
-  ...props
-}: IconSvgProps) => {
-  return (
-    <svg
-      fill="none"
-      height={size || height}
-      stroke={color}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
-      width={size || width}
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <polyline points="3 6 5 6 21 6" />
-      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-      <line x1="10" x2="10" y1="11" y2="17" />
-      <line x1="14" x2="14" y1="11" y2="17" />
-    </svg>
-  );
-}
+export const TrashIcon = React.memo(
+  ({
+    size,
+    width = 18,
+    height = 18,
+    color = "currentColor",
+    ...props
+  }: IconSvgProps) => {
+    return (
+      <svg
+        fill="none"
+        height={size || height}
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        width={size || width}
+        xmlns="http://www.w3.org/2000/svg"
+        {...props}
+      >
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <line x1="10" x2="10" y1="11" y2="17" />
+        <line x1="14" x2="14" y1="11" y2="17" />
+      </svg>
+    );
+  },
 );
 
 export const Transparent1x1WebpPixel =

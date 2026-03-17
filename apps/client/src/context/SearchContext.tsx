@@ -25,43 +25,45 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
 interface SearchContextType {
-    searchResults: string[];
-    setSearchResults: (results: string[]) => void;
-    searchQuery: string;
-    setSearchQuery: (query: string) => void;
-    clearSearch: () => void;
+  searchResults: string[];
+  setSearchResults: (results: string[]) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  clearSearch: () => void;
 }
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export const SearchProvider = ({ children }: { children: ReactNode }) => {
-    const [searchResults, setSearchResults] = useState<string[]>([]);
-    const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-    const clearSearch = () => {
-        setSearchResults([]);
-        setSearchQuery("");
-    };
+  const clearSearch = () => {
+    setSearchResults([]);
+    setSearchQuery("");
+  };
 
-    return (
-        <SearchContext.Provider
-            value={{
-                searchResults,
-                setSearchResults,
-                searchQuery,
-                setSearchQuery,
-                clearSearch,
-            }}
-        >
-            {children}
-        </SearchContext.Provider>
-    );
+  return (
+    <SearchContext.Provider
+      value={{
+        searchResults,
+        setSearchResults,
+        searchQuery,
+        setSearchQuery,
+        clearSearch,
+      }}
+    >
+      {children}
+    </SearchContext.Provider>
+  );
 };
 
 export const useSearch = () => {
-    const context = useContext(SearchContext);
-    if (context === undefined) {
-        throw new Error("useSearch must be used within a SearchProvider");
-    }
-    return context;
+  const context = useContext(SearchContext);
+
+  if (context === undefined) {
+    throw new Error("useSearch must be used within a SearchProvider");
+  }
+
+  return context;
 };

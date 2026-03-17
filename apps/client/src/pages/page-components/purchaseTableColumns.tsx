@@ -25,14 +25,16 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@heroui/button";
+
+import { ActionCell } from "./ActionCell";
+import { StatusCell } from "./StatusCell";
+import { PurchaseIdCell } from "./PurchaseIdCell";
+
 import { EditIcon } from "@/components/icons";
 import { CopyButton } from "@/components/copy-button";
 import { Transparent1x1WebpPixel } from "@/components/icons";
 import { cleanAmazonOrderNumber } from "@/utilities/amazon";
 import { PurchaseStatus } from "@/types/db";
-import { ActionCell } from "./ActionCell";
-import { StatusCell } from "./StatusCell";
-import { PurchaseIdCell } from "./PurchaseIdCell";
 
 /**
  * Props interface for the purchase table columns configuration
@@ -100,12 +102,12 @@ export const usePurchaseTableColumns = ({
    */
   const renderActionColumn = (item: PurchaseStatus) => (
     <ActionCell
-      item={item}
       hasWritePermission={hasWritePermission}
+      item={item}
       onCreateFeedback={onCreateFeedback}
-      onReturnItem={onReturnItem}
       onPublishFeedback={onPublishFeedback}
       onRefundPurchase={onRefundPurchase}
+      onReturnItem={onReturnItem}
     />
   );
 
@@ -146,9 +148,9 @@ export const usePurchaseTableColumns = ({
         render: (item: PurchaseStatus) => (
           // Custom component for purchase ID with copy, edit, and link generation
           <PurchaseIdCell
-            purchaseId={item.purchase}
             hasPublication={item.hasPublication}
             hasWritePermission={hasWritePermission}
+            purchaseId={item.purchase}
             onEditPurchase={onEditPurchase}
             onGenerateLink={onGenerateLink}
           />
@@ -176,8 +178,8 @@ export const usePurchaseTableColumns = ({
               {/* Link to Amazon order page */}
               <Link
                 className="text-blue-500 hover:underline break-keep"
-                target="_blank" // Opens in new tab
                 rel="noopener noreferrer" // Security for external links
+                target="_blank" // Opens in new tab
                 to={`${import.meta.env.AMAZON_BASE_URL}${item.order}`}
               >
                 {/* Clean and format the Amazon order number for display */}
@@ -200,10 +202,10 @@ export const usePurchaseTableColumns = ({
         render: (item: PurchaseStatus) => (
           // Custom component for description with screenshot viewing
           <StatusCell
-            text={item.description}
+            copyTooltipKey="copy-screenshots" // Tooltip for copying screenshots
             screenshot={item.purchaseScreenshot}
             screenshotSummary={item.screenshotSummary}
-            copyTooltipKey="copy-screenshots" // Tooltip for copying screenshots
+            text={item.description}
             onScreenshotClick={onSetScreenshot}
           />
         ),
@@ -212,10 +214,12 @@ export const usePurchaseTableColumns = ({
           // Set screenshot(s) for viewing in modal
           item.screenshotSummary
             ? onSetScreenshot([
-              item.purchaseScreenshot || Transparent1x1WebpPixel,
-              item.screenshotSummary,
-            ])
-            : onSetScreenshot(item.purchaseScreenshot || Transparent1x1WebpPixel);
+                item.purchaseScreenshot || Transparent1x1WebpPixel,
+                item.screenshotSummary,
+              ])
+            : onSetScreenshot(
+                item.purchaseScreenshot || Transparent1x1WebpPixel,
+              );
         },
       },
       {
@@ -246,9 +250,9 @@ export const usePurchaseTableColumns = ({
         render: (item: PurchaseStatus) => (
           // Custom component for publication status with screenshot
           <StatusCell
-            text={item.hasPublication ? t("yes") : t("no")}
-            screenshot={item.publicationScreenshot}
             copyTooltipKey="copy-screenshot" // Tooltip for copying single screenshot
+            screenshot={item.publicationScreenshot}
+            text={item.hasPublication ? t("yes") : t("no")}
             onScreenshotClick={(screenshot) => onSetScreenshot(screenshot)}
           />
         ),
@@ -271,11 +275,13 @@ export const usePurchaseTableColumns = ({
           return item.refunded ? (
             <>
               {/* If there's a valid transaction ID, create a PayPal link */}
-              {item.transactionId && item.transactionId.length >= 4 && !item.transactionId.startsWith("REFUND_") ? (
+              {item.transactionId &&
+              item.transactionId.length >= 4 &&
+              !item.transactionId.startsWith("REFUND_") ? (
                 <Link
                   className="text-blue-500 hover:underline break-keep"
-                  target="_blank" // Opens in new tab
                   rel="noopener noreferrer" // Security for external links
+                  target="_blank" // Opens in new tab
                   to={`${import.meta.env.PAYPAL_TRANSACTION_BASE_URL}${item.transactionId}`}
                 >
                   {t("yes")}
@@ -289,7 +295,7 @@ export const usePurchaseTableColumns = ({
             // Show "No" if not refunded
             <>{t("no")}</>
           );
-        }
+        },
       },
       {
         // Actions column - shows available actions based on purchase status

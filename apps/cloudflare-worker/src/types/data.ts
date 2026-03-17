@@ -408,7 +408,9 @@ export interface Auth0ManagementTokenResponse {
 /**
  * Union type for the API response: either the token or a standard error response
  */
-export type Auth0ManagementTokenApiResponse = Auth0ManagementTokenResponse | ErrorResponse;
+export type Auth0ManagementTokenApiResponse =
+  | Auth0ManagementTokenResponse
+  | ErrorResponse;
 
 /**
  * Identity object from Auth0 user object (one of multiple identities in a federated login)
