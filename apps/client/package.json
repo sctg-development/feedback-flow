@@ -60,7 +60,7 @@
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
-    "@sctg/vite-plugin-github-pages-spa": "^0.1.1",
+    "@sctg/vite-plugin-github-pages-spa": "^0.2.0",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^24.10.11",
     "@types/react": "^19.2.10",
@@ -68,7 +68,7 @@
     "@types/swagger-ui-react": "^5.18.0",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
-    "@vitejs/plugin-react": "^5.1.2",
+    "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.24",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
@@ -85,7 +85,7 @@
     "swagger-jsdoc": "^7.0.0-rc.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1",
+    "vite": "^8.0.0",
     "vite-tsconfig-paths": "^6.0.5"
   }
 }

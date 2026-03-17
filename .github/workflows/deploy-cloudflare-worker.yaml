@@ -59,19 +59,6 @@ jobs:
           yarn set version 4.12.0
           yarn install --immutable
 
-      - name: Temporary workaround for bug https://github.com/yarnpkg/berry/issues/7047
-        if: true # Temporarily enabled to work around bug
-        run: |
-          mv package.json package.json.bak || true
-          mv yarn.lock yarn.lock.bak || true
-          cd apps/client 
-          npm ci
-          cd ../../apps/cloudflare-worker
-          npm ci
-          cd ../../
-          mv package.json.bak package.json || true
-          mv yarn.lock.bak yarn.lock || true
-
       - name: Create .env file
         run: |
           echo -n ${{ secrets.AUTH0_AUDIENCE }} | sed -n 's/http.:\/\/\(.*\)\/.*/DOMAIN_NAME=\1\n/p' > .env
